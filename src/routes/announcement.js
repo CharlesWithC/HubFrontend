@@ -243,7 +243,7 @@ const AnnouncementManagers = memo(() => {
 
 const Announcement = () => {
     const { t: tr } = useTranslation();
-    const { curUID, curUser, curUserPerm } = useContext(AppContext);
+    const { curUID, curUser, curUserPerm, announcementTypes, loadAnnouncementTypes } = useContext(AppContext);
 
     const [announcements, setAnnouncemnts] = useState([]);
     const [lastUpdate, setLastUpdate] = useState(0);
@@ -287,29 +287,17 @@ const Announcement = () => {
     const doLoad = useCallback(async () => {
         window.loading += 1;
 
-        if (vars.announcementTypes === null) {
-            const urlsBatch = [
-                { url: `${vars.dhpath}/announcements/types`, auth: false }
-            ];
-            const [announcementTypes] = await makeRequestsAuto(urlsBatch);
-            if (announcementTypes) {
-                vars.announcementTypes = announcementTypes;
-            }
+        if (announcementTypes === null) {
+            await loadAnnouncementTypes();
         }
-
-        let url = `${vars.dhpath}/announcements/list?page_size=10&page=${page}`;
 
         var newAnns = [];
         if (curUID !== null) {
-            const [anns] = await makeRequestsWithAuth([
-                url
-            ]);
+            const [anns] = await makeRequestsWithAuth([`${vars.dhpath}/announcements/list?page_size=10&page=${page}`]);
             newAnns = anns.list;
             setTotalPages(anns.total_pages);
         } else {
-            const [anns] = await makeRequests([
-                url
-            ]);
+            const [anns] = await makeRequests([`${vars.dhpath}/announcements/list?page_size=10&page=${page}`]);
             newAnns = anns.list;
             setTotalPages(anns.total_pages);
         }
@@ -322,7 +310,7 @@ const Announcement = () => {
         setLastUpdate(+new Date());
 
         window.loading -= 1;
-    }, [page]);
+    }, [page, announcementTypes]);
 
     const handleSubmit = useCallback(async (e) => {
         e.preventDefault();
@@ -409,7 +397,7 @@ const Announcement = () => {
     }, []);
 
     return (
-        <>{vars.announcementTypes !== null && <>
+        <>{announcementTypes !== null && <>
             <AnnouncementGrid announcements={announcements} lastUpdate={lastUpdate} onEdit={editAnnouncement} onDelete={deleteAnnouncement} />
             {announcements.length !== 0 && <Pagination count={totalPages} onChange={handlePagination}
                 sx={{ display: "flex", justifyContent: "flex-end", marginTop: "10px", marginRight: "10px" }} />}
@@ -440,7 +428,7 @@ const Announcement = () => {
                                 <Grid container spacing={2}>
                                     <Grid item xs={6}>
                                         <TextField select label={tr("announcement_type")} value={announcementType} onChange={(e) => setAnnouncementType(e.target.value)} sx={{ marginTop: "6px", height: "30px" }} fullWidth>
-                                            {(vars.announcementTypes).map((option) => (
+                                            {(announcementTypes).map((option) => (
                                                 <MenuItem key={option.id} value={option.id}>
                                                     {option.name}
                                                 </MenuItem>

@@ -20,6 +20,7 @@ export const AppContext = createContext({
     // radio: enabled / disabled / auto-play (enabled)
     // radio-type: tsr / {url}
 
+    announcementTypes: null,
     applicationTypes: {},
     divisions: {},
 
@@ -28,6 +29,7 @@ export const AppContext = createContext({
     allUsersCache: [], // only loaded to purge inactive
 
     loadMemberUIDs: async () => { },
+    loadAnnouncementTypes: async () => { },
     loadDlogDetails: async () => { },
     loadAllUsers: async () => { },
 });
@@ -47,6 +49,7 @@ export const AppContextProvider = ({ children }) => {
 
     const [userSettings, setUserSettings] = useState({ "notification_refresh_interval": 30, "unit": "metric", "radio": "disabled", "radio_type": "tsr", "radio_volume": 100, "display_timezone": Intl.DateTimeFormat().resolvedOptions().timeZone, "data_saver": false, "font_size": "regular", "default_row_per_page": 10, "language": null, "presence": "full" });
 
+    const [announcementTypes, setAnnouncementTypes] = useState(null);
     const [applicationTypes, setApplicationTypes] = useState({});
     const [divisions, setDivisions] = useState({});
 
@@ -131,6 +134,13 @@ export const AppContextProvider = ({ children }) => {
         setAllUsersCache(result);
     }, []);
 
+    const loadAnnouncementTypes = useCallback(async () => {
+        const [announcementTypes] = await makeRequestsAuto([{ url: `${vars.dhpath}/announcements/types`, auth: false }]);
+        if (announcementTypes) {
+            setAnnouncementTypes(announcementTypes);
+        }
+    }, []);
+
     const value = useMemo(() => ({
         apiConfig, setApiConfig,
         webConfig, setWebConfig,
@@ -145,13 +155,14 @@ export const AppContextProvider = ({ children }) => {
 
         userSettings, setUserSettings,
 
+        announcementTypes, setAnnouncementTypes, loadAnnouncementTypes,
         applicationTypes, setApplicationTypes,
         divisions, setDivisions,
 
         dlogDetailsCache, setDlogDetailsCache, loadDlogDetails,
         economyCache, setEconomyCache,
         allUsersCache, setAllUsersCache, loadAllUsers
-    }), [apiConfig, webConfig, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache]);
+    }), [apiConfig, webConfig, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, announcementTypes, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache]);
 
     return (
         <AppContext.Provider value={value}>

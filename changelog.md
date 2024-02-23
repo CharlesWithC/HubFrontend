@@ -46,6 +46,7 @@
 15. Replaced `vars.allUsers` with Context API `allUsersCache` which is currently only used to purge inactive users
 16. Replaced `vars.divisions` with Context API `divisions`
 17. Replaced `vars.applicationTypes` with Context API `applicationTypes`
+18. Replaced `vars.announcementTypes` with Context API `announcementTypes`
 
 ## v3.3.x
 

@@ -45,6 +45,3 @@ exports.roles = roles;
 exports.orderedRoles = orderedRoles;
 exports.perms = perms;
 exports.ranks = ranks;
-
-var announcementTypes = null;
-exports.announcementTypes = announcementTypes;
