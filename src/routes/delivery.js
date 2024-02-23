@@ -26,7 +26,7 @@ const COUNTRY_FLAG = { "uk": "🇬🇧", "germany": "🇩🇪", "france": "🇫�
 
 const DeliveryDetail = memo(({ userDivisionIDs, doReload, divisionMeta, setDoReload, setDivisionStatus, setNewDivisionStatus, setDivisionMeta, setSelectedDivision, handleDivision, setDeleteOpen }) => {
     const { t: tr } = useTranslation();
-    const { webConfig, curUID, curUser, curUserPerm, userSettings } = useContext(AppContext);
+    const { webConfig, curUID, curUser, curUserPerm, userSettings, divisions } = useContext(AppContext);
 
     const EVENT_ICON = { "job.started": <LocalShippingRounded />, "job.delivered": <FlagRounded />, "job.cancelled": <CloseRounded />, "fine": <GavelRounded />, "tollgate": <TollRounded />, "ferry": <DirectionsBoatRounded />, "train": <TrainRounded />, "collision": <CarCrashRounded />, "repair": <BuildRounded />, "refuel": <LocalGasStationRounded />, "teleport": <FlightTakeoffRounded />, "speeding": <SpeedRounded /> };
     const EVENT_COLOR = { "job.started": "lightgreen", "job.delivered": "lightgreen", "job.cancelled": "lightred", "fine": "orange", "tollgate": "lightblue", "ferry": "lightblue", "train": "lightblue", "collision": "orange", "repair": "lightblue", "refuel": "lightblue", "teleport": "lightblue", "speeding": "orange" };
@@ -317,7 +317,7 @@ const DeliveryDetail = memo(({ userDivisionIDs, doReload, divisionMeta, setDoRel
                             <RefreshRounded />
                         </IconButton>}</Typography>
             },
-            { "name": tr("division"), "value": data.division !== null && vars.divisions[data.division] !== undefined ? vars.divisions[data.division].name : "/" },
+            { "name": tr("division"), "value": data.division !== null && divisions[data.division] !== undefined ? divisions[data.division].name : "/" },
             {},
             { "name": tr("driver"), "value": <UserCard user={data.user} inline={true} /> },
             { "name": tr("truck_model"), "value": <>{detail.truck.brand.name}&nbsp;{detail.truck.name} <span style={{ color: "grey" }}>({detail.truck.unique_id})</span></> },
@@ -531,13 +531,13 @@ const DeliveryDetail = memo(({ userDivisionIDs, doReload, divisionMeta, setDoRel
 
 const Delivery = memo(() => {
     const { t: tr } = useTranslation();
-    const { curUser, curUserPerm } = useContext(AppContext);
+    const { curUser, curUserPerm, divisions } = useContext(AppContext);
 
-    const divisionIDs = Object.keys(vars.divisions);
+    const divisionIDs = Object.keys(divisions);
     const userDivisionIDs = useMemo(() => {
         const result = [];
         for (let i = 0; i < divisionIDs.length; i++) {
-            if (curUser.roles.includes(vars.divisions[divisionIDs[i]].role_id)) {
+            if (curUser.roles.includes(divisions[divisionIDs[i]].role_id)) {
                 result.push(divisionIDs[i]);
             }
         }
@@ -645,13 +645,13 @@ const Delivery = memo(() => {
                         fullWidth size="small"
                     >
                         {userDivisionIDs.map((divisionID, index) => (
-                            <MenuItem value={`${divisionID}`} key={index}>{vars.divisions[divisionID].name}</MenuItem>
+                            <MenuItem value={`${divisionID}`} key={index}>{divisions[divisionID].name}</MenuItem>
                         ))}
                     </TextField>
                 </>}
                 {(divisionStatus !== -1) && <>
                     <Typography variant="body">{tr("division_validation_request_submitted")}<b> <TimeAgo key={`${+new Date()}`} timestamp={divisionMeta.request_timestamp * 1000} lower={true} /></b>.</Typography><br />
-                    <Typography variant="body"><>{tr("division")}</>: <b>{vars.divisions[divisionMeta.divisionid] !== undefined ? vars.divisions[divisionMeta.divisionid].name : "/"}</b></Typography><br />
+                    <Typography variant="body"><>{tr("division")}</>: <b>{divisions[divisionMeta.divisionid] !== undefined ? divisions[divisionMeta.divisionid].name : "/"}</b></Typography><br />
                     <Typography variant="body"><>{tr("current_status")}</>: <b>{STATUS[divisionStatus]}</b></Typography>
                     {divisionMeta.update_timestamp !== -1 && <>
                         <br /><Typography variant="body"><>{tr("updated")}</><b> <TimeAgo key={`${+new Date()}`} timestamp={divisionMeta.update_timestamp * 1000} lower={true} /></b></Typography>
@@ -671,8 +671,8 @@ const Delivery = memo(() => {
                             sx={{ marginTop: "6px", marginBottom: "6px", height: "30px" }}
                             fullWidth size="small"
                         >
-                            {Object.keys(vars.divisions).map((divisionID, index) => (
-                                <MenuItem value={`${divisionID}`} key={index}>{vars.divisions[divisionID].name}</MenuItem>
+                            {Object.keys(divisions).map((divisionID, index) => (
+                                <MenuItem value={`${divisionID}`} key={index}>{divisions[divisionID].name}</MenuItem>
                             ))}
                         </TextField>
                     </FormControl>
@@ -698,9 +698,9 @@ const Delivery = memo(() => {
             <DialogActions>
                 <Button onClick={handleCloseDivisionModal} variant="contained" color="secondary" sx={{ ml: 'auto' }}>{tr("close")}</Button>
                 {(checkUserPerm(curUserPerm, ["administrator", "manage_divisions"]) && divisionStatus !== -1) &&
-                    <Button onClick={handleDVUpdate} variant="contained" color="secondary" sx={{ ml: 'auto' }} disabled={!Object.keys(vars.divisions).includes(String(selectedDivision))}>{tr("update")}</Button>}
+                    <Button onClick={handleDVUpdate} variant="contained" color="secondary" sx={{ ml: 'auto' }} disabled={!Object.keys(divisions).includes(String(selectedDivision))}>{tr("update")}</Button>}
                 {(userDivisionIDs.length !== 0 && divisionStatus === -1) &&
-                    <Button onClick={handleRDVSubmit} variant="contained" color="secondary" sx={{ ml: 'auto' }} disabled={!Object.keys(vars.divisions).includes(String(selectedDivision))}>{tr("submit")}</Button>
+                    <Button onClick={handleRDVSubmit} variant="contained" color="secondary" sx={{ ml: 'auto' }} disabled={!Object.keys(divisions).includes(String(selectedDivision))}>{tr("submit")}</Button>
                 }
             </DialogActions>
         </Dialog>}

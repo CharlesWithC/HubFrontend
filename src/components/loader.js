@@ -14,7 +14,7 @@ const Loader = ({ onLoaderLoaded }) => {
 
     const { t: tr } = useTranslation();
     const appContext = useContext(AppContext);
-    const { setApiConfig, webConfig, setWebConfig } = useContext(AppContext);
+    const { setApiConfig, webConfig, setWebConfig, setDivisions } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     const theme = useTheme();
@@ -208,9 +208,10 @@ const Loader = ({ onLoaderLoaded }) => {
                 }
             }
             if (divisions) {
-                for (let i = 0; i < divisions.length; i++) {
-                    vars.divisions[divisions[i].id] = divisions[i];
-                }
+                const divisionsMap = {};
+                for (let i = 0; i < divisions.length; i++)
+                    divisionsMap[divisions[i].id] = divisions[i];
+                setDivisions(divisionsMap);
             }
 
             if (!useCache) {

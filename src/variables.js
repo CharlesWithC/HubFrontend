@@ -51,6 +51,3 @@ exports.announcementTypes = announcementTypes;
 
 var applicationTypes = {};
 exports.applicationTypes = applicationTypes;
-
-var divisions = {};
-exports.divisions = divisions;
