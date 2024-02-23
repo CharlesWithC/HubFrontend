@@ -13,6 +13,8 @@
 9. Provide pre-generated list of cities/cargos for Special Guest and Premium Plan
 10. Add loading placeholder effect
 11. Add page TextField in tables
+12. Simplebar for profile popover (brief)
+13. Privacy settings
 
 ## v3.4.0
 

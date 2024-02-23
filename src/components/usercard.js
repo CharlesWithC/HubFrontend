@@ -195,7 +195,7 @@ const UserCard = (props) => {
         if (resp.status === 200) {
             resp.data.roles.sort((a, b) => vars.orderedRoles.indexOf(a) - vars.orderedRoles.indexOf(b));
 
-            setUsers(users => ({ ...users, [uid]: resp.data }));
+            setUsers(users => ({ ...users, [user.uid]: resp.data }));
             // updating info for current user will be automatically handled in setUsers
 
             setNewProfile({ name: resp.data.name, avatar: resp.data.avatar });
