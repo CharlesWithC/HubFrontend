@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, createContext } from 'react';
 
-import { makeRequestsWithAuth } from "./functions";
+import { makeRequestsAuto, makeRequestsWithAuth } from "./functions";
 var vars = require("./variables");
 
 export const AppContext = createContext({
@@ -16,9 +16,11 @@ export const AppContext = createContext({
     // radio: enabled / disabled / auto-play (enabled)
     // radio-type: tsr / {url}
 
+    dlogDetailsCache: {},
     economyCache: { config: null, trucks: [], garagesMap: {}, merchMap: {} },
 
-    initMemberUIDs: async () => { }
+    loadMemberUIDs: async () => { },
+    loadDlogDetails: async () => { },
 });
 
 export const AppContextProvider = ({ children }) => {
@@ -32,6 +34,7 @@ export const AppContextProvider = ({ children }) => {
 
     const [userSettings, setUserSettings] = useState({ "notification_refresh_interval": 30, "unit": "metric", "radio": "disabled", "radio_type": "tsr", "radio_volume": 100, "display_timezone": Intl.DateTimeFormat().resolvedOptions().timeZone, "data_saver": false, "font_size": "regular", "default_row_per_page": 10, "language": null, "presence": "full" });
 
+    const [dlogDetailsCache, setDlogDetailsCache] = useState({});
     const [economyCache, setEconomyCache] = useState({ config: null, trucks: [], garagesMap: {}, merchMap: {} });
 
     useEffect(() => {
@@ -51,7 +54,7 @@ export const AppContextProvider = ({ children }) => {
         }
     }, [curUID, users[curUID]]);
 
-    const initMemberUIDs = useCallback(async () => {
+    const loadMemberUIDs = useCallback(async () => {
         if (memberUIDs.length > 0) return;
 
         let allMembers = [];
@@ -81,15 +84,23 @@ export const AppContextProvider = ({ children }) => {
         setMemberUIDs(allMemberUIDs);
     }, []);
 
+    const loadDlogDetails = useCallback(async () => {
+        let [resp] = await makeRequestsAuto([{ url: `${vars.dhpath}/dlog/statistics/details`, auth: true }]);
+        if (resp.error === undefined) {
+            setDlogDetailsCache(resp);
+        }
+    }, []);
+
     const value = useMemo(() => ({
         users, setUsers,
         userProfiles, setUserProfiles,
-        memberUIDs, setMemberUIDs, initMemberUIDs,
+        memberUIDs, setMemberUIDs, loadMemberUIDs,
         curUID, setCurUID, curUser, setCurUser,
         curUserPerm, setCurUserPerm,
         userSettings, setUserSettings,
+        dlogDetailsCache, setDlogDetailsCache, loadDlogDetails,
         economyCache, setEconomyCache,
-    }), [users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, economyCache, userSettings]);
+    }), [users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, userSettings, dlogDetailsCache, economyCache]);
 
     return (
         <AppContext.Provider value={value}>

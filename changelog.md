@@ -5,7 +5,7 @@
 1. Check and remove unnecessary `memo` quote and imports  
 2. Merge setSnackbarContent and setSnackbarSeverity, also move things like these to Context API to be handled by root wrapper
 3. Optimize "Members" tab to display/re-render data in multiple sections
-4. Optimize other pre-loading like member list - make them lazy loading
+4. Optimize other pre-loading like member list - make them background loading
 5. Optimize memory consumption and performance with useMemo being used correctly
 6. Optimize page switch loading with useTransition
 7. Dedicated Statistics page for comprehensive chart and statistics information
@@ -25,7 +25,7 @@
    - Reduced memory consumption
    - Supported member info changes across pages
      (Role updates will be reflected in "Members" tab without needing to refresh the page)
-   - Supported lazy loading of members list, reducing the time at initial loading screen  
+   - Supported background loading of members list, reducing the time at initial loading screen  
      (It will load at background and automatically fill relevant data where necessary)
 3. Replaced `vars.userInfo` with Context API `curUser`, also added optimization to prevent unnecessary re-renders when `users` change while ensuring `curUser` is updated when it is changed using `setUsers`
 4. Replaced `vars.userPerm` with Context API `curUserPerm`, also added automatic `curUserPerm` re-calculation with the roles of `users[curUID]` when `users[curUID]` changes
@@ -37,6 +37,7 @@
 10. Replaced `vars.userSettings` with Context API `AppContext.userSettings` and `ThemeContext.themeSettings`, thus:
     - Supported real-time reflection of settings updates
     - Improved handling of theme update
+11. Replaced `vars.dlogDetails` with Context API `dlogDetailsCache`, also supported background loading
 
 ## v3.3.x
 

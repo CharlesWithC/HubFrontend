@@ -20,9 +20,6 @@ exports.dhbgimage = dhbgimage;
 exports.dhvtcbg = dhvtcbg;
 exports.dhcustombg = dhcustombg;
 
-var dlogDetails = {};
-exports.dlogDetails = dlogDetails;
-
 var userBanner = { name: "Login", role: "", avatar: "https://charlws.com/me.gif" };
 exports.userBanner = userBanner;
 

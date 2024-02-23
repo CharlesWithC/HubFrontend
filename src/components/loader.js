@@ -114,7 +114,7 @@ const Loader = ({ onLoaderLoaded }) => {
                     })
             ]).then(() => { imageLoaded = true; });
 
-            let [index, specialRoles, patrons, userConfig, config, languages, memberRoles, memberPerms, memberRanks, applicationTypes, divisions, dlogDetails] = [null, null, null, null, null, null, null, null, null, null, null, null];
+            let [index, specialRoles, patrons, userConfig, config, languages, memberRoles, memberPerms, memberRanks, applicationTypes, divisions] = [null, null, null, null, null, null, null, null, null, null, null, null];
             let useCache = false;
 
             let cache = readLS("cache", vars.host + vars.dhconfig.abbr + vars.dhconfig.api_host);
@@ -130,7 +130,6 @@ const Loader = ({ onLoaderLoaded }) => {
                     memberRanks = cache.memberRanks;
                     applicationTypes = cache.applicationTypes;
                     divisions = cache.divisions;
-                    dlogDetails = cache.dlogDetails;
                 }
             }
 
@@ -147,10 +146,9 @@ const Loader = ({ onLoaderLoaded }) => {
                     { url: `${vars.dhpath}/member/ranks`, auth: false },
                     { url: `${vars.dhpath}/applications/types`, auth: false },
                     { url: `${vars.dhpath}/divisions/list`, auth: false },
-                    { url: `${vars.dhpath}/dlog/statistics/details`, auth: true },
                 ];
 
-                [index, specialRoles, patrons, userConfig, config, languages, memberRoles, memberPerms, memberRanks, applicationTypes, divisions, dlogDetails] = await makeRequestsAuto(urlsBatch);
+                [index, specialRoles, patrons, userConfig, config, languages, memberRoles, memberPerms, memberRanks, applicationTypes, divisions] = await makeRequestsAuto(urlsBatch);
             } else {
                 const urlsBatch = [
                     { url: `${vars.dhpath}/`, auth: false },
@@ -216,9 +214,6 @@ const Loader = ({ onLoaderLoaded }) => {
                     vars.divisions[divisions[i].id] = divisions[i];
                 }
             }
-            if (dlogDetails && dlogDetails.error === undefined) {
-                vars.dlogDetails = dlogDetails;
-            }
 
             if (!useCache) {
                 let cache = {
@@ -229,8 +224,7 @@ const Loader = ({ onLoaderLoaded }) => {
                     memberPerms: memberPerms,
                     memberRanks: memberRanks,
                     applicationTypes: applicationTypes,
-                    divisions: divisions,
-                    dlogDetails: dlogDetails
+                    divisions: divisions
                 };
                 writeLS("cache", cache, vars.host + vars.dhconfig.abbr + vars.dhconfig.api_host);
             }

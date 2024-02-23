@@ -323,7 +323,7 @@ const TopBar = (props) => {
                 setSnackbarSeverity("error");
                 setSnackbarContent(tr("already_logged_out"));
             }
-            await FetchProfile({ setUsers, setCurUID, setCurUser, setCurUserPerm }); // initMemberUIDs not needed
+            await FetchProfile({ setUsers, setCurUID, setCurUser, setCurUserPerm }); // loadMemberUIDs not needed
         } catch (error) {
             console.error(error);
             setSnackbarSeverity("error");

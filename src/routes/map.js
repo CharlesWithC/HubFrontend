@@ -41,7 +41,7 @@ const Map = () => {
     const SERVER_ID = { 0: 2, 1: 50, 3: 10 };
     const { t: tr } = useTranslation();
     const theme = useTheme();
-    const { users, memberUIDs } = useContext(AppContext);
+    const { users, memberUIDs, dlogDetailsCache } = useContext(AppContext);
     const allMembers = memberUIDs.map((uid) => users[uid]);
 
     const [tab, setTab] = useState(0);
@@ -86,34 +86,45 @@ const Map = () => {
         return () => clearInterval(intervalId);
     }, []);
 
-    let cityIDs = {};
-    if (vars.dlogDetails.source_city !== undefined) {
-        for (let i = 0; i < vars.dlogDetails["source_city"].length; i++) {
-            cityIDs[vars.dlogDetails["source_city"][i]["unique_id"]] = vars.dlogDetails["source_city"][i]["name"];
+    const cityIDs = useMemo(() => {
+        let ids = {};
+        if (dlogDetailsCache.source_city !== undefined) {
+            for (let i = 0; i < dlogDetailsCache["source_city"].length; i++) {
+                ids[dlogDetailsCache["source_city"][i]["unique_id"]] = dlogDetailsCache["source_city"][i]["name"];
+            }
         }
-    }
-    if (vars.dlogDetails.destination_city !== undefined) {
-        for (let i = 0; i < vars.dlogDetails["destination_city"].length; i++) {
-            cityIDs[vars.dlogDetails["destination_city"][i]["unique_id"]] = vars.dlogDetails["destination_city"][i]["name"];
+        if (dlogDetailsCache.destination_city !== undefined) {
+            for (let i = 0; i < dlogDetailsCache["destination_city"].length; i++) {
+                ids[dlogDetailsCache["destination_city"][i]["unique_id"]] = dlogDetailsCache["destination_city"][i]["name"];
+            }
         }
-    }
-    let companyIDs = {};
-    if (vars.dlogDetails.source_company !== undefined) {
-        for (let i = 0; i < vars.dlogDetails["source_company"].length; i++) {
-            companyIDs[vars.dlogDetails["source_company"][i]["unique_id"]] = vars.dlogDetails["source_company"][i]["name"];
+        return ids;
+    }, [dlogDetailsCache]);
+
+    const companyIDs = useMemo(() => {
+        let ids = {};
+        if (dlogDetailsCache.source_company !== undefined) {
+            for (let i = 0; i < dlogDetailsCache["source_company"].length; i++) {
+                ids[dlogDetailsCache["source_company"][i]["unique_id"]] = dlogDetailsCache["source_company"][i]["name"];
+            }
         }
-    }
-    if (vars.dlogDetails.destination_company !== undefined) {
-        for (let i = 0; i < vars.dlogDetails["destination_company"].length; i++) {
-            companyIDs[vars.dlogDetails["destination_company"][i]["unique_id"]] = vars.dlogDetails["destination_company"][i]["name"];
+        if (dlogDetailsCache.destination_company !== undefined) {
+            for (let i = 0; i < dlogDetailsCache["destination_company"].length; i++) {
+                ids[dlogDetailsCache["destination_company"][i]["unique_id"]] = dlogDetailsCache["destination_company"][i]["name"];
+            }
         }
-    }
-    let cargoIDs = {};
-    if (vars.dlogDetails.cargo !== undefined) {
-        for (let i = 0; i < vars.dlogDetails["cargo"].length; i++) {
-            cargoIDs[vars.dlogDetails["cargo"][i]["unique_id"]] = vars.dlogDetails["cargo"][i]["name"];
+        return ids;
+    }, [dlogDetailsCache]);
+
+    const cargoIDs = useMemo(() => {
+        let ids = {};
+        if (dlogDetailsCache.cargo !== undefined) {
+            for (let i = 0; i < dlogDetailsCache["cargo"].length; i++) {
+                ids[dlogDetailsCache["cargo"][i]["unique_id"]] = dlogDetailsCache["cargo"][i]["name"];
+            }
         }
-    }
+        return ids;
+    }, [dlogDetailsCache]);
 
     const handlePointClick = useCallback((data) => {
         let info = data.info;

@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useCallback, useContext, memo } from 'react';
+import { useRef, useState, useEffect, useCallback, useContext, useMemo, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '../context';
 
@@ -293,7 +293,7 @@ const ChallengesMemo = memo(({ userDrivenDistance, challengeList, setChallengeLi
 
 const Challenges = () => {
     const { t: tr } = useTranslation();
-    const { curUser, curUserPerm, userSettings } = useContext(AppContext);
+    const { curUser, curUserPerm, userSettings, dlogDetailsCache } = useContext(AppContext);
     const theme = useTheme();
 
     const CHALLENGE_TYPES = ["", tr("personal_onetime"), tr("company_onetime"), tr("personal_recurring"), tr("personal_distancebased"), tr("company_distancebased")];
@@ -341,34 +341,45 @@ const Challenges = () => {
         loadDrivenDistance();
     }, [curUser]);
 
-    let cityIDs = {};
-    if (vars.dlogDetails.source_city !== undefined) {
-        for (let i = 0; i < vars.dlogDetails["source_city"].length; i++) {
-            cityIDs[vars.dlogDetails["source_city"][i]["unique_id"]] = vars.dlogDetails["source_city"][i]["name"];
+    const cityIDs = useMemo(() => {
+        let ids = {};
+        if (dlogDetailsCache.source_city !== undefined) {
+            for (let i = 0; i < dlogDetailsCache["source_city"].length; i++) {
+                ids[dlogDetailsCache["source_city"][i]["unique_id"]] = dlogDetailsCache["source_city"][i]["name"];
+            }
         }
-    }
-    if (vars.dlogDetails.destination_city !== undefined) {
-        for (let i = 0; i < vars.dlogDetails["destination_city"].length; i++) {
-            cityIDs[vars.dlogDetails["destination_city"][i]["unique_id"]] = vars.dlogDetails["destination_city"][i]["name"];
+        if (dlogDetailsCache.destination_city !== undefined) {
+            for (let i = 0; i < dlogDetailsCache["destination_city"].length; i++) {
+                ids[dlogDetailsCache["destination_city"][i]["unique_id"]] = dlogDetailsCache["destination_city"][i]["name"];
+            }
         }
-    }
-    let companyIDs = {};
-    if (vars.dlogDetails.source_company !== undefined) {
-        for (let i = 0; i < vars.dlogDetails["source_company"].length; i++) {
-            companyIDs[vars.dlogDetails["source_company"][i]["unique_id"]] = vars.dlogDetails["source_company"][i]["name"];
+        return ids;
+    }, [dlogDetailsCache]);
+
+    const companyIDs = useMemo(() => {
+        let ids = {};
+        if (dlogDetailsCache.source_company !== undefined) {
+            for (let i = 0; i < dlogDetailsCache["source_company"].length; i++) {
+                ids[dlogDetailsCache["source_company"][i]["unique_id"]] = dlogDetailsCache["source_company"][i]["name"];
+            }
         }
-    }
-    if (vars.dlogDetails.destination_company !== undefined) {
-        for (let i = 0; i < vars.dlogDetails["destination_company"].length; i++) {
-            companyIDs[vars.dlogDetails["destination_company"][i]["unique_id"]] = vars.dlogDetails["destination_company"][i]["name"];
+        if (dlogDetailsCache.destination_company !== undefined) {
+            for (let i = 0; i < dlogDetailsCache["destination_company"].length; i++) {
+                ids[dlogDetailsCache["destination_company"][i]["unique_id"]] = dlogDetailsCache["destination_company"][i]["name"];
+            }
         }
-    }
-    let cargoIDs = {};
-    if (vars.dlogDetails.cargo !== undefined) {
-        for (let i = 0; i < vars.dlogDetails["cargo"].length; i++) {
-            cargoIDs[vars.dlogDetails["cargo"][i]["unique_id"]] = vars.dlogDetails["cargo"][i]["name"];
+        return ids;
+    }, [dlogDetailsCache]);
+
+    const cargoIDs = useMemo(() => {
+        let ids = {};
+        if (dlogDetailsCache.cargo !== undefined) {
+            for (let i = 0; i < dlogDetailsCache["cargo"].length; i++) {
+                ids[dlogDetailsCache["cargo"][i]["unique_id"]] = dlogDetailsCache["cargo"][i]["name"];
+            }
         }
-    }
+        return ids;
+    }, [dlogDetailsCache]);
 
     const showChallengeDetails = useCallback(async (challenge) => {
         window.loading += 1;

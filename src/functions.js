@@ -120,7 +120,7 @@ export function getAuthToken() {
     else return data.token;
 };
 
-export async function FetchProfile({ setUsers, initMemberUIDs, setCurUID, setCurUser, setCurUserPerm, userSettings, setUserSettings, themeSettings }, isLogin = false) {
+export async function FetchProfile({ setUsers, setCurUID, setCurUser, setCurUserPerm, userSettings, setUserSettings, themeSettings, loadMemberUIDs, loadDlogDetails }, isLogin = false) {
     // accept a whole appContext OR those separate vars as first argument
     // this handles login/session validation and logout data update
     const bearerToken = getAuthToken();
@@ -191,17 +191,25 @@ export async function FetchProfile({ setUsers, initMemberUIDs, setCurUID, setCur
                     customAxios({ url: `${vars.dhpath}/user/timezone`, method: "PATCH", data: { timezone: Intl.DateTimeFormat().resolvedOptions().timeZone }, headers: { "Authorization": `Bearer ${bearerToken}` } });
                 }
 
-                initMemberUIDs();
+                // init these values which are auth-required
+                loadMemberUIDs();
+                loadDlogDetails();
+
+                return { "ok": true, "member": true };
+            } else {
+                return { "ok": true, "member": false };
             }
         } else if (resp.status === 401) {
             localStorage.removeItem("token");
             vars.userBanner = { name: "Login", role: "", avatar: "https://charlws.com/me.gif" };
+            return { "ok": false, "member": false };
         }
     } else {
         setCurUID(null);
         setCurUser({});
         setCurUserPerm([]);
         vars.userBanner = { name: "Login", role: "", avatar: "https://charlws.com/me.gif" };
+        return { "ok": false, "member": false };
     }
 }
 
