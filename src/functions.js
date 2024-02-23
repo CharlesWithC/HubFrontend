@@ -120,7 +120,7 @@ export function getAuthToken() {
     else return data.token;
 };
 
-export async function FetchProfile({ setUsers, setCurUID, setCurUser, setCurUserPerm, setCurUserBanner, userSettings, setUserSettings, themeSettings, loadMemberUIDs, loadDlogDetails }, isLogin = false) {
+export async function FetchProfile({ webConfig, setUsers, setCurUID, setCurUser, setCurUserPerm, setCurUserBanner, setUserSettings, loadMemberUIDs, loadDlogDetails }, isLogin = false) {
     // accept a whole appContext OR those separate vars as first argument
     // this handles login/session validation and logout data update
     const bearerToken = getAuthToken();
@@ -159,7 +159,7 @@ export async function FetchProfile({ setUsers, setCurUID, setCurUser, setCurUser
                 if (vars.userLevel !== -1) break;
                 for (let j = 0; j < vars.patrons[tiers[i]].length; j++) {
                     let patron = vars.patrons[tiers[i]][j];
-                    if (patron.abbr === vars.dhconfig.abbr && patron.uid === curUser.uid) {
+                    if (patron.abbr === webConfig.abbr && patron.uid === curUser.uid) {
                         vars.userPatreonID = patron.id;
                         vars.userLevel = 4 - i;
                         break;
@@ -182,7 +182,6 @@ export async function FetchProfile({ setUsers, setCurUID, setCurUser, setCurUser
             if (resp.status === 200) {
                 setUserSettings(userSettings => ({ ...userSettings, language: resp.data.language }));
                 i18n.changeLanguage(resp.data.language);
-                writeLS("client-settings", ({ ...userSettings, ...themeSettings, language: resp.data.language }), vars.host);
             }
 
             if (curUser.userid !== -1) {

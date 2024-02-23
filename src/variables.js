@@ -2,8 +2,6 @@ var host = "";
 exports.host = host;
 
 var apiversion = "";
-var dhconfig = null;
-var apiconfig = null;
 var dhpath = "";
 var dhlogo = null;
 var dhbanner = null;
@@ -11,8 +9,6 @@ var dhbgimage = null;
 var dhvtcbg = null;
 var dhcustombg = (localStorage.getItem("custom-background") !== null ? localStorage.getItem("custom-background") : "");
 exports.apiversion = apiversion;
-exports.dhconfig = dhconfig;
-exports.apiconfig = apiconfig;
 exports.dhpath = dhpath;
 exports.dhlogo = dhlogo;
 exports.dhbanner = dhbanner;

@@ -41,6 +41,7 @@
 11. Replaced `vars.dlogDetails` with Context API `dlogDetailsCache`, also supported background loading
 12. Replaced `vars.userBanner` with Context API `curUserBanner`
 13. Replaced `vars.apiconfig` with Context API `apiConfig`
+14. Replaced `vars.dhconfig` with Context API `webConfig`, also supported real-time reflection of web config update
 
 ## v3.3.x
 

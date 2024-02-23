@@ -26,7 +26,7 @@ const COUNTRY_FLAG = { "uk": "🇬🇧", "germany": "🇩🇪", "france": "🇫�
 
 const DeliveryDetail = memo(({ userDivisionIDs, doReload, divisionMeta, setDoReload, setDivisionStatus, setNewDivisionStatus, setDivisionMeta, setSelectedDivision, handleDivision, setDeleteOpen }) => {
     const { t: tr } = useTranslation();
-    const { curUID, curUser, curUserPerm, userSettings } = useContext(AppContext);
+    const { webConfig, curUID, curUser, curUserPerm, userSettings } = useContext(AppContext);
 
     const EVENT_ICON = { "job.started": <LocalShippingRounded />, "job.delivered": <FlagRounded />, "job.cancelled": <CloseRounded />, "fine": <GavelRounded />, "tollgate": <TollRounded />, "ferry": <DirectionsBoatRounded />, "train": <TrainRounded />, "collision": <CarCrashRounded />, "repair": <BuildRounded />, "refuel": <LocalGasStationRounded />, "teleport": <FlightTakeoffRounded />, "speeding": <SpeedRounded /> };
     const EVENT_COLOR = { "job.started": "lightgreen", "job.delivered": "lightgreen", "job.cancelled": "lightred", "fine": "orange", "tollgate": "lightblue", "ferry": "lightblue", "train": "lightblue", "collision": "orange", "repair": "lightblue", "refuel": "lightblue", "teleport": "lightblue", "speeding": "orange" };
@@ -78,8 +78,8 @@ const DeliveryDetail = memo(({ userDivisionIDs, doReload, divisionMeta, setDoRel
     if (window.isElectron) {
         window.electron.ipcRenderer.send("presence-update", {
             details: `Viewing Delivery #${logid}`,
-            largeImageKey: `https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png?${vars.dhconfig.logo_key !== undefined ? vars.dhconfig.logo_key : ""}`,
-            largeImageText: vars.dhconfig.name,
+            largeImageKey: `https://cdn.chub.page/assets/${webConfig.abbr}/logo.png?${webConfig.logo_key !== undefined ? webConfig.logo_key : ""}`,
+            largeImageText: webConfig.name,
             smallImageKey: `https://drivershub.charlws.com/images/logo.png`,
             smallImageText: "The Drivers Hub Project (CHub)",
             startTimestamp: new Date(),
@@ -361,8 +361,8 @@ const DeliveryDetail = memo(({ userDivisionIDs, doReload, divisionMeta, setDoRel
                 window.electron.ipcRenderer.send("presence-update", {
                     details: `Viewing Delivery #${logid}`,
                     state: `${detail.source_city.name} -> ${detail.destination_city.name} (${ConvertUnit(userSettings.unit, "km", detail.events[detail.events.length - 1].meta.distance)})`,
-                    largeImageKey: `https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png?${vars.dhconfig.logo_key !== undefined ? vars.dhconfig.logo_key : ""}`,
-                    largeImageText: vars.dhconfig.name,
+                    largeImageKey: `https://cdn.chub.page/assets/${webConfig.abbr}/logo.png?${webConfig.logo_key !== undefined ? webConfig.logo_key : ""}`,
+                    largeImageText: webConfig.name,
                     smallImageKey: `https://drivershub.charlws.com/images/logo.png`,
                     smallImageText: "The Drivers Hub Project (CHub)",
                     startTimestamp: new Date(),

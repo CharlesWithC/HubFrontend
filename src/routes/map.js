@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useContext } from 'react';
+import { useState, useEffect, useRef, useCallback, useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '../context';
 
@@ -41,7 +41,7 @@ const Map = () => {
     const SERVER_ID = { 0: 2, 1: 50, 3: 10 };
     const { t: tr } = useTranslation();
     const theme = useTheme();
-    const { users, memberUIDs, dlogDetailsCache } = useContext(AppContext);
+    const { webConfig, users, memberUIDs, dlogDetailsCache } = useContext(AppContext);
     const allMembers = memberUIDs.map((uid) => users[uid]);
 
     const [tab, setTab] = useState(0);
@@ -181,7 +181,7 @@ const Map = () => {
             <TileMap tilesUrl={"https://map.charlws.com/ats/promods/tiles"} title={<>American Truck Simulator - ProMods Map<br />Live data feed: NO DATA</>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} />
         </TabPanel>}
         <Dialog open={displayUser.MpId !== undefined} onClose={() => setDisplayUser({})}>
-            <DialogTitle>{displayUser.userid === undefined ? <>{tr("truckersmp_player")}</> : <>{vars.dhconfig.name}{tr("driver")}</>}</DialogTitle>
+            <DialogTitle>{displayUser.userid === undefined ? <>{tr("truckersmp_player")}</> : <>{webConfig.name}{tr("driver")}</>}</DialogTitle>
             <DialogContent>
                 <Grid container spacing={2}>
                     <Grid item xs={4}>

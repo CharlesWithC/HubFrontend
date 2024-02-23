@@ -18,7 +18,7 @@ var vars = require("../../variables");
 
 const AuthLogin = () => {
     const { t: tr } = useTranslation();
-    const { apiConfig } = useContext(AppContext);
+    const { apiConfig, webConfig } = useContext(AppContext);
     const { themeSettings } = useContext(ThemeContext);
 
     const CONNECTION_NAME = { "email": tr("email"), "discord": "Discord", "steam": "Steam", "truckersmp": "TruckersMP" };
@@ -124,7 +124,7 @@ const AuthLogin = () => {
 
                         <Grid item xs={12} sm={12} md={4} lg={4}>
                             <Box sx={{ display: { xs: "none", sm: "none", md: "block", lg: "block" }, margin: 0, height: "210px", maxHeight: "210px", width: "100%" }} >
-                                <img src={`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/banner.png?${vars.dhconfig.banner_key !== undefined ? vars.dhconfig.banner_key : ""}`} alt="" style={{ width: "100%" }} />
+                                <img src={`https://cdn.chub.page/assets/${webConfig.abbr}/banner.png?${webConfig.banner_key !== undefined ? webConfig.banner_key : ""}`} alt="" style={{ width: "100%" }} />
                             </Box>
                             <br />
                             <Typography variant="body2" sx={{ mb: "5px" }}>{tr("register_with")}: {apiConfig.register_methods.map((item) => (CONNECTION_NAME[item])).join(" / ")}</Typography>

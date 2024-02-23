@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, memo, useContext } from 'react';
+import { useState, useEffect, useCallback, memo, useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '../context';
 
@@ -1844,12 +1844,14 @@ const MemoDiscordMemberForm = memo(({ theme, formConfig }) => {
 
 const MemoDiscordOtherForm = memo(({ theme, formConfig }) => {
     const { t: tr } = useTranslation();
+    const { webConfig } = useContext(AppContext);
+
     const [openIndex, setOpenIndex] = useState(-1);
-    const ITEMS = { "announcement_forwarding": tr("new_announcement"), "challenge_forwarding": tr("new_challenge"), "challenge_completed_forwarding": tr("completed_challenge"), "downloads_forwarding": tr("new_downloadable_item"), "event_forwarding": tr("new_event"), "event_upcoming_forwarding": tr("upcoming_event"), "poll_forwarding": tr("poll_forwarding") };
-    const VARS = ["{mention}, {name}, {userid}, {uid}, {avatar}, {id}, {title}, {content}, {type}", "{mention}, {name}, {userid}, {uid}, {avatar}, {id}, {title}, {description}, {start_timestamp}, {end_timestamp}, {delivery_count}, {required_roles}, {required_distance}, {reward_points}", "{mention}, {name}, {userid}, {uid}, {avatar}, {id}, {title}, {earned_points}", "{mention}, {name}, {userid}, {uid}, {avatar}, {id}, {title}, {description}, {link}", "{mention}, {name}, {userid}, {uid}, {avatar}, {id}, {title}, {description}, {link}, {departure}, {destination}, {distance}, {meetup_timestamp}, {departure_timestamp}", "{mention}, {name}, {userid}, {uid}, {avatar}, {id}, {title}, {description}, {link}, {departure}, {destination}, {distance}, {meetup_timestamp}, {departure_timestamp}", "{mention}, {name}, {userid}, {uid}, {avatar}, {id}, {title}, {description}"];
+    const ITEMS = useMemo(() => ({ "announcement_forwarding": tr("new_announcement"), "challenge_forwarding": tr("new_challenge"), "challenge_completed_forwarding": tr("completed_challenge"), "downloads_forwarding": tr("new_downloadable_item"), "event_forwarding": tr("new_event"), "event_upcoming_forwarding": tr("upcoming_event"), "poll_forwarding": tr("poll_forwarding") }), []);
+    const VARS = useMemo(() => (["{mention}, {name}, {userid}, {uid}, {avatar}, {id}, {title}, {content}, {type}", "{mention}, {name}, {userid}, {uid}, {avatar}, {id}, {title}, {description}, {start_timestamp}, {end_timestamp}, {delivery_count}, {required_roles}, {required_distance}, {reward_points}", "{mention}, {name}, {userid}, {uid}, {avatar}, {id}, {title}, {earned_points}", "{mention}, {name}, {userid}, {uid}, {avatar}, {id}, {title}, {description}, {link}", "{mention}, {name}, {userid}, {uid}, {avatar}, {id}, {title}, {description}, {link}, {departure}, {destination}, {distance}, {meetup_timestamp}, {departure_timestamp}", "{mention}, {name}, {userid}, {uid}, {avatar}, {id}, {title}, {description}, {link}, {departure}, {destination}, {distance}, {meetup_timestamp}, {departure_timestamp}", "{mention}, {name}, {userid}, {uid}, {avatar}, {id}, {title}, {description}"]), []);
     return <>
         {Object.keys(ITEMS).map((key, index) => {
-            if (!vars.dhconfig.plugins.includes(key.split("_")[0])) return <></>;
+            if (!webConfig.plugins.includes(key.split("_")[0])) return <></>;
             return <Grid item xs={12} key={index}>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     <Typography variant="body2" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', mb: "10px", flexGrow: 1 }} onClick={() => openIndex === index ? setOpenIndex(-1) : setOpenIndex(index)}>
@@ -3033,7 +3035,7 @@ const MemoEconomyForm = memo(({ theme, formConfig }) => {
 
 const Configuration = () => {
     const { t: tr } = useTranslation();
-    const {curUser} = useContext(AppContext);
+    const { webConfig: curWebConfig, setWebConfig: setCurWebConfig, curUser } = useContext(AppContext);
     const theme = useTheme();
 
     const [snackbarContent, setSnackbarContent] = useState("");
@@ -3082,7 +3084,7 @@ const Configuration = () => {
 
     const [mfaOtp, setMfaOtp] = useState("");
 
-    const [webConfig, setWebConfig] = useState({ ...vars.dhconfig, name_color: vars.dhconfig.name_color !== null ? vars.dhconfig.name_color : "/", theme_main_color: vars.dhconfig.theme_main_color !== null ? vars.dhconfig.theme_main_color : "/", theme_background_color: vars.dhconfig.theme_background_color !== null ? vars.dhconfig.theme_background_color : "/" });
+    const [webConfig, setWebConfig] = useState({ ...curWebConfig, name_color: curWebConfig.name_color !== null ? curWebConfig.name_color : "/", theme_main_color: curWebConfig.theme_main_color !== null ? curWebConfig.theme_main_color : "/", theme_background_color: curWebConfig.theme_background_color !== null ? curWebConfig.theme_background_color : "/" });
     const [webConfigDisabled, setWebConfigDisabled] = useState(false);
     const saveWebConfig = useCallback(async () => {
         window.loading += 1;
@@ -3098,6 +3100,8 @@ const Configuration = () => {
 
         let newWebConfig = { ...webConfig, name_color: parse_color(webConfig.name_color), theme_main_color: parse_color(webConfig.theme_main_color), theme_background_color: parse_color(webConfig.theme_background_color) };
 
+        setCurWebConfig({ ...webConfig, name_color: webConfig.name_color.startsWith("#") ? webConfig.name_color : null, theme_main_color: webConfig.theme_main_color.startsWith("#") ? webConfig.theme_main_color : null, theme_background_color: webConfig.theme_background_color.startsWith("#") ? webConfig.theme_background_color : null });
+
         let resp = await axios({ url: `${vars.dhpath}/auth/ticket`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status !== 200) {
             setWebConfigDisabled(false);
@@ -3108,7 +3112,7 @@ const Configuration = () => {
         }
         let ticket = resp.data.token;
 
-        resp = await axios({ url: `https://config.chub.page/config?domain=${vars.dhconfig.domain}`, data: { config: newWebConfig }, method: "PATCH", headers: { Authorization: `Ticket ${ticket}` } });
+        resp = await axios({ url: `https://config.chub.page/config?domain=${curWebConfig.domain}`, data: { config: newWebConfig }, method: "PATCH", headers: { Authorization: `Ticket ${ticket}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("web_config_updated"));
             setSnackbarSeverity("success");
@@ -3344,12 +3348,12 @@ const Configuration = () => {
                     </Grid>
                     <Grid item xs={12} md={6}>
                         <Typography variant="body2">
-                            Unique ID: {vars.dhconfig.abbr}
+                            Unique ID: {curWebConfig.abbr}
                         </Typography>
                     </Grid>
                     <Grid item xs={12} md={6}>
                         <Typography variant="body2">
-                            Company Name: {vars.dhconfig.name}
+                            Company Name: {curWebConfig.name}
                         </Typography>
                     </Grid>
                 </Grid>
@@ -3377,8 +3381,8 @@ const Configuration = () => {
                     {Object.keys(plugins).map((plugin) => (
                         <Grid item xs={6} sm={6} md={4} lg={3}>
                             <Typography variant="body2">
-                                {vars.dhconfig.plugins.includes(plugin) && !["banner", "route"].includes(plugin) && <FontAwesomeIcon icon={faLockOpen}></FontAwesomeIcon>}
-                                {!vars.dhconfig.plugins.includes(plugin) && !["banner", "route"].includes(plugin) && <FontAwesomeIcon icon={faLock}></FontAwesomeIcon>}
+                                {curWebConfig.plugins.includes(plugin) && !["banner", "route"].includes(plugin) && <FontAwesomeIcon icon={faLockOpen}></FontAwesomeIcon>}
+                                {!curWebConfig.plugins.includes(plugin) && !["banner", "route"].includes(plugin) && <FontAwesomeIcon icon={faLock}></FontAwesomeIcon>}
                                 {["banner", "route"].includes(plugin) && <FontAwesomeIcon icon={faCircleQuestion}></FontAwesomeIcon>}
                                 &nbsp;{plugins[plugin]}
                             </Typography>
@@ -3605,14 +3609,14 @@ const Configuration = () => {
                                 </Grid>
                             </Collapse>}
 
-                            {!vars.dhconfig.plugins.includes("announcement") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(8)}>
+                            {!curWebConfig.plugins.includes("announcement") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(8)}>
                                 <div style={{ flexGrow: 1 }}>{tr("announcement")}</div>
                                 <IconButton>
                                     <FontAwesomeIcon icon={faLock} />
                                 </IconButton>
                             </Typography></>}
 
-                            {vars.dhconfig.plugins.includes("announcement") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(8)}>
+                            {curWebConfig.plugins.includes("announcement") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(8)}>
                                 <div style={{ flexGrow: 1 }}>{tr("announcement")}</div>
                                 <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[8] ? 'rotate(180deg)' : 'none' }}>
                                     <ExpandMoreRounded />
@@ -3634,14 +3638,14 @@ const Configuration = () => {
                                 </Collapse>}
                             </>}
 
-                            {!vars.dhconfig.plugins.includes("application") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(8)}>
+                            {!curWebConfig.plugins.includes("application") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(8)}>
                                 <div style={{ flexGrow: 1 }}>{tr("application")}</div>
                                 <IconButton>
                                     <FontAwesomeIcon icon={faLock} />
                                 </IconButton>
                             </Typography></>}
 
-                            {vars.dhconfig.plugins.includes("application") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(10)}>
+                            {curWebConfig.plugins.includes("application") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(10)}>
                                 <div style={{ flexGrow: 1 }}>{tr("application")}</div>
                                 <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[10] ? 'rotate(180deg)' : 'none' }}>
                                     <ExpandMoreRounded />
@@ -3663,14 +3667,14 @@ const Configuration = () => {
                                 </Collapse>}
                             </>}
 
-                            {!vars.dhconfig.plugins.includes("division") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(8)}>
+                            {!curWebConfig.plugins.includes("division") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(8)}>
                                 <div style={{ flexGrow: 1 }}>{tr("division")}</div>
                                 <IconButton>
                                     <FontAwesomeIcon icon={faLock} />
                                 </IconButton>
                             </Typography></>}
 
-                            {vars.dhconfig.plugins.includes("division") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(9)}>
+                            {curWebConfig.plugins.includes("division") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(9)}>
                                 <div style={{ flexGrow: 1 }}>{tr("division")}</div>
                                 <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[9] ? 'rotate(180deg)' : 'none' }}>
                                     <ExpandMoreRounded />
@@ -3692,14 +3696,14 @@ const Configuration = () => {
                                 </Collapse>}
                             </>}
 
-                            {!vars.dhconfig.plugins.includes("economy") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(8)}>
+                            {!curWebConfig.plugins.includes("economy") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(8)}>
                                 <div style={{ flexGrow: 1 }}>{tr("economy")}</div>
                                 <IconButton>
                                     <FontAwesomeIcon icon={faLock} />
                                 </IconButton>
                             </Typography></>}
 
-                            {vars.dhconfig.plugins.includes("economy") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(13)}>
+                            {curWebConfig.plugins.includes("economy") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(13)}>
                                 <div style={{ flexGrow: 1 }}>{tr("economy")}</div>
                                 <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[13] ? 'rotate(180deg)' : 'none' }}>
                                     <ExpandMoreRounded />

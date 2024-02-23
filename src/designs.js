@@ -78,7 +78,7 @@ function intToHex(intValue) {
     return hexValue;
 }
 
-export function getDesignTokens({ themeSettings, setThemeSettings }, customMode, mode, use_custom_theme = false, theme_background = null, theme_main = null, darken_ratio = null, font_size = "regular") {
+export function getDesignTokens({ webConfig }, { themeSettings, setThemeSettings }, customMode, mode, use_custom_theme = false, theme_background = null, theme_main = null, darken_ratio = null, font_size = "regular") {
     if (use_custom_theme === true) {
         if (vars.userLevel < 2)
             use_custom_theme = false;
@@ -87,10 +87,10 @@ export function getDesignTokens({ themeSettings, setThemeSettings }, customMode,
             use_custom_theme = false;
         }
     }
-    if (use_custom_theme === "vtc" && vars.vtcLevel >= 1 && vars.dhconfig !== null) {
-        theme_background = vars.dhconfig.theme_background_color;
-        theme_main = vars.dhconfig.theme_main_color;
-        darken_ratio = vars.dhconfig.theme_darken_ratio;
+    if (use_custom_theme === "vtc" && vars.vtcLevel >= 1 && webConfig !== null) {
+        theme_background = webConfig.theme_background_color;
+        theme_main = webConfig.theme_main_color;
+        darken_ratio = webConfig.theme_darken_ratio;
     }
     if (use_custom_theme === "vtcbg" && vars.vtcLevel >= 1 && vars.dhvtcbg !== "") {
         if (darken_ratio === null) darken_ratio = 0.4;

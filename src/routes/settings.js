@@ -87,7 +87,7 @@ function TabPanel(props) {
 
 const Settings = ({ defaultTab = 0 }) => {
     const { t: tr } = useTranslation();
-    const { apiConfig, setUsers, curUser, userSettings, setUserSettings } = useContext(AppContext);
+    const { apiConfig, webConfig, setUsers, curUser, userSettings, setUserSettings } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     const sessionsColumns = useMemo(() => ([
@@ -322,11 +322,11 @@ const Settings = ({ defaultTab = 0 }) => {
             }
         }
 
-        resp = await axios({ url: `https://config.chub.page/config/user?domain=${vars.dhconfig.domain}`, data: { name_color: parse_color(remoteUserConfig.name_color), profile_upper_color: parse_color(remoteUserConfig.profile_upper_color), profile_lower_color: parse_color(remoteUserConfig.profile_lower_color), profile_banner_url: remoteUserConfig.profile_banner_url }, method: "PATCH", headers: { Authorization: `Ticket ${ticket}` } });
+        resp = await axios({ url: `https://config.chub.page/config/user?domain=${webConfig.domain}`, data: { name_color: parse_color(remoteUserConfig.name_color), profile_upper_color: parse_color(remoteUserConfig.profile_upper_color), profile_lower_color: parse_color(remoteUserConfig.profile_lower_color), profile_banner_url: remoteUserConfig.profile_banner_url }, method: "PATCH", headers: { Authorization: `Ticket ${ticket}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("appearance_settings_updated"));
             setSnackbarSeverity("success");
-            vars.userConfig[curUser.uid] = { abbr: vars.dhconfig.abbr, name_color: remoteUserConfig.name_color, profile_upper_color: remoteUserConfig.profile_upper_color, profile_lower_color: remoteUserConfig.profile_lower_color, profile_banner_url: remoteUserConfig.profile_banner_url };
+            vars.userConfig[curUser.uid] = { abbr: webConfig.abbr, name_color: remoteUserConfig.name_color, profile_upper_color: remoteUserConfig.profile_upper_color, profile_lower_color: remoteUserConfig.profile_lower_color, profile_banner_url: remoteUserConfig.profile_banner_url };
         } else {
             if (resp.data.error !== undefined) setSnackbarContent(resp.data.error);
             else setSnackbarContent(tr("unknown_error_please_try_again_later"));
@@ -677,7 +677,7 @@ const Settings = ({ defaultTab = 0 }) => {
                 width: 200,
                 height: 200,
                 type: "svg",
-                data: `otpauth://totp/${vars.dhconfig.name.replaceAll(" ", "%20")}%20Drivers%20Hub?secret=${newSecret}&issuer=drivershub.charlws&digits=6&period=30`,
+                data: `otpauth://totp/${webConfig.name.replaceAll(" ", "%20")}%20Drivers%20Hub?secret=${newSecret}&issuer=drivershub.charlws&digits=6&period=30`,
                 image: "./logo.png",
                 dotsOptions: {
                     color: theme.palette.text.secondary,
@@ -1016,7 +1016,7 @@ const Settings = ({ defaultTab = 0 }) => {
         for (let i = 0; i < tiers.length; i++) {
             for (let j = 0; j < vars.patrons[tiers[i]].length; j++) {
                 let patron = vars.patrons[tiers[i]][j];
-                if (patron.abbr === vars.dhconfig.abbr && patron.uid === curUser.uid) {
+                if (patron.abbr === webConfig.abbr && patron.uid === curUser.uid) {
                     let badge = <Tooltip key={`badge-${curUser.uid}-supporter`} placement="top" arrow title={tr("supporter")}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <FontAwesomeIcon icon={faClover} style={{ color: "#f47fff" }} />
@@ -1410,12 +1410,12 @@ const Settings = ({ defaultTab = 0 }) => {
                         <Grid item xs={12} sm={12} md={12} lg={12}>
                             <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("name_color")}&nbsp;&nbsp;<SponsorBadge level={2} plus={true} /></Typography>
                             <br />
-                            {(vars.vtcLevel >= 1 && vars.dhconfig.name_color !== null || vars.userLevel >= 2) && <Box display="flex" flexDirection="row">
-                                {vars.vtcLevel >= 1 && vars.dhconfig.name_color !== null &&
+                            {(vars.vtcLevel >= 1 && webConfig.name_color !== null || vars.userLevel >= 2) && <Box display="flex" flexDirection="row">
+                                {vars.vtcLevel >= 1 && webConfig.name_color !== null &&
                                     <Tooltip placement="bottom" arrow title={tr("vtc_name_color")}
                                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-                                        <Box width="120px" height="60px" bgcolor={vars.dhconfig.name_color} p={1} m={1} display="flex" justifyContent="center" alignItems="center" borderRadius="5px" onClick={() => { setRemoteUserConfig({ ...remoteUserConfig, name_color: vars.dhconfig.name_color }); }} style={{ cursor: 'pointer' }}>
-                                            {remoteUserConfig.name_color === vars.dhconfig.name_color && <CheckRounded />}
+                                        <Box width="120px" height="60px" bgcolor={webConfig.name_color} p={1} m={1} display="flex" justifyContent="center" alignItems="center" borderRadius="5px" onClick={() => { setRemoteUserConfig({ ...remoteUserConfig, name_color: webConfig.name_color }); }} style={{ cursor: 'pointer' }}>
+                                            {remoteUserConfig.name_color === webConfig.name_color && <CheckRounded />}
                                         </Box>
                                     </Tooltip>}
                                 {vars.userLevel >= 2 &&
@@ -1581,7 +1581,7 @@ const Settings = ({ defaultTab = 0 }) => {
                         <Button variant="contained" color={themeSettings.use_custom_theme === true ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(true); }} disabled={vars.userLevel < 2}>{tr("enabled")}</Button>
                         <Button variant="contained" color={themeSettings.use_custom_theme === false ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(false); }} disabled={vars.userLevel < 2}>{tr("disabled")}</Button>
                         <Button variant="contained" color={themeSettings.use_custom_theme === "custombg" ? "info" : "secondary"} onClick={() => { updateThemeMainColor(DEFAULT_BGCOLOR[theme.mode].paper); updateThemeBackgroundColor(DEFAULT_BGCOLOR[theme.mode].default); setLocalThemeDarkenRatio(0.4); setThemeSettings(prevSettings => ({ ...prevSettings, bg_image: vars.dhcustombg })); updateUseCustomTheme("custombg"); }} disabled={vars.userLevel < 3}>{tr("custom_background")}</Button>
-                        {vars.vtcLevel >= 1 && vars.dhconfig.theme_main_color !== null && vars.dhconfig.theme_background_color !== null && <Button variant="contained" color={themeSettings.use_custom_theme === "vtc" ? "info" : "secondary"} onClick={() => { updateUseCustomTheme("vtc"); }}>{tr("vtc_theme")}</Button>}
+                        {vars.vtcLevel >= 1 && webConfig.theme_main_color !== null && webConfig.theme_background_color !== null && <Button variant="contained" color={themeSettings.use_custom_theme === "vtc" ? "info" : "secondary"} onClick={() => { updateUseCustomTheme("vtc"); }}>{tr("vtc_theme")}</Button>}
                         {vars.vtcLevel >= 1 && vars.dhvtcbg !== "" && <Button variant="contained" color={themeSettings.use_custom_theme === "vtcbg" ? "info" : "secondary"} onClick={() => { updateThemeMainColor(DEFAULT_BGCOLOR[theme.mode].paper); updateThemeBackgroundColor(DEFAULT_BGCOLOR[theme.mode].default); setLocalThemeDarkenRatio(0.4); setThemeSettings(prevSettings => ({ ...prevSettings, bg_image: vars.dhvtcbg })); updateUseCustomTheme("vtcbg"); }}>{tr("vtc_background")}</Button>}
                     </ButtonGroup>
                 </Grid>
@@ -1691,7 +1691,7 @@ const Settings = ({ defaultTab = 0 }) => {
                 </Grid>
                 <Grid item xs={12} sm={12} md={6} lg={6}>
                     {curUser.userid !== null && curUser.userid >= 0 && <>
-                        <Typography variant="h7" sx={{ color: theme.palette.warning.main }}>{tr("leave")}<b>&nbsp;{vars.dhconfig.name}</b></Typography>
+                        <Typography variant="h7" sx={{ color: theme.palette.warning.main }}>{tr("leave")}<b>&nbsp;{webConfig.name}</b></Typography>
                         <br />
                         <Typography variant="body2">{tr("leave_company_note")}</Typography>
                         <Typography variant="body2">{tr("leave_company_note_2")}</Typography>

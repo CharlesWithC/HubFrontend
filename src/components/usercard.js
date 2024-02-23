@@ -135,7 +135,7 @@ const UserCard = (props) => {
     const { t: tr } = useTranslation();
     const theme = useTheme();
     const navigate = useNavigate();
-    const { apiConfig, users, setUsers, userProfiles, setUserProfiles, setMemberUIDs, curUser, curUserPerm, userSettings } = useContext(AppContext);
+    const { apiConfig, webConfig, users, setUsers, userProfiles, setUserProfiles, setMemberUIDs, curUser, curUserPerm, userSettings } = useContext(AppContext);
 
     const bannerRef = useRef(null); // this is a real component reference
     const availableTrackers = useMemo(() => {
@@ -431,7 +431,7 @@ const UserCard = (props) => {
             if (userLevel !== 0) break;
             for (let j = 0; j < vars.patrons[tiers[i]].length; j++) {
                 let patron = vars.patrons[tiers[i]][j];
-                if (patron.abbr === vars.dhconfig.abbr && patron.uid === user.uid) {
+                if (patron.abbr === webConfig.abbr && patron.uid === user.uid) {
                     userLevel = 4 - i;
 
                     let badge = <Tooltip key={`badge-${user.uid}-supporter`} placement="top" arrow title={tr("supporter")}
@@ -456,7 +456,7 @@ const UserCard = (props) => {
             let uc = vars.userConfig[user.uid];
             if (uc.name_color !== null) {
                 newSpecialColor = uc.name_color;
-                if (!(vars.vtcLevel >= 1 && vars.dhconfig.name_color !== null && vars.dhconfig.name_color === newSpecialColor)) {
+                if (!(vars.vtcLevel >= 1 && webConfig.name_color !== null && webConfig.name_color === newSpecialColor)) {
                     // not using vtc name color
                     if (userLevel < 2 || userLevel === 2 && newSpecialColor !== "#c0c0c0" || userLevel === 3 && !["#c0c0c0", "#ffd700"].includes(newSpecialColor)) {
                         newSpecialColor = null;
@@ -476,7 +476,7 @@ const UserCard = (props) => {
         setSpecialColor(newSpecialColor);
     }, [user.discordid]);
     useEffect(() => {
-        if (vars.vtcLevel >= 3 && vars.dhconfig.use_highest_role_color && user.roles !== undefined) {
+        if (vars.vtcLevel >= 3 && webConfig.use_highest_role_color && user.roles !== undefined) {
             for (let i = 0; i < user.roles.length; i++) {
                 if (vars.roles[user.roles[i]] !== undefined && vars.roles[user.roles[i]].color !== undefined) {
                     setSpecialColor(vars.roles[user.roles[i]].color);
@@ -721,8 +721,8 @@ const UserCard = (props) => {
                 window.electron.ipcRenderer.send("presence-update", {
                     details: `Viewing Profile`,
                     state: `${user.name}`,
-                    largeImageKey: `https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png?${vars.dhconfig.logo_key !== undefined ? vars.dhconfig.logo_key : ""}`,
-                    largeImageText: vars.dhconfig.name,
+                    largeImageKey: `https://cdn.chub.page/assets/${webConfig.abbr}/logo.png?${webConfig.logo_key !== undefined ? webConfig.logo_key : ""}`,
+                    largeImageText: webConfig.name,
                     smallImageKey: user.avatar,
                     smallImageText: user.name,
                     startTimestamp: new Date(),

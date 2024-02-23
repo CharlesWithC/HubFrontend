@@ -25,7 +25,7 @@ const radioImages = { "tsr": "https://truckstopradio.co.uk/autodj.png", "tfm": "
 
 const TopBar = (props) => {
     const { t: tr } = useTranslation();
-    const { setUsers, curUID, setCurUID, curUser, setCurUser, setCurUserPerm, curUserBanner, userSettings, setUserSettings } = useContext(AppContext);
+    const { webConfig, setUsers, curUID, setCurUID, curUser, setCurUser, setCurUserPerm, curUserBanner, userSettings, setUserSettings } = useContext(AppContext);
 
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -45,14 +45,14 @@ const TopBar = (props) => {
 
     const [downloadUrl, setDownloadUrl] = useState("https://dl.chub.page/general/setup.exe");
     useEffect(() => {
-        fetch(`https://dl.chub.page/${vars.dhconfig.abbr}/latest.yml`)
+        fetch(`https://dl.chub.page/${webConfig.abbr}/latest.yml`)
             .then(response => {
                 if (response.ok) {
-                    setDownloadUrl(`https://dl.chub.page/${vars.dhconfig.abbr}/setup.exe`);
+                    setDownloadUrl(`https://dl.chub.page/${webConfig.abbr}/setup.exe`);
                 }
             })
             .catch(error => console.log(error));
-    }, []);
+    }, [webConfig]);
 
     const radioRef = useRef(null);
     const [radioURL, setRadioURL] = useState("");

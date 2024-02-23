@@ -14,7 +14,7 @@ var vars = require("../variables");
 
 const UserSelect = ({ label, users, onUpdate, isMulti = true, includeCompany = false, includeBlackhole = false, limit = undefined, style = {}, userList = undefined, disabled = false, allowSelectAll = false }) => {
     const { t: tr } = useTranslation();
-    const { users: cachedUsers, memberUIDs } = useContext(AppContext);
+    const { webConfig, users: cachedUsers, memberUIDs } = useContext(AppContext);
 
     const [memberMap, setMemberMap] = useState({});
     const [options, setOptions] = useState([]);
@@ -23,7 +23,7 @@ const UserSelect = ({ label, users, onUpdate, isMulti = true, includeCompany = f
 
     useEffect(() => {
         let memberMap = {};
-        memberMap[-1000] = { userid: -1000, name: vars.dhconfig.name };
+        memberMap[-1000] = { userid: -1000, name: webConfig.name };
         memberMap[-1005] = { userid: -1005, name: tr("blackhole") };
         for (let i = 0; i < userList.length; i++) {
             memberMap[userList[i].userid !== null ? userList[i].userid : userList[i].uid] = userList[i];
@@ -32,7 +32,7 @@ const UserSelect = ({ label, users, onUpdate, isMulti = true, includeCompany = f
 
         let options = userList.map((user) => ({ value: user.userid !== null ? user.userid : user.uid, label: `${user.name} (${user.userid !== null ? user.userid : `UID: ${user.uid}`})` }));
         if (includeCompany) {
-            options.unshift({ value: -1000, label: vars.dhconfig.name });
+            options.unshift({ value: -1000, label: webConfig.name });
         }
         if (includeBlackhole) {
             options.unshift({ value: -1005, label: tr("blackhole") });

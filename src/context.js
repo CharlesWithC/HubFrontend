@@ -5,6 +5,7 @@ var vars = require("./variables");
 
 export const AppContext = createContext({
     apiConfig: null,
+    webConfig: null,
 
     users: {},
     userProfiles: {},
@@ -28,6 +29,7 @@ export const AppContext = createContext({
 
 export const AppContextProvider = ({ children }) => {
     const [apiConfig, setApiConfig] = useState(null);
+    const [webConfig, setWebConfig] = useState(null);
 
     const [users, setUsers] = useState({});
     const [userProfiles, setUserProfiles] = useState({});
@@ -99,6 +101,7 @@ export const AppContextProvider = ({ children }) => {
 
     const value = useMemo(() => ({
         apiConfig, setApiConfig,
+        webConfig, setWebConfig,
 
         users, setUsers,
         userProfiles, setUserProfiles,
@@ -112,7 +115,7 @@ export const AppContextProvider = ({ children }) => {
 
         dlogDetailsCache, setDlogDetailsCache, loadDlogDetails,
         economyCache, setEconomyCache,
-    }), [apiConfig, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, dlogDetailsCache, economyCache]);
+    }), [apiConfig, webConfig, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, dlogDetailsCache, economyCache]);
 
     return (
         <AppContext.Provider value={value}>

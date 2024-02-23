@@ -21,7 +21,7 @@ const Gallery = () => {
     }
 
     const { t: tr } = useTranslation();
-    const { curUserPerm } = useContext(AppContext);
+    const { webConfig, setWebConfig, curUserPerm } = useContext(AppContext);
     const theme = useTheme();
 
     const matchesXS = useMediaQuery(theme.breakpoints.down('xs'));
@@ -46,7 +46,7 @@ const Gallery = () => {
         setSnackbarContent("");
     }, []);
 
-    const [images, setImages] = useState(vars.dhconfig.gallery);
+    const [images, setImages] = useState(webConfig.gallery);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [dialogButtonDisabled, setDialogButtonDisabled] = useState(false);
 
@@ -64,11 +64,11 @@ const Gallery = () => {
         }
         let ticket = resp.data.token;
 
-        resp = await axios({ url: `https://config.chub.page/config/gallery?domain=${vars.dhconfig.domain}`, data: { gallery: images }, method: "PATCH", headers: { Authorization: `Ticket ${ticket}` } });
+        resp = await axios({ url: `https://config.chub.page/config/gallery?domain=${webConfig.domain}`, data: { gallery: images }, method: "PATCH", headers: { Authorization: `Ticket ${ticket}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("gallery_updated"));
             setSnackbarSeverity("success");
-            vars.dhconfig.gallery = images;
+            setWebConfig(webConfig => ({ ...webConfig, gallery: images }));
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");

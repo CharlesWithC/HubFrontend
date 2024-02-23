@@ -14,6 +14,7 @@ const Loader = ({ onLoaderLoaded }) => {
 
     const { t: tr } = useTranslation();
     const appContext = useContext(AppContext);
+    const { setApiConfig, webConfig, setWebConfig } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     const theme = useTheme();
@@ -31,8 +32,8 @@ const Loader = ({ onLoaderLoaded }) => {
         vars.host = domain;
     }
 
-    async function doLoad() {
-        if (vars.dhconfig !== null) return;
+    const doLoad = useCallback(async () => {
+        if (webConfig !== null) return;
 
         try {
             if (domain === undefined || domain === null || domain === "") {
@@ -61,23 +62,24 @@ const Loader = ({ onLoaderLoaded }) => {
                 return;
             }
             let loadedConfig = resp.data;
-            vars.dhconfig = loadedConfig.config;
-            vars.dhpath = `${vars.dhconfig.api_host}/${vars.dhconfig.abbr}`;
+            setWebConfig(loadedConfig.config);
+            const webConfig = loadedConfig.config; // local webConfig for this function only
+            vars.dhpath = `${webConfig.api_host}/${webConfig.abbr}`;
 
-            if (vars.dhconfig.api_host === "https://drivershub.charlws.com") {
+            if (webConfig.api_host === "https://drivershub.charlws.com") {
                 vars.vtcLevel = 3;
-            } else if (vars.dhconfig.api_host === "https://drivershub05.charlws.com") {
+            } else if (webConfig.api_host === "https://drivershub05.charlws.com") {
                 vars.vtcLevel = 1;
-            } else if (vars.dhconfig.api_host === "https://drivershub.charlws.com") {
+            } else if (webConfig.api_host === "https://drivershub.charlws.com") {
                 vars.vtcLevel = 0;
             }
 
             setLoadMessage(tr("loading"));
-            setTitle(vars.dhconfig.name);
-            localStorage.setItem("cache-title", vars.dhconfig.name);
+            setTitle(webConfig.name);
+            localStorage.setItem("cache-title", webConfig.name);
             let imageLoaded = false;
             Promise.all([
-                loadImageAsBase64(`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png?${vars.dhconfig.logo_key !== undefined ? vars.dhconfig.logo_key : ""}`, "./logo.png")
+                loadImageAsBase64(`https://cdn.chub.page/assets/${webConfig.abbr}/logo.png?${webConfig.logo_key !== undefined ? webConfig.logo_key : ""}`, "./logo.png")
                     .then((image) => {
                         vars.dhlogo = image;
                         try {
@@ -88,7 +90,7 @@ const Loader = ({ onLoaderLoaded }) => {
                     .catch(() => {
                         vars.dhlogo = "";
                     }),
-                loadImageAsBase64(`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/bgimage.png?${vars.dhconfig.bgimage_key !== undefined ? vars.dhconfig.bgimage_key : ""}`)
+                loadImageAsBase64(`https://cdn.chub.page/assets/${webConfig.abbr}/bgimage.png?${webConfig.bgimage_key !== undefined ? webConfig.bgimage_key : ""}`)
                     .then((image) => {
                         if (vars.vtcLevel >= 1) {
                             vars.dhvtcbg = image;
@@ -105,7 +107,7 @@ const Loader = ({ onLoaderLoaded }) => {
                     .catch(() => {
                         vars.dhvtcbg = "";
                     }),
-                loadImageAsBase64(`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/banner.png?${vars.dhconfig.banner_key !== undefined ? vars.dhconfig.banner_key : ""}`)
+                loadImageAsBase64(`https://cdn.chub.page/assets/${webConfig.abbr}/banner.png?${webConfig.banner_key !== undefined ? webConfig.banner_key : ""}`)
                     .then((image) => {
                         vars.dhbanner = image;
                     })
@@ -117,7 +119,7 @@ const Loader = ({ onLoaderLoaded }) => {
             let [index, specialRoles, patrons, userConfig, config, languages, memberRoles, memberPerms, memberRanks, applicationTypes, divisions] = [null, null, null, null, null, null, null, null, null, null, null, null];
             let useCache = false;
 
-            let cache = readLS("cache", vars.host + vars.dhconfig.abbr + vars.dhconfig.api_host);
+            let cache = readLS("cache", vars.host + webConfig.abbr + webConfig.api_host);
             if (cache !== null) {
                 if (cache.timestamp === undefined || +new Date() - cache.timestamp > 86400000) {
                     localStorage.removeItem("cache");
@@ -138,7 +140,7 @@ const Loader = ({ onLoaderLoaded }) => {
                     { url: `${vars.dhpath}/`, auth: false },
                     { url: "https://config.chub.page/roles", auth: false },
                     { url: "https://config.chub.page/patrons", auth: false },
-                    { url: `https://config.chub.page/config/user?abbr=${vars.dhconfig.abbr}`, auth: false },
+                    { url: `https://config.chub.page/config/user?abbr=${webConfig.abbr}`, auth: false },
                     { url: `${vars.dhpath}/config`, auth: false },
                     { url: `${vars.dhpath}/languages`, auth: false },
                     { url: `${vars.dhpath}/member/roles`, auth: false },
@@ -154,7 +156,7 @@ const Loader = ({ onLoaderLoaded }) => {
                     { url: `${vars.dhpath}/`, auth: false },
                     { url: "https://config.chub.page/roles", auth: false },
                     { url: "https://config.chub.page/patrons", auth: false },
-                    { url: `https://config.chub.page/config/user?abbr=${vars.dhconfig.abbr}`, auth: false },
+                    { url: `https://config.chub.page/config/user?abbr=${webConfig.abbr}`, auth: false },
                 ];
 
                 [index, specialRoles, patrons, userConfig] = await makeRequestsAuto(urlsBatch);
@@ -182,7 +184,7 @@ const Loader = ({ onLoaderLoaded }) => {
                 vars.userConfig = userConfig;
             }
             if (config) {
-                appContext.setApiConfig(config.config);
+                setApiConfig(config.config);
             }
             if (languages) {
                 vars.languages = languages.supported;
@@ -222,10 +224,10 @@ const Loader = ({ onLoaderLoaded }) => {
                     applicationTypes: applicationTypes,
                     divisions: divisions
                 };
-                writeLS("cache", cache, vars.host + vars.dhconfig.abbr + vars.dhconfig.api_host);
+                writeLS("cache", cache, vars.host + webConfig.abbr + webConfig.api_host);
             }
 
-            await FetchProfile(appContext);
+            await FetchProfile({ ...appContext, webConfig: webConfig });
 
             setThemeSettings(prevSettings => ({ ...prevSettings })); // refresh theme settings
 
@@ -242,7 +244,7 @@ const Loader = ({ onLoaderLoaded }) => {
             console.error(error);
             setLoadMessage(tr("error_occurred"));
         }
-    }
+    }, []);
     useEffect(() => {
         doLoad();
     }, []);

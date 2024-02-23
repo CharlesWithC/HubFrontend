@@ -70,7 +70,7 @@ const drivershub = `    ____       _                         __  __      __
 
 function App() {
     const { t: tr } = useTranslation();
-    const { apiConfig, userSettings, setUserSettings } = useContext(AppContext);
+    const { apiConfig, webConfig, userSettings, setUserSettings } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     useEffect(() => {
@@ -86,7 +86,7 @@ function App() {
     );
     const muiTheme = { "dark": "dark", "light": "light", "halloween": "dark" };
     const designTokens = useMemo(
-        () => (getDesignTokens({ themeSettings, setThemeSettings }, themeMode, muiTheme[themeMode], themeSettings.use_custom_theme, themeSettings.theme_background, themeSettings.theme_main, themeSettings.theme_darken_ratio, themeSettings.font_size)),
+        () => (getDesignTokens({ webConfig }, { themeSettings, setThemeSettings }, themeMode, muiTheme[themeMode], themeSettings.use_custom_theme, themeSettings.theme_background, themeSettings.theme_main, themeSettings.theme_darken_ratio, themeSettings.font_size)),
         [themeSettings]
     );
     const theme = useMemo(
@@ -189,7 +189,7 @@ function App() {
 
     const hasSpeedDial = (["/announcement", "/gallery", "/challenge", "/delivery", "/division", "/downloads", "/event", "/leaderboard", "/poll", "/ranking", "/member-list", "/external-user"].includes(location.pathname) || location.pathname.startsWith("/delivery"));
 
-    if (window.isElectron && vars.dhconfig !== null) {
+    if (window.isElectron && webConfig !== null) {
         window.electron.ipcRenderer.send("presence-settings", userSettings.presence);
 
         const STATUS_NAMES = { "/": "Viewing Overview", "/overview": "Viewing Overview", "/gallery": "Viewing Gallery", "/announcement": "Viewing Announcements", "/downloads": "Viewing Downloads", "/poll": "Viewing Polls", "/map": "Viewing Map", "/delivery": "Viewing Deliveries", "/challenge": "Viewing Challenges", "/division": "Viewing Divisions", "/economy": "Viewing Economy", "/event": "Viewing Events", "/member": "Viewing Members", "/leaderboard": "Viewing Leaderboard", "/ranking": "Viewing Rankings", "/apply": "Submitting Application", "/application/new": "Submitting Application", "/application/my": "Viewing Own Applications", "/application/all": "Viewing All Applications", "/member-list": "Viewing Member List", "/external-user": "Viewing External Users", "/audit-log": "Viewing Audit Log", "/config": "Modifying Configuration", "/settings": "Modifying Settings", "/sponsor": "Sponsoring...", "/supporters": "Viewing Supporters", "/badges": "Viewing Badges", "/notifications": "Viewing Notifications", "/auth": "Logging in..." };
@@ -198,8 +198,8 @@ function App() {
         if (Object.keys(STATUS_NAMES).includes(path)) {
             window.electron.ipcRenderer.send("presence-update", {
                 details: STATUS_NAMES[path],
-                largeImageKey: `https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png?${vars.dhconfig.logo_key !== undefined ? vars.dhconfig.logo_key : ""}`,
-                largeImageText: vars.dhconfig.name,
+                largeImageKey: `https://cdn.chub.page/assets/${webConfig.abbr}/logo.png?${webConfig.logo_key !== undefined ? webConfig.logo_key : ""}`,
+                largeImageText: webConfig.name,
                 smallImageKey: `https://drivershub.charlws.com/images/logo.png`,
                 smallImageText: "The Drivers Hub Project (CHub)",
                 startTimestamp: new Date(),

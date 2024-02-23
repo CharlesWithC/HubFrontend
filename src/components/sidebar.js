@@ -13,7 +13,7 @@ var vars = require('../variables');
 
 const SideBar = (props) => {
     const { t: tr } = useTranslation();
-    const { curUID, curUser, curUserPerm } = useContext(AppContext);
+    const { webConfig, curUID, curUser, curUserPerm } = useContext(AppContext);
 
     window.loading = 0; // clear loading state on page change
 
@@ -46,7 +46,7 @@ const SideBar = (props) => {
         };
     }, []);
 
-    const plugins = vars.dhconfig.plugins;
+    const plugins = webConfig.plugins;
     // const allPlugins = ["announcement", "application", "challenge", "division", "downloads", "economy", "event", "poll"];
     const pluginControl = { "announcement": ["announcement"], "application": ["new_application", "my_application", "all_application"], "challenge": ["challenge"], "division": ["division"], "downloads": ["downloads"], "economy": ["economy"], "event": ["event"], "poll": ["poll"] };
     const menuName = { "overview": tr("overview"), "gallery": tr("gallery"), "announcement": tr("announcements"), "downloads": tr("downloads"), "poll": tr("polls"), "live_map": tr("map"), "delivery": tr("deliveries"), "challenge": tr("challenges"), "division": tr("divisions"), "economy": tr("economy"), "event": tr("events"), "member": tr("members"), "leaderboard": tr("leaderboard"), "ranking": tr("rankings"), "new_application": tr("new_application"), "my_application": tr("my_applications"), "all_application": tr("all_applications"), "member_list": tr("member_list"), "external_user": tr("external_users"), "audit_log": tr("audit_log"), "configuration": tr("configuration") };
@@ -58,7 +58,7 @@ const SideBar = (props) => {
 
     if (curUID === null) {
         menu = [["overview", "announcement", "gallery"], ["live_map", "delivery", "event"]];
-        if (vars.dhconfig.gallery.length === 0) {
+        if (webConfig.gallery.length === 0) {
             toRemove.push("gallery");
         } else {
             toRemove = toRemove.filter(item => item !== "gallery");
@@ -91,7 +91,7 @@ const SideBar = (props) => {
             } else {
                 toRemove = toRemove.filter(item => item !== "audit_log");
             }
-            if (vars.dhconfig.gallery.length === 0 && !curUserPerm.includes("manage_gallery")) {
+            if (webConfig.gallery.length === 0 && !curUserPerm.includes("manage_gallery")) {
                 toRemove.push("gallery");
             } else {
                 toRemove = toRemove.filter(item => item !== "gallery");
