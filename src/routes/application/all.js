@@ -15,7 +15,7 @@ var vars = require("../../variables");
 
 const ApplicationTable = memo(({ showDetail, doReload }) => {
     const { t: tr } = useTranslation();
-    const { curUser, userSettings } = useContext(AppContext);
+    const { curUser, userSettings, applicationTypes } = useContext(AppContext);
 
     const columns = [
         { id: 'id', label: 'ID', orderKey: 'applicationid', defaultOrder: 'desc' },
@@ -70,7 +70,7 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
             let newApplications = [];
             for (let i = 0; i < _applications.list.length; i++) {
                 let app = _applications.list[i];
-                newApplications.push({ id: app.applicationid, type: vars.applicationTypes[app.type]?.name ?? tr("unknown"), submit: <TimeAgo key={`${+new Date()}`} timestamp={app.submit_timestamp * 1000} />, update: <TimeAgo key={`${+new Date()}`} timestamp={app.respond_timestamp * 1000} />, user: <UserCard key={app.creator.uid} user={app.creator} />, staff: <UserCard key={app.last_respond_staff.uid} user={app.last_respond_staff} />, status: STATUS[app.status], application: app });
+                newApplications.push({ id: app.applicationid, type: applicationTypes[app.type]?.name ?? tr("unknown"), submit: <TimeAgo key={`${+new Date()}`} timestamp={app.submit_timestamp * 1000} />, update: <TimeAgo key={`${+new Date()}`} timestamp={app.respond_timestamp * 1000} />, user: <UserCard key={app.creator.uid} user={app.creator} />, staff: <UserCard key={app.last_respond_staff.uid} user={app.last_respond_staff} />, status: STATUS[app.status], application: app });
             }
 
             if (pageRef.current === page) {

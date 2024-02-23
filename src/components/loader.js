@@ -14,7 +14,7 @@ const Loader = ({ onLoaderLoaded }) => {
 
     const { t: tr } = useTranslation();
     const appContext = useContext(AppContext);
-    const { setApiConfig, webConfig, setWebConfig, setDivisions } = useContext(AppContext);
+    const { setApiConfig, webConfig, setWebConfig, setDivisions, setApplicationTypes } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     const theme = useTheme();
@@ -203,9 +203,11 @@ const Loader = ({ onLoaderLoaded }) => {
                 vars.ranks = memberRanks;
             }
             if (applicationTypes) {
+                const applicationTypesMap = {};
                 for (let i = 0; i < applicationTypes.length; i++) {
-                    vars.applicationTypes[applicationTypes[i].id] = applicationTypes[i];
+                    applicationTypesMap[applicationTypes[i].id] = applicationTypes[i];
                 }
+                setApplicationTypes(applicationTypesMap);
             }
             if (divisions) {
                 const divisionsMap = {};

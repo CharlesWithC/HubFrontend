@@ -15,7 +15,7 @@ var vars = require("../../variables");
 
 const ApplicationTable = memo(({ showDetail }) => {
     const { t: tr } = useTranslation();
-    const { userSettings } = useContext(AppContext);
+    const { userSettings, applicationTypes } = useContext(AppContext);
 
     const columns = [
         { id: 'id', label: 'ID', orderKey: 'applicationid', defaultOrder: 'desc' },
@@ -65,7 +65,7 @@ const ApplicationTable = memo(({ showDetail }) => {
             let newApplications = [];
             for (let i = 0; i < _applications.list.length; i++) {
                 let app = _applications.list[i];
-                newApplications.push({ id: app.applicationid, type: vars.applicationTypes[app.type]?.name ?? tr("unknown"), submit: <TimeAgo key={`${+new Date()}`} timestamp={app.submit_timestamp * 1000} />, update: <TimeAgo key={`${+new Date()}`} timestamp={app.respond_timestamp * 1000} />, staff: <UserCard user={app.last_respond_staff} />, status: STATUS[app.status], application: app });
+                newApplications.push({ id: app.applicationid, type: applicationTypes[app.type]?.name ?? tr("unknown"), submit: <TimeAgo key={`${+new Date()}`} timestamp={app.submit_timestamp * 1000} />, update: <TimeAgo key={`${+new Date()}`} timestamp={app.respond_timestamp * 1000} />, staff: <UserCard user={app.last_respond_staff} />, status: STATUS[app.status], application: app });
             }
 
             if (pageRef.current === page) {
@@ -87,7 +87,7 @@ const ApplicationTable = memo(({ showDetail }) => {
             <Grid item xs={12} sm={12} md={recent.length === 2 ? 6 : 12} lg={recent.length === 2 ? 6 : 12}>
                 <Card>
                     <CardContent>
-                        <Typography variant="subtitle2" gutterBottom>{tr("recent")} {vars.applicationTypes[recent[0].type].name}{tr("application")}</Typography>
+                        <Typography variant="subtitle2" gutterBottom>{tr("recent")} {applicationTypes[recent[0].type].name}{tr("application")}</Typography>
                         <Typography variant="h5" component="div">
                             {STATUS[recent[0].status]}
                         </Typography>
@@ -101,7 +101,7 @@ const ApplicationTable = memo(({ showDetail }) => {
                 <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Card>
                         <CardContent>
-                            <Typography variant="subtitle2" gutterBottom>{tr("recent")} {vars.applicationTypes[recent[1].type].name}{tr("application")}</Typography>
+                            <Typography variant="subtitle2" gutterBottom>{tr("recent")} {applicationTypes[recent[1].type].name}{tr("application")}</Typography>
                             <Typography variant="h5" component="div">
                                 {STATUS[recent[1].status]}
                             </Typography>

@@ -48,6 +48,3 @@ exports.ranks = ranks;
 
 var announcementTypes = null;
 exports.announcementTypes = announcementTypes;
-
-var applicationTypes = {};
-exports.applicationTypes = applicationTypes;

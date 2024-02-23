@@ -20,6 +20,7 @@ export const AppContext = createContext({
     // radio: enabled / disabled / auto-play (enabled)
     // radio-type: tsr / {url}
 
+    applicationTypes: {},
     divisions: {},
 
     dlogDetailsCache: {},
@@ -46,6 +47,7 @@ export const AppContextProvider = ({ children }) => {
 
     const [userSettings, setUserSettings] = useState({ "notification_refresh_interval": 30, "unit": "metric", "radio": "disabled", "radio_type": "tsr", "radio_volume": 100, "display_timezone": Intl.DateTimeFormat().resolvedOptions().timeZone, "data_saver": false, "font_size": "regular", "default_row_per_page": 10, "language": null, "presence": "full" });
 
+    const [applicationTypes, setApplicationTypes] = useState({});
     const [divisions, setDivisions] = useState({});
 
     const [dlogDetailsCache, setDlogDetailsCache] = useState({});
@@ -143,12 +145,13 @@ export const AppContextProvider = ({ children }) => {
 
         userSettings, setUserSettings,
 
+        applicationTypes, setApplicationTypes,
         divisions, setDivisions,
 
         dlogDetailsCache, setDlogDetailsCache, loadDlogDetails,
         economyCache, setEconomyCache,
         allUsersCache, setAllUsersCache, loadAllUsers
-    }), [apiConfig, webConfig, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, divisions, dlogDetailsCache, economyCache, allUsersCache]);
+    }), [apiConfig, webConfig, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache]);
 
     return (
         <AppContext.Provider value={value}>

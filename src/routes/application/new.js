@@ -1,12 +1,12 @@
-import { useState, useCallback } from 'react';
-import { Grid, Card, CardContent, Typography, TextField, RadioGroup, FormControl, FormLabel, FormControlLabel, MenuItem, Radio, Checkbox, Button, Box, Snackbar, Alert } from '@mui/material';
+import { useState, useCallback, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { AppContext } from '../../context';
+
+import { Grid, Card, CardContent, Typography, TextField, RadioGroup, FormControl, FormLabel, FormControlLabel, MenuItem, Radio, Checkbox, Button, Box, Snackbar, Alert, useTheme } from '@mui/material';
 import { Portal } from '@mui/base';
 
 import { customAxios as axios, getAuthToken } from '../../functions';
-import { useTheme } from '@emotion/react';
-import { useNavigate } from 'react-router-dom';
-
-import { useTranslation } from 'react-i18next';
 
 var vars = require("../../variables");
 
@@ -410,11 +410,12 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
 
 const NewApplication = () => {
     const { t: tr } = useTranslation();
+    const { applicationTypes } = useContext(AppContext);
 
     const theme = useTheme();
     const navigate = useNavigate();
     const [selectedType, setSelectedType] = useState(null);
-    const listTypes = Object.values(vars.applicationTypes);
+    const listTypes = Object.values(applicationTypes);
     const [enableNotifications, setEnableNotifications] = useState(true);
     const [submitDisabled, setSubmitDisabled] = useState(true);
 
@@ -476,8 +477,8 @@ const NewApplication = () => {
             </TextField>
         </div>
         <CardContent>
-            <CustomForm theme={theme} config={selectedType !== null ? vars.applicationTypes[selectedType].form : undefined} formData={formData} setFormData={setFormData} setSubmitDisabled={setSubmitDisabled} />
-            {((selectedType !== null ? vars.applicationTypes[selectedType].form : undefined) !== undefined) &&
+            <CustomForm theme={theme} config={selectedType !== null ? applicationTypes[selectedType].form : undefined} formData={formData} setFormData={setFormData} setSubmitDisabled={setSubmitDisabled} />
+            {((selectedType !== null ? applicationTypes[selectedType].form : undefined) !== undefined) &&
                 <Box sx={{ display: 'grid', justifyItems: 'end' }}>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                         <FormControl component="fieldset">

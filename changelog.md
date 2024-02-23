@@ -45,6 +45,7 @@
 14. Replaced `vars.dhconfig` with Context API `webConfig`, also supported real-time reflection of web config update
 15. Replaced `vars.allUsers` with Context API `allUsersCache` which is currently only used to purge inactive users
 16. Replaced `vars.divisions` with Context API `divisions`
+17. Replaced `vars.applicationTypes` with Context API `applicationTypes`
 
 ## v3.3.x
 
