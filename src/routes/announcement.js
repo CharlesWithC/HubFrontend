@@ -224,12 +224,12 @@ const AnnouncementGrid = memo(({ announcements, lastUpdate, onEdit, onDelete }) 
 });
 
 const AnnouncementManagers = memo(() => {
-    const { users, memberUIDs } = useContext(AppContext);
+    const { allPerms, users, memberUIDs } = useContext(AppContext);
     const allMembers = memberUIDs.map((uid) => users[uid]);
 
     let managers = [];
     for (let i = 0; i < allMembers.length; i++) {
-        if (checkPerm(allMembers[i].roles, ["administrator", "manage_announcements"])) {
+        if (checkPerm(allMembers[i].roles, ["administrator", "manage_announcements"], allPerms)) {
             managers.push(allMembers[i]);
         }
     }

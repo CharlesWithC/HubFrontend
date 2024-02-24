@@ -125,6 +125,7 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
 
 const AllApplication = () => {
     const { t: tr } = useTranslation();
+    const { allPerms } = useContext(AppContext);
 
     const [detailApp, setDetailApp] = useState(null);
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -172,7 +173,7 @@ const AllApplication = () => {
                     setSnackbarContent(tr("user_accepted_as_member"));
                     setSnackbarSeverity("success");
 
-                    let resp = await axios({ url: `${vars.dhpath}/member/${newUserID}/roles`, method: "PATCH", data: { roles: [vars.perms.driver[0]] }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                    let resp = await axios({ url: `${vars.dhpath}/member/${newUserID}/roles`, method: "PATCH", data: { roles: [allPerms.driver[0]] }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
                     if (resp.status === 204) {
                         setSnackbarContent(tr("driver_role_assigned"));
                         setSnackbarSeverity("success");
@@ -192,7 +193,7 @@ const AllApplication = () => {
             setSnackbarSeverity("error");
         }
         setSubmitLoading(false);
-    }, [detailApp, newStatus, message, showDetail]);
+    }, [detailApp, newStatus, message, allPerms]);
 
     const deleteApp = useCallback(async () => {
         setSubmitLoading(true);

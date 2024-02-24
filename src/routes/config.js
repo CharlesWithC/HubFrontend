@@ -653,6 +653,7 @@ const MemoDiscordSteamForm = memo(({ theme, formConfig }) => {
 
 const RoleForm = ({ theme, role, perms, onUpdate }) => {
     const { t: tr } = useTranslation();
+    const { allPerms } = useContext(AppContext);
     if (role.discord_role_id === undefined) role.discord_role_id = "";
     return <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px", mb: "15px" }}>
         <Grid item xs={6} md={3}>
@@ -685,7 +686,7 @@ const RoleForm = ({ theme, role, perms, onUpdate }) => {
                 className="basic-multi-select"
                 classNamePrefix="select"
                 styles={customSelectStyles(theme)}
-                options={Object.keys(vars.perms).map((perm) => ({ value: perm, label: replaceUnderscores(perm) }))}
+                options={Object.keys(allPerms).map((perm) => ({ value: perm, label: replaceUnderscores(perm) }))}
                 value={getRolePerms(role.id, perms).map((perm) => ({ value: perm, label: replaceUnderscores(perm) }))}
                 onChange={(newItems) => {
                     let rolePerms = newItems.map((item) => (item.value));
@@ -2756,11 +2757,12 @@ const DivisionForm = ({ theme, division, onUpdate }) => {
 
 const MemoDivisionForm = memo(({ theme, formConfig }) => {
     const { t: tr } = useTranslation();
+    const { allPerms } = useContext(AppContext);
     return <>{formConfig.state.divisions.length === 0 &&
         <div style={{ display: 'flex', alignItems: 'center' }}>
             <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1 }}>{tr("no_division_create")}</Typography>
             <IconButton variant="contained" color="success" onClick={() => {
-                let newDivisions = [{ id: 1, name: tr("new_division"), points: { mode: "static", value: 500 }, role_id: vars.perms.driver[0], staff_role_ids: [], message: "", channel_id: "", webhook_url: "" }];
+                let newDivisions = [{ id: 1, name: tr("new_division"), points: { mode: "static", value: 500 }, role_id: allPerms.driver[0], staff_role_ids: [], message: "", channel_id: "", webhook_url: "" }];
                 formConfig.setState({ ...formConfig.state, divisions: newDivisions });
             }}><FontAwesomeIcon icon={faPlus} /></IconButton>
         </div>}

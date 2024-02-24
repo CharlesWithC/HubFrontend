@@ -14,7 +14,7 @@ const Loader = ({ onLoaderLoaded }) => {
 
     const { t: tr } = useTranslation();
     const appContext = useContext(AppContext);
-    const { setApiConfig, webConfig, setWebConfig, loadLanguages, setAllRoles, loadMemberUIDs, loadDlogDetails } = useContext(AppContext);
+    const { setApiConfig, webConfig, setWebConfig, loadLanguages, setAllRoles, setAllPerms, loadMemberUIDs, loadDlogDetails } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     const [isMember, setIsMember] = useState(false);
@@ -189,7 +189,7 @@ const Loader = ({ onLoaderLoaded }) => {
                 setAllRoles(allRoles);
             }
             if (memberPerms) {
-                vars.perms = memberPerms;
+                setAllPerms(memberPerms);
             }
             if (memberRanks) {
                 vars.ranks = memberRanks;

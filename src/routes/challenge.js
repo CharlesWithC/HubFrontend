@@ -176,12 +176,12 @@ const ChallengeCard = ({ challenge, upcoming, onShowDetails, onUpdateDelivery, o
 };
 
 const ChallengeManagers = memo(() => {
-    const { users, memberUIDs } = useContext(AppContext);
+    const { allPerms, users, memberUIDs } = useContext(AppContext);
     const allMembers = memberUIDs.map((uid) => users[uid]);
 
     let managers = [];
     for (let i = 0; i < allMembers.length; i++) {
-        if (checkPerm(allMembers[i].roles, ["administrator", "manage_challenges"])) {
+        if (checkPerm(allMembers[i].roles, ["administrator", "manage_challenges"], allPerms)) {
             managers.push(allMembers[i]);
         }
     }

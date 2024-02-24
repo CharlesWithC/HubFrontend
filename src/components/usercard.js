@@ -135,7 +135,7 @@ const UserCard = (props) => {
     const { t: tr } = useTranslation();
     const theme = useTheme();
     const navigate = useNavigate();
-    const { apiConfig, webConfig, allRoles, users, setUsers, userProfiles, setUserProfiles, setMemberUIDs, curUser, curUserPerm, userSettings } = useContext(AppContext);
+    const { apiConfig, webConfig, allRoles, allPerms, users, setUsers, userProfiles, setUserProfiles, setMemberUIDs, curUser, curUserPerm, userSettings } = useContext(AppContext);
     const orderedRoles = useMemo(() => (Object.values(allRoles).sort((a, b) => a.order_id - b.order_id).map(role => role.id)), [allRoles]);
 
     const bannerRef = useRef(null); // this is a real component reference
@@ -165,18 +165,18 @@ const UserCard = (props) => {
 
     const userPerm = useMemo(() => {
         if (user.roles === undefined) return [];
-        const allPerms = Object.keys(vars.perms);
+        const permsKey = Object.keys(allPerms);
         let result = [];
         for (let i = 0; i < user.roles.length; i++) {
-            for (let j = 0; j < allPerms.length; j++) {
-                if (vars.perms[allPerms[j]].includes(user.roles[i]) && !result.includes(allPerms[j])) {
-                    result.push(allPerms[j]);
+            for (let j = 0; j < permsKey.length; j++) {
+                if (allPerms[permsKey[j]].includes(user.roles[i]) && !result.includes(permsKey[j])) {
+                    result.push(permsKey[j]);
                 }
             }
         }
         if (result.includes("administrator")) result = ["administrator"];
         return result;
-    }, [user.roles, vars.perms]);
+    }, [user.roles, allPerms]);
 
     // user card settings
     let { size, useChip, onDelete, textOnly, style, showProfileModal, onProfileModalClose } = { size: "20", useChip: false, onDelete: null, textOnly: false, style: {}, showProfileModal: undefined, onProfileModalClose: undefined, ...props };

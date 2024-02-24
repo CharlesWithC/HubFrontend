@@ -7,7 +7,8 @@ export const AppContext = createContext({
     apiConfig: null,
     webConfig: null,
     languages: [],
-    allRoles: [],
+    allRoles: {},
+    allPerms: {},
 
     users: {},
     userProfiles: {},
@@ -42,7 +43,8 @@ export const AppContextProvider = ({ children }) => {
     const [apiConfig, setApiConfig] = useState(null);
     const [webConfig, setWebConfig] = useState(null);
     const [languages, setLanguages] = useState([]);
-    const [allRoles, setAllRoles] = useState([]);
+    const [allRoles, setAllRoles] = useState({});
+    const [allPerms, setAllPerms] = useState({});
 
     const [users, setUsers] = useState({});
     const [userProfiles, setUserProfiles] = useState({});
@@ -66,19 +68,42 @@ export const AppContextProvider = ({ children }) => {
     useEffect(() => {
         if (curUID !== null && users[curUID] !== undefined) {
             setCurUser(users[curUID]);
+        }
+    }, [curUID, users[curUID]]);
 
-            const allPerms = Object.keys(vars.perms);
+    useEffect(() => {
+        if (curUID !== null && users[curUID] !== undefined) {
+            let orderedRoles = Object.values(allRoles);
+            orderedRoles.sort((a, b) => a.order_id - b.order_id);
+            let roleOnDisplay = "";
+            for (let i = 0; i < orderedRoles.length; i++) {
+                if (users[curUID].roles.includes(orderedRoles[i].id)) {
+                    roleOnDisplay = orderedRoles[i].name;
+                    break;
+                }
+            }
+            setCurUserBanner({ name: users[curUID].name, role: roleOnDisplay, avatar: users[curUID].avatar });
+        } else {
+            setCurUserBanner({ name: "Login", role: "", avatar: "https://charlws.com/me.gif" });
+        }
+    }, [allRoles, curUID, users[curUID]]);
+
+    useEffect(() => {
+        if (curUID !== null && users[curUID] !== undefined) {
+            const permKeys = Object.keys(allPerms);
             const userPerm = [];
             for (let i = 0; i < users[curUID].roles.length; i++) {
-                for (let j = 0; j < allPerms.length; j++) {
-                    if (vars.perms[allPerms[j]].includes(users[curUID].roles[i]) && !userPerm.includes(allPerms[j])) {
-                        userPerm.push(allPerms[j]);
+                for (let j = 0; j < permKeys.length; j++) {
+                    if (allPerms[permKeys[j]].includes(users[curUID].roles[i]) && !userPerm.includes(permKeys[j])) {
+                        userPerm.push(permKeys[j]);
                     }
                 }
             }
             setCurUserPerm(userPerm);
+        } else {
+            setCurUserPerm([]);
         }
-    }, [curUID, users[curUID]]);
+    }, [allPerms, curUID, users[curUID]]);
 
     // background load
     const loadMemberUIDs = useCallback(async () => {
@@ -202,6 +227,7 @@ export const AppContextProvider = ({ children }) => {
         webConfig, setWebConfig,
         languages, setLanguages, loadLanguages,
         allRoles, setAllRoles,
+        allPerms, setAllPerms,
 
         users, setUsers,
         userProfiles, setUserProfiles,
@@ -220,7 +246,7 @@ export const AppContextProvider = ({ children }) => {
         dlogDetailsCache, setDlogDetailsCache, loadDlogDetails,
         economyCache, setEconomyCache,
         allUsersCache, setAllUsersCache, loadAllUsers
-    }), [apiConfig, webConfig, languages, allRoles, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, announcementTypes, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache]);
+    }), [apiConfig, webConfig, languages, allRoles, allPerms, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, announcementTypes, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache]);
 
     return (
         <AppContext.Provider value={value}>

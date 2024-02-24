@@ -471,12 +471,12 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
 });
 
 const EventManagers = memo(() => {
-    const { users, memberUIDs } = useContext(AppContext);
+    const { allPerms, users, memberUIDs } = useContext(AppContext);
     const allMembers = memberUIDs.map((uid) => users[uid]);
 
     let managers = [];
     for (let i = 0; i < allMembers.length; i++) {
-        if (checkPerm(allMembers[i].roles, ["administrator", "manage_events"])) {
+        if (checkPerm(allMembers[i].roles, ["administrator", "manage_events"], allPerms)) {
             managers.push(allMembers[i]);
         }
     }

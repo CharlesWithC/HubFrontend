@@ -132,28 +132,6 @@ export async function FetchProfile({ webConfig, allRoles, setUsers, setCurUID, s
             setCurUID(curUser.uid); // do this before setUsers so setUsers could automatically setCurUser
             setUsers(users => ({ ...users, [resp.data.uid]: curUser }));
 
-            let orderedRoles = Object.values(allRoles);
-            orderedRoles.sort((a, b) => a.order_id - b.order_id);
-            let roleOnDisplay = "";
-            for (let i = 0; i < orderedRoles.length; i++) {
-                if (curUser.roles.includes(orderedRoles[i].id)) {
-                    roleOnDisplay = orderedRoles[i].name;
-                    break;
-                }
-            }
-            const allPerms = Object.keys(vars.perms);
-            const userPerm = [];
-            for (let i = 0; i < curUser.roles.length; i++) {
-                for (let j = 0; j < allPerms.length; j++) {
-                    if (vars.perms[allPerms[j]].includes(curUser.roles[i]) && !userPerm.includes(allPerms[j])) {
-                        userPerm.push(allPerms[j]);
-                    }
-                }
-            }
-            setCurUserPerm(userPerm);
-
-            setCurUserBanner({ name: curUser.name, role: roleOnDisplay, avatar: curUser.avatar });
-
             let tiers = ["platinum", "gold", "silver", "bronze"];
             for (let i = 0; i < tiers.length; i++) {
                 if (vars.userLevel !== -1) break;
@@ -447,7 +425,7 @@ export function checkUserRole(user, roles) {
     return false;
 }
 
-export function getRolePerms(role, permsConfig = vars.perms) {
+export function getRolePerms(role, permsConfig) {
     let perms = [];
     let allPerms = Object.keys(permsConfig);
     for (let i = 0; i < allPerms.length; i++) {
@@ -458,12 +436,12 @@ export function getRolePerms(role, permsConfig = vars.perms) {
     return perms;
 }
 
-export function checkPerm(roles, perms) {
+export function checkPerm(roles, perms, allPerms) {
     if (roles === undefined) return false;
     // any matches in perms will return true
     for (let i = 0; i < perms.length; i++) {
-        for (let j = 0; j < vars.perms[perms[i]].length; j++) {
-            if (roles.includes(vars.perms[perms[i]][j])) {
+        for (let j = 0; j < allPerms[perms[i]].length; j++) {
+            if (roles.includes(allPerms[perms[i]][j])) {
                 return true;
             }
         }
