@@ -1,4 +1,4 @@
-import { useState, useContext, useMemo } from 'react';
+import { useState, useEffect, useContext, useMemo } from 'react';
 import { AppContext } from '../context';
 
 import { Typography, useTheme } from '@mui/material';
