@@ -60,6 +60,7 @@
 26. Replaced `vars.host` with `window.dhhost` (Context API was not used because this variable is mostly static and is defined locally on initial load)
 27. Replaced `vars.apiversion` with Context API `apiVersion`
 28. Replaced `vars.dhlogo` with Context API `vtcLogo`
+29. Replaced `vars.dhbanner` with Context API `vtcBanner`
 
 ## v3.3.x
 

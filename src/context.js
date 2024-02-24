@@ -7,7 +7,8 @@ export const AppContext = createContext({
     apiPath: "", setApiPath: () => { },
     apiVersion: "", setApiVersion: () => { },
 
-    vtcLogo: null, setVtcLogo: () => { },
+    vtcLogo: localStorage.getItem("cache-logo"), setVtcLogo: () => { },
+    vtcBanner: localStorage.getItem("cache-banner"), setVtcBanner: () => { },
 
     apiConfig: null, setApiConfig: () => { },
     webConfig: null, setWebConfig: () => { },
@@ -49,7 +50,8 @@ export const AppContextProvider = ({ children }) => {
     const [apiPath, setApiPath] = useState("");
     const [apiVersion, setApiVersion] = useState("");
 
-    const [vtcLogo, setVtcLogo] = useState(null);
+    const [vtcLogo, setVtcLogo] = useState(localStorage.getItem("cache-logo"));
+    const [vtcBanner, setVtcBanner] = useState(localStorage.getItem("cache-banner"));
 
     const [apiConfig, setApiConfig] = useState(null);
     const [webConfig, setWebConfig] = useState(null);
@@ -239,6 +241,7 @@ export const AppContextProvider = ({ children }) => {
         apiVersion, setApiVersion,
 
         vtcLogo, setVtcLogo,
+        vtcBanner, setVtcBanner,
 
         apiConfig, setApiConfig,
         webConfig, setWebConfig,
@@ -264,7 +267,7 @@ export const AppContextProvider = ({ children }) => {
         dlogDetailsCache, setDlogDetailsCache, loadDlogDetails,
         economyCache, setEconomyCache,
         allUsersCache, setAllUsersCache, loadAllUsers
-    }), [apiPath, apiVersion, apiConfig, vtcLogo, webConfig, languages, allRoles, allPerms, allRanks, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, announcementTypes, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache]);
+    }), [apiPath, apiVersion, apiConfig, vtcLogo, vtcBanner, webConfig, languages, allRoles, allPerms, allRanks, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, announcementTypes, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache]);
 
     return (
         <AppContext.Provider value={value}>

@@ -13,7 +13,7 @@ var vars = require('../variables');
 
 const SideBar = (props) => {
     const { t: tr } = useTranslation();
-    const { webConfig, curUID, curUser, curUserPerm } = useContext(AppContext);
+    const { vtcBanner, webConfig, curUID, curUser, curUserPerm } = useContext(AppContext);
 
     const navigate = useNavigate();
     const [mobileOpen, setMobileOpen] = useState(false);
@@ -165,7 +165,7 @@ const SideBar = (props) => {
     const sidebar = <SimpleBar key='sidebar-simplebar' style={{ maxHeight: `100vh`, height: `100vh`, }}>
         <List key="0" sx={{ paddingTop: 0 }}>
             <ListItem key={`navbtn-banner`} disablePadding>
-                <img className="sidebar-banner" src={vars.dhbanner} alt="" style={{ margin: 0, width: "100%" }} />
+                <img className="sidebar-banner" src={vtcBanner} alt="" style={{ margin: 0, width: "100%" }} />
             </ListItem>
         </List>
         {menu.map((subMenu, subIndex) => (

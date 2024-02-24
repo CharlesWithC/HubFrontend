@@ -14,7 +14,7 @@ const Loader = ({ onLoaderLoaded }) => {
 
     const { t: tr } = useTranslation();
     const appContext = useContext(AppContext);
-    const { apiPath, setApiPath, setApiVersion, vtcLogo, setVtcLogo, setApiConfig, webConfig, setWebConfig, loadLanguages, setAllRoles, setAllPerms, setAllRanks, loadMemberUIDs, loadDlogDetails } = useContext(AppContext);
+    const { apiPath, setApiPath, setApiVersion, vtcLogo, setVtcLogo, vtcBanner, setVtcBanner, setApiConfig, webConfig, setWebConfig, loadLanguages, setAllRoles, setAllPerms, setAllRanks, loadMemberUIDs, loadDlogDetails } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     const [isMember, setIsMember] = useState(false);
@@ -70,7 +70,7 @@ const Loader = ({ onLoaderLoaded }) => {
             setLoadMessage(tr("loading"));
             setTitle(webConfig.name);
             localStorage.setItem("cache-title", webConfig.name);
-            let imageLoaded = (vtcLogo !== null) + (vars.dhvtcbg !== null) + (vars.dhbanner !== null);
+            let imageLoaded = (vtcLogo !== null) + (vars.dhvtcbg !== null) + (vtcBanner !== null);
             Promise.all([
                 loadImageAsBase64(`https://cdn.chub.page/assets/${webConfig.abbr}/logo.png?${webConfig.logo_key !== undefined ? webConfig.logo_key : ""}`, "./logo.png")
                     .then((image) => {
@@ -105,12 +105,12 @@ const Loader = ({ onLoaderLoaded }) => {
                     }),
                 loadImageAsBase64(`https://cdn.chub.page/assets/${webConfig.abbr}/banner.png?${webConfig.banner_key !== undefined ? webConfig.banner_key : ""}`)
                     .then((image) => {
-                        if (vars.dhbanner === null) imageLoaded += 1;
-                        vars.dhbanner = image;
+                        if (vtcBanner === null) imageLoaded += 1;
+                        setVtcBanner(image);
                     })
                     .catch(() => {
-                        if (vars.dhbanner === null) imageLoaded += 1;
-                        vars.dhbanner = "";
+                        if (vtcBanner === null) imageLoaded += 1;
+                        setVtcBanner("");
                     })
             ]).then(() => { imageLoaded = 3; });
 
@@ -222,7 +222,6 @@ const Loader = ({ onLoaderLoaded }) => {
         }
     }, []);
     useEffect(() => {
-        setVtcLogo(localStorage.getItem("cache-logo"));
         doLoad();
     }, []);
 
