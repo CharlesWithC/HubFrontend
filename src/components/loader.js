@@ -14,14 +14,13 @@ const Loader = ({ onLoaderLoaded }) => {
 
     const { t: tr } = useTranslation();
     const appContext = useContext(AppContext);
-    const { apiPath, setApiPath, setApiVersion, vtcLogo, setVtcLogo, vtcBanner, setVtcBanner, setApiConfig, webConfig, setWebConfig, loadLanguages, setAllRoles, setAllPerms, setAllRanks, loadMemberUIDs, loadDlogDetails } = useContext(AppContext);
+    const { apiPath, setApiPath, setApiVersion, vtcLogo, setVtcLogo, vtcBanner, setVtcBanner, vtcBackground, setVtcBackground, setApiConfig, webConfig, setWebConfig, loadLanguages, setAllRoles, setAllPerms, setAllRanks, loadMemberUIDs, loadDlogDetails } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     const [isMember, setIsMember] = useState(false);
 
     const theme = useTheme();
     const [animateLoader, setLoaderAnimation] = useState(true);
-    const [bgSrc, setBgSrc] = useState(domain !== null && domain !== "" ? localStorage.getItem("cache-background") : null);
     const [title, setTitle] = useState(domain !== null && domain !== "" ? (localStorage.getItem("cache-title") !== null ? localStorage.getItem("cache-title") : tr("drivers_hub")) : null);
     const [loadMessage, setLoadMessage] = useState((!window.isElectron || vtcLogo !== null) ? tr("loading") : "");
     const [unknownDomain, setUnknownDomain] = useState(false);
@@ -70,7 +69,7 @@ const Loader = ({ onLoaderLoaded }) => {
             setLoadMessage(tr("loading"));
             setTitle(webConfig.name);
             localStorage.setItem("cache-title", webConfig.name);
-            let imageLoaded = (vtcLogo !== null) + (vars.dhvtcbg !== null) + (vtcBanner !== null);
+            let imageLoaded = (vtcLogo !== null) + (vtcBackground !== null) + (vtcBanner !== null);
             Promise.all([
                 loadImageAsBase64(`https://cdn.chub.page/assets/${webConfig.abbr}/logo.png?${webConfig.logo_key !== undefined ? webConfig.logo_key : ""}`, "./logo.png")
                     .then((image) => {
@@ -84,25 +83,6 @@ const Loader = ({ onLoaderLoaded }) => {
                         if (vtcLogo === null) imageLoaded += 1;
                         setVtcLogo("");
                     }),
-                loadImageAsBase64(`https://cdn.chub.page/assets/${webConfig.abbr}/bgimage.png?${webConfig.bgimage_key !== undefined ? webConfig.bgimage_key : ""}`)
-                    .then((image) => {
-                        if (vars.dhvtcbg === null) imageLoaded += 1;
-                        if (vars.vtcLevel >= 1) {
-                            vars.dhvtcbg = image;
-                            try {
-                                localStorage.setItem("cache-background", vars.dhvtcbg);
-                            } catch { }
-                            setBgSrc(vars.dhvtcbg);
-                        } else {
-                            vars.dhvtcbg = "";
-                            setBgSrc(vars.dhvtcbg);
-                            localStorage.removeItem("cache-background");
-                        }
-                    })
-                    .catch(() => {
-                        if (vars.dhvtcbg === null) imageLoaded += 1;
-                        vars.dhvtcbg = "";
-                    }),
                 loadImageAsBase64(`https://cdn.chub.page/assets/${webConfig.abbr}/banner.png?${webConfig.banner_key !== undefined ? webConfig.banner_key : ""}`)
                     .then((image) => {
                         if (vtcBanner === null) imageLoaded += 1;
@@ -111,6 +91,23 @@ const Loader = ({ onLoaderLoaded }) => {
                     .catch(() => {
                         if (vtcBanner === null) imageLoaded += 1;
                         setVtcBanner("");
+                    }),
+                loadImageAsBase64(`https://cdn.chub.page/assets/${webConfig.abbr}/bgimage.png?${webConfig.bgimage_key !== undefined ? webConfig.bgimage_key : ""}`)
+                    .then((image) => {
+                        if (vtcBackground === null) imageLoaded += 1;
+                        if (vars.vtcLevel >= 1) {
+                            setVtcBackground(image);
+                            try {
+                                localStorage.setItem("cache-background", image);
+                            } catch { }
+                        } else {
+                            setVtcBackground("");
+                            localStorage.removeItem("cache-background");
+                        }
+                    })
+                    .catch(() => {
+                        if (vtcBackground === null) imageLoaded += 1;
+                        setVtcBackground("");
                     })
             ]).then(() => { imageLoaded = 3; });
 
@@ -268,7 +265,7 @@ const Loader = ({ onLoaderLoaded }) => {
 
     return (
         <div style={{
-            backgroundImage: `url(${bgSrc})`,
+            backgroundImage: `url(${vtcBackground})`,
             backgroundPosition: 'center',
             backgroundSize: 'cover',
             backgroundRepeat: 'no-repeat',

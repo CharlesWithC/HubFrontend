@@ -61,6 +61,7 @@
 27. Replaced `vars.apiversion` with Context API `apiVersion`
 28. Replaced `vars.dhlogo` with Context API `vtcLogo`
 29. Replaced `vars.dhbanner` with Context API `vtcBanner`
+30. Replaced `vars.dhvtcbg` with Context API `vtcBackground`
 
 ## v3.3.x
 

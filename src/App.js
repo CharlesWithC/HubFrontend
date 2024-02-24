@@ -70,7 +70,7 @@ const drivershub = `    ____       _                         __  __      __
 
 function App() {
     const { t: tr } = useTranslation();
-    const { apiConfig, webConfig, userSettings, setUserSettings } = useContext(AppContext);
+    const { vtcBackground, apiConfig, webConfig, userSettings, setUserSettings } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     useEffect(() => {
@@ -86,8 +86,8 @@ function App() {
     );
     const muiTheme = { "dark": "dark", "light": "light", "halloween": "dark" };
     const designTokens = useMemo(
-        () => (getDesignTokens({ webConfig }, { themeSettings, setThemeSettings }, themeMode, muiTheme[themeMode], themeSettings.use_custom_theme, themeSettings.theme_background, themeSettings.theme_main, themeSettings.theme_darken_ratio, themeSettings.font_size)),
-        [themeSettings]
+        () => (getDesignTokens({ vtcBackground, webConfig }, { themeSettings, setThemeSettings }, themeMode, muiTheme[themeMode], themeSettings.use_custom_theme, themeSettings.theme_background, themeSettings.theme_main, themeSettings.theme_darken_ratio, themeSettings.font_size)),
+        [vtcBackground, themeSettings, webConfig]
     );
     const theme = useMemo(
         () => createTheme(designTokens, muiTheme[themeMode]),

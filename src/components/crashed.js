@@ -9,13 +9,13 @@ var vars = require("../variables");
 
 const Crashed = ({ errorUploaded }) => {
     const { t: tr } = useTranslation();
-    const { vtcLogo, webConfig } = useCOntext(AppContext);
+    const { vtcLogo, vtcBackground, webConfig } = useCOntext(AppContext);
     const { themeSettings } = useContext(ThemeContext);
 
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
     const themeMode = themeSettings.theme === "auto" ? (prefersDarkMode ? 'dark' : 'light') : themeSettings.theme;
     const muiTheme = { "dark": "dark", "light": "light", "halloween": "dark" };
-    const designTokens = getDesignTokens({ webConfig }, {}, themeMode, muiTheme[themeMode], themeSettings.use_custom_theme, themeSettings.theme_background, themeSettings.theme_main, themeSettings.theme_darken_ratio);
+    const designTokens = getDesignTokens({ vtcBackground, webConfig }, {}, themeMode, muiTheme[themeMode], themeSettings.use_custom_theme, themeSettings.theme_background, themeSettings.theme_main, themeSettings.theme_darken_ratio);
     const theme = useMemo(
         () => createTheme(designTokens, muiTheme[themeMode]),
         [designTokens, themeMode],

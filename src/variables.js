@@ -1,6 +1,4 @@
-var dhvtcbg = null;
 var dhcustombg = (localStorage.getItem("custom-background") !== null ? localStorage.getItem("custom-background") : "");
-exports.dhvtcbg = dhvtcbg;
 exports.dhcustombg = dhcustombg;
 
 // CHub
