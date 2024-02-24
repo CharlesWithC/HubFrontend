@@ -41,7 +41,7 @@ const LargeUserCard = ({ user, color }) => {
 
 const Leaderboard = () => {
     const { t: tr } = useTranslation();
-    const { userSettings } = useContext(AppContext);
+    const { allRanks, userSettings } = useContext(AppContext);
     const theme = useTheme();
 
     const columns = [
@@ -101,7 +101,7 @@ const Leaderboard = () => {
             let newLeaderboard = [];
             for (let i = 0; i < _leaderboard.list.length; i++) {
                 let points = _leaderboard.list[i].points;
-                newLeaderboard.push({ rankorder: points.rank, member: <UserCard user={_leaderboard.list[i].user} inline={true} />, rankname: getRankName(points.total), distance: TSep(points.distance), challenge: TSep(points.challenge), event: TSep(points.event), division: TSep(points.division), bonus: TSep(points.bonus), total: TSep(points.total), userid: _leaderboard.list[i].user.userid });
+                newLeaderboard.push({ rankorder: points.rank, member: <UserCard user={_leaderboard.list[i].user} inline={true} />, rankname: getRankName(points.total, allRanks), distance: TSep(points.distance), challenge: TSep(points.challenge), event: TSep(points.event), division: TSep(points.division), bonus: TSep(points.bonus), total: TSep(points.total), userid: _leaderboard.list[i].user.userid });
             }
 
             if (pageRef.current === page) {
@@ -112,7 +112,7 @@ const Leaderboard = () => {
             window.loading -= 1;
         }
         doLoad();
-    }, [page, pageSize, listParam]);
+    }, [page, pageSize, listParam, allRanks]);
 
     return <>
         {monthly.length === 3 && <>

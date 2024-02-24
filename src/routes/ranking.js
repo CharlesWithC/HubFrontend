@@ -16,7 +16,7 @@ var vars = require("../variables");
 
 const Ranking = () => {
     const { t: tr } = useTranslation();
-    const { curUser } = useContext(AppContext);
+    const { allRanks, curUser } = useContext(AppContext);
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -44,11 +44,11 @@ const Ranking = () => {
         window.loading += 1;
 
         if (curRankTypeId === null) {
-            for (let i = 0; i < vars.ranks.length; i++) {
-                if (vars.ranks[i].default) {
-                    setRankTypeId(vars.ranks[i].id);
-                    setCurRankRoles(vars.ranks[i].details);
-                    setCurRankPointTypes(vars.ranks[i].point_types);
+            for (let i = 0; i < allRanks.length; i++) {
+                if (allRanks[i].default) {
+                    setRankTypeId(allRanks[i].id);
+                    setCurRankRoles(allRanks[i].details);
+                    setCurRankPointTypes(allRanks[i].point_types);
                     break;
                 }
             }
@@ -88,7 +88,7 @@ const Ranking = () => {
         }
 
         window.loading -= 1;
-    }, [curRankPointTypes, curRankRoles, curRankTypeId]);
+    }, [allRanks, curRankPointTypes, curRankRoles, curRankTypeId]);
     useEffect(() => {
         doLoad();
     }, [curRankPointTypes, curRankRoles, curRankTypeId, doLoad]);
@@ -218,7 +218,7 @@ const Ranking = () => {
                     sx={{ marginTop: "6px", height: "30px" }}
                     fullWidth size="small"
                 >
-                    {vars.ranks.map((ranktype, index) => (
+                    {allRanks.map((ranktype, index) => (
                         <MenuItem value={`${ranktype.id}`} key={index}>{ranktype.name}</MenuItem>
                     ))}
                 </TextField>

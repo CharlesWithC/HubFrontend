@@ -55,6 +55,7 @@
 21. Replaced `vars.languages` with Context API `languages`, also supported background loading for supported languages
 22. Replaced `vars.roles` with Context API `allRoles`, also removed `vars.orderedRoles` which is to be calculated in UserCard
 23. Replaced `vars.perms` with Context API `allPerms`
+24. Replaced `vars.ranks` with Context API `allRanks`
 
 ## v3.3.x
 

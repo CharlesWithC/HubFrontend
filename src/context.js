@@ -9,6 +9,7 @@ export const AppContext = createContext({
     languages: [],
     allRoles: {},
     allPerms: {},
+    allRanks: {},
 
     users: {},
     userProfiles: {},
@@ -45,6 +46,7 @@ export const AppContextProvider = ({ children }) => {
     const [languages, setLanguages] = useState([]);
     const [allRoles, setAllRoles] = useState({});
     const [allPerms, setAllPerms] = useState({});
+    const [allRanks, setAllRanks] = useState({});
 
     const [users, setUsers] = useState({});
     const [userProfiles, setUserProfiles] = useState({});
@@ -228,6 +230,7 @@ export const AppContextProvider = ({ children }) => {
         languages, setLanguages, loadLanguages,
         allRoles, setAllRoles,
         allPerms, setAllPerms,
+        allRanks, setAllRanks,
 
         users, setUsers,
         userProfiles, setUserProfiles,
@@ -246,7 +249,7 @@ export const AppContextProvider = ({ children }) => {
         dlogDetailsCache, setDlogDetailsCache, loadDlogDetails,
         economyCache, setEconomyCache,
         allUsersCache, setAllUsersCache, loadAllUsers
-    }), [apiConfig, webConfig, languages, allRoles, allPerms, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, announcementTypes, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache]);
+    }), [apiConfig, webConfig, languages, allRoles, allPerms, allRanks, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, announcementTypes, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache]);
 
     return (
         <AppContext.Provider value={value}>

@@ -302,11 +302,11 @@ export function sortDictWithValue(dict) {
     return items;
 }
 
-export function getRankName(points) {
+export function getRankName(points, allRanks) {
     let ranks = [];
-    for (let i = 0; i < vars.ranks.length; i++) {
-        if (vars.ranks[i].default) {
-            ranks = vars.ranks[i].details;
+    for (let i = 0; i < allRanks.length; i++) {
+        if (allRanks[i].default) {
+            ranks = allRanks[i].details;
             break;
         }
     }
