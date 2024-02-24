@@ -1,6 +1,3 @@
-var dhcustombg = (localStorage.getItem("custom-background") !== null ? localStorage.getItem("custom-background") : "");
-exports.dhcustombg = dhcustombg;
-
 // CHub
 var specialRoles = {};
 exports.specialRoles = specialRoles;

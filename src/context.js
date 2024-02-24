@@ -10,6 +10,7 @@ export const AppContext = createContext({
     vtcLogo: localStorage.getItem("cache-logo"), setVtcLogo: () => { },
     vtcBanner: localStorage.getItem("cache-banner"), setVtcBanner: () => { },
     vtcBackground: localStorage.getItem("cache-background"), setVtcBackground: () => { },
+    customBackground: (localStorage.getItem("custom-background") !== null ? localStorage.getItem("custom-background") : ""), setCustomBackground: () => { },
 
     apiConfig: null, setApiConfig: () => { },
     webConfig: null, setWebConfig: () => { },
@@ -54,6 +55,7 @@ export const AppContextProvider = ({ children }) => {
     const [vtcLogo, setVtcLogo] = useState(localStorage.getItem("cache-logo"));
     const [vtcBanner, setVtcBanner] = useState(localStorage.getItem("cache-banner"));
     const [vtcBackground, setVtcBackground] = useState(localStorage.getItem("cache-background"));
+    const [customBackground, setCustomBackground] = useState(localStorage.getItem("custom-background") !== null ? localStorage.getItem("custom-background") : "");
 
     const [apiConfig, setApiConfig] = useState(null);
     const [webConfig, setWebConfig] = useState(null);
@@ -245,6 +247,7 @@ export const AppContextProvider = ({ children }) => {
         vtcLogo, setVtcLogo,
         vtcBanner, setVtcBanner,
         vtcBackground, setVtcBackground,
+        customBackground, setCustomBackground,
 
         apiConfig, setApiConfig,
         webConfig, setWebConfig,
@@ -270,7 +273,7 @@ export const AppContextProvider = ({ children }) => {
         dlogDetailsCache, setDlogDetailsCache, loadDlogDetails,
         economyCache, setEconomyCache,
         allUsersCache, setAllUsersCache, loadAllUsers
-    }), [apiPath, apiVersion, apiConfig, vtcLogo, vtcBanner, vtcBackground, webConfig, languages, allRoles, allPerms, allRanks, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, announcementTypes, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache]);
+    }), [apiPath, apiVersion, apiConfig, vtcLogo, vtcBanner, vtcBackground, customBackground, webConfig, languages, allRoles, allPerms, allRanks, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, announcementTypes, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache]);
 
     return (
         <AppContext.Provider value={value}>

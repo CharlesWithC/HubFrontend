@@ -87,7 +87,7 @@ function TabPanel(props) {
 
 const Settings = ({ defaultTab = 0 }) => {
     const { t: tr } = useTranslation();
-    const { apiPath, vtcBackground, apiConfig, webConfig, languages, allRoles, setUsers, curUser, userSettings, setUserSettings } = useContext(AppContext);
+    const { apiPath, vtcBackground, customBackground, setCustomBackground, apiConfig, webConfig, languages, allRoles, setUsers, curUser, userSettings, setUserSettings } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     const sessionsColumns = useMemo(() => ([
@@ -1047,7 +1047,6 @@ const Settings = ({ defaultTab = 0 }) => {
         }
     }, []);
 
-    const [customBackground, setCustomBackground] = useState(vars.dhcustombg);
     const handleCustomBackground = (event) => {
         const file = event.target.files[0];
         const fileSizeInMegabytes = file.size / (1024 * 1024);
@@ -1068,7 +1067,6 @@ const Settings = ({ defaultTab = 0 }) => {
         reader.onload = (e) => {
             setCustomBackground(e.target.result);
             localStorage.setItem('custom-background', e.target.result);
-            vars.dhcustombg = e.target.result;
         };
         reader.readAsDataURL(file);
     };
@@ -1094,7 +1092,6 @@ const Settings = ({ defaultTab = 0 }) => {
 
             setCustomBackground(fileContent);
             localStorage.setItem('custom-background', fileContent);
-            vars.dhcustombg = fileContent;
         }
     };
 
@@ -1580,7 +1577,7 @@ const Settings = ({ defaultTab = 0 }) => {
                     <ButtonGroup fullWidth>
                         <Button variant="contained" color={themeSettings.use_custom_theme === true ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(true); }} disabled={vars.userLevel < 2}>{tr("enabled")}</Button>
                         <Button variant="contained" color={themeSettings.use_custom_theme === false ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(false); }} disabled={vars.userLevel < 2}>{tr("disabled")}</Button>
-                        <Button variant="contained" color={themeSettings.use_custom_theme === "custombg" ? "info" : "secondary"} onClick={() => { updateThemeMainColor(DEFAULT_BGCOLOR[theme.mode].paper); updateThemeBackgroundColor(DEFAULT_BGCOLOR[theme.mode].default); setLocalThemeDarkenRatio(0.4); setThemeSettings(prevSettings => ({ ...prevSettings, bg_image: vars.dhcustombg })); updateUseCustomTheme("custombg"); }} disabled={vars.userLevel < 3}>{tr("custom_background")}</Button>
+                        <Button variant="contained" color={themeSettings.use_custom_theme === "custombg" ? "info" : "secondary"} onClick={() => { updateThemeMainColor(DEFAULT_BGCOLOR[theme.mode].paper); updateThemeBackgroundColor(DEFAULT_BGCOLOR[theme.mode].default); setLocalThemeDarkenRatio(0.4); setThemeSettings(prevSettings => ({ ...prevSettings, bg_image: customBackground })); updateUseCustomTheme("custombg"); }} disabled={vars.userLevel < 3}>{tr("custom_background")}</Button>
                         {vars.vtcLevel >= 1 && webConfig.theme_main_color !== null && webConfig.theme_background_color !== null && <Button variant="contained" color={themeSettings.use_custom_theme === "vtc" ? "info" : "secondary"} onClick={() => { updateUseCustomTheme("vtc"); }}>{tr("vtc_theme")}</Button>}
                         {vars.vtcLevel >= 1 && vtcBackground !== "" && <Button variant="contained" color={themeSettings.use_custom_theme === "vtcbg" ? "info" : "secondary"} onClick={() => { updateThemeMainColor(DEFAULT_BGCOLOR[theme.mode].paper); updateThemeBackgroundColor(DEFAULT_BGCOLOR[theme.mode].default); setLocalThemeDarkenRatio(0.4); setThemeSettings(prevSettings => ({ ...prevSettings, bg_image: vtcBackground })); updateUseCustomTheme("vtcbg"); }}>{tr("vtc_background")}</Button>}
                     </ButtonGroup>

@@ -62,6 +62,7 @@
 28. Replaced `vars.dhlogo` with Context API `vtcLogo`
 29. Replaced `vars.dhbanner` with Context API `vtcBanner`
 30. Replaced `vars.dhvtcbg` with Context API `vtcBackground`
+31. Replaced `vars.dhcustombg` with Context API `customBackground`
 
 ## v3.3.x
 
