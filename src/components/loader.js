@@ -14,7 +14,7 @@ const Loader = ({ onLoaderLoaded }) => {
 
     const { t: tr } = useTranslation();
     const appContext = useContext(AppContext);
-    const { apiPath, setApiPath, setApiConfig, webConfig, setWebConfig, loadLanguages, setAllRoles, setAllPerms, setAllRanks, loadMemberUIDs, loadDlogDetails } = useContext(AppContext);
+    const { apiPath, setApiPath, setApiVersion, setApiConfig, webConfig, setWebConfig, loadLanguages, setAllRoles, setAllPerms, setAllRanks, loadMemberUIDs, loadDlogDetails } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     const [isMember, setIsMember] = useState(false);
@@ -152,7 +152,7 @@ const Loader = ({ onLoaderLoaded }) => {
                 [index, specialRoles, patrons, userConfig] = await makeRequestsAuto(urlsBatch);
             }
             if (index) {
-                vars.apiversion = index.version;
+                setApiVersion(index.version);
             }
             if (specialRoles) {
                 vars.specialRoles = specialRoles;

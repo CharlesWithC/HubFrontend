@@ -1,9 +1,7 @@
-var apiversion = "";
 var dhlogo = null;
 var dhbanner = null;
 var dhvtcbg = null;
 var dhcustombg = (localStorage.getItem("custom-background") !== null ? localStorage.getItem("custom-background") : "");
-exports.apiversion = apiversion;
 exports.dhlogo = dhlogo;
 exports.dhbanner = dhbanner;
 exports.dhvtcbg = dhvtcbg;

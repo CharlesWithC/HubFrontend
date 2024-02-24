@@ -3039,7 +3039,7 @@ const MemoEconomyForm = memo(({ theme, formConfig }) => {
 
 const Configuration = () => {
     const { t: tr } = useTranslation();
-    const { apiPath, webConfig: curWebConfig, setWebConfig: setCurWebConfig, curUser } = useContext(AppContext);
+    const { apiPath, apiVersion, webConfig: curWebConfig, setWebConfig: setCurWebConfig, curUser } = useContext(AppContext);
     const theme = useTheme();
 
     const [snackbarContent, setSnackbarContent] = useState("");
@@ -3368,12 +3368,12 @@ const Configuration = () => {
                 <Grid container spacing={2} rowSpacing={-0.5}>
                     <Grid item xs={12} md={6}>
                         <Typography variant="body2">
-                            Client: v3.4.0-beta.08 (build.{buildhash})
+                            Client: 3.4.0-beta.08 (build.{buildhash})
                         </Typography>
                     </Grid>
                     <Grid item xs={12} md={6}>
                         <Typography variant="body2">
-                            Server: {vars.apiversion}
+                            Server: {apiVersion}
                         </Typography>
                     </Grid>
                 </Grid>
