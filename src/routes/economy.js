@@ -225,7 +225,7 @@ const CustomTileMap = ({ economyGarages, tilesUrl, title, style, route, onGarage
 
 const Economy = () => {
     const { t: tr } = useTranslation();
-    const { curUser, curUserPerm, userSettings, economyCache, setEconomyCache } = useContext(AppContext);
+    const { apiPath, curUser, curUserPerm, userSettings, economyCache, setEconomyCache } = useContext(AppContext);
     const theme = useTheme();
 
     const slotColumns = [
@@ -274,10 +274,10 @@ const Economy = () => {
             const newEconomyCache = { config: null, trucks: [], garagesMap: {}, merchMap: {} };
 
             const urlsBatch = [
-                { url: `${vars.dhpath}/economy`, auth: true },
-                { url: `${vars.dhpath}/economy/garages`, auth: true },
-                { url: `${vars.dhpath}/economy/trucks`, auth: true },
-                { url: `${vars.dhpath}/economy/merch`, auth: true },
+                { url: `${apiPath}/economy`, auth: true },
+                { url: `${apiPath}/economy/garages`, auth: true },
+                { url: `${apiPath}/economy/trucks`, auth: true },
+                { url: `${apiPath}/economy/merch`, auth: true },
             ];
             const [economyConfig, economyGarages, economyTrucks, economyMerch] = await makeRequestsAuto(urlsBatch);
             if (economyConfig) {
@@ -315,7 +315,7 @@ const Economy = () => {
             }
             setHasATS(hasATS);
         }
-    }, []);
+    }, [apiPath]);
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -336,13 +336,13 @@ const Economy = () => {
         setModalGarage(garage);
         setModalGarageDetails(null);
 
-        let resp = await axios({ url: `${vars.dhpath}/economy/garages/${garage.id}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/economy/garages/${garage.id}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         setModalGarageDetails(resp.data);
-    }, []);
+    }, [apiPath]);
 
     const purchaseGarage = useCallback(async () => {
         setDialogDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/economy/garages/${modalGarage.id}/purchase`, data: { owner: "self" }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/economy/garages/${modalGarage.id}/purchase`, data: { owner: "self" }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
             setSnackbarContent(tr("garage_purchased"));
             setSnackbarSeverity("success");
@@ -353,7 +353,7 @@ const Economy = () => {
             setSnackbarSeverity("error");
         }
         setDialogDisabled(false);
-    }, [modalGarage]);
+    }, [apiPath, modalGarage]);
 
     const [garageOwner, setGarageOwner] = useState({});
     const [message, setMessage] = useState("");
@@ -363,7 +363,7 @@ const Economy = () => {
         if (owner === -1000) owner = "company";
         else if (owner === curUser.userid) owner = "self";
         else owner = "user-" + owner;
-        let resp = await axios({ url: `${vars.dhpath}/economy/garages/${modalGarage.id}/transfer`, data: { owner: owner, message: message }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/economy/garages/${modalGarage.id}/transfer`, data: { owner: owner, message: message }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("garage_transferred"));
             setSnackbarSeverity("success");
@@ -374,11 +374,11 @@ const Economy = () => {
             setSnackbarSeverity("error");
         }
         setDialogDisabled(false);
-    }, [modalGarage, garageOwner]);
+    }, [apiPath, modalGarage, garageOwner]);
 
     const sellGarage = useCallback(async () => {
         setDialogDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/economy/garages/${modalGarage.id}/sell`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/economy/garages/${modalGarage.id}/sell`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
             setSnackbarContent(tr("garage_sold"));
             setSnackbarSeverity("success");
@@ -390,7 +390,7 @@ const Economy = () => {
             setSnackbarSeverity("error");
         }
         setDialogDisabled(false);
-    }, [modalGarage]);
+    }, [apiPath, modalGarage]);
 
     const [slotList, setSlotList] = useState([]);
     const [slotTotal, setSlotTotal] = useState(0);
@@ -410,7 +410,7 @@ const Economy = () => {
         async function doLoad() {
             window.loading += 1;
 
-            let resp = await axios({ url: `${vars.dhpath}/economy/garages/${modalGarage.id}/slots/list?page=${slotPage}&page_size=${slotPageSize}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let resp = await axios({ url: `${apiPath}/economy/garages/${modalGarage.id}/slots/list?page=${slotPage}&page_size=${slotPageSize}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             let newSlotList = [];
             for (let i = 0; i < resp.data.list.length; i++) {
                 let slot = resp.data.list[i];
@@ -431,11 +431,11 @@ const Economy = () => {
         if (dialogAction === "slot") {
             doLoad();
         }
-    }, [modalGarage, dialogAction, slotPage, slotPageSize]);
+    }, [apiPath, modalGarage, dialogAction, slotPage, slotPageSize]);
 
     const purchaseSlot = useCallback(async () => {
         setDialogDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/economy/garages/${modalGarage.id}/slots/purchase`, data: { owner: "self" }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/economy/garages/${modalGarage.id}/slots/purchase`, data: { owner: "self" }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
             setSnackbarContent(tr("slot_purchased"));
             setSnackbarSeverity("success");
@@ -446,7 +446,7 @@ const Economy = () => {
             setSnackbarSeverity("error");
         }
         setDialogDisabled(false);
-    }, [modalGarage]);
+    }, [apiPath, modalGarage]);
 
     const [slotOwner, setSlotOwner] = useState({});
     const transferSlot = useCallback(async () => {
@@ -455,7 +455,7 @@ const Economy = () => {
         if (owner === -1000) owner = "company";
         else if (owner === curUser.userid) owner = "self";
         else owner = "user-" + owner;
-        let resp = await axios({ url: `${vars.dhpath}/economy/garages/${modalGarage.id}/slots/${activeSlot.slotid}/transfer`, data: { owner: owner, message: message }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/economy/garages/${modalGarage.id}/slots/${activeSlot.slotid}/transfer`, data: { owner: owner, message: message }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("slot_transferred"));
             setSnackbarSeverity("success");
@@ -466,11 +466,11 @@ const Economy = () => {
             setSnackbarSeverity("error");
         }
         setDialogDisabled(false);
-    }, [modalGarage, activeSlot, slotOwner]);
+    }, [apiPath, modalGarage, activeSlot, slotOwner]);
 
     const sellSlot = useCallback(async () => {
         setDialogDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/economy/garages/${modalGarage.id}/slots/${activeSlot.slotid}/sell`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/economy/garages/${modalGarage.id}/slots/${activeSlot.slotid}/sell`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
             setSnackbarContent(tr("slot_sold"));
             setSnackbarSeverity("success");
@@ -482,7 +482,7 @@ const Economy = () => {
             setSnackbarSeverity("error");
         }
         setDialogDisabled(false);
-    }, [modalGarage, activeSlot]);
+    }, [apiPath, modalGarage, activeSlot]);
 
     const [truckReferer, setTruckReferer] = useState("");
     const [activeTruck, setActiveTruck] = useState({});
@@ -490,14 +490,14 @@ const Economy = () => {
     const [truckOwner, setTruckOwner] = useState({});
     const [truckAssignee, setTruckAssignee] = useState({});
     const loadTruck = useCallback(async (truck) => {
-        let resp = await axios({ url: `${vars.dhpath}/economy/trucks/${truck.vehicleid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/economy/trucks/${truck.vehicleid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         setActiveTruck({ ...truck, ...resp.data, update: +new Date() });
         setTruckOwner(resp.data.owner);
         setTruckAssignee(resp.data.assignee);
-    }, []);
+    }, [apiPath]);
     const activateTruck = useCallback(async () => {
         setDialogDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/economy/trucks/${activeTruck.vehicleid}/activate`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/economy/trucks/${activeTruck.vehicleid}/activate`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("truck_activated"));
             setSnackbarSeverity("success");
@@ -508,10 +508,10 @@ const Economy = () => {
             setSnackbarSeverity("error");
         }
         setDialogDisabled(false);
-    }, [activeTruck]);
+    }, [apiPath, activeTruck]);
     const deactivateTruck = useCallback(async () => {
         setDialogDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/economy/trucks/${activeTruck.vehicleid}/deactivate`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/economy/trucks/${activeTruck.vehicleid}/deactivate`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("truck_deactivated"));
             setSnackbarSeverity("success");
@@ -522,10 +522,10 @@ const Economy = () => {
             setSnackbarSeverity("error");
         }
         setDialogDisabled(false);
-    }, [activeTruck]);
+    }, [apiPath, activeTruck]);
     const relocateTruck = useCallback(async () => {
         setDialogDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/economy/trucks/${activeTruck.vehicleid}/relocate`, data: { slotid: truckSlotId }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/economy/trucks/${activeTruck.vehicleid}/relocate`, data: { slotid: truckSlotId }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("truck_relocated"));
             setSnackbarSeverity("success");
@@ -536,10 +536,10 @@ const Economy = () => {
             setSnackbarSeverity("error");
         }
         setDialogDisabled(false);
-    }, [activeTruck, truckSlotId]);
+    }, [apiPath, activeTruck, truckSlotId]);
     const repairTruck = useCallback(async () => {
         setDialogDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/economy/trucks/${activeTruck.vehicleid}/repair`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/economy/trucks/${activeTruck.vehicleid}/repair`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
             setSnackbarContent(tr("truck_repaired"));
             setSnackbarSeverity("success");
@@ -551,14 +551,14 @@ const Economy = () => {
             setSnackbarSeverity("error");
         }
         setDialogDisabled(false);
-    }, [activeTruck]);
+    }, [apiPath, activeTruck]);
     const transferTruck = useCallback(async () => {
         setDialogDisabled(true);
         let owner = truckOwner.userid;
         if (owner === -1000) owner = "company";
         else if (owner === curUser.userid) owner = "self";
         else owner = "user-" + owner;
-        let resp = await axios({ url: `${vars.dhpath}/economy/trucks/${activeTruck.vehicleid}/transfer`, data: { owner: owner, message: message }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/economy/trucks/${activeTruck.vehicleid}/transfer`, data: { owner: owner, message: message }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("truck_transferred"));
             setSnackbarSeverity("success");
@@ -570,11 +570,11 @@ const Economy = () => {
             setSnackbarSeverity("error");
         }
         setDialogDisabled(false);
-    }, [activeTruck, truckOwner]);
+    }, [apiPath, activeTruck, truckOwner]);
     const reassignTruck = useCallback(async () => {
         setDialogDisabled(true);
         let assignee = truckAssignee.userid;
-        let resp = await axios({ url: `${vars.dhpath}/economy/trucks/${activeTruck.vehicleid}/transfer`, data: { assigneeid: assignee, message: message }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/economy/trucks/${activeTruck.vehicleid}/transfer`, data: { assigneeid: assignee, message: message }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("truck_reassigned"));
             setSnackbarSeverity("success");
@@ -586,10 +586,10 @@ const Economy = () => {
             setSnackbarSeverity("error");
         }
         setDialogDisabled(false);
-    }, [activeTruck, truckAssignee]);
+    }, [apiPath, activeTruck, truckAssignee]);
     const sellTruck = useCallback(async () => {
         setDialogDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/economy/trucks/${activeTruck.vehicleid}/sell`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/economy/trucks/${activeTruck.vehicleid}/sell`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
             setSnackbarContent(tr("truck_sold"));
             setSnackbarSeverity("success");
@@ -600,10 +600,10 @@ const Economy = () => {
             setSnackbarSeverity("error");
         }
         setDialogDisabled(false);
-    }, [activeTruck]);
+    }, [apiPath, activeTruck]);
     const scrapTruck = useCallback(async () => {
         setDialogDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/economy/trucks/${activeTruck.vehicleid}/scrap`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/economy/trucks/${activeTruck.vehicleid}/scrap`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
             setSnackbarContent(tr("truck_scrapped"));
             setSnackbarSeverity("success");
@@ -614,7 +614,7 @@ const Economy = () => {
             setSnackbarSeverity("error");
         }
         setDialogDisabled(false);
-    }, [activeTruck]);
+    }, [apiPath, activeTruck]);
 
     const [myTruckList, setMyTruckList] = useState([]);
     const [myTruckTotal, setMyTruckTotal] = useState(0);
@@ -629,7 +629,7 @@ const Economy = () => {
         async function doLoad() {
             window.loading += 1;
 
-            let resp = await axios({ url: `${vars.dhpath}/economy/trucks/list?owner=${curUser.userid}&page=${myTruckPage}&page_size=${myTruckPageSize}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let resp = await axios({ url: `${apiPath}/economy/trucks/list?owner=${curUser.userid}&page=${myTruckPage}&page_size=${myTruckPageSize}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             let newTruckList = [];
             for (let i = 0; i < resp.data.list.length; i++) {
                 let truck = resp.data.list[i];
@@ -645,12 +645,12 @@ const Economy = () => {
         if (cached) {
             doLoad();
         }
-    }, [economyCache, cached, myTruckPage, myTruckPageSize, loadMyTruck]);
+    }, [apiPath, economyCache, cached, myTruckPage, myTruckPageSize, loadMyTruck]);
 
     const [selectedTruck, setSelectedTruck] = useState({});
     const purchaseTruck = useCallback(async () => {
         setDialogDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/economy/trucks/${selectedTruck.truck.id}/purchase`, data: { slotid: truckSlotId }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/economy/trucks/${selectedTruck.truck.id}/purchase`, data: { slotid: truckSlotId }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
             setSnackbarContent(tr("truck_purchased"));
             setSnackbarSeverity("success");
@@ -661,7 +661,7 @@ const Economy = () => {
             setSnackbarSeverity("error");
         }
         setDialogDisabled(false);
-    }, [selectedTruck, truckSlotId, truckReferer]);
+    }, [apiPath, selectedTruck, truckSlotId, truckReferer]);
 
     const transferFrom = curUser;
     const [transferTo, setTransferTo] = useState({});
@@ -669,7 +669,7 @@ const Economy = () => {
     const [transferMessage, setTransferMessage] = useState("");
     const transferMoney = useCallback(async () => {
         setDialogDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/economy/balance/transfer`, data: { from_userid: transferFrom.userid, to_userid: transferTo.userid, amount: transferAmount, message: transferMessage }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/economy/balance/transfer`, data: { from_userid: transferFrom.userid, to_userid: transferTo.userid, amount: transferAmount, message: transferMessage }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
             setSnackbarContent("Transaction succeed! Balance: ${resp.data.from_balance}");
             setSnackbarSeverity("success");
@@ -679,26 +679,26 @@ const Economy = () => {
             setSnackbarSeverity("error");
         }
         setDialogDisabled(false);
-    }, [transferTo, transferAmount, transferMessage]);
+    }, [apiPath, transferTo, transferAmount, transferMessage]);
     useEffect(() => {
         async function doLoad() {
-            let resp = await axios({ url: `${vars.dhpath}/economy/balance`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let resp = await axios({ url: `${apiPath}/economy/balance`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             setBalance(resp.data.balance);
             setBalanceVisibility(resp.data.visibility);
         }
         if (cached) {
             doLoad();
         }
-    }, [cached]);
+    }, [apiPath, cached]);
     const updateBalanceVisibility = useCallback(async (visibility) => {
         setBalanceVisibility(visibility);
-        let resp = await axios({ url: `${vars.dhpath}/economy/balance/${curUser.userid}/visibility/${visibility}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/economy/balance/${curUser.userid}/visibility/${visibility}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status !== 204) {
             setBalanceVisibility(visibility === "public" ? "private" : "public");
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
         }
-    }, [balanceVisibility]);
+    }, [apiPath, balanceVisibility]);
 
     const [manageNewBalance, setManageNewBalance] = useState("/");
     const [manageBalance, setManageBalance] = useState("/");
@@ -710,7 +710,7 @@ const Economy = () => {
     useEffect(() => {
         async function doLoad() {
             if (manageTransferFrom.userid !== undefined) {
-                let resp = await axios({ url: `${vars.dhpath}/economy/balance/${manageTransferFrom.userid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                let resp = await axios({ url: `${apiPath}/economy/balance/${manageTransferFrom.userid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
                 setManageBalance(resp.data.balance);
                 setManageBalanceVisibility(resp.data.visibility);
             }
@@ -718,10 +718,10 @@ const Economy = () => {
         if (cached) {
             doLoad();
         }
-    }, [cached, manageTransferFrom]);
+    }, [apiPath, cached, manageTransferFrom]);
     const manageTransferMoney = useCallback(async () => {
         setDialogDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/economy/balance/transfer`, data: { from_userid: manageTransferFrom.userid, to_userid: manageTransferTo.userid, amount: manageTransferAmount, message: manageTransferMessage }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/economy/balance/transfer`, data: { from_userid: manageTransferFrom.userid, to_userid: manageTransferTo.userid, amount: manageTransferAmount, message: manageTransferMessage }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
             setSnackbarContent("Transaction succeed! User balance: ${resp.data.from_balance}");
             setSnackbarSeverity("success");
@@ -731,10 +731,10 @@ const Economy = () => {
             setSnackbarSeverity("error");
         }
         setDialogDisabled(false);
-    }, [manageTransferFrom, manageTransferTo, manageTransferAmount, manageTransferMessage]);
+    }, [apiPath, manageTransferFrom, manageTransferTo, manageTransferAmount, manageTransferMessage]);
     const manageUpdateBalance = useCallback(async () => {
         setDialogDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/economy/balance/${manageTransferFrom.userid}`, data: { amount: manageNewBalance }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/economy/balance/${manageTransferFrom.userid}`, data: { amount: manageNewBalance }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("balance_updated"));
             setSnackbarSeverity("success");
@@ -744,16 +744,16 @@ const Economy = () => {
             setSnackbarSeverity("error");
         }
         setDialogDisabled(false);
-    }, [manageTransferFrom, manageNewBalance]);
+    }, [apiPath, manageTransferFrom, manageNewBalance]);
     const updateManageBalanceVisibility = useCallback(async (visibility) => {
         setManageBalanceVisibility(visibility);
-        let resp = await axios({ url: `${vars.dhpath}/economy/balance/${manageTransferFrom.userid}/visibility/${visibility}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/economy/balance/${manageTransferFrom.userid}/visibility/${visibility}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status !== 204) {
             setManageBalanceVisibility(visibility === "public" ? "private" : "public");
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
         }
-    }, [manageTransferFrom, manageBalanceVisibility]);
+    }, [apiPath, manageTransferFrom, manageBalanceVisibility]);
     const [exportRange, setExportRange] = useState({ start_time: undefined, end_time: undefined });
     const exportTransaction = useCallback(async () => {
         if (exportRange.end_time - exportRange.start_time > 86400 * 90) {
@@ -762,7 +762,7 @@ const Economy = () => {
             return;
         }
         setDialogDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/economy/balance/${curUser.userid}/transactions/export?after=${parseInt(exportRange.start_time)}&before=${parseInt(exportRange.end_time)}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/economy/balance/${curUser.userid}/transactions/export?after=${parseInt(exportRange.start_time)}&before=${parseInt(exportRange.end_time)}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
             downloadLocal("export.csv", resp.data);
             setSnackbarContent(tr("success"));
@@ -772,7 +772,7 @@ const Economy = () => {
             setSnackbarSeverity("error");
         }
         setDialogDisabled(false);
-    }, [exportRange]);
+    }, [apiPath, exportRange]);
 
     const [leaderboard, setLeaderboard] = useState([]);
     const [leaderboardTotal, setLeaderboardTotal] = useState(0);
@@ -786,7 +786,7 @@ const Economy = () => {
         async function doLoad() {
             window.loading += 1;
 
-            let resp = await axios({ url: `${vars.dhpath}/economy/balance/leaderboard?page=${leaderboardPage}&page_size=${leaderboardPageSize}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let resp = await axios({ url: `${apiPath}/economy/balance/leaderboard?page=${leaderboardPage}&page_size=${leaderboardPageSize}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             let newLeaderboard = [];
             for (let i = 0; i < resp.data.list.length; i++) {
                 newLeaderboard.push({ rank: (leaderboardPage - 1) * leaderboardPageSize + i + 1, user: <UserCard key={`${leaderboardPage}-i`} user={resp.data.list[i].user} />, balance: TSep(resp.data.list[i].balance), data: resp.data.list[i].user });
@@ -801,7 +801,7 @@ const Economy = () => {
         if (cached) {
             doLoad();
         }
-    }, [cached, leaderboardPage, leaderboardPageSize]);
+    }, [apiPath, cached, leaderboardPage, leaderboardPageSize]);
 
     const [truckList, setTruckList] = useState([]);
     const [truckTotal, setTruckTotal] = useState(0);
@@ -815,7 +815,7 @@ const Economy = () => {
         async function doLoad() {
             window.loading += 1;
 
-            let resp = await axios({ url: `${vars.dhpath}/economy/trucks/list?order_by=income&order=desc&page=${truckPage}&page_size=${truckPageSize}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let resp = await axios({ url: `${apiPath}/economy/trucks/list?order_by=income&order=desc&page=${truckPage}&page_size=${truckPageSize}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             let newTruckList = [];
             for (let i = 0; i < resp.data.list.length; i++) {
                 let truck = resp.data.list[i];
@@ -831,7 +831,7 @@ const Economy = () => {
         if (cached) {
             doLoad();
         }
-    }, [economyCache, cached, truckPage, truckPageSize]);
+    }, [apiPath, economyCache, cached, truckPage, truckPageSize]);
 
     const [garageList, setGarageList] = useState([]);
     const [garageTotal, setGarageTotal] = useState(0);
@@ -845,7 +845,7 @@ const Economy = () => {
         async function doLoad() {
             window.loading += 1;
 
-            let resp = await axios({ url: `${vars.dhpath}/economy/garages/list?order_by=income&order=desc&page=${garagePage}&page_size=${garagePageSize}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let resp = await axios({ url: `${apiPath}/economy/garages/list?order_by=income&order=desc&page=${garagePage}&page_size=${garagePageSize}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             let newGarageList = [];
             for (let i = 0; i < resp.data.list.length; i++) {
                 let garage = resp.data.list[i];
@@ -861,7 +861,7 @@ const Economy = () => {
         if (cached) {
             doLoad();
         }
-    }, [economyCache, cached, garagePage, garagePageSize]);
+    }, [apiPath, economyCache, cached, garagePage, garagePageSize]);
 
     const [merchList, setMerchList] = useState([]);
     const [merchTotal, setMerchTotal] = useState(0);
@@ -876,7 +876,7 @@ const Economy = () => {
         async function doLoad() {
             window.loading += 1;
 
-            let resp = await axios({ url: `${vars.dhpath}/economy/merch/list?owner=${curUser.userid}&page=${merchPage}&page_size=${merchPageSize}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let resp = await axios({ url: `${apiPath}/economy/merch/list?owner=${curUser.userid}&page=${merchPage}&page_size=${merchPageSize}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             let newMerchList = [];
             for (let i = 0; i < resp.data.list.length; i++) {
                 let merch = resp.data.list[i];
@@ -893,13 +893,13 @@ const Economy = () => {
         if (cached) {
             doLoad();
         }
-    }, [economyCache, cached, merchPage, merchPageSize, loadMerch]);
+    }, [apiPath, economyCache, cached, merchPage, merchPageSize, loadMerch]);
     const [activeMerch, setActiveMerch] = useState({});
     const [merchOwner, setMerchOwner] = useState({});
     const [selectedMerch, setSelectedMerch] = useState({});
     const purchaseMerch = useCallback(async () => {
         setDialogDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/economy/merch/${selectedMerch.merch.id}/purchase`, data: { owner: "self" }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/economy/merch/${selectedMerch.merch.id}/purchase`, data: { owner: "self" }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
             setSnackbarContent(tr("merch_purchased"));
             setSnackbarSeverity("success");
@@ -910,14 +910,14 @@ const Economy = () => {
             setSnackbarSeverity("error");
         }
         setDialogDisabled(false);
-    }, [selectedMerch]);
+    }, [apiPath, selectedMerch]);
     const transferMerch = useCallback(async () => {
         setDialogDisabled(true);
         let owner = merchOwner.userid;
         if (owner === -1000) owner = "company";
         else if (owner === curUser.userid) owner = "self";
         else owner = "user-" + owner;
-        let resp = await axios({ url: `${vars.dhpath}/economy/merch/${activeMerch.itemid}/transfer`, data: { owner: owner, message: message }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/economy/merch/${activeMerch.itemid}/transfer`, data: { owner: owner, message: message }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("merch_transferred"));
             setSnackbarSeverity("success");
@@ -928,10 +928,10 @@ const Economy = () => {
             setSnackbarSeverity("error");
         }
         setDialogDisabled(false);
-    }, [activeMerch, merchOwner]);
+    }, [apiPath, activeMerch, merchOwner]);
     const sellMerch = useCallback(async () => {
         setDialogDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/economy/merch/${activeMerch.itemid}/sell`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/economy/merch/${activeMerch.itemid}/sell`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
             setSnackbarContent(tr("merch_sold"));
             setSnackbarSeverity("success");
@@ -943,7 +943,7 @@ const Economy = () => {
             setSnackbarSeverity("error");
         }
         setDialogDisabled(false);
-    }, [activeMerch]);
+    }, [apiPath, activeMerch]);
 
     return <>{cached && <>
         <CustomTileMap tilesUrl={"https://map.charlws.com/ets2/base/tiles"} title={tr("europe")} onGarageClick={handleGarageClick} economyGarages={Object.values(economyCache.garagesMap)} />

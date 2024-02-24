@@ -15,7 +15,7 @@ var vars = require("../../variables");
 
 const ApplicationTable = memo(({ showDetail }) => {
     const { t: tr } = useTranslation();
-    const { userSettings, applicationTypes, loadApplicationTypes } = useContext(AppContext);
+    const { apiPath, userSettings, applicationTypes, loadApplicationTypes } = useContext(AppContext);
 
     const columns = [
         { id: 'id', label: 'ID', orderKey: 'applicationid', defaultOrder: 'desc' },
@@ -57,14 +57,14 @@ const ApplicationTable = memo(({ showDetail }) => {
 
             if (!inited.current) {
                 [_recent, _applications] = await makeRequestsAuto([
-                    { url: `${vars.dhpath}/applications/list?page=1&page_size=2&order_by=submit_timestamp&order=desc`, auth: true },
-                    { url: `${vars.dhpath}/applications/list?page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                    { url: `${apiPath}/applications/list?page=1&page_size=2&order_by=submit_timestamp&order=desc`, auth: true },
+                    { url: `${apiPath}/applications/list?page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
                 ]);
                 setRecent(_recent.list);
                 inited.current = true;
             } else {
                 [_applications] = await makeRequestsAuto([
-                    { url: `${vars.dhpath}/applications/list?page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                    { url: `${apiPath}/applications/list?page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
                 ]);
             }
             let newApplications = [];
@@ -81,7 +81,7 @@ const ApplicationTable = memo(({ showDetail }) => {
             window.loading -= 1;
         }
         doLoad();
-    }, [page, pageSize, STATUS, listParam]); // do not include applicationTypes to prevent rerender loop on network error
+    }, [apiPath, page, pageSize, STATUS, listParam]); // do not include applicationTypes to prevent rerender loop on network error
 
     function handleClick(data) {
         showDetail(data.application);
@@ -124,6 +124,7 @@ const ApplicationTable = memo(({ showDetail }) => {
 
 const MyApplication = () => {
     const { t: tr } = useTranslation();
+    const { apiPath } = useContext(AppContext);
 
     const [detailApp, setDetailApp] = useState(null);
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -141,7 +142,7 @@ const MyApplication = () => {
 
         setMessage("");
 
-        let resp = await axios({ url: `${vars.dhpath}/applications/${application.applicationid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/applications/${application.applicationid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
             setDetailApp(resp.data);
             setDialogOpen(true);
@@ -151,11 +152,11 @@ const MyApplication = () => {
         }
 
         window.loading -= 1;
-    }, []);
+    }, [apiPath]);
 
     const addMessage = useCallback(async () => {
         setSubmitLoading(true);
-        let resp = await axios({ url: `${vars.dhpath}/applications/${detailApp.applicationid}/message`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "message": message } });
+        let resp = await axios({ url: `${apiPath}/applications/${detailApp.applicationid}/message`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "message": message } });
         if (resp.status === 204) {
             setSnackbarContent(tr("message_added"));
             setSnackbarSeverity("success");
@@ -165,7 +166,7 @@ const MyApplication = () => {
             setSnackbarSeverity("error");
         }
         setSubmitLoading(false);
-    }, [detailApp, message, showDetail]);
+    }, [apiPath, detailApp, message]);
 
     return <>
         <ApplicationTable showDetail={showDetail}></ApplicationTable>

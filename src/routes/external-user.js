@@ -20,7 +20,7 @@ var vars = require("../variables");
 
 const ExternalUsers = () => {
     const { t: tr } = useTranslation();
-    const { userSettings, allUsersCache, loadAllUsers } = useContext(AppContext);
+    const { apiPath, userSettings, allUsersCache, loadAllUsers } = useContext(AppContext);
     const theme = useTheme();
 
     const puColumns = useMemo(() => ([
@@ -69,7 +69,7 @@ const ExternalUsers = () => {
         setBatchDeleteCurrent(0);
         for (let i = 0; i < batchDeleteUsers.length; i++) {
             let st = +new Date();
-            let resp = await axios({ url: `${vars.dhpath}/user/${batchDeleteUsers[i].uid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let resp = await axios({ url: `${apiPath}/user/${batchDeleteUsers[i].uid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (resp.status === 204) {
                 setBatchDeleteLog(`Deleted ${batchDeleteUsers[i].name}`);
                 setLogSeverity("success");
@@ -90,7 +90,7 @@ const ExternalUsers = () => {
             if (ed - st < 1000) await sleep(1000 - (ed - st));
         }
         setTimeout(function () { setBatchDeleteLog(""); setDialogButtonDisabled(false); }, 3000);
-    }, [batchDeleteUsers]);
+    }, [apiPath, batchDeleteUsers]);
     const loadUserList = useCallback(async () => {
         if (allUsersCache.length === 0) {
             setBatchDeleteLoading(true);
@@ -131,15 +131,15 @@ const ExternalUsers = () => {
         let [_userList] = [{}];
         if (search === "")
             [_userList] = await makeRequestsAuto([
-                { url: `${vars.dhpath}/user/list?order=desc&order_by=uid&page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                { url: `${apiPath}/user/list?order=desc&order_by=uid&page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
             ]);
         else if (isNaN(search) || !isNaN(search) && (search.length < 17 || search.length > 19)) // not discord id
             [_userList] = await makeRequestsAuto([
-                { url: `${vars.dhpath}/user/list?name=${search}&order=desc&order_by=uid&page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                { url: `${apiPath}/user/list?name=${search}&order=desc&order_by=uid&page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
             ]);
         else if (!isNaN(search) && search.length >= 17 && search.length <= 19) { // is discord id
             let [_userProfile] = await makeRequestsAuto([
-                { url: `${vars.dhpath}/user/profile?discordid=${search}`, auth: true },
+                { url: `${apiPath}/user/profile?discordid=${search}`, auth: true },
             ]);
             if (_userProfile.error === undefined) {
                 _userList = { list: [_userProfile], total_items: 1 };
@@ -162,7 +162,7 @@ const ExternalUsers = () => {
         }
 
         window.loading -= 1;
-    }, [theme, page, pageSize, search, listParam]);
+    }, [apiPath, theme, page, pageSize, search, listParam]);
     useEffect(() => {
         banPageRef.current = banPage;
     }, [banPage]);
@@ -177,15 +177,15 @@ const ExternalUsers = () => {
         let [_banList] = [{}];
         if (banSearch === "")
             [_banList] = await makeRequestsAuto([
-                { url: `${vars.dhpath}/user/ban/list?order=desc&order_by=uid&page=${page}&page_size=${banPageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                { url: `${apiPath}/user/ban/list?order=desc&order_by=uid&page=${page}&page_size=${banPageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
             ]);
         else if (isNaN(banSearch) || !isNaN(banSearch) && (banSearch.length < 17 || banSearch.length > 19)) // not discord id
             [_banList] = await makeRequestsAuto([
-                { url: `${vars.dhpath}/user/ban/list?name=${banSearch}&order=desc&order_by=uid&page=${page}&page_size=${banPageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                { url: `${apiPath}/user/ban/list?name=${banSearch}&order=desc&order_by=uid&page=${page}&page_size=${banPageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
             ]);
         else if (!isNaN(banSearch) && banSearch.length >= 17 && banSearch.length <= 19) { // is discord id
             let [_banProfile] = await makeRequestsAuto([
-                { url: `${vars.dhpath}/user/ban?discordid=${banSearch}`, auth: true },
+                { url: `${apiPath}/user/ban?discordid=${banSearch}`, auth: true },
             ]);
             if (_banProfile.error === undefined) {
                 _banList = { list: [_banProfile], total_items: 1 };
@@ -209,13 +209,13 @@ const ExternalUsers = () => {
         }
 
         window.loading -= 1;
-    }, [theme, banPage, banPageSize, banSearch, banListParam]);
+    }, [apiPath, theme, banPage, banPageSize, banSearch, banListParam]);
     useEffect(() => {
         doLoadUser();
-    }, [doLoadUser]);
+    }, []);
     useEffect(() => {
         doLoadBan();
-    }, [doLoadBan]);
+    }, []);
 
     return <>
         <CustomTable name={<><FontAwesomeIcon icon={faUserPlus} />&nbsp;&nbsp;{tr("external_users")}</>} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} titlePosition="top" columns={puColumns} data={userList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onSearch={(content) => { setPage(1); setSearch(content); }} searchHint={tr("search_by_username_or_discord_id")} />

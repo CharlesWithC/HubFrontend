@@ -21,7 +21,7 @@ var vars = require("../variables");
 
 const PollCard = ({ poll: inputPoll, onEdit, onDelete, onPollVoters }) => {
     const { t: tr } = useTranslation();
-    const { curUID, curUserPerm } = useContext(AppContext);
+    const { apiPath, curUID, curUserPerm } = useContext(AppContext);
 
     const [poll, setPoll] = useState(inputPoll);
     useEffect(() => {
@@ -82,7 +82,7 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete, onPollVoters }) => {
     const [voteDisabled, setVoteDisabled] = useState(false);
     const handleVote = useCallback(async () => {
         setVoteDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/polls/${poll.pollid}/vote`, method: "PUT", data: { choiceids: selectedChoices }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/polls/${poll.pollid}/vote`, method: "PUT", data: { choiceids: selectedChoices }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("vote_submitted"));
             setSnackbarSeverity("success");
@@ -96,10 +96,10 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete, onPollVoters }) => {
             setSnackbarSeverity("error");
         }
         setVoteDisabled(false);
-    }, [poll, selectedChoices]);
+    }, [apiPath, poll, selectedChoices]);
     const handleModifyVote = useCallback(async () => {
         setVoteDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/polls/${poll.pollid}/vote`, method: "PATCH", data: { choiceids: selectedChoices }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/polls/${poll.pollid}/vote`, method: "PATCH", data: { choiceids: selectedChoices }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("vote_updated"));
             setSnackbarSeverity("success");
@@ -113,7 +113,7 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete, onPollVoters }) => {
             setSnackbarSeverity("error");
         }
         setVoteDisabled(false);
-    }, [poll, selectedChoices]);
+    }, [apiPath, poll, selectedChoices]);
 
     if (poll.title === undefined) {
         return <></>;
@@ -435,7 +435,7 @@ const PollManagers = memo(() => {
 
 const Poll = () => {
     const { t: tr } = useTranslation();
-    const { curUser, curUserPerm } = useContext(AppContext);
+    const { apiPath, curUser, curUserPerm } = useContext(AppContext);
 
     const [polls, setPolls] = useState([]);
     const [lastUpdate, setLastUpdate] = useState(0);
@@ -486,13 +486,13 @@ const Poll = () => {
     const doLoad = useCallback(async () => {
         window.loading += 1;
 
-        const [polls] = await makeRequestsWithAuth([`${vars.dhpath}/polls/list?page_size=10&page=${page}`]);
+        const [polls] = await makeRequestsWithAuth([`${apiPath}/polls/list?page_size=10&page=${page}`]);
         setPolls(polls.list);
         setTotalPages(polls.total_pages);
         setLastUpdate(+new Date());
 
         window.loading -= 1;
-    }, [page]);
+    }, [apiPath, page]);
 
     const handleSubmit = useCallback(async (e) => {
         e.preventDefault();
@@ -502,7 +502,7 @@ const Poll = () => {
             for (let i = 0; i < choices.length; i++) {
                 formattedChoices.push(choices[i].content);
             }
-            let resp = await axios({ url: `${vars.dhpath}/polls`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "description": description, choices: formattedChoices, "end_time": noEndTime ? null : endTime, "config": config, "orderid": parseInt(orderId), "is_pinned": isPinned } });
+            let resp = await axios({ url: `${apiPath}/polls`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "description": description, choices: formattedChoices, "end_time": noEndTime ? null : endTime, "config": config, "orderid": parseInt(orderId), "is_pinned": isPinned } });
             if (resp.status === 200) {
                 doLoad();
                 setSnackbarContent(tr("poll_created"));
@@ -518,7 +518,7 @@ const Poll = () => {
             for (let i = 0; i < choices.length; i++) {
                 formattedChoices.push({ choiceid: choices[i].choiceid, orderid: i + 1 });
             }
-            let resp = await axios({ url: `${vars.dhpath}/polls/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "description": description, choices: formattedChoices, "end_time": noEndTime ? null : endTime, "config": config, "orderid": parseInt(orderId), "is_pinned": isPinned } });
+            let resp = await axios({ url: `${apiPath}/polls/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "description": description, choices: formattedChoices, "end_time": noEndTime ? null : endTime, "config": config, "orderid": parseInt(orderId), "is_pinned": isPinned } });
             if (resp.status === 204) {
                 doLoad();
                 setSnackbarContent(tr("poll_updated"));
@@ -532,7 +532,7 @@ const Poll = () => {
             }
         }
         setSubmitLoading(false);
-    }, [title, description, choices, endTime, noEndTime, config, editId, isPinned, orderId, clearModal, doLoad]);
+    }, [apiPath, title, description, choices, endTime, noEndTime, config, editId, isPinned, orderId]);
 
     const createPoll = useCallback(() => {
         if (editId !== null) {
@@ -542,7 +542,7 @@ const Poll = () => {
         setDialogTitle(tr("create_poll"));
         setDialogButton(tr("create"));
         setDialogOpen(true);
-    }, [editId, clearModal]);
+    }, [editId]);
 
     const editPoll = useCallback((poll) => {
         clearModal();
@@ -566,12 +566,12 @@ const Poll = () => {
         setDialogTitle(tr("edit_poll"));
         setDialogButton(tr("edit"));
         setDialogOpen(true);
-    }, [clearModal]);
+    }, []);
 
     const deletePoll = useCallback(async (poll, isShiftPressed) => {
         if (isShiftPressed === true || poll.confirmed === true) {
             setSubmitLoading(true);
-            let resp = await axios({ url: `${vars.dhpath}/polls/${poll.pollid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let resp = await axios({ url: `${apiPath}/polls/${poll.pollid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (resp.status === 204) {
                 doLoad();
                 setSnackbarContent(tr("poll_deleted"));
@@ -587,12 +587,12 @@ const Poll = () => {
             setDialogDelete(true);
             setToDelete(poll);
         }
-    }, [doLoad]);
+    }, [apiPath]);
 
     const handlePollVoters = useCallback(async (poll) => {
         window.loading += 1;
 
-        let resp = await axios({ url: `${vars.dhpath}/polls/${poll.pollid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/polls/${poll.pollid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
             setPollDetails(resp.data);
             setDialogVoters(true);
@@ -602,11 +602,11 @@ const Poll = () => {
         }
 
         window.loading -= 1;
-    }, []);
+    }, [apiPath]);
 
     useEffect(() => {
         doLoad();
-    }, [doLoad]);
+    }, []);
 
     return (
         <>

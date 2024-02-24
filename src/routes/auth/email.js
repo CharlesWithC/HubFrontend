@@ -15,7 +15,7 @@ var vars = require('../../variables');
 
 const EmailAuth = () => {
     const { t: tr } = useTranslation();
-    const { themeSettings } = useContext(ThemeContext);
+    const { apiPath, themeSettings } = useContext(ThemeContext);
 
     const theme = useTheme();
     const navigate = useNavigate();
@@ -35,7 +35,7 @@ const EmailAuth = () => {
 
     const handleUpdatePassword = useCallback(async () => {
         setUpdateDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/auth/email?secret=${secret}`, data: { password: password }, method: `POST` });
+        let resp = await axios({ url: `${apiPath}/auth/email?secret=${secret}`, data: { password: password }, method: `POST` });
         if (resp.status === 204) {
             setPasswordColor(theme.palette.success.main);
             setPasswordText(tr("password_updated_redirecting_to_login"));
@@ -46,7 +46,7 @@ const EmailAuth = () => {
             setPasswordText(resp.data.error);
             setUpdateDisabled(false);
         }
-    }, [secret, password]);
+    }, [apiPath, secret, password]);
 
     useEffect(() => {
         if (!["rp", "rg", "ue"].includes(op)) {
@@ -58,7 +58,7 @@ const EmailAuth = () => {
         }
 
         async function doAuth() {
-            let resp = await axios({ url: `${vars.dhpath}/auth/email?secret=${secret}`, method: `POST` });
+            let resp = await axios({ url: `${apiPath}/auth/email?secret=${secret}`, method: `POST` });
             if (resp.status === 204) {
                 setMessage(tr("email_confirmed_redirecting_to_overview"));
                 setTimeout(function () { navigate("/"); }, 500);
@@ -69,7 +69,7 @@ const EmailAuth = () => {
         if (["rg", "ue"].includes(op)) {
             doAuth();
         }
-    }, [op, secret]);
+    }, [apiPath, op, secret]);
 
     return (
         <div style={{

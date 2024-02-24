@@ -24,7 +24,7 @@ const CURRENTY_ICON = { 1: "€", 2: "$" };
 
 const Deliveries = () => {
     const { t: tr } = useTranslation();
-    const { curUserPerm, userSettings } = useContext(AppContext);
+    const { apiPath, curUserPerm, userSettings } = useContext(AppContext);
 
     const columns = [
         { id: 'display_logid', label: 'ID', orderKey: 'logid', defaultOrder: 'desc' },
@@ -71,7 +71,7 @@ const Deliveries = () => {
             return;
         }
         setDialogButtonDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/dlog/export?after=${parseInt(exportRange.start_time)}&before=${parseInt(exportRange.end_time)}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/dlog/export?after=${parseInt(exportRange.start_time)}&before=${parseInt(exportRange.end_time)}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
             downloadLocal("export.csv", resp.data);
             setSnackbarContent(tr("success"));
@@ -81,7 +81,7 @@ const Deliveries = () => {
             setSnackbarSeverity("error");
         }
         setDialogButtonDisabled(false);
-    }, [exportRange]);
+    }, [apiPath, exportRange]);
 
     const [bypassTrackerCheck, setBypassTrackerCheck] = useState(false);
     const [truckyJobID, setTruckyJobID] = useState();
@@ -92,7 +92,7 @@ const Deliveries = () => {
             return;
         }
         setDialogButtonDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/trucky/import/${truckyJobID}?bypass_tracker_check=${bypassTrackerCheck}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/trucky/import/${truckyJobID}?bypass_tracker_check=${bypassTrackerCheck}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("job_imported"));
             setSnackbarSeverity("error");
@@ -101,7 +101,7 @@ const Deliveries = () => {
             setSnackbarSeverity("error");
         }
         setDialogButtonDisabled(false);
-    }, [truckyJobID, bypassTrackerCheck]);
+    }, [apiPath, truckyJobID, bypassTrackerCheck]);
     const [truckyImportLog, setTruckyImportLog] = useState("");
     const [truckyCompanyID, setTruckyCompanyID] = useState("");
     const [truckyImportRange, setTruckyImportRange] = useState({ start_time: undefined, end_time: undefined });
@@ -153,7 +153,7 @@ const Deliveries = () => {
             setTruckyBatchImportCurrent(i + 1);
             let st = +new Date();
             let jobID = resp.data.data[i].id;
-            let dhresp = await axios({ url: `${vars.dhpath}/trucky/import/${jobID}?bypass_tracker_check=${bypassTrackerCheck}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let dhresp = await axios({ url: `${apiPath}/trucky/import/${jobID}?bypass_tracker_check=${bypassTrackerCheck}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (dhresp.status === 204) {
                 setTruckyImportLog(`Imported Trucky job #${jobID}`);
                 setSnackbarSeverity("success");
@@ -187,7 +187,7 @@ const Deliveries = () => {
                     setTruckyBatchImportCurrent((page - 1) * resp.data.per_page + i + 1);
                     let st = +new Date();
                     let jobID = resp.data.data[i].id;
-                    let dhresp = await axios({ url: `${vars.dhpath}/trucky/import/${jobID}?bypass_tracker_check=${bypassTrackerCheck}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                    let dhresp = await axios({ url: `${apiPath}/trucky/import/${jobID}?bypass_tracker_check=${bypassTrackerCheck}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
                     if (dhresp.status === 204) {
                         setTruckyImportLog(`Imported Trucky job #${jobID}`);
                         setSnackbarSeverity("success");
@@ -211,7 +211,7 @@ const Deliveries = () => {
         };
 
         setDialogButtonDisabled(false);
-    }, [truckyCompanyID, truckyImportRange, bypassTrackerCheck]);
+    }, [apiPath, truckyCompanyID, truckyImportRange, bypassTrackerCheck]);
 
     useEffect(() => {
         pageRef.current = page;
@@ -226,15 +226,15 @@ const Deliveries = () => {
 
             if (!inited.current) {
                 [detailS, dlogL] = await makeRequestsAuto([
-                    { url: `${vars.dhpath}/dlog/statistics/details?after=` + getMonthUTC() / 1000, auth: true },
-                    { url: `${vars.dhpath}/dlog/list?page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: "prefer" },
+                    { url: `${apiPath}/dlog/statistics/details?after=` + getMonthUTC() / 1000, auth: true },
+                    { url: `${apiPath}/dlog/list?page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: "prefer" },
                 ]);
 
                 setDetailStats(detailS);
                 inited.current = true;
             } else {
                 [dlogL] = await makeRequestsAuto([
-                    { url: `${vars.dhpath}/dlog/list?page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: "prefer" },
+                    { url: `${apiPath}/dlog/list?page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: "prefer" },
                 ]);
             }
 
@@ -258,7 +258,7 @@ const Deliveries = () => {
             window.loading -= 1;
         }
         doLoad();
-    }, [page, pageSize, listParam, theme]);
+    }, [apiPath, page, pageSize, listParam, theme]);
 
     const navigate = useNavigate();
     function handleClick(data) {

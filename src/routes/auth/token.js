@@ -12,8 +12,9 @@ var vars = require('../../variables');
 const TokenAuth = () => {
     const { t: tr } = useTranslation();
     const appContext = useContext(AppContext);
+    const { apiPath } = useContext(AppContext);
     const { themeSettings } = useContext(ThemeContext);
-    
+
     const navigate = useNavigate();
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
@@ -25,7 +26,7 @@ const TokenAuth = () => {
     useEffect(() => {
         async function validateToken() {
             try {
-                let resp = await axios({ url: `${vars.dhpath}/token`, headers: { "Authorization": `Bearer ${token}` }, method: `PATCH` });
+                let resp = await axios({ url: `${apiPath}/token`, headers: { "Authorization": `Bearer ${token}` }, method: `PATCH` });
                 if (resp.status === 200) {
                     setAuthToken(resp.data.token);
                     setMessage(tr("you_are_authorized"));
@@ -51,7 +52,7 @@ const TokenAuth = () => {
         } else {
             validateToken();
         }
-    }, [token, navigate]);
+    }, [apiPath, token]);
 
     function handleContinue() {
         navigate('/');

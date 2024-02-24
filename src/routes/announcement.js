@@ -243,7 +243,7 @@ const AnnouncementManagers = memo(() => {
 
 const Announcement = () => {
     const { t: tr } = useTranslation();
-    const { curUID, curUser, curUserPerm, announcementTypes, loadAnnouncementTypes } = useContext(AppContext);
+    const { apiPath, curUID, curUser, curUserPerm, announcementTypes, loadAnnouncementTypes } = useContext(AppContext);
 
     const [announcements, setAnnouncemnts] = useState([]);
     const [lastUpdate, setLastUpdate] = useState(0);
@@ -294,11 +294,11 @@ const Announcement = () => {
 
         var newAnns = [];
         if (curUID !== null) {
-            const [anns] = await makeRequestsWithAuth([`${vars.dhpath}/announcements/list?page_size=10&page=${page}`]);
+            const [anns] = await makeRequestsWithAuth([`${apiPath}/announcements/list?page_size=10&page=${page}`]);
             newAnns = anns.list;
             setTotalPages(anns.total_pages);
         } else {
-            const [anns] = await makeRequests([`${vars.dhpath}/announcements/list?page_size=10&page=${page}`]);
+            const [anns] = await makeRequests([`${apiPath}/announcements/list?page_size=10&page=${page}`]);
             newAnns = anns.list;
             setTotalPages(anns.total_pages);
         }
@@ -311,13 +311,13 @@ const Announcement = () => {
         setLastUpdate(+new Date());
 
         window.loading -= 1;
-    }, [page, announcementTypes]);
+    }, [apiPath, page, announcementTypes]);
 
     const handleSubmit = useCallback(async (e) => {
         e.preventDefault();
         setSubmitLoading(true);
         if (editId === null) {
-            let resp = await axios({ url: `${vars.dhpath}/announcements`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "content": content, "type": parseInt(announcementType), "is_private": isPrivate, "orderid": parseInt(orderId), "is_pinned": isPinned } });
+            let resp = await axios({ url: `${apiPath}/announcements`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "content": content, "type": parseInt(announcementType), "is_private": isPrivate, "orderid": parseInt(orderId), "is_pinned": isPinned } });
             if (resp.status === 200) {
                 doLoad();
                 setSnackbarContent(tr("announcement_posted"));
@@ -329,7 +329,7 @@ const Announcement = () => {
                 setSnackbarSeverity("error");
             }
         } else {
-            let resp = await axios({ url: `${vars.dhpath}/announcements/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "content": content, "type": parseInt(announcementType), "is_private": isPrivate, "orderid": parseInt(orderId), "is_pinned": isPinned } });
+            let resp = await axios({ url: `${apiPath}/announcements/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "content": content, "type": parseInt(announcementType), "is_private": isPrivate, "orderid": parseInt(orderId), "is_pinned": isPinned } });
             if (resp.status === 204) {
                 doLoad();
                 setSnackbarContent(tr("announcement_updated"));
@@ -343,7 +343,7 @@ const Announcement = () => {
             }
         }
         setSubmitLoading(false);
-    }, [announcementType, title, content, editId, isPinned, isPrivate, orderId, clearModal, doLoad]);
+    }, [apiPath, announcementType, title, content, editId, isPinned, isPrivate, orderId]);
 
     const createAnnouncement = useCallback(() => {
         if (editId !== null) {
@@ -375,7 +375,7 @@ const Announcement = () => {
     const deleteAnnouncement = useCallback(async (announcement, isShiftPressed) => {
         if (isShiftPressed === true || announcement.confirmed === true) {
             setSubmitLoading(true);
-            let resp = await axios({ url: `${vars.dhpath}/announcements/${announcement.announcementid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let resp = await axios({ url: `${apiPath}/announcements/${announcement.announcementid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (resp.status === 204) {
                 doLoad();
                 setSnackbarContent(tr("announcement_deleted"));
@@ -391,7 +391,7 @@ const Announcement = () => {
             setDialogDelete(true);
             setToDelete(announcement);
         }
-    }, [doLoad]);
+    }, [apiPath]);
 
     useEffect(() => {
         doLoad();

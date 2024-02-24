@@ -25,7 +25,7 @@ const radioImages = { "tsr": "https://truckstopradio.co.uk/autodj.png", "tfm": "
 
 const TopBar = (props) => {
     const { t: tr } = useTranslation();
-    const { webConfig, setUsers, curUID, setCurUID, curUser, setCurUser, setCurUserPerm, curUserBanner, userSettings, setUserSettings } = useContext(AppContext);
+    const { apiPath, webConfig, setUsers, curUID, setCurUID, curUser, setCurUser, setCurUserPerm, curUserBanner, userSettings, setUserSettings } = useContext(AppContext);
 
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -305,7 +305,7 @@ const TopBar = (props) => {
 
     const openProfileModal = () => { setShowProfileModal(2); };
 
-    async function logout() {
+    const logout = useCallback(async () => {
         const bearerToken = getAuthToken();
         eraseAuthMode();
         if (bearerToken === null) {
@@ -317,7 +317,7 @@ const TopBar = (props) => {
         setSnackbarContent(tr("logging_out_please_wait"));
         setLoading(true);
         try {
-            let resp = await axios({ url: `${vars.dhpath}/token`, headers: { "Authorization": `Bearer ${bearerToken}` }, method: `DELETE` });
+            let resp = await axios({ url: `${apiPath}/token`, headers: { "Authorization": `Bearer ${bearerToken}` }, method: `DELETE` });
             localStorage.removeItem("token");
             navigate("/");
             if (parseInt(resp.status / 100) === 2) {
@@ -336,7 +336,7 @@ const TopBar = (props) => {
         setLoading(false);
         const reloadSideBar = new CustomEvent('reloadSideBar', {});
         window.dispatchEvent(reloadSideBar);
-    }
+    }, [apiPath]);
 
     let loggedInBtns = (<Menu
         anchorEl={anchorEl}

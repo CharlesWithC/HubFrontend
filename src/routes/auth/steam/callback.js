@@ -15,6 +15,7 @@ var vars = require('../../../variables');
 const SteamAuth = () => {
     const { t: tr } = useTranslation();
     const appContext = useContext(AppContext);
+    const { apiPath } = useContext(AppContext);
     const { themeSettings } = useContext(ThemeContext);
 
     const navigate = useNavigate();
@@ -30,7 +31,7 @@ const SteamAuth = () => {
                 let authMode = getAuthMode();
                 eraseAuthMode();
                 if (authMode === null) {
-                    let resp = await axios({ url: `${vars.dhpath}/auth/steam/callback` + location.search, method: `GET` });
+                    let resp = await axios({ url: `${apiPath}/auth/steam/callback` + location.search, method: `GET` });
                     if (resp.status === 200) {
                         if (resp.data.mfa === false) {
                             setAuthToken(resp.data.token);
@@ -48,7 +49,7 @@ const SteamAuth = () => {
                     }
                 } else if (authMode[0] === "update-steam") {
                     setDoingUpdate(true);
-                    let resp = await axios({ url: `${vars.dhpath}/user/steam` + location.search, method: `PATCH`, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                    let resp = await axios({ url: `${apiPath}/user/steam` + location.search, method: `PATCH`, headers: { Authorization: `Bearer ${getAuthToken()}` } });
                     if (resp.status === 204) {
                         setContinue(true);
                         setTimeout(function () { navigate("/settings"); }, 3000);
@@ -69,7 +70,7 @@ const SteamAuth = () => {
             }
         }
         validateSteamAuth();
-    }, [location.search, navigate]);
+    }, [apiPath, location.search]);
 
     function handleContinue() {
         if (doingUpdate) {

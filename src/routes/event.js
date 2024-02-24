@@ -174,7 +174,7 @@ const EventCard = ({ event, eventid, imageUrl, title, description, link, meetupT
 
 const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, setCalendarEvents, allEvents, setAllEvents, openEventDetails, setOpenEventDetals, modalEvent, setModalEvent, setSnackbarContent, setSnackbarSeverity, onEdit, onDelete, onUpdateAttendees, doReload }) => {
     const { t: tr } = useTranslation();
-    const { curUID, curUser } = useContext(AppContext);
+    const { apiPath, curUID, curUser } = useContext(AppContext);
 
     useEffect(() => {
         async function doLoad() {
@@ -182,21 +182,21 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
 
             let events;
             if (curUID !== null) {
-                [events] = await makeRequestsWithAuth([`${vars.dhpath}/events/list?page_size=2&page=1&meetup_after=${parseInt(+new Date() / 1000)}`]);
+                [events] = await makeRequestsWithAuth([`${apiPath}/events/list?page_size=2&page=1&meetup_after=${parseInt(+new Date() / 1000)}`]);
             } else {
-                [events] = await makeRequests([`${vars.dhpath}/events/list?page_size=2&page=1&meetup_after=${parseInt(+new Date() / 1000)}`]);
+                [events] = await makeRequests([`${apiPath}/events/list?page_size=2&page=1&meetup_after=${parseInt(+new Date() / 1000)}`]);
             }
             setUpcomingEvents(ParseEventImage(events.list));
 
             window.loading -= 1;
         }
         doLoad();
-    }, [setAllEvents, setUpcomingEvents, doReload]);
+    }, [apiPath, setAllEvents, setUpcomingEvents, doReload]);
 
     const onVote = useCallback(async (eventid) => {
         window.loading += 1;
 
-        let resp = await axios({ url: `${vars.dhpath}/events/${eventid}/vote`, method: "PUT", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/events/${eventid}/vote`, method: "PUT", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             const updatedAllEvents = allEvents.map((event) => {
                 if (event.eventid === eventid) {
@@ -235,12 +235,12 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
         }
 
         window.loading -= 1;
-    }, [allEvents, modalEvent, setAllEvents, setModalEvent, setSnackbarContent, setSnackbarSeverity, setUpcomingEvents, upcomingEvents]);
+    }, [apiPath, allEvents, modalEvent, setAllEvents, setModalEvent, setSnackbarContent, setSnackbarSeverity, setUpcomingEvents, upcomingEvents]);
 
     const onUnvote = useCallback(async (eventid) => {
         window.loading += 1;
 
-        let resp = await axios({ url: `${vars.dhpath}/events/${eventid}/vote`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/events/${eventid}/vote`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             const updatedAllEvents = allEvents.map((event) => {
                 if (event.eventid === eventid) {
@@ -285,7 +285,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
         }
 
         window.loading -= 1;
-    }, [allEvents, modalEvent, setAllEvents, setModalEvent, setSnackbarContent, setSnackbarSeverity, setUpcomingEvents, upcomingEvents]);
+    }, [apiPath, allEvents, modalEvent, setAllEvents, setModalEvent, setSnackbarContent, setSnackbarSeverity, setUpcomingEvents, upcomingEvents]);
 
     const mergeEvents = useCallback((newEventList) => {
         setAllEvents((prevEvents) => {
@@ -310,7 +310,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
             window.loading += 1;
 
             let urls = [
-                `${vars.dhpath}/events/${eventid}`,
+                `${apiPath}/events/${eventid}`,
             ];
             let event = {};
 
@@ -341,7 +341,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
                 loadDetails(eventid, allEvents[i]);
             }
         }
-    }, [allEvents, setModalEvent, setOpenEventDetals]);
+    }, [apiPath, allEvents, setModalEvent, setOpenEventDetals]);
     const handleDateSet = useCallback(async (dateInfo) => {
         const start = parseInt(dateInfo.start.getTime() / 1000 - 86400 * 14);
         const end = parseInt(dateInfo.end.getTime() / 1000 + 86400 * 14);
@@ -349,7 +349,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
         window.loading += 1;
 
         let urls = [
-            `${vars.dhpath}/events/list?page_size=250&page=1&meetup_after=${start}&meetup_before=${end}`
+            `${apiPath}/events/list?page_size=250&page=1&meetup_after=${start}&meetup_before=${end}`
         ];
         let [monthEvents] = [{}, {}];
 
@@ -362,7 +362,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
         mergeEvents(ParseEventImage(monthEvents.list));
 
         window.loading -= 1;
-    }, []);
+    }, [apiPath]);
     useEffect(() => {
         let newCalendarEvents = [];
         for (let i = 0; i < allEvents.length; i++) {
@@ -490,7 +490,7 @@ const EventManagers = memo(() => {
 
 const Events = () => {
     const { t: tr } = useTranslation();
-    const { curUser, curUserPerm } = useContext(AppContext);
+    const { apiPath, curUser, curUserPerm } = useContext(AppContext);
 
     const [upcomingEvents, setUpcomingEvents] = useState([]);
     const [calendarEvents, setCalendarEvents] = useState([]);
@@ -580,7 +580,7 @@ const Events = () => {
     const editEventAttendees = useCallback(async (eventid) => {
         window.loading += 1;
 
-        let [event] = await makeRequestsWithAuth([`${vars.dhpath}/events/${eventid}`]);
+        let [event] = await makeRequestsWithAuth([`${apiPath}/events/${eventid}`]);
         if (event.error === undefined) {
             setAttendeeEvent(event);
             setOpenAttendeeEvent(true);
@@ -589,7 +589,7 @@ const Events = () => {
         }
 
         window.loading -= 1;
-    }, []);
+    }, [apiPath]);
 
     const handleSubmit = useCallback(async (e) => {
         e.preventDefault();
@@ -609,11 +609,11 @@ const Events = () => {
 
         let resp;
         if (editId === null) {
-            resp = await axios.post(`${vars.dhpath}/events`, eventData, {
+            resp = await axios.post(`${apiPath}/events`, eventData, {
                 headers: { Authorization: `Bearer ${getAuthToken()}` },
             });
         } else {
-            resp = await axios.patch(`${vars.dhpath}/events/${editId}`, eventData, {
+            resp = await axios.patch(`${apiPath}/events/${editId}`, eventData, {
                 headers: { Authorization: `Bearer ${getAuthToken()}` },
             });
         }
@@ -631,12 +631,12 @@ const Events = () => {
         }
 
         setSubmitLoading(false);
-    }, [title, description, link, departure, destination, distance, meetupTime, departureTime, visibility, editId, clearModal]);
+    }, [apiPath, title, description, link, departure, destination, distance, meetupTime, departureTime, visibility, editId]);
 
     const deleteEvent = useCallback(async ({ event, eventid, imageUrl, title, description, link, meetupTime, departureTime, departure, destination, distance, votercnt, attendeecnt, points, futureEvent, voters, attendees, voted, isShiftPressed, confirmed }) => {
         if (isShiftPressed === true || confirmed === true) {
             setSubmitLoading(true);
-            let resp = await axios({ url: `${vars.dhpath}/events/${eventid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let resp = await axios({ url: `${apiPath}/events/${eventid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (resp.status === 204) {
                 setDoReload(+new Date());
                 setSnackbarContent(tr("event_deleted"));
@@ -652,7 +652,7 @@ const Events = () => {
             setDialogDelete(true);
             setToDelete({ event, eventid, imageUrl, title, description, link, meetupTime, departureTime, departure, destination, distance, votercnt, attendeecnt, points, futureEvent, voters, attendees, voted });
         }
-    }, []);
+    }, [apiPath]);
 
     const handleUpdateAttendees = useCallback(async (e) => {
         e.preventDefault();
@@ -660,7 +660,7 @@ const Events = () => {
 
         let attendees = eventAttendees.map(user => user.userid);
 
-        let resp = await axios.patch(`${vars.dhpath}/events/${attendeeEvent.eventid}/attendees`, { attendees: attendees, points: points }, {
+        let resp = await axios.patch(`${apiPath}/events/${attendeeEvent.eventid}/attendees`, { attendees: attendees, points: points }, {
             headers: { Authorization: `Bearer ${getAuthToken()}` },
         });
 
@@ -680,7 +680,7 @@ const Events = () => {
         }
 
         setSubmitLoading(false);
-    }, [attendeeEvent, eventAttendees, points]);
+    }, [apiPath, attendeeEvent, eventAttendees, points]);
 
     return <>
         <EventsMemo upcomingEvents={upcomingEvents} setUpcomingEvents={setUpcomingEvents} calendarEvents={calendarEvents} setCalendarEvents={setCalendarEvents} allEvents={allEvents} setAllEvents={setAllEvents} openEventDetails={openEventDetails} setOpenEventDetals={setOpenEventDetals} modalEvent={modalEvent} setModalEvent={setModalEvent} setSnackbarContent={setSnackbarContent} setSnackbarSeverity={setSnackbarSeverity} onEdit={editEvent} onDelete={deleteEvent} doReload={doReload} onUpdateAttendees={editEventAttendees} />

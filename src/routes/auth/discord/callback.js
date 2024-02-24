@@ -15,6 +15,7 @@ var vars = require('../../../variables');
 const DiscordAuth = () => {
     const { t: tr } = useTranslation();
     const appContext = useContext(AppContext);
+    const { apiPath } = useContext(AppContext);
     const { themeSettings } = useContext(ThemeContext);
 
     const navigate = useNavigate();
@@ -38,7 +39,7 @@ const DiscordAuth = () => {
                 let authMode = getAuthMode();
                 eraseAuthMode();
                 if (authMode === null) {
-                    let resp = await axios({ url: `${vars.dhpath}/auth/discord/callback`, params: { code: discordCode, callback_url: callback_url }, method: `GET` });
+                    let resp = await axios({ url: `${apiPath}/auth/discord/callback`, params: { code: discordCode, callback_url: callback_url }, method: `GET` });
                     if (resp.status === 200) {
                         if (resp.data.mfa === false) {
                             setAuthToken(resp.data.token);
@@ -56,7 +57,7 @@ const DiscordAuth = () => {
                     }
                 } else if (authMode[0] === "update-discord") {
                     setDoingUpdate(true);
-                    let resp = await axios({ url: `${vars.dhpath}/user/discord`, params: { code: discordCode, callback_url: callback_url }, method: `PATCH`, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                    let resp = await axios({ url: `${apiPath}/user/discord`, params: { code: discordCode, callback_url: callback_url }, method: `PATCH`, headers: { Authorization: `Bearer ${getAuthToken()}` } });
                     if (resp.status === 204) {
                         setContinue(true);
                         setTimeout(function () { navigate("/settings"); }, 3000);
@@ -89,7 +90,7 @@ const DiscordAuth = () => {
         } else {
             validateDiscordAuth();
         }
-    }, [discordCode, discordError, discordErrorDescription, navigate]);
+    }, [apiPath, discordCode, discordError, discordErrorDescription]);
 
     function handleContinue() {
         if (doingUpdate) {

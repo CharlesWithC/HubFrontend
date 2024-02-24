@@ -262,7 +262,7 @@ const DownloadableItemManagers = memo(() => {
 
 const DownloadableItem = () => {
     const { t: tr } = useTranslation();
-    const { curUID, curUser, curUserPerm } = useContext(AppContext);
+    const { apiPath, curUID, curUser, curUserPerm } = useContext(AppContext);
 
     const [downloadableItems, setDownloadableItems] = useState([]);
     const [lastUpdate, setLastUpdate] = useState(0);
@@ -304,7 +304,7 @@ const DownloadableItem = () => {
     const doLoad = useCallback(async () => {
         window.loading += 1;
 
-        let url = `${vars.dhpath}/downloads/list?page_size=10&page=${page}`;
+        let url = `${apiPath}/downloads/list?page_size=10&page=${page}`;
 
         var newDowns = [];
         if (curUID !== null) {
@@ -329,13 +329,13 @@ const DownloadableItem = () => {
         setLastUpdate(+new Date());
 
         window.loading -= 1;
-    }, [page]);
+    }, [apiPath, page]);
 
     const handleSubmit = useCallback(async (e) => {
         e.preventDefault();
         setSubmitLoading(true);
         if (editId === null) {
-            let resp = await axios({ url: `${vars.dhpath}/downloads`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "description": description, "link": link, "orderid": parseInt(orderId), "is_pinned": isPinned } });
+            let resp = await axios({ url: `${apiPath}/downloads`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "description": description, "link": link, "orderid": parseInt(orderId), "is_pinned": isPinned } });
             if (resp.status === 200) {
                 doLoad();
                 setSnackbarContent(tr("downloadable_item_posted"));
@@ -347,7 +347,7 @@ const DownloadableItem = () => {
                 setSnackbarSeverity("error");
             }
         } else {
-            let resp = await axios({ url: `${vars.dhpath}/downloads/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "description": description, "link": link, "orderid": parseInt(orderId), "is_pinned": isPinned } });
+            let resp = await axios({ url: `${apiPath}/downloads/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "description": description, "link": link, "orderid": parseInt(orderId), "is_pinned": isPinned } });
             if (resp.status === 204) {
                 doLoad();
                 setSnackbarContent(tr("downloadable_item_updated"));
@@ -361,17 +361,17 @@ const DownloadableItem = () => {
             }
         }
         setSubmitLoading(false);
-    }, [title, description, link, editId, isPinned, orderId, clearModal, doLoad]);
+    }, [apiPath, title, description, link, editId, isPinned, orderId]);
 
     const doDownload = useCallback(async (downloadableItem) => {
-        let resp = await axios({ url: `${vars.dhpath}/downloads/${downloadableItem.downloadsid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/downloads/${downloadableItem.downloadsid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
-            downloadFile(`${vars.dhpath}/downloads/redirect/${resp.data.secret}`);
+            downloadFile(`${apiPath}/downloads/redirect/${resp.data.secret}`);
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
         }
-    }, []);
+    }, [apiPath]);
 
     const createDownloadableItem = useCallback(() => {
         if (editId !== null) {
@@ -381,7 +381,7 @@ const DownloadableItem = () => {
         setDialogTitle(tr("create_downloadable_item"));
         setDialogButton(tr("create"));
         setDialogOpen(true);
-    }, [editId, clearModal]);
+    }, [editId]);
 
     const editDownloadableItem = useCallback((downloadableItem) => {
         clearModal();
@@ -397,12 +397,12 @@ const DownloadableItem = () => {
         setDialogTitle(tr("edit_downloadable_item"));
         setDialogButton(tr("edit"));
         setDialogOpen(true);
-    }, [clearModal]);
+    }, []);
 
     const deleteDownloadableItem = useCallback(async (downloadableItem, isShiftPressed) => {
         if (isShiftPressed === true || downloadableItem.confirmed === true) {
             setSubmitLoading(true);
-            let resp = await axios({ url: `${vars.dhpath}/downloads/${downloadableItem.downloadsid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let resp = await axios({ url: `${apiPath}/downloads/${downloadableItem.downloadsid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (resp.status === 204) {
                 doLoad();
                 setSnackbarContent(tr("downloadable_item_deleted"));
@@ -418,11 +418,11 @@ const DownloadableItem = () => {
             setDialogDelete(true);
             setToDelete(downloadableItem);
         }
-    }, [doLoad]);
+    }, [apiPath]);
 
     useEffect(() => {
         doLoad();
-    }, [doLoad]);
+    }, []);
 
     return (
         <>

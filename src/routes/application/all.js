@@ -15,7 +15,7 @@ var vars = require("../../variables");
 
 const ApplicationTable = memo(({ showDetail, doReload }) => {
     const { t: tr } = useTranslation();
-    const { curUser, userSettings, applicationTypes, loadApplicationTypes } = useContext(AppContext);
+    const { apiPath, curUser, userSettings, applicationTypes, loadApplicationTypes } = useContext(AppContext);
 
     const columns = useMemo(() => ([
         { id: 'id', label: 'ID', orderKey: 'applicationid', defaultOrder: 'desc' },
@@ -58,18 +58,18 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
 
             if (!inited.current || +new Date() - doReload <= 1000) {
                 [_pending, _accepted, _declined, _respondedM, _respondedAT, _applications] = await makeRequestsAuto([
-                    { url: `${vars.dhpath}/applications/list?all_user=true&page=1&page_size=1&status=0`, auth: true },
-                    { url: `${vars.dhpath}/applications/list?all_user=true&page=1&page_size=1&status=1`, auth: true },
-                    { url: `${vars.dhpath}/applications/list?all_user=true&page=1&page_size=1&status=2`, auth: true },
-                    { url: `${vars.dhpath}/applications/list?all_user=true&page=1&page_size=1&responded_by=${curUser.userid}&responded_after=${getMonthUTC() / 1000}`, auth: true },
-                    { url: `${vars.dhpath}/applications/list?all_user=true&page=1&page_size=1&responded_by=${curUser.userid}`, auth: true },
-                    { url: `${vars.dhpath}/applications/list?all_user=true&page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                    { url: `${apiPath}/applications/list?all_user=true&page=1&page_size=1&status=0`, auth: true },
+                    { url: `${apiPath}/applications/list?all_user=true&page=1&page_size=1&status=1`, auth: true },
+                    { url: `${apiPath}/applications/list?all_user=true&page=1&page_size=1&status=2`, auth: true },
+                    { url: `${apiPath}/applications/list?all_user=true&page=1&page_size=1&responded_by=${curUser.userid}&responded_after=${getMonthUTC() / 1000}`, auth: true },
+                    { url: `${apiPath}/applications/list?all_user=true&page=1&page_size=1&responded_by=${curUser.userid}`, auth: true },
+                    { url: `${apiPath}/applications/list?all_user=true&page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
                 ]);
                 setStats([_pending.total_items, _accepted.total_items, _declined.total_items, _respondedM.total_items, _respondedAT.total_items]);
                 inited.current = true;
             } else {
                 [_applications] = await makeRequestsAuto([
-                    { url: `${vars.dhpath}/applications/list?all_user=true&page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                    { url: `${apiPath}/applications/list?all_user=true&page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
                 ]);
             }
             let newApplications = [];
@@ -86,7 +86,7 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
             window.loading -= 1;
         }
         doLoad();
-    }, [page, pageSize, STATUS, doReload, listParam]); // do not include applicationTypes to prevent rerender loop on network error
+    }, [apiPath, page, pageSize, STATUS, doReload, listParam]); // do not include applicationTypes to prevent rerender loop on network error
 
     function handleClick(data) {
         showDetail(data.application);
@@ -125,7 +125,7 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
 
 const AllApplication = () => {
     const { t: tr } = useTranslation();
-    const { allPerms } = useContext(AppContext);
+    const { apiPath, allPerms } = useContext(AppContext);
 
     const [detailApp, setDetailApp] = useState(null);
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -144,7 +144,7 @@ const AllApplication = () => {
     const showDetail = useCallback(async (application) => {
         window.loading += 1;
 
-        let resp = await axios({ url: `${vars.dhpath}/applications/${application.applicationid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/applications/${application.applicationid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
             setDetailApp(resp.data);
             setNewStatus(String(resp.data.status));
@@ -156,24 +156,24 @@ const AllApplication = () => {
         }
 
         window.loading -= 1;
-    }, []);
+    }, [apiPath]);
 
     const updateStatus = useCallback(async () => {
         setSubmitLoading(true);
-        let resp = await axios({ url: `${vars.dhpath}/applications/${detailApp.applicationid}/status`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "status": newStatus !== "3" ? newStatus : "1", "message": message } });
+        let resp = await axios({ url: `${apiPath}/applications/${detailApp.applicationid}/status`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "status": newStatus !== "3" ? newStatus : "1", "message": message } });
         if (resp.status === 204) {
             setSnackbarContent(tr("status_updated"));
             setSnackbarSeverity("success");
             setDoReload(+new Date());
             showDetail(detailApp);
             if (newStatus === "3" && (detailApp.creator.userid === null || detailApp.creator.userid === -1)) {
-                let resp = await axios({ url: `${vars.dhpath}/user/${detailApp.creator.uid}/accept`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                let resp = await axios({ url: `${apiPath}/user/${detailApp.creator.uid}/accept`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
                 if (resp.status === 200) {
                     let newUserID = resp.data.userid;
                     setSnackbarContent(tr("user_accepted_as_member"));
                     setSnackbarSeverity("success");
 
-                    let resp = await axios({ url: `${vars.dhpath}/member/${newUserID}/roles`, method: "PATCH", data: { roles: [allPerms.driver[0]] }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                    let resp = await axios({ url: `${apiPath}/member/${newUserID}/roles`, method: "PATCH", data: { roles: [allPerms.driver[0]] }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
                     if (resp.status === 204) {
                         setSnackbarContent(tr("driver_role_assigned"));
                         setSnackbarSeverity("success");
@@ -193,11 +193,11 @@ const AllApplication = () => {
             setSnackbarSeverity("error");
         }
         setSubmitLoading(false);
-    }, [detailApp, newStatus, message, allPerms]);
+    }, [apiPath, detailApp, newStatus, message, allPerms]);
 
     const deleteApp = useCallback(async () => {
         setSubmitLoading(true);
-        let resp = await axios({ url: `${vars.dhpath}/applications/${detailApp.applicationid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/applications/${detailApp.applicationid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("application_deleted"));
             setSnackbarSeverity("success");
@@ -209,7 +209,7 @@ const AllApplication = () => {
             setSnackbarSeverity("error");
         }
         setSubmitLoading(false);
-    }, [detailApp]);
+    }, [apiPath, detailApp]);
 
     return <>
         <ApplicationTable showDetail={showDetail} doReload={doReload}></ApplicationTable>

@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useContext } from 'react';
+import { useRef, useEffect, useState, useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '../context';
 
@@ -14,16 +14,16 @@ var vars = require("../variables");
 
 const AuditLog = () => {
     const { t: tr } = useTranslation();
-    const { userSettings } = useContext(AppContext);
+    const { apiPath, userSettings } = useContext(AppContext);
 
-    const columns = [
+    const columns = useMemo(() => ([
         { id: 'uid', label: 'UID' },
         { id: 'userid', label: tr("user_id") },
         { id: 'user', label: tr("user") },
         { id: 'discordid', label: tr("discord_id") },
         { id: 'time', label: tr("time") },
         { id: 'operation', label: tr("operation") },
-    ];
+    ]), []);
 
     const [userList, setUserList] = useState([]);
     const [totalItems, setTotalItems] = useState(0);
@@ -41,7 +41,7 @@ const AuditLog = () => {
             window.loading += 1;
 
             const [_userList] = await makeRequestsAuto([
-                { url: `${vars.dhpath}/audit/list?order=desc&order_by=uid&page=${page}&page_size=${pageSize}`, auth: true },
+                { url: `${apiPath}/audit/list?order=desc&order_by=uid&page=${page}&page_size=${pageSize}`, auth: true },
             ]);
 
             let newUserList = [];
@@ -58,7 +58,7 @@ const AuditLog = () => {
             window.loading -= 1;
         }
         doLoad();
-    }, [page, pageSize, theme]);
+    }, [apiPath, page, pageSize, theme]);
 
     return <>
         {userList.length !== 0 &&

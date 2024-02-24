@@ -16,7 +16,7 @@ var vars = require("../variables");
 
 const Ranking = () => {
     const { t: tr } = useTranslation();
-    const { allRanks, curUser } = useContext(AppContext);
+    const { apiPath, allRanks, curUser } = useContext(AppContext);
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -54,7 +54,7 @@ const Ranking = () => {
             }
         }
 
-        const [_leaderboard, _bonusHistory] = await makeRequestsWithAuth([`${vars.dhpath}/dlog/leaderboard?userids=${curUser.userid}`, `${vars.dhpath}/member/bonus/history`]);
+        const [_leaderboard, _bonusHistory] = await makeRequestsWithAuth([`${apiPath}/dlog/leaderboard?userids=${curUser.userid}`, `${apiPath}/member/bonus/history`]);
         for (let i = _bonusHistory.length - 1; i >= 0; i--) {
             if (isSameDay(_bonusHistory[i].timestamp * 1000)) {
                 setBonusStreak(`${_bonusHistory[i].streak + 1}`);
@@ -88,13 +88,13 @@ const Ranking = () => {
         }
 
         window.loading -= 1;
-    }, [allRanks, curRankPointTypes, curRankRoles, curRankTypeId]);
+    }, [apiPath, allRanks, curRankPointTypes, curRankRoles, curRankTypeId]);
     useEffect(() => {
         doLoad();
-    }, [curRankPointTypes, curRankRoles, curRankTypeId, doLoad]);
+    }, [curRankPointTypes, curRankRoles, curRankTypeId]);
 
     const getDiscordRole = useCallback(async () => {
-        let resp = await axios({ url: `${vars.dhpath}/member/roles/rank/${curRankTypeId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/member/roles/rank/${curRankTypeId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("you_received_a_new_rank_role"));
             setSnackbarSeverity("success");
@@ -102,9 +102,9 @@ const Ranking = () => {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
         }
-    }, [curRankTypeId]);
+    }, [apiPath, curRankTypeId]);
     const claimDailyBonus = useCallback(async () => {
-        let resp = await axios({ url: `${vars.dhpath}/member/bonus/claim`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/member/bonus/claim`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
             setSnackbarContent(tr("daily_bonus_claimed", { amount: resp.data.bonus }));
             setSnackbarSeverity("success");
@@ -113,7 +113,7 @@ const Ranking = () => {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
         }
-    }, [doLoad]);
+    }, [apiPath]);
 
     return <>
         {userPoints !== null && rankIdx !== null && <Grid container spacing={2} sx={{ marginBottom: "20px" }}>

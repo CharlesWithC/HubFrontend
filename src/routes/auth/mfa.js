@@ -15,6 +15,7 @@ var vars = require('../../variables');
 const MfaAuth = () => {
     const { t: tr } = useTranslation();
     const appContext = useContext(AppContext);
+    const { apiPath } = useContext(AppContext);
     const { themeSettings } = useContext(ThemeContext);
 
     const theme = useTheme();
@@ -33,7 +34,7 @@ const MfaAuth = () => {
     const handleVerify = useCallback(async () => {
         try {
             setAllowVerify(false);
-            let resp = await axios({ url: `${vars.dhpath}/auth/mfa`, data: { token: mfaToken, otp: otp }, method: `POST` });
+            let resp = await axios({ url: `${apiPath}/auth/mfa`, data: { token: mfaToken, otp: otp }, method: `POST` });
             if (resp.status === 200) {
                 setAuthToken(resp.data.token);
                 setOtpColor(theme.palette.success.main);
@@ -54,7 +55,7 @@ const MfaAuth = () => {
             setOtpText(tr("error_occurred"));
             setAllowVerify(true);
         }
-    }, [otp]);
+    }, [apiPath, otp]);
 
     const validateOTP = useCallback((event) => {
         setOtpError(false);

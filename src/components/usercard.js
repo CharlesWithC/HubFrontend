@@ -135,7 +135,7 @@ const UserCard = (props) => {
     const { t: tr } = useTranslation();
     const theme = useTheme();
     const navigate = useNavigate();
-    const { apiConfig, webConfig, allRoles, allPerms, users, setUsers, userProfiles, setUserProfiles, setMemberUIDs, curUser, curUserPerm, userSettings } = useContext(AppContext);
+    const { apiPath, apiConfig, webConfig, allRoles, allPerms, users, setUsers, userProfiles, setUserProfiles, setMemberUIDs, curUser, curUserPerm, userSettings } = useContext(AppContext);
     const orderedRoles = useMemo(() => (Object.values(allRoles).sort((a, b) => a.order_id - b.order_id).map(role => role.id)), [allRoles]);
 
     const bannerRef = useRef(null); // this is a real component reference
@@ -192,7 +192,7 @@ const UserCard = (props) => {
 
     // force sync user info
     const updateUserInfo = useCallback(async () => {
-        let resp = await axios({ url: `${vars.dhpath}/user/profile?uid=${user.uid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/user/profile?uid=${user.uid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
             resp.data.roles.sort((a, b) => orderedRoles.indexOf(a) - orderedRoles.indexOf(b));
 
@@ -207,7 +207,7 @@ const UserCard = (props) => {
             setNewConnections({ email: resp.data.email, discordid: resp.data.discordid, steamid: resp.data.steamid, truckersmpid: resp.data.truckersmpid });
             setTrackerInUse(resp.data.tracker);
         }
-    }, []);
+    }, [apiPath]);
 
     // update user info across components
     useEffect(() => {
@@ -297,11 +297,11 @@ const UserCard = (props) => {
 
             const [_tmp, _chart, _overall, _details, _point, _dlogList] = await makeRequestsAuto([
                 { url: `https://config.chub.page/truckersmp?mpid=${user.truckersmpid}`, auth: false },
-                { url: `${vars.dhpath}/dlog/statistics/chart?userid=${user.userid}&ranges=7&interval=86400&sum_up=false&before=` + getTodayUTC() / 1000, auth: true },
-                { url: `${vars.dhpath}/dlog/statistics/summary?userid=${user.userid}`, auth: true },
-                { url: `${vars.dhpath}/dlog/statistics/details?userid=${user.userid}`, auth: true },
-                { url: `${vars.dhpath}/dlog/leaderboard?userids=${user.userid}`, auth: true },
-                { url: `${vars.dhpath}/dlog/list?userid=${user.userid}&page=${dlogPage}&page_size=${dlogPageSize}`, auth: "prefer" },
+                { url: `${apiPath}/dlog/statistics/chart?userid=${user.userid}&ranges=7&interval=86400&sum_up=false&before=` + getTodayUTC() / 1000, auth: true },
+                { url: `${apiPath}/dlog/statistics/summary?userid=${user.userid}`, auth: true },
+                { url: `${apiPath}/dlog/statistics/details?userid=${user.userid}`, auth: true },
+                { url: `${apiPath}/dlog/leaderboard?userids=${user.userid}`, auth: true },
+                { url: `${apiPath}/dlog/list?userid=${user.userid}&page=${dlogPage}&page_size=${dlogPageSize}`, auth: "prefer" },
             ]);
 
             let userProfile = {};
@@ -340,13 +340,13 @@ const UserCard = (props) => {
 
         if ((cachedUserProfile === undefined || cachedUserProfile.expiry < +new Date()) && (ctxAction === "show-profile" || showProfileModal === 2))
             loadProfile();
-    }, [cachedUserProfile, ctxAction, showProfileModal]);
+    }, [apiPath, cachedUserProfile, ctxAction, showProfileModal]);
     useEffect(() => {
         async function loadDlogList() {
             window.loading += 1;
 
             const [_dlogList] = await makeRequestsAuto([
-                { url: `${vars.dhpath}/dlog/list?userid=${user.userid}&page=${dlogPage}&page_size=${dlogPageSize}`, auth: "prefer" },
+                { url: `${apiPath}/dlog/list?userid=${user.userid}&page=${dlogPage}&page_size=${dlogPageSize}`, auth: "prefer" },
             ]);
             if (dlogPageRef.current === dlogPage) {
                 setDlogList(convertDlogList(_dlogList));
@@ -360,7 +360,7 @@ const UserCard = (props) => {
 
         if (ctxAction === "show-profile" || showProfileModal === 2)
             loadDlogList();
-    }, [dlogPage, dlogPageSize, ctxAction, showProfileModal]);
+    }, [apiPath, dlogPage, dlogPageSize, ctxAction, showProfileModal]);
 
     // local pending updates
     const [newRoles, setNewRoles] = useState(user.roles);
@@ -377,7 +377,7 @@ const UserCard = (props) => {
     const [specialColor, setSpecialColor] = useState(null);
     const [badges, setBadges] = useState([]);
     const [profileBackground, setProfilebackground] = useState([darkenColor(PROFILE_COLOR[theme.mode].paper, 0.5), darkenColor(PROFILE_COLOR[theme.mode].paper, 0.5)]);
-    const [profileBannerURL, setProfileBannerURL] = useState(`${vars.dhpath}/member/banner?userid=${user.userid}`);
+    const [profileBannerURL, setProfileBannerURL] = useState(`${apiPath}/member/banner?userid=${user.userid}`);
     useEffect(() => {
         if (user.discordid === undefined) return;
         let newSpecialColor = null;
@@ -492,7 +492,7 @@ const UserCard = (props) => {
     const updateProfile = useCallback(async (sync_to = undefined) => {
         setDialogBtnDisabled(true);
         sync_to === undefined ? sync_to = "" : sync_to = `&sync_to_${sync_to}=true`;
-        let resp = await axios({ url: `${vars.dhpath}/user/profile?uid=${user.uid}${sync_to}`, method: "PATCH", data: newProfile, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/user/profile?uid=${user.uid}${sync_to}`, method: "PATCH", data: newProfile, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
             // the api endpoint has been updated to return user info
             resp.data.roles.sort((a, b) => orderedRoles.indexOf(a) - orderedRoles.indexOf(b));
@@ -515,11 +515,11 @@ const UserCard = (props) => {
             setSnackbarSeverity("error");
         }
         setDialogBtnDisabled(false);
-    }, [newProfile]);
+    }, [apiPath, newProfile]);
 
     const updateAboutMe = useCallback(async () => {
         setDialogBtnDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/user/bio`, method: "PATCH", data: { "bio": newAboutMe }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/user/bio`, method: "PATCH", data: { "bio": newAboutMe }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setUsers(users => ({ ...users, [user.uid]: { ...user, bio: newAboutMe } }));
             setSnackbarContent(tr("about_me_updated"));
@@ -529,22 +529,22 @@ const UserCard = (props) => {
             setSnackbarSeverity("error");
         }
         setDialogBtnDisabled(false);
-    }, [newAboutMe]);
+    }, [apiPath, newAboutMe]);
 
     const updateNote = useCallback(async () => {
         // this is handled specially as updating it doesn't disable "submit" button
         if (user.note === newNote) { return; }
         let oldNote = user.note;
         setUsers(users => ({ ...users, [user.uid]: { ...user, note: newNote } })); // pre-update locally
-        let resp = await axios({ url: `${vars.dhpath}/user/${user.uid}/note`, method: "PATCH", data: { "note": newNote }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/user/${user.uid}/note`, method: "PATCH", data: { "note": newNote }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status !== 204) {
             setUsers(users => ({ ...users, [user.uid]: { ...user, note: oldNote } })); // revert changes
         }
-    }, [newNote]);
+    }, [apiPath, newNote]);
 
     const updateGlobalNote = useCallback(async () => {
         setDialogBtnDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/user/${user.uid}/note/global`, method: "PATCH", data: { note: newGlobalNote }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/user/${user.uid}/note/global`, method: "PATCH", data: { note: newGlobalNote }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setUsers(users => ({ ...users, [user.uid]: { ...user, global_note: newGlobalNote } }));
             setSnackbarContent(tr("global_note_updated"));
@@ -554,11 +554,11 @@ const UserCard = (props) => {
             setSnackbarSeverity("error");
         }
         setDialogBtnDisabled(false);
-    }, [newGlobalNote]);
+    }, [apiPath, newGlobalNote]);
 
     const updateRoles = useCallback(async () => {
         setDialogBtnDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/member/${user.userid}/roles`, method: "PATCH", data: { roles: newRoles.map((role) => (role.id)) }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/member/${user.userid}/roles`, method: "PATCH", data: { roles: newRoles.map((role) => (role.id)) }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setUsers(users => ({ ...users, [user.uid]: { ...user, roles: newRoles.map((role) => (role.id)) } }));
             setSnackbarContent(tr("roles_updated"));
@@ -568,12 +568,12 @@ const UserCard = (props) => {
             setSnackbarSeverity("error");
         }
         setDialogBtnDisabled(false);
-    }, [user.userid, newRoles]);
+    }, [apiPath, user.userid, newRoles]);
 
     const updatePoints = useCallback(async () => {
         // no need to update user info since points are not included in user info
         setDialogBtnDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/member/${user.userid}/points`, method: "PATCH", data: { distance: newPoints.distance, bonus: newPoints.bonus }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/member/${user.userid}/points`, method: "PATCH", data: { distance: newPoints.distance, bonus: newPoints.bonus }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("points_updated"));
             setSnackbarSeverity("success");
@@ -582,11 +582,11 @@ const UserCard = (props) => {
             setSnackbarSeverity("error");
         }
         setDialogBtnDisabled(false);
-    }, [user.userid, newPoints]);
+    }, [apiPath, user.userid, newPoints]);
 
     const switchTracker = useCallback(async () => {
         setDialogBtnDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/user/tracker/switch?uid=${user.uid}`, data: { tracker: trackerInUse }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/user/tracker/switch?uid=${user.uid}`, data: { tracker: trackerInUse }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setUsers(users => ({ ...users, [user.uid]: { ...user, tracker: trackerInUse } }));
             setSnackbarContent(tr("tracker_updated"));
@@ -596,11 +596,11 @@ const UserCard = (props) => {
             setSnackbarSeverity("error");
         }
         setDialogBtnDisabled(false);
-    }, [trackerInUse]);
+    }, [apiPath, trackerInUse]);
 
     const acceptUser = useCallback(async () => {
         setDialogBtnDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/user/${user.uid}/accept`, data: { tracker: trackerInUse }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/user/${user.uid}/accept`, data: { tracker: trackerInUse }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
             setUsers(users => ({ ...users, [user.uid]: { ...user, userid: resp.data.userid, roles: [] } }));
             setMemberUIDs(memberUIDs => [...memberUIDs, user.uid]);
@@ -612,16 +612,16 @@ const UserCard = (props) => {
             setSnackbarSeverity("error");
             setDialogBtnDisabled(false); // we only enable button if api call failed
         }
-    }, [trackerInUse]);
+    }, [apiPath, trackerInUse]);
 
     const updateConnections = useCallback(async (action = "update", connection = "") => {
         setDialogBtnDisabled(true);
         let resp = undefined;
         if (action === "update") {
             let processedNC = removeNUEValues(newConnections);
-            resp = await axios({ url: `${vars.dhpath}/user/${user.uid}/connections`, method: "PATCH", data: processedNC, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            resp = await axios({ url: `${apiPath}/user/${user.uid}/connections`, method: "PATCH", data: processedNC, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         } else if (action === "delete") {
-            resp = await axios({ url: `${vars.dhpath}/user/${user.uid}/connections/${connection}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            resp = await axios({ url: `${apiPath}/user/${user.uid}/connections/${connection}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             setNewConnections(newConnections => ({ ...newConnections, [connection]: "" }));
         }
         if (resp.status === 204) {
@@ -639,12 +639,12 @@ const UserCard = (props) => {
             setSnackbarSeverity("error");
         }
         setDialogBtnDisabled(false);
-    }, [newConnections]);
+    }, [apiPath, newConnections]);
 
     const [otp, setOtp] = useState("");
     const disableMFA = useCallback(async () => {
         setDialogBtnDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/user/mfa/disable?uid=${user.uid}`, data: { otp: otp }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/user/mfa/disable?uid=${user.uid}`, data: { otp: otp }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setUsers(users => ({ ...users, [user.uid]: { ...user, mfa: false } }));
             setSnackbarContent(tr("mfa_disabled"));
@@ -654,11 +654,11 @@ const UserCard = (props) => {
             setSnackbarSeverity("error");
             setDialogBtnDisabled(false); // we only enable button if api call failed
         }
-    }, [otp]);
+    }, [apiPath, otp]);
 
     const dismissMember = useCallback(async () => {
         setDialogBtnDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/member/${user.userid}/dismiss`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/member/${user.userid}/dismiss`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setUsers(users => ({ ...users, [user.uid]: { ...user, userid: null, roles: [] } }));
             setMemberUIDs(memberUIDs => memberUIDs.filter(uid => uid !== user.uid));
@@ -670,11 +670,11 @@ const UserCard = (props) => {
             setSnackbarSeverity("error");
             setDialogBtnDisabled(false); // we only enable button if api call failed
         }
-    }, [user.userid]);
+    }, [apiPath, user.userid]);
 
     const deleteUser = useCallback(async () => {
         setDialogBtnDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/user/${user.uid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/user/${user.uid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("user_deleted"));
             setSnackbarSeverity("success");
@@ -683,12 +683,12 @@ const UserCard = (props) => {
             setSnackbarSeverity("error");
             setDialogBtnDisabled(false); // we only enable button if api call failed
         }
-    }, []);
+    }, [apiPath]);
 
     const putBan = useCallback(async () => {
         setDialogBtnDisabled(true);
         let meta = { ...removeNUEValues({ uid: user.uid, email: user.email, discordid: user.discordid, steamid: user.steamid, truckersmpid: user.truckersmpid, expire: newBan.expire }), reason: newBan.reason };
-        let resp = await axios({ url: `${vars.dhpath}/user/ban`, method: "PUT", data: meta, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/user/ban`, method: "PUT", data: meta, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setUsers(users => ({ ...users, [user.uid]: { ...user, ban: { expire: newBan.expire, reason: newBan.reason } } }));
             updateUserInfo(); // we need to update data to know the ban history (historyid)
@@ -699,12 +699,12 @@ const UserCard = (props) => {
             setSnackbarSeverity("error");
             setDialogBtnDisabled(false);
         }
-    }, [user.email, user.discordid, user.steamid, user.truckersmpid, newBan]);
+    }, [apiPath, user.email, user.discordid, user.steamid, user.truckersmpid, newBan]);
 
     const deleteBan = useCallback(async () => {
         setDialogBtnDisabled(true);
         let meta = removeNUEValues({ uid: user.uid, email: user.email, discordid: user.discordid, steamid: user.steamid, truckersmpid: user.truckersmpid });
-        let resp = await axios({ url: `${vars.dhpath}/user/ban`, method: "DELETE", data: meta, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/user/ban`, method: "DELETE", data: meta, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setUsers(users => ({ ...users, [user.uid]: { ...user, ban: null } }));
             updateUserInfo();
@@ -715,7 +715,7 @@ const UserCard = (props) => {
             setSnackbarSeverity("error");
             setDialogBtnDisabled(false);
         }
-    }, [user.email, user.discordid, user.steamid, user.truckersmpid]);
+    }, [apiPath, user.email, user.discordid, user.steamid, user.truckersmpid]);
 
     const customizeProfileAck = !(localStorage.getItem("ack") === null || !JSON.parse(localStorage.getItem("ack")).includes("customize-profile"));
     const ackCustomizeProfile = useCallback(() => {
@@ -762,7 +762,7 @@ const UserCard = (props) => {
                 component="img"
                 image={profileBannerURL}
                 onError={(event) => {
-                    event.target.src = `${vars.dhpath}/member/banner?userid=${user.userid}`;
+                    event.target.src = `${apiPath}/member/banner?userid=${user.userid}`;
                 }}
                 alt=""
                 sx={{ borderRadius: "5px 5px 0 0" }}
@@ -1511,7 +1511,7 @@ const UserCard = (props) => {
                     component="img"
                     image={profileBannerURL}
                     onError={(event) => {
-                        event.target.src = `${vars.dhpath}/member/banner?userid=${user.userid}`;
+                        event.target.src = `${apiPath}/member/banner?userid=${user.userid}`;
                     }}
                     alt=""
                     sx={{ borderRadius: "5px 5px 0 0" }}

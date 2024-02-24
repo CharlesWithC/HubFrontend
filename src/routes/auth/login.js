@@ -18,7 +18,7 @@ var vars = require("../../variables");
 
 const AuthLogin = () => {
     const { t: tr } = useTranslation();
-    const { apiConfig, webConfig } = useContext(AppContext);
+    const { apiPath, apiConfig, webConfig } = useContext(AppContext);
     const { themeSettings } = useContext(ThemeContext);
 
     const CONNECTION_NAME = { "email": tr("email"), "discord": "Discord", "steam": "Steam", "truckersmp": "TruckersMP" };
@@ -56,7 +56,7 @@ const AuthLogin = () => {
             setSnackbarContent(tr("logging_in"));
             setSnackbarSeverity("info");
 
-            let resp = await axios({ url: `${vars.dhpath}/auth/password`, data: { email: email, password: password, "captcha-response": token }, method: "POST" });
+            let resp = await axios({ url: `${apiPath}/auth/password`, data: { email: email, password: password, "captcha-response": token }, method: "POST" });
             if (resp.status === 200) {
                 if (resp.data.mfa) {
                     setSnackbarContent(tr("success_redirecting_to_mfa"));
@@ -72,7 +72,7 @@ const AuthLogin = () => {
                 setSnackbarSeverity("error");
             }
         } else if (action === "register") {
-            let resp = await axios({ url: `${vars.dhpath}/auth/register`, data: { email: email, password: password, "captcha-response": token }, method: "POST" });
+            let resp = await axios({ url: `${apiPath}/auth/register`, data: { email: email, password: password, "captcha-response": token }, method: "POST" });
             if (resp.status === 200) {
                 setSnackbarContent(tr("success_account_registered"));
                 setSnackbarSeverity("success");
@@ -82,7 +82,7 @@ const AuthLogin = () => {
                 setSnackbarSeverity("error");
             }
         } else if (action === "reset-password") {
-            let resp = await axios({ url: `${vars.dhpath}/auth/reset`, data: { email: email, "captcha-response": token }, method: "POST" });
+            let resp = await axios({ url: `${apiPath}/auth/reset`, data: { email: email, "captcha-response": token }, method: "POST" });
             if (resp.status === 204) {
                 setSnackbarContent(tr("password_reset_email_sent"));
                 setSnackbarSeverity("success");
@@ -93,7 +93,7 @@ const AuthLogin = () => {
         }
 
         setAuthDisabled(false);
-    }, [action, email, password]);
+    }, [apiPath, action, email, password]);
 
     return (
         <div style={{

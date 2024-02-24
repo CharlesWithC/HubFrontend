@@ -195,19 +195,19 @@ const ChallengeManagers = memo(() => {
 
 const ChallengesMemo = memo(({ userDrivenDistance, challengeList, setChallengeList, upcomingChallenges, setUpcomingChallenges, activeChallenges, setActiveChallenges, onShowDetails, onUpdateDelivery, onEdit, onDelete, doReload }) => {
     const { t: tr } = useTranslation();
-    const { curUser, curUserPerm, userSettings } = useContext(AppContext);
+    const { apiPath, curUser, curUserPerm, userSettings } = useContext(AppContext);
 
-    const CHALLENGE_TYPES = ["", tr("personal_onetime"), tr("company_onetime"), tr("personal_recurring"), tr("personal_distancebased"), tr("company_distancebased")];
+    const CHALLENGE_TYPES = useMemo(() => (["", tr("personal_onetime"), tr("company_onetime"), tr("personal_recurring"), tr("personal_distancebased"), tr("company_distancebased")]), []);
 
-    const columns = [
+    const columns = useMemo(() => ([
         { id: 'challengeid', label: 'ID', orderKey: 'challengeid', defaultOrder: 'desc' },
         { id: 'title', label: tr("title"), orderKey: 'title', defaultOrder: 'asc' },
         { id: 'metaType', label: tr("type") },
         { id: 'reward_points', label: tr("reward"), orderKey: 'reward', defaultOrder: 'desc' },
         { id: 'metaProgress', label: tr("progress"), orderKey: 'delivery_count', defaultOrder: 'asc' },
         { id: 'metaStatus', label: tr("status") },
-    ];
-    const staffColumns = [
+    ]), []);
+    const staffColumns = useMemo(() => ([
         { id: 'challengeid', label: 'ID', orderKey: 'challengeid', defaultOrder: 'desc' },
         { id: 'title', label: tr("title"), orderKey: 'title', defaultOrder: 'asc' },
         { id: 'metaType', label: tr("type") },
@@ -215,7 +215,7 @@ const ChallengesMemo = memo(({ userDrivenDistance, challengeList, setChallengeLi
         { id: 'metaProgress', label: tr("progress"), orderKey: 'delivery_count', defaultOrder: 'asc' },
         { id: 'metaStatus', label: tr("status") },
         { id: 'metaControls', label: tr("operations") },
-    ];
+    ]), []);
 
     const inited = useRef(false);
     const [totalItems, setTotalItems] = useState(0);
@@ -242,9 +242,9 @@ const ChallengesMemo = memo(({ userDrivenDistance, challengeList, setChallengeLi
             let [_upcomingChallenges, _activeChallenges, _challengeList] = [{}, {}, {}];
             if (!inited.current || +new Date() - doReload <= 1000) {
                 let urls = [
-                    `${vars.dhpath}/challenges/list?page_size=2&page=1&start_after=${parseInt(+new Date() / 1000)}`,
-                    `${vars.dhpath}/challenges/list?page_size=250&page=1&start_before=${parseInt(+new Date() / 1000)}&end_after=${parseInt(+new Date() / 1000)}`,
-                    `${vars.dhpath}/challenges/list?page_size=${pageSize}&page=${page}&${new URLSearchParams(processedParam).toString()}`,
+                    `${apiPath}/challenges/list?page_size=2&page=1&start_after=${parseInt(+new Date() / 1000)}`,
+                    `${apiPath}/challenges/list?page_size=250&page=1&start_before=${parseInt(+new Date() / 1000)}&end_after=${parseInt(+new Date() / 1000)}`,
+                    `${apiPath}/challenges/list?page_size=${pageSize}&page=${page}&${new URLSearchParams(processedParam).toString()}`,
                 ];
                 [_upcomingChallenges, _activeChallenges, _challengeList] = await makeRequestsWithAuth(urls);
                 setRawUpcomingChallenges(_upcomingChallenges.list);
@@ -252,7 +252,7 @@ const ChallengesMemo = memo(({ userDrivenDistance, challengeList, setChallengeLi
                 inited.current = true;
             } else {
                 let urls = [
-                    `${vars.dhpath}/challenges/list?page_size=${pageSize}&page=${page}&${new URLSearchParams(processedParam).toString()}`,
+                    `${apiPath}/challenges/list?page_size=${pageSize}&page=${page}&${new URLSearchParams(processedParam).toString()}`,
                 ];
                 [_challengeList] = await makeRequestsWithAuth(urls);
             }
@@ -265,7 +265,7 @@ const ChallengesMemo = memo(({ userDrivenDistance, challengeList, setChallengeLi
             window.loading -= 1;
         }
         doLoad();
-    }, [doReload, pageSize, page, theme, listParam]);
+    }, [apiPath, doReload, pageSize, page, theme, listParam]);
 
     useEffect(() => {
         setUpcomingChallenges(ParseChallenges(curUser, userDrivenDistance, CHALLENGE_TYPES, tr, rawUpcomingChallenges, theme, onUpdateDelivery, onEdit, onDelete));
@@ -293,7 +293,7 @@ const ChallengesMemo = memo(({ userDrivenDistance, challengeList, setChallengeLi
 
 const Challenges = () => {
     const { t: tr } = useTranslation();
-    const { allRoles, curUser, curUserPerm, userSettings, dlogDetailsCache } = useContext(AppContext);
+    const { apiPath, allRoles, curUser, curUserPerm, userSettings, dlogDetailsCache } = useContext(AppContext);
     const theme = useTheme();
 
     const CHALLENGE_TYPES = ["", tr("personal_onetime"), tr("company_onetime"), tr("personal_recurring"), tr("personal_distancebased"), tr("company_distancebased")];
@@ -335,11 +335,11 @@ const Challenges = () => {
     const [userDrivenDistance, setUserDrivenDistance] = useState(-1);
     useEffect(() => {
         async function loadDrivenDistance() {
-            const [resp] = await makeRequestsWithAuth([`${vars.dhpath}/dlog/statistics/summary?userid=${curUser.userid}`]);
+            const [resp] = await makeRequestsWithAuth([`${apiPath}/dlog/statistics/summary?userid=${curUser.userid}`]);
             setUserDrivenDistance(resp.distance.all.sum.tot);
         }
         loadDrivenDistance();
-    }, [curUser]);
+    }, [apiPath, curUser]);
 
     const cityIDs = useMemo(() => {
         let ids = {};
@@ -384,7 +384,7 @@ const Challenges = () => {
     const showChallengeDetails = useCallback(async (challenge) => {
         window.loading += 1;
 
-        [challenge] = await makeRequestsWithAuth([`${vars.dhpath}/challenges/${challenge.challengeid}`]);
+        [challenge] = await makeRequestsWithAuth([`${apiPath}/challenges/${challenge.challengeid}`]);
 
         setListModalChallenge(challenge);
 
@@ -452,7 +452,7 @@ const Challenges = () => {
         setListModalOpen(true);
 
         window.loading -= 1;
-    }, []);
+    }, [apiPath]);
 
     const updateDlog = useCallback((challenge) => {
         setUpdateDlogChallenge(challenge);
@@ -461,7 +461,7 @@ const Challenges = () => {
     const addDlog = useCallback(async (e) => {
         e.preventDefault();
         setSubmitLoading(true);
-        let resp = await axios({ url: `${vars.dhpath}/challenges/${updateDlogChallenge.challengeid}/delivery/${dlogID}`, method: "PUT", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: modalChallenge });
+        let resp = await axios({ url: `${apiPath}/challenges/${updateDlogChallenge.challengeid}/delivery/${dlogID}`, method: "PUT", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: modalChallenge });
         if (resp.status === 204) {
             setDoReload(+new Date());
             setSnackbarContent(tr("delivery_added"));
@@ -471,11 +471,11 @@ const Challenges = () => {
             setSnackbarSeverity("error");
         }
         setSubmitLoading(false);
-    }, [updateDlogChallenge.challengeid, dlogID, modalChallenge]);
+    }, [apiPath, updateDlogChallenge.challengeid, dlogID, modalChallenge]);
     const removeDlog = useCallback(async (e) => {
         e.preventDefault();
         setSubmitLoading(true);
-        let resp = await axios({ url: `${vars.dhpath}/challenges/${updateDlogChallenge.challengeid}/delivery/${dlogID}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: modalChallenge });
+        let resp = await axios({ url: `${apiPath}/challenges/${updateDlogChallenge.challengeid}/delivery/${dlogID}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: modalChallenge });
         if (resp.status === 204) {
             setDoReload(+new Date());
             setSnackbarContent(tr("delivery_deleted"));
@@ -485,7 +485,7 @@ const Challenges = () => {
             setSnackbarSeverity("error");
         }
         setSubmitLoading(false);
-    }, [updateDlogChallenge.challengeid, dlogID, modalChallenge]);
+    }, [apiPath, updateDlogChallenge.challengeid, dlogID, modalChallenge]);
 
     const clearModal = useCallback(() => {
         setModalChallenge({ title: "", description: "", start_time: undefined, end_time: undefined, type: 1, delivery_count: 1, required_roles: [], required_distance: 0, reward_points: 750, public_details: false, orderid: 0, is_pinned: false, job_requirements: DEFAULT_JOB_REQUIREMENTS });
@@ -495,7 +495,7 @@ const Challenges = () => {
         e.preventDefault();
         setSubmitLoading(true);
         if (editId === null) {
-            let resp = await axios({ url: `${vars.dhpath}/challenges`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: modalChallenge });
+            let resp = await axios({ url: `${apiPath}/challenges`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: modalChallenge });
             if (resp.status === 200) {
                 setDoReload(+new Date());
                 setSnackbarContent(tr("challenge_posted"));
@@ -507,7 +507,7 @@ const Challenges = () => {
                 setSnackbarSeverity("error");
             }
         } else {
-            let resp = await axios({ url: `${vars.dhpath}/challenges/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: modalChallenge });
+            let resp = await axios({ url: `${apiPath}/challenges/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: modalChallenge });
             if (resp.status === 204) {
                 setDoReload(+new Date());
                 setSnackbarContent(tr("challenge_updated"));
@@ -521,7 +521,7 @@ const Challenges = () => {
             }
         }
         setSubmitLoading(false);
-    }, [editId, modalChallenge, clearModal]);
+    }, [apiPath, editId, modalChallenge]);
 
     const formatFieldName = (key) => {
         const fieldNames = {
@@ -594,14 +594,14 @@ const Challenges = () => {
         setDialogTitle(tr("create_challenge"));
         setDialogButton(tr("create"));
         setDialogOpen(true);
-    }, [editId, clearModal]);
+    }, [editId]);
 
     const editChallenge = useCallback(async (challenge) => {
         clearModal();
 
         window.loading += 1;
 
-        [challenge] = await makeRequestsWithAuth([`${vars.dhpath}/challenges/${challenge.challengeid}`]);
+        [challenge] = await makeRequestsWithAuth([`${apiPath}/challenges/${challenge.challengeid}`]);
 
         setModalChallenge(challenge);
         setEditId(challenge.challengeid);
@@ -611,12 +611,12 @@ const Challenges = () => {
         setDialogOpen(true);
 
         window.loading -= 1;
-    }, [clearModal]);
+    }, [apiPath]);
 
     const deleteChallenge = useCallback(async (challenge, isShiftPressed) => {
         if (isShiftPressed === true || challenge.confirmed === true) {
             setSubmitLoading(true);
-            let resp = await axios({ url: `${vars.dhpath}/challenges/${challenge.challengeid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let resp = await axios({ url: `${apiPath}/challenges/${challenge.challengeid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (resp.status === 204) {
                 setDoReload(+new Date());
                 setSnackbarContent(tr("challenge_deleted"));
@@ -632,7 +632,7 @@ const Challenges = () => {
             setDialogDelete(true);
             setToDelete(challenge);
         }
-    }, []);
+    }, [apiPath]);
 
     return <>
         <ChallengesMemo userDrivenDistance={userDrivenDistance} challengeList={challengeList} setChallengeList={setChallengeList} upcomingChallenges={upcomingChallenges} setUpcomingChallenges={setUpcomingChallenges} activeChallenges={activeChallenges} setActiveChallenges={setActiveChallenges} doReload={doReload} onShowDetails={showChallengeDetails} onUpdateDelivery={updateDlog} onEdit={editChallenge} onDelete={deleteChallenge} />

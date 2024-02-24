@@ -41,7 +41,7 @@ const LargeUserCard = ({ user, color }) => {
 
 const Leaderboard = () => {
     const { t: tr } = useTranslation();
-    const { allRanks, userSettings } = useContext(AppContext);
+    const { apiPath, allRanks, userSettings } = useContext(AppContext);
     const theme = useTheme();
 
     const columns = [
@@ -86,16 +86,16 @@ const Leaderboard = () => {
 
             if (!inited.current) {
                 [_monthly, _allTime, _leaderboard] = await makeRequestsAuto([
-                    { url: `${vars.dhpath}/dlog/leaderboard?page=1&page_size=3&after=` + getMonthUTC() / 1000, auth: true },
-                    { url: `${vars.dhpath}/dlog/leaderboard?page=1&page_size=3`, auth: true },
-                    { url: `${vars.dhpath}/dlog/leaderboard?page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                    { url: `${apiPath}/dlog/leaderboard?page=1&page_size=3&after=` + getMonthUTC() / 1000, auth: true },
+                    { url: `${apiPath}/dlog/leaderboard?page=1&page_size=3`, auth: true },
+                    { url: `${apiPath}/dlog/leaderboard?page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
                 ]);
                 setMonthly(_monthly.list);
                 setAllTime(_allTime.list);
                 inited.current = true;
             } else {
                 [_leaderboard] = await makeRequestsAuto([
-                    { url: `${vars.dhpath}/dlog/leaderboard?page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                    { url: `${apiPath}/dlog/leaderboard?page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
                 ]);
             }
             let newLeaderboard = [];
@@ -112,7 +112,7 @@ const Leaderboard = () => {
             window.loading -= 1;
         }
         doLoad();
-    }, [page, pageSize, listParam, allRanks]);
+    }, [apiPath, page, pageSize, listParam, allRanks]);
 
     return <>
         {monthly.length === 3 && <>

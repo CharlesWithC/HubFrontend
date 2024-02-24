@@ -16,7 +16,7 @@ var vars = require("../variables");
 
 const Notifications = () => {
     const { t: tr } = useTranslation();
-    const { userSettings } = useContext(AppContext);
+    const { apiPath, userSettings } = useContext(AppContext);
     const theme = useTheme();
 
     const columns = [
@@ -38,7 +38,7 @@ const Notifications = () => {
             window.loading += 1;
 
             const [_notiList] = await makeRequestsAuto([
-                { url: `${vars.dhpath}/user/notification/list?order=desc&order_by=notificationid&page=${page}&page_size=${pageSize}`, auth: true },
+                { url: `${apiPath}/user/notification/list?order=desc&order_by=notificationid&page=${page}&page_size=${pageSize}`, auth: true },
             ]);
 
             let newNotiList = [];
@@ -55,7 +55,7 @@ const Notifications = () => {
             window.loading -= 1;
         }
         doLoad();
-    }, [page, pageSize, theme]);
+    }, [apiPath, page, pageSize, theme]);
 
     return <>
         {notiList.length !== 0 &&

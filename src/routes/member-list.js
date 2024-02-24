@@ -22,7 +22,7 @@ var vars = require("../variables");
 
 const MemberList = () => {
     const { t: tr } = useTranslation();
-    const { users, memberUIDs, userSettings } = useContext(AppContext);
+    const { apiPath, users, memberUIDs, userSettings } = useContext(AppContext);
     const allMembers = memberUIDs.map((uid) => users[uid]);
 
     const theme = useTheme();
@@ -75,7 +75,7 @@ const MemberList = () => {
             }
             sync_to = `&sync_to_${sync_to}=true`;
             let st = +new Date();
-            let resp = await axios({ url: `${vars.dhpath}/user/profile?uid=${allMembers[i].uid}${sync_to}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let resp = await axios({ url: `${apiPath}/user/profile?uid=${allMembers[i].uid}${sync_to}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (resp.status === 204) {
                 setSyncProfileLog(`Synced ${allMembers[i].name}'s profile`);
                 setLogSeverity("success");
@@ -96,7 +96,7 @@ const MemberList = () => {
             if (ed - st < 4000) await sleep(4000 - (ed - st));
         }
         setDialogButtonDisabled(false);
-    }, [allMembers]);
+    }, [apiPath, allMembers]);
 
     const [tmpVtcId, setTmpVtcId] = useState("");
     const [tmpCompareResult, setTmpCompareResult] = useState([]);
@@ -176,7 +176,7 @@ const MemberList = () => {
         if (batchRoleUpdateMode === "overwrite") {
             for (let i = 0; i < batchRoleUpdateUsers.length; i++) {
                 let st = +new Date();
-                let resp = await axios({ url: `${vars.dhpath}/member/${batchRoleUpdateUsers[i].userid}/roles`, method: "PATCH", data: { roles: batchRoleUpdateRoles }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                let resp = await axios({ url: `${apiPath}/member/${batchRoleUpdateUsers[i].userid}/roles`, method: "PATCH", data: { roles: batchRoleUpdateRoles }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
                 if (resp.status === 204) {
                     setBatchRoleUpdateLog(`Overwritten roles of ${batchRoleUpdateUsers[i].name}`);
                     setLogSeverity("success");
@@ -199,7 +199,7 @@ const MemberList = () => {
         } else if (batchRoleUpdateMode === "add" || batchRoleUpdateMode === "remove") {
             for (let i = 0; i < batchRoleUpdateUsers.length; i++) {
                 let st = +new Date();
-                let resp = await axios({ url: `${vars.dhpath}/user/profile?userid=${batchRoleUpdateUsers[i].userid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                let resp = await axios({ url: `${apiPath}/user/profile?userid=${batchRoleUpdateUsers[i].userid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
                 if (resp.status === 200) {
                     let newRoles = resp.data.roles;
                     if (batchRoleUpdateMode === "add") {
@@ -207,7 +207,7 @@ const MemberList = () => {
                     } else if (batchRoleUpdateMode === "remove") {
                         newRoles = newRoles.filter((role) => (!batchRoleUpdateRoles.includes(role)));
                     }
-                    resp = await axios({ url: `${vars.dhpath}/member/${batchRoleUpdateUsers[i].userid}/roles`, method: "PATCH", data: { roles: newRoles }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                    resp = await axios({ url: `${apiPath}/member/${batchRoleUpdateUsers[i].userid}/roles`, method: "PATCH", data: { roles: newRoles }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
                     if (resp.status === 204) {
                         setBatchRoleUpdateLog(`Updated roles of ${batchRoleUpdateUsers[i].name}`);
                         setLogSeverity("success");
@@ -241,7 +241,7 @@ const MemberList = () => {
             }
         }
         setTimeout(function () { setBatchRoleUpdateLog(""); setDialogButtonDisabled(false); }, 3000);
-    }, [batchRoleUpdateUsers, batchRoleUpdateRoles, batchRoleUpdateMode]);
+    }, [apiPath, batchRoleUpdateUsers, batchRoleUpdateRoles, batchRoleUpdateMode]);
 
     const [batchTrackerUpdateUsers, setBatchTrackerUpdateUsers] = useState([]);
     const [batchTrackerUpdateTo, setBatchTrackerUpdateTo] = useState("trucky");
@@ -258,7 +258,7 @@ const MemberList = () => {
         setBatchTrackerUpdateCurrent(0);
         for (let i = 0; i < batchTrackerUpdateUsers.length; i++) {
             let st = +new Date();
-            let resp = await axios({ url: `${vars.dhpath}/user/tracker/switch?uid=${batchTrackerUpdateUsers[i].uid}`, method: "POST", data: { tracker: batchTrackerUpdateTo }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let resp = await axios({ url: `${apiPath}/user/tracker/switch?uid=${batchTrackerUpdateUsers[i].uid}`, method: "POST", data: { tracker: batchTrackerUpdateTo }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (resp.status === 204) {
                 setBatchTrackerUpdateLog(`Updated tracker of ${batchTrackerUpdateUsers[i].name}`);
                 setLogSeverity("success");
@@ -279,7 +279,7 @@ const MemberList = () => {
             if (ed - st < 1000) await sleep(1000 - (ed - st));
         }
         setTimeout(function () { setBatchTrackerUpdateLog(""); setDialogButtonDisabled(false); }, 3000);
-    }, [batchTrackerUpdateUsers, batchTrackerUpdateTo]);
+    }, [apiPath, batchTrackerUpdateUsers, batchTrackerUpdateTo]);
 
     const [batchDismissUsers, setBatchDismissUsers] = useState([]);
     const [batchDismissLastOnline, setBatchDismissLastOnline] = useState(undefined);
@@ -296,7 +296,7 @@ const MemberList = () => {
         setBatchDismissCurrent(0);
         for (let i = 0; i < batchDismissUsers.length; i++) {
             let st = +new Date();
-            let resp = await axios({ url: `${vars.dhpath}/member/${batchDismissUsers[i].userid}/dismiss`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let resp = await axios({ url: `${apiPath}/member/${batchDismissUsers[i].userid}/dismiss`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (resp.status === 204) {
                 setBatchDismissLog(`Dismissed ${batchDismissUsers[i].name}`);
                 setLogSeverity("success");
@@ -317,7 +317,7 @@ const MemberList = () => {
             if (ed - st < 1000) await sleep(1000 - (ed - st));
         }
         setTimeout(function () { setBatchDismissLog(""); setDialogButtonDisabled(false); }, 3000);
-    }, [batchDismissUsers]);
+    }, [apiPath, batchDismissUsers]);
 
     useEffect(() => {
         pageRef.current = page;
@@ -333,15 +333,15 @@ const MemberList = () => {
         let [_userList] = [{}];
         if (search === "")
             [_userList] = await makeRequestsAuto([
-                { url: `${vars.dhpath}/member/list?order=desc&order_by=userid&page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                { url: `${apiPath}/member/list?order=desc&order_by=userid&page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
             ]);
         else if (isNaN(search) || !isNaN(search) && (search.length < 17 || search.length > 19)) // not discord id
             [_userList] = await makeRequestsAuto([
-                { url: `${vars.dhpath}/member/list?name=${search}&order=desc&order_by=userid&page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                { url: `${apiPath}/member/list?name=${search}&order=desc&order_by=userid&page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
             ]);
         else if (!isNaN(search) && search.length >= 17 && search.length <= 19) { // is discord id
             let [_userProfile] = await makeRequestsAuto([
-                { url: `${vars.dhpath}/user/profile?discordid=${search}`, auth: true },
+                { url: `${apiPath}/user/profile?discordid=${search}`, auth: true },
             ]);
             if (_userProfile.error === undefined && _userProfile.userid >= 0 && _userProfile.userid !== null) {
                 _userList = { list: [_userProfile], total_items: 1 };
@@ -362,10 +362,10 @@ const MemberList = () => {
         }
 
         window.loading -= 1;
-    }, [theme, page, pageSize, search, listParam]);
+    }, [apiPath, theme, page, pageSize, search, listParam]);
     useEffect(() => {
         doLoad();
-    }, [doLoad]);
+    }, []);
 
     return <>
         <CustomTable name={<><FontAwesomeIcon icon={faUserGroup} />&nbsp;&nbsp;{tr("members")}</>} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} titlePosition="top" columns={[

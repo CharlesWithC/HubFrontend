@@ -410,7 +410,7 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
 
 const NewApplication = () => {
     const { t: tr } = useTranslation();
-    const { applicationTypes, loadApplicationTypes } = useContext(AppContext);
+    const { apiPath, applicationTypes, loadApplicationTypes } = useContext(AppContext);
 
     const theme = useTheme();
     const navigate = useNavigate();
@@ -452,11 +452,11 @@ const NewApplication = () => {
         }
 
         if (enableNotifications) {
-            await axios({ url: `${vars.dhpath}/user/notification/settings/discord/enable`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
-            await axios({ url: `${vars.dhpath}/user/notification/settings/application/enable`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            await axios({ url: `${apiPath}/user/notification/settings/discord/enable`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            await axios({ url: `${apiPath}/user/notification/settings/application/enable`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         }
 
-        let resp = await axios({ url: `${vars.dhpath}/applications`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "type": selectedType, "application": modFormData } });
+        let resp = await axios({ url: `${apiPath}/applications`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "type": selectedType, "application": modFormData } });
         if (resp.status === 200) {
             setSnackbarContent(tr("application_submitted"));
             setSnackbarSeverity("success");
@@ -468,7 +468,7 @@ const NewApplication = () => {
         }
 
         setSubmitDisabled(false);
-    }, [enableNotifications, formData, selectedType]);
+    }, [apiPath, enableNotifications, formData, selectedType]);
 
     return <Card sx={{ padding: "20px" }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>

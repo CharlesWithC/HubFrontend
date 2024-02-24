@@ -56,6 +56,7 @@
 22. Replaced `vars.roles` with Context API `allRoles`, also removed `vars.orderedRoles` which is to be calculated in UserCard
 23. Replaced `vars.perms` with Context API `allPerms`
 24. Replaced `vars.ranks` with Context API `allRanks`
+25. Replaced `vars.dhpath` with Context API `apiPath`
 
 ## v3.3.x
 

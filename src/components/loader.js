@@ -14,7 +14,7 @@ const Loader = ({ onLoaderLoaded }) => {
 
     const { t: tr } = useTranslation();
     const appContext = useContext(AppContext);
-    const { setApiConfig, webConfig, setWebConfig, loadLanguages, setAllRoles, setAllPerms, setAllRanks, loadMemberUIDs, loadDlogDetails } = useContext(AppContext);
+    const { apiPath, setApiPath, setApiConfig, webConfig, setWebConfig, loadLanguages, setAllRoles, setAllPerms, setAllRanks, loadMemberUIDs, loadDlogDetails } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     const [isMember, setIsMember] = useState(false);
@@ -64,9 +64,10 @@ const Loader = ({ onLoaderLoaded }) => {
                 return;
             }
             let loadedConfig = resp.data;
-            setWebConfig(loadedConfig.config);
             const webConfig = loadedConfig.config; // local webConfig for this function only
-            vars.dhpath = `${webConfig.api_host}/${webConfig.abbr}`;
+            const apiPath = `${webConfig.api_host}/${webConfig.abbr}`; // local apiPath for this function only
+            setWebConfig(loadedConfig.config);
+            setApiPath(`${webConfig.api_host}/${webConfig.abbr}`);
 
             if (webConfig.api_host === "https://drivershub.charlws.com") {
                 vars.vtcLevel = 3;
@@ -136,20 +137,20 @@ const Loader = ({ onLoaderLoaded }) => {
 
             if (!useCache) {
                 const urlsBatch = [
-                    { url: `${vars.dhpath}/`, auth: false },
+                    { url: `${apiPath}/`, auth: false },
                     { url: "https://config.chub.page/roles", auth: false },
                     { url: "https://config.chub.page/patrons", auth: false },
                     { url: `https://config.chub.page/config/user?abbr=${webConfig.abbr}`, auth: false },
-                    { url: `${vars.dhpath}/config`, auth: false },
-                    { url: `${vars.dhpath}/member/roles`, auth: false },
-                    { url: `${vars.dhpath}/member/perms`, auth: false },
-                    { url: `${vars.dhpath}/member/ranks`, auth: false },
+                    { url: `${apiPath}/config`, auth: false },
+                    { url: `${apiPath}/member/roles`, auth: false },
+                    { url: `${apiPath}/member/perms`, auth: false },
+                    { url: `${apiPath}/member/ranks`, auth: false },
                 ];
 
                 [index, specialRoles, patrons, userConfig, config, memberRoles, memberPerms, memberRanks] = await makeRequestsAuto(urlsBatch);
             } else {
                 const urlsBatch = [
-                    { url: `${vars.dhpath}/`, auth: false },
+                    { url: `${apiPath}/`, auth: false },
                     { url: "https://config.chub.page/roles", auth: false },
                     { url: "https://config.chub.page/patrons", auth: false },
                     { url: `https://config.chub.page/config/user?abbr=${webConfig.abbr}`, auth: false },
@@ -206,10 +207,9 @@ const Loader = ({ onLoaderLoaded }) => {
                 writeLS("cache", cache, vars.host + webConfig.abbr + webConfig.api_host);
             }
 
-            let auth = await FetchProfile({ ...appContext, webConfig: webConfig, allRoles: allRoles });
+            let auth = await FetchProfile({ ...appContext, apiPath: apiPath, webConfig: webConfig });
             setIsMember(auth.member);
 
-            loadLanguages();
             setThemeSettings(prevSettings => ({ ...prevSettings })); // refresh theme settings
 
             function sleep(ms) {
@@ -231,12 +231,16 @@ const Loader = ({ onLoaderLoaded }) => {
     }, []);
 
     useEffect(() => {
-        if (isMember) {
+        if (isMember && apiPath !== "") {
             // init these values which are auth-required and required config to be loaded
             loadMemberUIDs();
             loadDlogDetails();
         }
-    }, [isMember]);
+    }, [apiPath, isMember]);
+    useEffect(() => {
+        if (apiPath !== "")
+            loadLanguages();
+    }, [apiPath]);
 
     const handleDomainUpdate = useCallback(() => {
         localStorage.setItem("domain", domain);

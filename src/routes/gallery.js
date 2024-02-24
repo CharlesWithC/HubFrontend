@@ -21,7 +21,7 @@ const Gallery = () => {
     }
 
     const { t: tr } = useTranslation();
-    const { webConfig, setWebConfig, curUserPerm } = useContext(AppContext);
+    const { apiPath, webConfig, setWebConfig, curUserPerm } = useContext(AppContext);
     const theme = useTheme();
 
     const matchesXS = useMediaQuery(theme.breakpoints.down('xs'));
@@ -54,7 +54,7 @@ const Gallery = () => {
         window.loading += 1;
         setDialogButtonDisabled(true);
 
-        let resp = await axios({ url: `${vars.dhpath}/auth/ticket`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/auth/ticket`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status !== 200) {
             setDialogButtonDisabled(false);
             window.loading -= 1;
@@ -76,7 +76,7 @@ const Gallery = () => {
 
         setDialogButtonDisabled(false);
         window.loading -= 1;
-    }, [images]);
+    }, [apiPath, images]);
 
     return (
         <>

@@ -4,33 +4,35 @@ import { makeRequestsAuto, makeRequestsWithAuth } from "./functions";
 var vars = require("./variables");
 
 export const AppContext = createContext({
-    apiConfig: null,
-    webConfig: null,
-    languages: [],
-    allRoles: {},
-    allPerms: {},
-    allRanks: {},
+    apiPath: "", setApiPath: () => { },
 
-    users: {},
-    userProfiles: {},
-    memberUIDs: [],
+    apiConfig: null, setApiConfig: () => { },
+    webConfig: null, setWebConfig: () => { },
+    languages: [], setLanguages: () => { },
+    allRoles: {}, setAllRoles: () => { },
+    allPerms: {}, setAllPerms: () => { },
+    allRanks: {}, setAllRanks: () => { },
 
-    curUID: null,
-    curUser: {},
-    curUserPerm: [],
-    curUserBanner: { name: "", role: "", avatar: "" },
+    users: {}, setUsers: () => { },
+    userProfiles: {}, setUserProfiles: () => { },
+    memberUIDs: [], setMemberUIDs: () => { },
 
-    userSettings: { "notification_refresh_interval": 30, "unit": "metric", "radio": "disabled", "radio_type": "tsr", "radio_volume": 100, "display_timezone": Intl.DateTimeFormat().resolvedOptions().timeZone, "data_saver": false, "font_size": "regular", "default_row_per_page": 10, "language": null, "presence": "full" },
+    curUID: null, setCurUID: () => { },
+    curUser: {}, setCurUser: () => { },
+    curUserPerm: [], setCurUserPerm: () => { },
+    curUserBanner: { name: "", role: "", avatar: "" }, setCurUserBanner: () => { },
+
+    userSettings: { "notification_refresh_interval": 30, "unit": "metric", "radio": "disabled", "radio_type": "tsr", "radio_volume": 100, "display_timezone": Intl.DateTimeFormat().resolvedOptions().timeZone, "data_saver": false, "font_size": "regular", "default_row_per_page": 10, "language": null, "presence": "full" }, setUserSettings: () => { },
     // radio: enabled / disabled / auto-play (enabled)
     // radio-type: tsr / {url}
 
-    announcementTypes: null,
-    applicationTypes: null,
-    divisions: null,
+    announcementTypes: null, setAnnouncementTypes: () => { },
+    applicationTypes: null, setApplicationTypes: () => { },
+    divisions: null, setDivisions: () => { },
 
-    dlogDetailsCache: {},
-    economyCache: { config: null, trucks: [], garagesMap: {}, merchMap: {} },
-    allUsersCache: [], // only loaded to purge inactive
+    dlogDetailsCache: {}, setDlogDetailsCache: () => { },
+    economyCache: { config: null, trucks: [], garagesMap: {}, merchMap: {} }, setEconomyCache: () => { },
+    allUsersCache: [], setAllUsersCache: () => { }, // only loaded to purge inactive
 
     loadMemberUIDs: async () => { },
     loadAnnouncementTypes: async () => { },
@@ -41,6 +43,8 @@ export const AppContext = createContext({
 });
 
 export const AppContextProvider = ({ children }) => {
+    const [apiPath, setApiPath] = useState("");
+
     const [apiConfig, setApiConfig] = useState(null);
     const [webConfig, setWebConfig] = useState(null);
     const [languages, setLanguages] = useState([]);
@@ -115,13 +119,13 @@ export const AppContextProvider = ({ children }) => {
 
         let allMembers = [];
 
-        let [resp] = await makeRequestsWithAuth([`${vars.dhpath}/member/list?page=1&page_size=250`]);
+        let [resp] = await makeRequestsWithAuth([`${apiPath}/member/list?page=1&page_size=250`]);
         let totalPages = resp.total_pages;
         allMembers = resp.list;
         if (totalPages > 1) {
             let urlsBatch = [];
             for (let i = 2; i <= totalPages; i++) {
-                urlsBatch.push(`${vars.dhpath}/member/list?page=${i}&page_size=250`);
+                urlsBatch.push(`${apiPath}/member/list?page=${i}&page_size=250`);
                 if (urlsBatch.length === 5 || i === totalPages) {
                     let resps = await makeRequestsWithAuth(urlsBatch);
                     for (let j = 0; j < resps.length; j++) {
@@ -140,39 +144,39 @@ export const AppContextProvider = ({ children }) => {
         let allMemberUIDs = allMembers.map((member) => member.uid);
         setMemberUIDs(allMemberUIDs);
         return allMemberUIDs;
-    }, [allRoles]);
+    }, [allRoles, apiPath]);
 
     // background load
     const loadDlogDetails = useCallback(async () => {
-        let [resp] = await makeRequestsAuto([{ url: `${vars.dhpath}/dlog/statistics/details`, auth: true }]);
+        let [resp] = await makeRequestsAuto([{ url: `${apiPath}/dlog/statistics/details`, auth: true }]);
         if (resp.error === undefined) {
             setDlogDetailsCache(resp);
         }
         return resp;
-    }, []);
+    }, [apiPath]);
 
     // background load
     const loadLanguages = useCallback(async () => {
-        let [languages] = await makeRequestsAuto([{ url: `${vars.dhpath}/languages`, auth: true }]);
+        let [languages] = await makeRequestsAuto([{ url: `${apiPath}/languages`, auth: true }]);
         if (languages) {
             setLanguages(languages.supported);
             return languages.supported;
         } else {
             return [];
         }
-    }, []);
+    }, [apiPath]);
 
     // load when needed
     const loadAllUsers = useCallback(async () => {
         let result = [];
 
-        let [resp] = await makeRequestsWithAuth([`${vars.dhpath}/user/list?page=1&page_size=250`]);
+        let [resp] = await makeRequestsWithAuth([`${apiPath}/user/list?page=1&page_size=250`]);
         let totalPages = resp.total_pages;
         result = resp.list;
         if (totalPages > 1) {
             let urlsBatch = [];
             for (let i = 2; i <= totalPages; i++) {
-                urlsBatch.push(`${vars.dhpath}/user/list?page=${i}&page_size=250`);
+                urlsBatch.push(`${apiPath}/user/list?page=${i}&page_size=250`);
                 if (urlsBatch.length === 5 || i === totalPages) {
                     let resps = await makeRequestsWithAuth(urlsBatch);
                     for (let i = 0; i < resps.length; i++) {
@@ -185,21 +189,21 @@ export const AppContextProvider = ({ children }) => {
 
         setAllUsersCache(result);
         return result;
-    }, []);
+    }, [apiPath]);
 
     // load when needed
     const loadAnnouncementTypes = useCallback(async () => {
-        const [announcementTypes] = await makeRequestsAuto([{ url: `${vars.dhpath}/announcements/types`, auth: false }]);
+        const [announcementTypes] = await makeRequestsAuto([{ url: `${apiPath}/announcements/types`, auth: false }]);
         if (announcementTypes) {
             setAnnouncementTypes(announcementTypes);
             return announcementTypes;
         }
         return null;
-    }, []);
+    }, [apiPath]);
 
     // load when needed
     const loadApplicationTypes = useCallback(async () => {
-        const [applicationTypes] = await makeRequestsAuto([{ url: `${vars.dhpath}/applications/types`, auth: false }]);
+        const [applicationTypes] = await makeRequestsAuto([{ url: `${apiPath}/applications/types`, auth: false }]);
         if (applicationTypes) {
             const applicationTypesMap = {};
             for (let i = 0; i < applicationTypes.length; i++) {
@@ -209,11 +213,11 @@ export const AppContextProvider = ({ children }) => {
             return applicationTypesMap;
         }
         return null;
-    }, []);
+    }, [apiPath]);
 
     // load when needed
     const loadDivisions = useCallback(async () => {
-        const [divisions] = await makeRequestsAuto([{ url: `${vars.dhpath}/divisions/list`, auth: false }]);
+        const [divisions] = await makeRequestsAuto([{ url: `${apiPath}/divisions/list`, auth: false }]);
         if (divisions) {
             const divisionsMap = {};
             for (let i = 0; i < divisions.length; i++)
@@ -222,9 +226,11 @@ export const AppContextProvider = ({ children }) => {
             return divisionsMap;
         }
         return null;
-    }, []);
+    }, [apiPath]);
 
     const value = useMemo(() => ({
+        apiPath, setApiPath,
+
         apiConfig, setApiConfig,
         webConfig, setWebConfig,
         languages, setLanguages, loadLanguages,
@@ -249,7 +255,7 @@ export const AppContextProvider = ({ children }) => {
         dlogDetailsCache, setDlogDetailsCache, loadDlogDetails,
         economyCache, setEconomyCache,
         allUsersCache, setAllUsersCache, loadAllUsers
-    }), [apiConfig, webConfig, languages, allRoles, allPerms, allRanks, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, announcementTypes, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache]);
+    }), [apiPath, apiConfig, webConfig, languages, allRoles, allPerms, allRanks, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, announcementTypes, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache]);
 
     return (
         <AppContext.Provider value={value}>

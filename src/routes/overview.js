@@ -18,7 +18,7 @@ var vars = require("../variables");
 
 const Overview = () => {
     const { t: tr } = useTranslation();
-    const { users, memberUIDs, curUID, userSettings } = useContext(AppContext);
+    const { apiPath, users, memberUIDs, curUID, userSettings } = useContext(AppContext);
     const allMembers = memberUIDs.map((uid) => users[uid]);
 
     const { userid } = useParams(); // profile display handling
@@ -37,13 +37,13 @@ const Overview = () => {
             window.loading += 1;
 
             const [_, chartNSU, chartSU, lboard, rvisitors, nmember, ldelivery] = await makeRequestsAuto([
-                { url: `${vars.dhpath}`, auth: true }, // access the index url to update user status
-                { url: `${vars.dhpath}/dlog/statistics/chart?ranges=7&interval=86400&sum_up=false&before=` + getTodayUTC() / 1000, auth: false },
-                { url: `${vars.dhpath}/dlog/statistics/chart?ranges=7&interval=86400&sum_up=true`, auth: false },
-                { url: `${vars.dhpath}/dlog/leaderboard?page=1&page_size=5&after=` + getMonthUTC() / 1000, auth: true },
-                { url: `${vars.dhpath}/member/list?page=1&page_size=5&order_by=last_seen&order=desc`, auth: true },
-                { url: `${vars.dhpath}/member/list?page=1&page_size=1&order_by=join_timestamp&order=desc`, auth: true },
-                { url: `${vars.dhpath}/dlog/list?page=1&page_size=1&order=desc`, auth: true }
+                { url: `${apiPath}`, auth: true }, // access the index url to update user status
+                { url: `${apiPath}/dlog/statistics/chart?ranges=7&interval=86400&sum_up=false&before=` + getTodayUTC() / 1000, auth: false },
+                { url: `${apiPath}/dlog/statistics/chart?ranges=7&interval=86400&sum_up=true`, auth: false },
+                { url: `${apiPath}/dlog/leaderboard?page=1&page_size=5&after=` + getMonthUTC() / 1000, auth: true },
+                { url: `${apiPath}/member/list?page=1&page_size=5&order_by=last_seen&order=desc`, auth: true },
+                { url: `${apiPath}/member/list?page=1&page_size=1&order_by=join_timestamp&order=desc`, auth: true },
+                { url: `${apiPath}/dlog/list?page=1&page_size=1&order=desc`, auth: true }
             ]);
 
             let newLatest = { driver: chartSU[chartSU.length - 1].driver, job: chartSU[chartSU.length - 1].job.sum, distance: chartSU[chartSU.length - 1].distance.sum, fuel: chartSU[chartSU.length - 1].fuel.sum, profit_euro: chartSU[chartSU.length - 1].profit.euro, profit_dollar: chartSU[chartSU.length - 1].profit.dollar };
@@ -92,7 +92,7 @@ const Overview = () => {
             window.loading -= 1;
         }
         doLoad();
-    }, []);
+    }, [apiPath]);
 
     return (<>
         {showProfileModal !== 0 && allMembers[memberIdx] !== undefined && <UserCard user={allMembers[memberIdx]} showProfileModal={showProfileModal} onProfileModalClose={() => { setShowProfileModal(0); }} />}

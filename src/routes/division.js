@@ -74,6 +74,8 @@ const DivisionCard = ({ division }) => {
 };
 
 const DivisionsMemo = memo(({ doReload }) => {
+    const { apiPath } = useContext(AppContext);
+
     const [divisions, setDivisions] = useState([]);
 
     useEffect(() => {
@@ -81,7 +83,7 @@ const DivisionsMemo = memo(({ doReload }) => {
             window.loading += 1;
 
             let urls = [
-                `${vars.dhpath}/divisions`,
+                `${apiPath}/divisions`,
             ];
             let [_divisions] = await makeRequestsWithAuth(urls);
             setDivisions(_divisions);
@@ -89,7 +91,7 @@ const DivisionsMemo = memo(({ doReload }) => {
             window.loading -= 1;
         }
         doLoad();
-    }, [doReload]);
+    }, [apiPath, doReload]);
 
     return (<Grid container spacing={2}>
         {divisions.map((division, index) => (
@@ -102,7 +104,7 @@ const DivisionsMemo = memo(({ doReload }) => {
 
 const DivisionsDlog = memo(({ doReload }) => {
     const { t: tr } = useTranslation();
-    const { curUserPerm, userSettings } = useContext(AppContext);
+    const { apiPath, curUserPerm, userSettings } = useContext(AppContext);
 
     const columns = [
         { id: 'display_logid', label: 'ID' },
@@ -130,7 +132,7 @@ const DivisionsDlog = memo(({ doReload }) => {
         async function doLoad() {
             window.loading += 1;
 
-            const [dlogL] = await makeRequestsWithAuth([`${vars.dhpath}/dlog/list?page=${page}&page_size=${pageSize}&division=only`]);
+            const [dlogL] = await makeRequestsWithAuth([`${apiPath}/dlog/list?page=${page}&page_size=${pageSize}&division=only`]);
 
             let newDlogList = [];
             for (let i = 0; i < dlogL.list.length; i++) {
@@ -146,7 +148,7 @@ const DivisionsDlog = memo(({ doReload }) => {
             window.loading -= 1;
         }
         doLoad();
-    }, [page, pageSize, doReload, theme]);
+    }, [apiPath, page, pageSize, doReload, theme]);
 
     const navigate = useNavigate();
     function handleClick(data) {
@@ -160,7 +162,7 @@ const DivisionsDlog = memo(({ doReload }) => {
 
 const DivisionsPending = memo(({ doReload }) => {
     const { t: tr } = useTranslation();
-    const { userSettings, divisions, loadDivisions } = useContext(AppContext);
+    const { apiPath, userSettings, divisions, loadDivisions } = useContext(AppContext);
 
     const pendingColumns = [
         { id: 'display_logid', label: tr("log_id") },
@@ -192,7 +194,7 @@ const DivisionsPending = memo(({ doReload }) => {
                 localDivisions = await loadDivisions();
             }
 
-            const [dlogL] = await makeRequestsWithAuth([`${vars.dhpath}/divisions/list/pending?page_size=${pageSize}&page=${page}`]);
+            const [dlogL] = await makeRequestsWithAuth([`${apiPath}/divisions/list/pending?page_size=${pageSize}&page=${page}`]);
 
             let newDlogList = [];
             for (let i = 0; i < dlogL.list.length; i++) {
@@ -208,11 +210,11 @@ const DivisionsPending = memo(({ doReload }) => {
             window.loading -= 1;
         }
         doLoad();
-    }, [page, pageSize, doReload]);
+    }, [apiPath, page, pageSize, doReload]);
     const handleDVUpdate = useCallback(async (logid, divisionid, status) => {
         window.loading += 1;
 
-        let resp = await axios({ url: `${vars.dhpath}/dlog/${logid}/division/${divisionid}`, data: { status: status }, method: "PATCH", headers: { "Authorization": `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/dlog/${logid}/division/${divisionid}`, data: { status: status }, method: "PATCH", headers: { "Authorization": `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("success"));
             setSnackbarSeverity("success");
@@ -222,7 +224,7 @@ const DivisionsPending = memo(({ doReload }) => {
         }
 
         window.loading -= 1;
-    }, []);
+    }, [apiPath]);
 
     const navigate = useNavigate();
     function handleClick(data) {

@@ -87,7 +87,7 @@ function TabPanel(props) {
 
 const Settings = ({ defaultTab = 0 }) => {
     const { t: tr } = useTranslation();
-    const { apiConfig, webConfig, languages, allRoles, setUsers, curUser, userSettings, setUserSettings } = useContext(AppContext);
+    const { apiPath, apiConfig, webConfig, languages, allRoles, setUsers, curUser, userSettings, setUserSettings } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     const sessionsColumns = useMemo(() => ([
@@ -304,7 +304,7 @@ const Settings = ({ defaultTab = 0 }) => {
         window.loading += 1;
         setRemoteUserConfigDisabled(true);
 
-        let resp = await axios({ url: `${vars.dhpath}/auth/ticket`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/auth/ticket`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status !== 200) {
             setRemoteUserConfigDisabled(false);
             window.loading -= 1;
@@ -335,7 +335,7 @@ const Settings = ({ defaultTab = 0 }) => {
 
         setRemoteUserConfigDisabled(false);
         window.loading -= 1;
-    }, [remoteUserConfig]);
+    }, [apiPath, remoteUserConfig]);
 
     let trackers = useMemo(() => {
         const result = [];
@@ -348,7 +348,7 @@ const Settings = ({ defaultTab = 0 }) => {
     }, [apiConfig]);
     const [tracker, setTracker] = useState(curUser.tracker);
     const updateTracker = useCallback(async (to) => {
-        let resp = await axios({ url: `${vars.dhpath}/user/tracker/switch?uid=${curUser.uid}`, data: { tracker: to }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/user/tracker/switch?uid=${curUser.uid}`, data: { tracker: to }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("tracker_updated"));
             setSnackbarSeverity("success");
@@ -359,11 +359,11 @@ const Settings = ({ defaultTab = 0 }) => {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
         }
-    }, [tracker]);
+    }, [apiPath, tracker]);
 
     const [notificationSettings, setNotificationSettings] = useState(null);
     const reloadNotificationSettings = useCallback(async () => {
-        const [_notificationSettings] = await makeRequestsWithAuth([`${vars.dhpath}/user/notification/settings`]);
+        const [_notificationSettings] = await makeRequestsWithAuth([`${apiPath}/user/notification/settings`]);
         let newNotificationSettings = [];
         for (let i = 0; i < NOTIFICATION_TYPES.length; i++) {
             if (_notificationSettings[NOTIFICATION_TYPES[i]]) {
@@ -371,7 +371,7 @@ const Settings = ({ defaultTab = 0 }) => {
             }
         }
         setNotificationSettings(newNotificationSettings);
-    }, []);
+    }, [apiPath]);
     const updateNotificationSettings = useCallback(async (newSettings) => {
         window.loading += 1;
 
@@ -392,7 +392,7 @@ const Settings = ({ defaultTab = 0 }) => {
         setNotificationSettings(newSettings);
 
         for (let i = 0; i < enabled.length; i++) {
-            let resp = await axios({ url: `${vars.dhpath}/user/notification/settings/${enabled[i]}/enable`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let resp = await axios({ url: `${apiPath}/user/notification/settings/${enabled[i]}/enable`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (resp.status === 204) {
                 setSnackbarContent(tr("enabled_notification", { type: NOTIFICATION_NAMES[enabled[i]] }));
                 setSnackbarSeverity("success");
@@ -403,7 +403,7 @@ const Settings = ({ defaultTab = 0 }) => {
             }
         }
         for (let i = 0; i < disabled.length; i++) {
-            let resp = await axios({ url: `${vars.dhpath}/user/notification/settings/${disabled[i]}/disable`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let resp = await axios({ url: `${apiPath}/user/notification/settings/${disabled[i]}/disable`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (resp.status === 204) {
                 setSnackbarContent(tr("disabled_notification", { type: NOTIFICATION_NAMES[enabled[i]] }));
                 setSnackbarSeverity("success");
@@ -415,7 +415,7 @@ const Settings = ({ defaultTab = 0 }) => {
         }
 
         window.loading -= 1;
-    }, [notificationSettings]);
+    }, [apiPath, notificationSettings]);
 
     const [userLanguage, setUserLanguage] = useState(userSettings.language);
     const [languageLoading, setLanguageLoading] = useState(false);
@@ -424,7 +424,7 @@ const Settings = ({ defaultTab = 0 }) => {
 
         setUserLanguage(e.target.value);
         setLanguageLoading(true);
-        let resp = await axios({ url: `${vars.dhpath}/user/language`, data: { language: e.target.value }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/user/language`, data: { language: e.target.value }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             i18n.changeLanguage(e.target.value);
             setUserSettings(prevSettings => ({ ...prevSettings, language: e.target.value }));
@@ -435,7 +435,7 @@ const Settings = ({ defaultTab = 0 }) => {
         setLanguageLoading(false);
 
         window.loading -= 1;
-    }, []);
+    }, [apiPath]);
 
     const [newTruckersMPID, setNewTruckersMPID] = useState(curUser.truckersmpid);
     const [newTruckersMPDisabled, setTruckersmpDisabled] = useState(false);
@@ -454,7 +454,7 @@ const Settings = ({ defaultTab = 0 }) => {
         window.loading += 1;
 
         setTruckersmpDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/user/truckersmp`, data: { truckersmpid: newTruckersMPID }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/user/truckersmp`, data: { truckersmpid: newTruckersMPID }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("updated_truckersmp_account"));
             setSnackbarSeverity("success");
@@ -465,7 +465,7 @@ const Settings = ({ defaultTab = 0 }) => {
         setTruckersmpDisabled(false);
 
         window.loading -= 1;
-    }, [newTruckersMPID]);
+    }, [apiPath, newTruckersMPID]);
 
     const [newEmail, setNewEmail] = useState(curUser.email);
     const [newEmailDisabled, setEmailDisabled] = useState(false);
@@ -484,7 +484,7 @@ const Settings = ({ defaultTab = 0 }) => {
         window.loading += 1;
 
         setEmailDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/user/email`, data: { email: newEmail }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/user/email`, data: { email: newEmail }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("email_update_request_submitted_please_check_your_inbox_for_confirmation"));
             setSnackbarSeverity("success");
@@ -495,17 +495,17 @@ const Settings = ({ defaultTab = 0 }) => {
         setEmailDisabled(false);
 
         window.loading -= 1;
-    }, [newEmail]);
+    }, [apiPath, newEmail]);
 
     const [newProfile, setNewProfile] = useState({ name: curUser.name, avatar: curUser.avatar });
     const [newProfileDisabled, setNewProfileDisabled] = useState(false);
     const updateProfile = useCallback(async (sync_to = undefined) => {
         setNewProfileDisabled(true);
         sync_to === undefined ? sync_to = "" : sync_to = `?sync_to_${sync_to}=true`;
-        let resp = await axios({ url: `${vars.dhpath}/user/profile${sync_to}`, method: "PATCH", data: newProfile, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/user/profile${sync_to}`, method: "PATCH", data: newProfile, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             if (sync_to !== "") {
-                resp = await axios({ url: `${vars.dhpath}/user/profile`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                resp = await axios({ url: `${apiPath}/user/profile`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
                 setNewProfile({ name: resp.data.name, avatar: resp.data.avatar });
                 curUser = resp.data;
                 setUsers(users => ({ ...users, [curUser.uid]: resp.data }));
@@ -522,7 +522,7 @@ const Settings = ({ defaultTab = 0 }) => {
             setSnackbarSeverity("error");
         }
         setNewProfileDisabled(false);
-    }, [newProfile]);
+    }, [apiPath, newProfile]);
 
     const [newAboutMe, setNewAboutMe] = useState(curUser.bio);
     const [newAboutMeDisabled, setAboutMeDisabled] = useState(false);
@@ -530,7 +530,7 @@ const Settings = ({ defaultTab = 0 }) => {
         window.loading += 1;
         setAboutMeDisabled(true);
 
-        let resp = await axios({ url: `${vars.dhpath}/user/bio`, data: { bio: newAboutMe }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/user/bio`, data: { bio: newAboutMe }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("updated_about_me"));
             setSnackbarSeverity("success");
@@ -541,7 +541,7 @@ const Settings = ({ defaultTab = 0 }) => {
 
         setAboutMeDisabled(false);
         window.loading -= 1;
-    }, [newAboutMe]);
+    }, [apiPath, newAboutMe]);
 
     const [newPassword, setNewPassword] = useState("");
     const [newPasswordDisabled, setUpdatePasswordDisabled] = useState(false);
@@ -556,9 +556,9 @@ const Settings = ({ defaultTab = 0 }) => {
 
         let resp = null;
         if (!mfaEnabled) {
-            resp = await axios({ url: `${vars.dhpath}/user/password`, data: { password: newPassword }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            resp = await axios({ url: `${apiPath}/user/password`, data: { password: newPassword }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         } else if (otp !== "") {
-            resp = await axios({ url: `${vars.dhpath}/user/password`, data: { password: newPassword, otp: otp }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            resp = await axios({ url: `${apiPath}/user/password`, data: { password: newPassword, otp: otp }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         } else {
             setOtpAction("update-password");
             setRequireOtp(true);
@@ -578,7 +578,7 @@ const Settings = ({ defaultTab = 0 }) => {
 
         setUpdatePasswordDisabled(false);
         window.loading -= 1;
-    }, [newPassword, otp, otpPass, mfaEnabled]);
+    }, [apiPath, newPassword, otp, otpPass, mfaEnabled]);
     const disablePassword = useCallback(async (e) => {
         window.loading += 1;
         setUpdatePasswordDisabled(true);
@@ -590,9 +590,9 @@ const Settings = ({ defaultTab = 0 }) => {
 
         let resp = null;
         if (!mfaEnabled) {
-            resp = await axios({ url: `${vars.dhpath}/user/password/disable`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            resp = await axios({ url: `${apiPath}/user/password/disable`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         } else if (otp !== "") {
-            resp = await axios({ url: `${vars.dhpath}/user/password/disable`, data: { otp: otp }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            resp = await axios({ url: `${apiPath}/user/password/disable`, data: { otp: otp }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         } else {
             setOtpAction("disable-password");
             setRequireOtp(true);
@@ -610,7 +610,7 @@ const Settings = ({ defaultTab = 0 }) => {
 
         setUpdatePasswordDisabled(false);
         window.loading -= 1;
-    }, [otp, otpPass, mfaEnabled]);
+    }, [apiPath, otp, otpPass, mfaEnabled]);
 
     const [newAppToken, setNewAppToken] = useState(null);
     const [newAppTokenName, setNewAppTokenName] = useState("");
@@ -626,9 +626,9 @@ const Settings = ({ defaultTab = 0 }) => {
 
         let resp = null;
         if (!mfaEnabled) {
-            resp = await axios({ url: `${vars.dhpath}/token/application`, data: { app_name: newAppTokenName }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            resp = await axios({ url: `${apiPath}/token/application`, data: { app_name: newAppTokenName }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         } else if (otp !== "") {
-            resp = await axios({ url: `${vars.dhpath}/token/application`, data: { app_name: newAppTokenName, otp: otp }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            resp = await axios({ url: `${apiPath}/token/application`, data: { app_name: newAppTokenName, otp: otp }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         } else {
             setOtpAction("create-apptoken");
             setRequireOtp(true);
@@ -649,7 +649,7 @@ const Settings = ({ defaultTab = 0 }) => {
 
         setNewAppTokenDisabled(false);
         window.loading -= 1;
-    }, [newAppTokenName, otp, otpPass, mfaEnabled]);
+    }, [apiPath, newAppTokenName, otp, otpPass, mfaEnabled]);
 
     const [mfaSecret, setMfaSecret] = useState("");
     const mfaSecretQRCodeRef = useRef(null);
@@ -700,7 +700,7 @@ const Settings = ({ defaultTab = 0 }) => {
             }, 50);
         } else {
             setManageMfaDisabled(true);
-            let resp = await axios({ url: `${vars.dhpath}/user/mfa/enable`, data: { secret: mfaSecret, otp: otp }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let resp = await axios({ url: `${apiPath}/user/mfa/enable`, data: { secret: mfaSecret, otp: otp }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (resp.status === 204) {
                 setSnackbarContent(tr("mfa_enabled"));
                 setSnackbarSeverity("success");
@@ -718,7 +718,7 @@ const Settings = ({ defaultTab = 0 }) => {
         }
 
         window.loading -= 1;
-    }, [otp, mfaSecret, modalEnableMfa]);
+    }, [apiPath, otp, mfaSecret, modalEnableMfa]);
     const disableMfa = useCallback(async (e) => {
         window.loading += 1;
         setManageMfaDisabled(true);
@@ -730,7 +730,7 @@ const Settings = ({ defaultTab = 0 }) => {
 
         let resp = null;
         if (otp !== "") {
-            resp = await axios({ url: `${vars.dhpath}/user/mfa/disable`, data: { otp: otp }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            resp = await axios({ url: `${apiPath}/user/mfa/disable`, data: { otp: otp }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         } else {
             setOtpAction("disable-mfa");
             setRequireOtp(true);
@@ -753,7 +753,7 @@ const Settings = ({ defaultTab = 0 }) => {
 
         setManageMfaDisabled(false);
         window.loading -= 1;
-    }, [newAppTokenName, otp, otpPass]);
+    }, [apiPath, newAppTokenName, otp, otpPass]);
 
     const [resignConfirm, setResignConfirm] = useState(false);
     const [resignDisabled, setResignDisabled] = useState(false);
@@ -769,9 +769,9 @@ const Settings = ({ defaultTab = 0 }) => {
 
         let resp = null;
         if (!mfaEnabled) {
-            resp = await axios({ url: `${vars.dhpath}/member/resign`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            resp = await axios({ url: `${apiPath}/member/resign`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         } else if (otp !== "") {
-            resp = await axios({ url: `${vars.dhpath}/member/resign`, data: { otp: otp }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            resp = await axios({ url: `${apiPath}/member/resign`, data: { otp: otp }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         } else {
             setOtpAction("resign");
             setRequireOtp(true);
@@ -791,7 +791,7 @@ const Settings = ({ defaultTab = 0 }) => {
 
         setResignDisabled(false);
         window.loading -= 1;
-    }, [otp, otpPass, mfaEnabled]);
+    }, [apiPath, otp, otpPass, mfaEnabled]);
 
     const [deleteConfirm, setDeleteConfirm] = useState(false);
     const [deleteDisabled, setDeleteDisabled] = useState(false);
@@ -807,9 +807,9 @@ const Settings = ({ defaultTab = 0 }) => {
 
         let resp = null;
         if (!mfaEnabled) {
-            resp = await axios({ url: `${vars.dhpath}/user/${curUser.uid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            resp = await axios({ url: `${apiPath}/user/${curUser.uid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         } else if (otp !== "") {
-            resp = await axios({ url: `${vars.dhpath}/user/${curUser.uid}`, data: { otp: otp }, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            resp = await axios({ url: `${apiPath}/user/${curUser.uid}`, data: { otp: otp }, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         } else {
             setOtpAction("delete-account");
             setRequireOtp(true);
@@ -830,11 +830,11 @@ const Settings = ({ defaultTab = 0 }) => {
 
         setDeleteDisabled(false);
         window.loading -= 1;
-    }, []);
+    }, [apiPath]);
 
     useEffect(() => {
         async function doLoad() {
-            const [_notificationSettings] = await makeRequestsWithAuth([`${vars.dhpath}/user/notification/settings`]);
+            const [_notificationSettings] = await makeRequestsWithAuth([`${apiPath}/user/notification/settings`]);
             let newNotificationSettings = [];
             for (let i = 0; i < NOTIFICATION_TYPES.length; i++) {
                 if (_notificationSettings[NOTIFICATION_TYPES[i]]) {
@@ -844,7 +844,7 @@ const Settings = ({ defaultTab = 0 }) => {
             setNotificationSettings(newNotificationSettings);
         }
         doLoad();
-    }, []);
+    }, [apiPath]);
 
     const [sessions, setSessions] = useState([]);
     const [sessionsTotalItems, setSessionsTotalItems] = useState(0);
@@ -864,10 +864,10 @@ const Settings = ({ defaultTab = 0 }) => {
     useEffect(() => {
         appSessionsPageRef.current = appSessionsPage;
     }, [appSessionsPage]);
-    async function loadSessions() {
+    const loadSessions = useCallback(async () => {
         const [_sessions, _appSessions] = await makeRequestsWithAuth([
-            `${vars.dhpath}/token/list?page=${sessionsPage}&page_size=${sessionsPageSize}`,
-            `${vars.dhpath}/token/application/list?page=${appSessionsPage}&page_size=${appSessionsPageSize}`]);
+            `${apiPath}/token/list?page=${sessionsPage}&page_size=${sessionsPageSize}`,
+            `${apiPath}/token/application/list?page=${appSessionsPage}&page_size=${appSessionsPageSize}`]);
 
         function getDeviceIcon(userAgent) {
             if (userAgent.indexOf("Chrome") != -1)
@@ -929,7 +929,7 @@ const Settings = ({ defaultTab = 0 }) => {
             setAppSessions(newAppSessions);
             setAppSessionsTotalItems(_appSessions.total_items);
         }
-    };
+    }, [apiPath, sessionsPage, appSessionsPage]);
     useEffect(() => {
         loadSessions();
     }, [sessionsPage, appSessionsPage]);
@@ -937,7 +937,7 @@ const Settings = ({ defaultTab = 0 }) => {
     const revokeSession = useCallback(async (hash) => {
         window.loading += 1;
 
-        let resp = await axios({ url: `${vars.dhpath}/token/hash`, data: { hash: hash }, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/token/hash`, data: { hash: hash }, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
 
         if (resp.status === 204) {
             setSnackbarContent(tr("token_revoked"));
@@ -949,12 +949,12 @@ const Settings = ({ defaultTab = 0 }) => {
         }
 
         window.loading -= 1;
-    }, []);
+    }, [apiPath]);
 
     const revokeAppSession = useCallback(async (hash) => {
         window.loading += 1;
 
-        let resp = await axios({ url: `${vars.dhpath}/token/application`, data: { hash: hash }, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/token/application`, data: { hash: hash }, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
 
         if (resp.status === 204) {
             setSnackbarContent(tr("application_token_revoked"));
@@ -966,7 +966,7 @@ const Settings = ({ defaultTab = 0 }) => {
         }
 
         window.loading -= 1;
-    }, []);
+    }, [apiPath]);
 
     const [badges, setBadges] = useState([]);
     useEffect(() => {
@@ -1483,7 +1483,7 @@ const Settings = ({ defaultTab = 0 }) => {
                             component="img"
                             image={remoteUserConfig.profile_banner_url}
                             onError={(event) => {
-                                event.target.src = `${vars.dhpath}/member/banner?userid=${curUser.userid}`;
+                                event.target.src = `${apiPath}/member/banner?userid=${curUser.userid}`;
                             }}
                             alt=""
                             sx={{ borderRadius: "5px 5px 0 0" }}

@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ThemeContext } from '../../../context';
+import { AppContext, ThemeContext } from '../../../context';
 
 import { Button, Card, CardActions, CardContent, Typography } from '@mui/material';
 
@@ -14,6 +14,7 @@ var vars = require('../../../variables');
 
 const PatreonAuth = () => {
     const { t: tr } = useTranslation();
+    const { apiPath } = useContext(AppContext);
     const { themeSettings } = useContext(ThemeContext);
 
     const navigate = useNavigate();
@@ -45,7 +46,7 @@ const PatreonAuth = () => {
                     return;
                 }
 
-                let resp = await axios({ url: `${vars.dhpath}/auth/ticket`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                let resp = await axios({ url: `${apiPath}/auth/ticket`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
                 if (resp.status !== 200) {
                     setContinue(true);
                     setMessage(`Failed to generate auth ticket, try again later...`);
@@ -81,7 +82,7 @@ const PatreonAuth = () => {
         } else {
             validatePatreonAuth();
         }
-    }, [patreonCode, patreonError, patreonErrorDescription, navigate]);
+    }, [apiPath, patreonCode, patreonError, patreonErrorDescription]);
 
     function handleContinue() {
         navigate('/settings/general');

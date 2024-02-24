@@ -26,7 +26,7 @@ const COUNTRY_FLAG = { "uk": "🇬🇧", "germany": "🇩🇪", "france": "🇫�
 
 const DeliveryDetail = memo(({ userDivisionIDs, doReload, divisionMeta, setDoReload, setDivisionStatus, setNewDivisionStatus, setDivisionMeta, setSelectedDivision, handleDivision, setDeleteOpen }) => {
     const { t: tr } = useTranslation();
-    const { webConfig, curUID, curUser, curUserPerm, userSettings, divisions, loadDivisions } = useContext(AppContext);
+    const { apiPath, webConfig, curUID, curUser, curUserPerm, userSettings, divisions, loadDivisions } = useContext(AppContext);
 
     const EVENT_ICON = { "job.started": <LocalShippingRounded />, "job.delivered": <FlagRounded />, "job.cancelled": <CloseRounded />, "fine": <GavelRounded />, "tollgate": <TollRounded />, "ferry": <DirectionsBoatRounded />, "train": <TrainRounded />, "collision": <CarCrashRounded />, "repair": <BuildRounded />, "refuel": <LocalGasStationRounded />, "teleport": <FlightTakeoffRounded />, "speeding": <SpeedRounded /> };
     const EVENT_COLOR = { "job.started": "lightgreen", "job.delivered": "lightgreen", "job.cancelled": "lightred", "fine": "orange", "tollgate": "lightblue", "ferry": "lightblue", "train": "lightblue", "collision": "orange", "repair": "lightblue", "refuel": "lightblue", "teleport": "lightblue", "speeding": "orange" };
@@ -111,12 +111,12 @@ const DeliveryDetail = memo(({ userDivisionIDs, doReload, divisionMeta, setDoRel
     const handleReloadRoute = useCallback(async () => {
         window.loading += 1;
 
-        await axios({ url: `${vars.dhpath}/tracksim/update/route`, data: { logid: logid }, method: "POST", headers: { "Authorization": `Bearer ${getAuthToken()}` } });
+        await axios({ url: `${apiPath}/tracksim/update/route`, data: { logid: logid }, method: "POST", headers: { "Authorization": `Bearer ${getAuthToken()}` } });
 
         window.loading -= 1;
 
         setDoReload(+new Date());
-    }, [logid, setDoReload]);
+    }, [apiPath, logid, setDoReload]);
 
     useEffect(() => {
         async function doLoad() {
@@ -128,8 +128,8 @@ const DeliveryDetail = memo(({ userDivisionIDs, doReload, divisionMeta, setDoRel
             }
 
             let [dlogD, divisionM] = await makeRequestsAuto([
-                { url: `${vars.dhpath}/dlog/${logid}`, auth: "prefer" },
-                { url: `${vars.dhpath}/dlog/${logid}/division`, auth: true },
+                { url: `${apiPath}/dlog/${logid}`, auth: "prefer" },
+                { url: `${apiPath}/dlog/${logid}/division`, auth: true },
             ]);
             if (dlogD.error !== undefined) {
                 navigate(`/delivery`);
@@ -380,7 +380,7 @@ const DeliveryDetail = memo(({ userDivisionIDs, doReload, divisionMeta, setDoRel
             }
         }
         doLoad();
-    }, [logid, theme, doReload, setDivisionStatus, setNewDivisionStatus, setDivisionMeta, setSelectedDivision, divisions]);
+    }, [apiPath, logid, theme, doReload, setDivisionStatus, setNewDivisionStatus, setDivisionMeta, setSelectedDivision, divisions]);
 
     return (<>
         {dlog.logid === undefined &&
@@ -536,7 +536,7 @@ const DeliveryDetail = memo(({ userDivisionIDs, doReload, divisionMeta, setDoRel
 
 const Delivery = memo(() => {
     const { t: tr } = useTranslation();
-    const { curUser, curUserPerm, divisions: cachedDivisions, loadDivisions } = useContext(AppContext);
+    const { apiPath, curUser, curUserPerm, divisions: cachedDivisions, loadDivisions } = useContext(AppContext);
     const [divisions, setDivisions] = useState(cachedDivisions === null ? [] : cachedDivisions);
 
     const userDivisionIDs = useMemo(() => {
@@ -590,7 +590,7 @@ const Delivery = memo(() => {
     const handleRDVSubmit = useCallback(async () => {
         window.loading += 1;
 
-        let resp = await axios({ url: `${vars.dhpath}/dlog/${logid}/division/${selectedDivision}`, method: "POST", headers: { "Authorization": `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/dlog/${logid}/division/${selectedDivision}`, method: "POST", headers: { "Authorization": `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("success"));
             setSnackbarSeverity("success");
@@ -602,11 +602,11 @@ const Delivery = memo(() => {
         window.loading -= 1;
 
         setDoReload(+new Date());
-    }, [logid, selectedDivision]);
+    }, [apiPath, logid, selectedDivision]);
     const handleDVUpdate = useCallback(async () => {
         window.loading += 1;
 
-        let resp = await axios({ url: `${vars.dhpath}/dlog/${logid}/division/${selectedDivision}`, data: { status: newDivisionStatus, message: newDivisionMessage }, method: "PATCH", headers: { "Authorization": `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/dlog/${logid}/division/${selectedDivision}`, data: { status: newDivisionStatus, message: newDivisionMessage }, method: "PATCH", headers: { "Authorization": `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("success"));
             setSnackbarSeverity("success");
@@ -618,7 +618,7 @@ const Delivery = memo(() => {
         window.loading -= 1;
 
         setDoReload(+new Date());
-    }, [logid, selectedDivision, newDivisionStatus, newDivisionMessage]);
+    }, [apiPath, logid, selectedDivision, newDivisionStatus, newDivisionMessage]);
 
     const [deleteOpen, setDeleteOpen] = useState(false);
     const navigate = useNavigate();
@@ -628,7 +628,7 @@ const Delivery = memo(() => {
     const handleDelete = useCallback(async () => {
         window.loading += 1;
 
-        let resp = await axios({ url: `${vars.dhpath}/dlog/${logid}`, method: "DELETE", headers: { "Authorization": `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/dlog/${logid}`, method: "DELETE", headers: { "Authorization": `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("success"));
             setSnackbarSeverity("success");
@@ -640,7 +640,7 @@ const Delivery = memo(() => {
         window.loading -= 1;
 
         navigate(`/delivery`);
-    }, [logid, navigate]);
+    }, [apiPath, logid]);
 
     return (<>
         <DeliveryDetail userDivisionIDs={userDivisionIDs} doReload={doReload} divisionMeta={divisionMeta} setDoReload={setDoReload} setDivisionStatus={setDivisionStatus} setNewDivisionStatus={setNewDivisionStatus} setDivisionMeta={setDivisionMeta} setSelectedDivision={setSelectedDivision} handleDivision={handleDivision} setDeleteOpen={setDeleteOpen} />

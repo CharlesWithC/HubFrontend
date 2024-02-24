@@ -120,12 +120,12 @@ export function getAuthToken() {
     else return data.token;
 };
 
-export async function FetchProfile({ webConfig, allRoles, setUsers, setCurUID, setCurUser, setCurUserPerm, setCurUserBanner, setUserSettings }, isLogin = false) {
+export async function FetchProfile({ apiPath, webConfig, setUsers, setCurUID, setCurUser, setCurUserPerm, setCurUserBanner, setUserSettings }, isLogin = false) {
     // accept a whole appContext OR those separate vars as first argument
     // this handles login/session validation and logout data update
     const bearerToken = getAuthToken();
     if (bearerToken !== null) {
-        let resp = await customAxios({ url: `${vars.dhpath}/user/profile`, headers: { "Authorization": `Bearer ${bearerToken}` } });
+        let resp = await customAxios({ url: `${apiPath}/user/profile`, headers: { "Authorization": `Bearer ${bearerToken}` } });
         if (resp.status === 200) {
             const curUser = resp.data;
 
@@ -156,7 +156,7 @@ export async function FetchProfile({ webConfig, allRoles, setUsers, setCurUID, s
                 }
             }
 
-            resp = await customAxios({ url: `${vars.dhpath}/user/language`, headers: { "Authorization": `Bearer ${bearerToken}` } });
+            resp = await customAxios({ url: `${apiPath}/user/language`, headers: { "Authorization": `Bearer ${bearerToken}` } });
             if (resp.status === 200) {
                 setUserSettings(userSettings => ({ ...userSettings, language: resp.data.language }));
                 i18n.changeLanguage(resp.data.language);
@@ -165,7 +165,7 @@ export async function FetchProfile({ webConfig, allRoles, setUsers, setCurUID, s
             if (curUser.userid !== -1) {
                 if (isLogin) {
                     // just patch, don't wait
-                    customAxios({ url: `${vars.dhpath}/user/timezone`, method: "PATCH", data: { timezone: Intl.DateTimeFormat().resolvedOptions().timeZone }, headers: { "Authorization": `Bearer ${bearerToken}` } });
+                    customAxios({ url: `${apiPath}/user/timezone`, method: "PATCH", data: { timezone: Intl.DateTimeFormat().resolvedOptions().timeZone }, headers: { "Authorization": `Bearer ${bearerToken}` } });
                 }
 
                 return { "ok": true, "member": true };

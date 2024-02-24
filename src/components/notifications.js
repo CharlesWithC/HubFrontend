@@ -18,19 +18,18 @@ var vars = require("../variables");
 
 const NotificationsPopover = () => {
     const { t: tr } = useTranslation();
-    const { userSettings } = useContext(AppContext);
+    const { apiPath, userSettings } = useContext(AppContext);
+    const navigate = useNavigate();
 
     const theme = useTheme();
     const [notifications, setNotifications] = useState(null);
     const [anchorPosition, setAnchorPosition] = useState(null);
-    const handleClick = (e) => {
+    const handleClick = useCallback((e) => {
         setAnchorPosition({ top: e.clientY, left: e.clientX });
-    };
-    const handleClose = () => {
+    }, []);
+    const handleClose = useCallback(() => {
         setAnchorPosition(null);
-    };
-
-    const navigate = useNavigate();
+    }, []);
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -48,7 +47,7 @@ const NotificationsPopover = () => {
         }
 
         try {
-            const resp = await axios({ url: `${vars.dhpath}/user/notification/list`, params: { page_size: 250, order_by: "notificationid", order: "desc" }, method: "GET", headers: { "Authorization": `Bearer ${bearerToken}` } });
+            const resp = await axios({ url: `${apiPath}/user/notification/list`, params: { page_size: 250, order_by: "notificationid", order: "desc" }, method: "GET", headers: { "Authorization": `Bearer ${bearerToken}` } });
             if (resp.status === 200) {
                 let list = [];
                 for (let i = 0; i < resp.data.list.length; i++) {
@@ -75,7 +74,7 @@ const NotificationsPopover = () => {
         }
 
         try {
-            const resp = await axios({ url: `${vars.dhpath}/user/notification/list?status=0`, method: "GET", headers: { "Authorization": `Bearer ${bearerToken}` } });
+            const resp = await axios({ url: `${apiPath}/user/notification/list?status=0`, method: "GET", headers: { "Authorization": `Bearer ${bearerToken}` } });
             if (parseInt(resp.status / 100) === 2) {
                 setUnread(resp.data.total_items);
             } else {
@@ -87,7 +86,7 @@ const NotificationsPopover = () => {
             setSnackbarSeverity("error");
             setSnackbarContent(tr("error_occurred"));
         }
-    }, []);
+    }, [apiPath]);
 
     useEffect(() => {
         loadNotifications();
@@ -101,13 +100,13 @@ const NotificationsPopover = () => {
         return () => { clearInterval(interval); };
     }, [userSettings.notification_refresh_interval, loadNotifications]);
 
-    const handleAllRead = async () => {
+    const handleAllRead = useCallback(async () => {
         const bearerToken = getAuthToken();
 
         window.loading += 1;
 
         try {
-            const resp = await axios({ url: `${vars.dhpath}/user/notification/all/status/1`, method: "PATCH", headers: { "Authorization": `Bearer ${bearerToken}` } });
+            const resp = await axios({ url: `${apiPath}/user/notification/all/status/1`, method: "PATCH", headers: { "Authorization": `Bearer ${bearerToken}` } });
             if (parseInt(resp.status / 100) === 2) {
                 setSnackbarSeverity("success");
                 setSnackbarContent(tr("all_notifications_marked_as_read"));
@@ -122,7 +121,7 @@ const NotificationsPopover = () => {
             setSnackbarContent(tr("error_occurred"));
         }
         window.loading -= 1;
-    };
+    }, [apiPath]);
 
     const open = Boolean(anchorPosition);
 

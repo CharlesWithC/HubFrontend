@@ -3039,7 +3039,7 @@ const MemoEconomyForm = memo(({ theme, formConfig }) => {
 
 const Configuration = () => {
     const { t: tr } = useTranslation();
-    const { webConfig: curWebConfig, setWebConfig: setCurWebConfig, curUser } = useContext(AppContext);
+    const { apiPath, webConfig: curWebConfig, setWebConfig: setCurWebConfig, curUser } = useContext(AppContext);
     const theme = useTheme();
 
     const [snackbarContent, setSnackbarContent] = useState("");
@@ -3106,7 +3106,7 @@ const Configuration = () => {
 
         setCurWebConfig({ ...webConfig, name_color: webConfig.name_color.startsWith("#") ? webConfig.name_color : null, theme_main_color: webConfig.theme_main_color.startsWith("#") ? webConfig.theme_main_color : null, theme_background_color: webConfig.theme_background_color.startsWith("#") ? webConfig.theme_background_color : null });
 
-        let resp = await axios({ url: `${vars.dhpath}/auth/ticket`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/auth/ticket`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status !== 200) {
             setWebConfigDisabled(false);
             window.loading -= 1;
@@ -3127,7 +3127,7 @@ const Configuration = () => {
 
         setWebConfigDisabled(false);
         window.loading -= 1;
-    }, [webConfig]);
+    }, [apiPath, webConfig]);
 
     const [apiConfig, setApiConfig] = useState(null);
     const formConfig = Array.from({ length: Object.keys(CONFIG_SECTIONS).length }, () => {
@@ -3178,7 +3178,7 @@ const Configuration = () => {
         window.loading += 1;
         setApiConfigDisabled(true);
 
-        let resp = await axios({ url: `${vars.dhpath}/config`, method: "PATCH", data: { config: config }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/config`, method: "PATCH", data: { config: config }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("api_config_updated_remember_to_reload_to_make_changes_take"));
             setSnackbarSeverity("success");
@@ -3190,7 +3190,7 @@ const Configuration = () => {
 
         setApiConfigDisabled(false);
         window.loading -= 1;
-    }, [apiConfig]);
+    }, [apiPath, apiConfig]);
     const showReloadApiConfig = useCallback(async () => {
         if (curUser.mfa === false) {
             setSnackbarContent(tr("rejected_you_must_enable_mfa_before_reloading_config"));
@@ -3207,7 +3207,7 @@ const Configuration = () => {
             return;
         }
         setApiConfigDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/config/reload`, method: "POST", data: { otp: otp }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/config/reload`, method: "POST", data: { otp: otp }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("config_reloaded"));
             setSnackbarSeverity("success");
@@ -3217,10 +3217,10 @@ const Configuration = () => {
         }
         setApiConfigDisabled(false);
         setReloadModalOpen(false);
-    }, [mfaOtp]);
+    }, [apiPath, mfaOtp]);
     const enableDiscordRoleConnection = useCallback(async () => {
         setApiConfigDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/discord/role-connection/enable`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/discord/role-connection/enable`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("success"));
             setSnackbarSeverity("success");
@@ -3229,10 +3229,10 @@ const Configuration = () => {
             setSnackbarSeverity("error");
         }
         setApiConfigDisabled(false);
-    }, []);
+    }, [apiPath]);
     const disableDiscordRoleConnection = useCallback(async () => {
         setApiConfigDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/discord/role-connection/disable`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/discord/role-connection/disable`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("success"));
             setSnackbarSeverity("success");
@@ -3241,14 +3241,14 @@ const Configuration = () => {
             setSnackbarSeverity("error");
         }
         setApiConfigDisabled(false);
-    }, []);
+    }, [apiPath]);
 
     useEffect(() => {
         async function doLoad() {
             window.loading += 1;
 
             const [_apiConfig] = await makeRequestsAuto([
-                { url: `${vars.dhpath}/config`, auth: true },
+                { url: `${apiPath}/config`, auth: true },
             ]);
 
             if (_apiConfig.config.delivery_rules.required_realistic_settings === undefined) {
@@ -3277,7 +3277,7 @@ const Configuration = () => {
             window.loading -= 1;
         }
         doLoad();
-    }, []);
+    }, [apiPath]);
 
     const saveFormConfig = useCallback(async (section) => {
         let config = formConfig[CONFIG_SECTIONS_INDEX[section]].state;
@@ -3299,7 +3299,7 @@ const Configuration = () => {
         window.loading += 1;
         setApiConfigDisabled(true);
 
-        let resp = await axios({ url: `${vars.dhpath}/config`, method: "PATCH", data: { config: config }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/config`, method: "PATCH", data: { config: config }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("api_config_updated_remember_to_reload_to_make_changes_take"));
             setSnackbarSeverity("success");
@@ -3311,7 +3311,7 @@ const Configuration = () => {
 
         setApiConfigDisabled(false);
         window.loading -= 1;
-    }, [formConfig, formConfigOrg]);
+    }, [apiPath, formConfig, formConfigOrg]);
 
     let buildhash = "dev";
     const scripts = document.getElementsByTagName('script');
@@ -3368,7 +3368,7 @@ const Configuration = () => {
                 <Grid container spacing={2} rowSpacing={-0.5}>
                     <Grid item xs={12} md={6}>
                         <Typography variant="body2">
-                            Client: v3.4.0-beta.07 (build.{buildhash})
+                            Client: v3.4.0-beta.08 (build.{buildhash})
                         </Typography>
                     </Grid>
                     <Grid item xs={12} md={6}>
