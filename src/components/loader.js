@@ -198,7 +198,6 @@ const Loader = ({ onLoaderLoaded }) => {
                 let cache = {
                     timestamp: +new Date(),
                     config: config,
-                    languages: languages,
                     memberRoles: memberRoles,
                     memberPerms: memberPerms,
                     memberRanks: memberRanks
