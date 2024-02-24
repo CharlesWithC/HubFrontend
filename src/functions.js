@@ -105,17 +105,17 @@ export function readLS(key, secretKey) {
 }
 
 export function setAuthToken(token) {
-    writeLS("token", { token: token }, vars.host);
+    writeLS("token", { token: token }, window.dhhost);
 }
 
 export function getAuthToken() {
     let data = localStorage.getItem("token");
     if (data === null) return null;
     if (data.length === 36) {
-        writeLS("token", { token: data }, vars.host);
+        writeLS("token", { token: data }, window.dhhost);
         return data;
     }
-    data = readLS("token", vars.host);
+    data = readLS("token", window.dhhost);
     if (data === null) return null;
     else return data.token;
 };

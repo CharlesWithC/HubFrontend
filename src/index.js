@@ -22,19 +22,23 @@ window.loading = 0;
 
 window.isElectron = (typeof window !== 'undefined' && typeof window.process === 'object' && window.process.type === 'renderer' || typeof process !== 'undefined' && typeof process.versions === 'object' && !!process.versions.electron || typeof navigator === 'object' && typeof navigator.userAgent === 'string' && navigator.userAgent.indexOf('Electron') >= 0);
 
-var vars = require("./variables");
 if (window.isElectron) {
-    if (window.host !== undefined) vars.host = window.host;
+    if (window.host !== undefined) window.dhhost = window.host;
     // window.host will only be defined when it's a custom build
     // otherwise, an official release will not include window.host
-    vars.host = localStorage.getItem("domain");
-    if (vars.host === null) vars.host = "";
+    window.dhhost = localStorage.getItem("domain");
+    if (window.dhhost === null) vwindow.dhhost = "";
 } else {
-    vars.host = window.location.host;
-    if (window.location.hostname === "localhost") vars.host = localStorage.getItem("domain");
+    window.dhhost = window.location.host;
+    if (window.location.hostname === "localhost") window.dhhost = localStorage.getItem("domain");
 }
 
 const searchParams = new URLSearchParams(window.location.search);
+if (!window.isElectron && window.location.hostname === "localhost" && searchParams.get("domain") !== null) {
+    localStorage.setItem("domain", searchParams.get("domain"));
+    window.dhhost = searchParams.get("domain");
+}
+
 if (searchParams.get("auth_mode") !== null && searchParams.get("auth_redirect") !== null) {
     setAuthMode(searchParams.get("auth_mode"), searchParams.get("auth_redirect"));
 }
@@ -71,7 +75,7 @@ class ErrorBoundary extends React.Component {
     }
 
     componentDidCatch(error, errorInfo) {
-        if (vars.host !== "localhost:3000") {
+        if (window.dhhost !== "localhost:3000") {
             Sentry.withScope(scope => {
                 scope.setExtras(errorInfo);
                 Sentry.captureException(error);

@@ -1,6 +1,3 @@
-var host = "";
-exports.host = host;
-
 var apiversion = "";
 var dhlogo = null;
 var dhbanner = null;

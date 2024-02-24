@@ -183,7 +183,7 @@ const Settings = ({ defaultTab = 0 }) => {
         }
 
         debounceTimeout.current = setTimeout(() => {
-            writeLS("client-settings", { ...userSettings, ...themeSettings }, vars.host);
+            writeLS("client-settings", { ...userSettings, ...themeSettings }, window.dhhost);
         }, 200);
 
         return () => {

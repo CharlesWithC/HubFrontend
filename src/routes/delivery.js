@@ -85,7 +85,7 @@ const DeliveryDetail = memo(({ userDivisionIDs, doReload, divisionMeta, setDoRel
             startTimestamp: new Date(),
             instance: false,
             buttons: [
-                { label: 'Visit Drivers Hub', url: `https://${vars.host}${window.location.pathname}` },
+                { label: 'Visit Drivers Hub', url: `https://${window.dhhost}${window.location.pathname}` },
                 { label: 'Powered by CHub', url: "https://drivershub.charlws.com/" }
             ]
         });
@@ -373,7 +373,7 @@ const DeliveryDetail = memo(({ userDivisionIDs, doReload, divisionMeta, setDoRel
                     startTimestamp: new Date(),
                     instance: false,
                     buttons: [
-                        { label: 'Visit Drivers Hub', url: `https://${vars.host}${window.location.pathname}` },
+                        { label: 'Visit Drivers Hub', url: `https://${window.dhhost}${window.location.pathname}` },
                         { label: 'Powered by CHub', url: "https://drivershub.charlws.com/" }
                     ]
                 });

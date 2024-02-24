@@ -10,7 +10,7 @@ import { FetchProfile, loadImageAsBase64, customAxios as axios, makeRequestsAuto
 var vars = require('../variables');
 
 const Loader = ({ onLoaderLoaded }) => {
-    const [domain, setDomain] = useState(window.location.hostname !== "localhost" ? window.location.hostname : vars.host);
+    const [domain, setDomain] = useState(window.location.hostname !== "localhost" ? window.location.hostname : window.dhhost);
 
     const { t: tr } = useTranslation();
     const appContext = useContext(AppContext);
@@ -26,13 +26,6 @@ const Loader = ({ onLoaderLoaded }) => {
     const [title, setTitle] = useState(domain !== null && domain !== "" ? (localStorage.getItem("cache-title") !== null ? localStorage.getItem("cache-title") : tr("drivers_hub")) : null);
     const [loadMessage, setLoadMessage] = useState((!window.isElectron || logoSrc !== null) ? tr("loading") : "");
     const [unknownDomain, setUnknownDomain] = useState(false);
-
-    const searchParams = new URLSearchParams(window.location.search);
-    if (!window.isElectron && window.location.hostname === "localhost" && searchParams.get("domain") !== null && domain !== searchParams.get("domain")) {
-        setDomain(searchParams.get("domain"));
-        localStorage.setItem("domain", domain);
-        vars.host = domain;
-    }
 
     const doLoad = useCallback(async () => {
         if (webConfig !== null) return;
@@ -122,7 +115,7 @@ const Loader = ({ onLoaderLoaded }) => {
             let [index, specialRoles, patrons, userConfig, config, memberRoles, memberPerms, memberRanks] = [null, null, null, null, null, null, null, null, null];
             let useCache = false;
 
-            let cache = readLS("cache", vars.host + webConfig.abbr + webConfig.api_host);
+            let cache = readLS("cache", window.dhhost + webConfig.abbr + webConfig.api_host);
             if (cache !== null) {
                 if (cache.timestamp === undefined || +new Date() - cache.timestamp > 86400000) {
                     localStorage.removeItem("cache");
@@ -204,7 +197,7 @@ const Loader = ({ onLoaderLoaded }) => {
                     memberPerms: memberPerms,
                     memberRanks: memberRanks
                 };
-                writeLS("cache", cache, vars.host + webConfig.abbr + webConfig.api_host);
+                writeLS("cache", cache, window.dhhost + webConfig.abbr + webConfig.api_host);
             }
 
             let auth = await FetchProfile({ ...appContext, apiPath: apiPath, webConfig: webConfig });
@@ -244,7 +237,7 @@ const Loader = ({ onLoaderLoaded }) => {
 
     const handleDomainUpdate = useCallback(() => {
         localStorage.setItem("domain", domain);
-        vars.host = domain;
+        window.dhhost = domain;
         setLoaderAnimation(true);
         setTitle(tr("drivers_hub"));
         setLoadMessage(tr("loading"));

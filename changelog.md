@@ -57,6 +57,7 @@
 23. Replaced `vars.perms` with Context API `allPerms`
 24. Replaced `vars.ranks` with Context API `allRanks`
 25. Replaced `vars.dhpath` with Context API `apiPath`
+26. Replaced `vars.host` with `window.dhhost` (Context API was not used because this variable is mostly static and is defined locally on initial load)
 
 ## v3.3.x
 

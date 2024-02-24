@@ -109,8 +109,8 @@ function App() {
     }
 
     useEffect(() => {
-        if (readLS("client-settings", vars.host) !== null) {
-            let lsSettings = readLS("client-settings", vars.host);
+        if (readLS("client-settings", window.dhhost) !== null) {
+            let lsSettings = readLS("client-settings", window.dhhost);
 
             let sKeys = Object.keys(userSettings);
             for (let i = 0; i < sKeys.length; i++) {
@@ -205,7 +205,7 @@ function App() {
                 startTimestamp: new Date(),
                 instance: false,
                 buttons: [
-                    { label: 'Visit Drivers Hub', url: `https://${vars.host}${window.location.pathname}` },
+                    { label: 'Visit Drivers Hub', url: `https://${window.dhhost}${window.location.pathname}` },
                     { label: 'Powered by CHub', url: "https://drivershub.charlws.com/" }
                 ]
             });
@@ -288,11 +288,11 @@ function App() {
                                     <Route path="/auth/login" element={<AuthLogin />} />
                                     <Route path="/auth" element={<TokenAuth />} />
                                     <Route path="/auth/discord/callback" element={<DiscordAuth />} />
-                                    {apiConfig !== null && apiConfig.discord_client_id !== "1120997206938361877" && <Route path="/auth/discord/redirect" element={<Redirect to={`https://discord.com/oauth2/authorize?client_id=${apiConfig.discord_client_id}&redirect_uri=https%3A%2F%2F${vars.host}%2Fauth%2Fdiscord%2Fcallback&response_type=code&scope=identify email role_connections.write`} path="/auth/discord/redirect" />} />}
-                                    {apiConfig !== null && apiConfig.discord_client_id === "1120997206938361877" && <Route path="/auth/discord/redirect" element={<Redirect to={`https://oauth.chub.page/discord-auth?domain=${vars.host}`} path="/auth/discord/redirect" />} />}
+                                    {apiConfig !== null && apiConfig.discord_client_id !== "1120997206938361877" && <Route path="/auth/discord/redirect" element={<Redirect to={`https://discord.com/oauth2/authorize?client_id=${apiConfig.discord_client_id}&redirect_uri=https%3A%2F%2F${window.dhhost}%2Fauth%2Fdiscord%2Fcallback&response_type=code&scope=identify email role_connections.write`} path="/auth/discord/redirect" />} />}
+                                    {apiConfig !== null && apiConfig.discord_client_id === "1120997206938361877" && <Route path="/auth/discord/redirect" element={<Redirect to={`https://oauth.chub.page/discord-auth?domain=${window.dhhost}`} path="/auth/discord/redirect" />} />}
                                     <Route path="/auth/steam/callback" element={<SteamAuth />} />
-                                    <Route path="/auth/steam/redirect" element={<Redirect to={`https://steamcommunity.com/openid/loginform/?goto=%2Fopenid%2Flogin%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3Dhttps%253A%252F%252F${vars.host}%252Fauth%252Fsteam%252Fcallback%26openid.realm%3Dhttps%253A%252F%252F${vars.host}%252Fauth%252Fsteam%252Fcallback%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3Dhttps%253A%252F%252F${vars.host}%252Fauth%252Fsteam%252Fcallback%26openid.realm%3Dhttps%253A%252F%252F${vars.host}%252Fauth%252Fsteam%252Fcallback%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select`} path="/auth/steam/redirect" />} />
-                                    <Route path="/auth/patreon/redirect" element={<Redirect to={"https://oauth.chub.page/patreon-auth?domain=" + vars.host} path="/auth/patreon/redirect" />} />
+                                    <Route path="/auth/steam/redirect" element={<Redirect to={`https://steamcommunity.com/openid/loginform/?goto=%2Fopenid%2Flogin%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3Dhttps%253A%252F%252F${window.dhhost}%252Fauth%252Fsteam%252Fcallback%26openid.realm%3Dhttps%253A%252F%252F${window.dhhost}%252Fauth%252Fsteam%252Fcallback%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3Dhttps%253A%252F%252F${window.dhhost}%252Fauth%252Fsteam%252Fcallback%26openid.realm%3Dhttps%253A%252F%252F${window.dhhost}%252Fauth%252Fsteam%252Fcallback%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select`} path="/auth/steam/redirect" />} />
+                                    <Route path="/auth/patreon/redirect" element={<Redirect to={"https://oauth.chub.page/patreon-auth?domain=" + window.dhhost} path="/auth/patreon/redirect" />} />
                                     <Route path="/auth/patreon/callback" element={<PatreonAuth />} />
                                     <Route path="/auth/mfa" element={<MfaAuth />} />
                                     <Route path="/auth/email" element={<EmailAuth />} />
