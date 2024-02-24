@@ -14,17 +14,16 @@ const Loader = ({ onLoaderLoaded }) => {
 
     const { t: tr } = useTranslation();
     const appContext = useContext(AppContext);
-    const { apiPath, setApiPath, setApiVersion, setApiConfig, webConfig, setWebConfig, loadLanguages, setAllRoles, setAllPerms, setAllRanks, loadMemberUIDs, loadDlogDetails } = useContext(AppContext);
+    const { apiPath, setApiPath, setApiVersion, vtcLogo, setVtcLogo, setApiConfig, webConfig, setWebConfig, loadLanguages, setAllRoles, setAllPerms, setAllRanks, loadMemberUIDs, loadDlogDetails } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     const [isMember, setIsMember] = useState(false);
 
     const theme = useTheme();
     const [animateLoader, setLoaderAnimation] = useState(true);
-    const [logoSrc, setLogoSrc] = useState(domain !== null && domain !== "" ? localStorage.getItem("cache-logo") : null);
     const [bgSrc, setBgSrc] = useState(domain !== null && domain !== "" ? localStorage.getItem("cache-background") : null);
     const [title, setTitle] = useState(domain !== null && domain !== "" ? (localStorage.getItem("cache-title") !== null ? localStorage.getItem("cache-title") : tr("drivers_hub")) : null);
-    const [loadMessage, setLoadMessage] = useState((!window.isElectron || logoSrc !== null) ? tr("loading") : "");
+    const [loadMessage, setLoadMessage] = useState((!window.isElectron || vtcLogo !== null) ? tr("loading") : "");
     const [unknownDomain, setUnknownDomain] = useState(false);
 
     const doLoad = useCallback(async () => {
@@ -34,8 +33,7 @@ const Loader = ({ onLoaderLoaded }) => {
             if (domain === undefined || domain === null || domain === "") {
                 setLoaderAnimation(false);
                 setTitle(tr("drivers_hub"));
-                vars.dhlogo = await loadImageAsBase64(`./logo.png`);
-                setLogoSrc(vars.dhlogo);
+                setVtcLogo(await loadImageAsBase64(`./logo.png`));
                 setBgSrc(null);
                 setUnknownDomain(true);
                 setLoadMessage(<>{tr("drivers_hub_not_found")}<br />{tr("no_drivers_hub_under_domain")}<br /><br /><a href="https://drivershub.charlws.com/">The Drivers Hub Project (CHub)</a></>);
@@ -46,8 +44,7 @@ const Loader = ({ onLoaderLoaded }) => {
             if (resp.status !== 200) {
                 setLoaderAnimation(false);
                 setTitle(tr("drivers_hub"));
-                vars.dhlogo = await loadImageAsBase64(`./logo.png`);
-                setLogoSrc(vars.dhlogo);
+                setVtcLogo(await loadImageAsBase64(`./logo.png`));
                 if (resp.data.error === tr("service_suspended")) {
                     setLoadMessage(<>{tr("drivers_hub_suspended")}<br />{tr("ask_for_payment")}<br /><br /><a href="https://drivershub.charlws.com/">The Drivers Hub Project (CHub)</a></>);
                 } else if (resp.data.error === tr("not_found")) {
@@ -73,21 +70,23 @@ const Loader = ({ onLoaderLoaded }) => {
             setLoadMessage(tr("loading"));
             setTitle(webConfig.name);
             localStorage.setItem("cache-title", webConfig.name);
-            let imageLoaded = false;
+            let imageLoaded = (vtcLogo !== null) + (vars.dhvtcbg !== null) + (vars.dhbanner !== null);
             Promise.all([
                 loadImageAsBase64(`https://cdn.chub.page/assets/${webConfig.abbr}/logo.png?${webConfig.logo_key !== undefined ? webConfig.logo_key : ""}`, "./logo.png")
                     .then((image) => {
-                        vars.dhlogo = image;
+                        if (vtcLogo === null) imageLoaded += 1;
+                        setVtcLogo(image);
                         try {
-                            localStorage.setItem("cache-logo", vars.dhlogo);
+                            localStorage.setItem("cache-logo", image);
                         } catch { }
-                        setLogoSrc(vars.dhlogo);
                     })
                     .catch(() => {
-                        vars.dhlogo = "";
+                        if (vtcLogo === null) imageLoaded += 1;
+                        setVtcLogo("");
                     }),
                 loadImageAsBase64(`https://cdn.chub.page/assets/${webConfig.abbr}/bgimage.png?${webConfig.bgimage_key !== undefined ? webConfig.bgimage_key : ""}`)
                     .then((image) => {
+                        if (vars.dhvtcbg === null) imageLoaded += 1;
                         if (vars.vtcLevel >= 1) {
                             vars.dhvtcbg = image;
                             try {
@@ -101,16 +100,19 @@ const Loader = ({ onLoaderLoaded }) => {
                         }
                     })
                     .catch(() => {
+                        if (vars.dhvtcbg === null) imageLoaded += 1;
                         vars.dhvtcbg = "";
                     }),
                 loadImageAsBase64(`https://cdn.chub.page/assets/${webConfig.abbr}/banner.png?${webConfig.banner_key !== undefined ? webConfig.banner_key : ""}`)
                     .then((image) => {
+                        if (vars.dhbanner === null) imageLoaded += 1;
                         vars.dhbanner = image;
                     })
                     .catch(() => {
+                        if (vars.dhbanner === null) imageLoaded += 1;
                         vars.dhbanner = "";
                     })
-            ]).then(() => { imageLoaded = true; });
+            ]).then(() => { imageLoaded = 3; });
 
             let [index, specialRoles, patrons, userConfig, config, memberRoles, memberPerms, memberRanks] = [null, null, null, null, null, null, null, null, null];
             let useCache = false;
@@ -208,7 +210,7 @@ const Loader = ({ onLoaderLoaded }) => {
             function sleep(ms) {
                 return new Promise(resolve => setTimeout(resolve, ms));
             }
-            while (!imageLoaded && (vars.dhlogo === null || vars.dhbanner === null || vars.dhvtcbg === null)) {
+            while (imageLoaded < 3) {
                 await sleep(10);
             }
             onLoaderLoaded();
@@ -220,6 +222,7 @@ const Loader = ({ onLoaderLoaded }) => {
         }
     }, []);
     useEffect(() => {
+        setVtcLogo(localStorage.getItem("cache-logo"));
         doLoad();
     }, []);
 
@@ -280,11 +283,11 @@ const Loader = ({ onLoaderLoaded }) => {
                 <HelmetProvider>
                     <Helmet>
                         <title>{title}</title>
-                        {logoSrc !== null && logoSrc !== "" && <link rel="icon" href={logoSrc} type="image/x-icon" />}
-                        {logoSrc !== null && logoSrc !== "" && <link rel="apple-touch-icon" href={logoSrc} />}
+                        {vtcLogo !== null && vtcLogo !== "" && <link rel="icon" href={vtcLogo} type="image/x-icon" />}
+                        {vtcLogo !== null && vtcLogo !== "" && <link rel="apple-touch-icon" href={vtcLogo} />}
                     </Helmet>
                 </HelmetProvider>
-                {logoSrc !== null && logoSrc !== "" && <img src={logoSrc} className={`loader ${animateLoader ? "loader-animated" : ""}`} alt="" style={{ marginBottom: "10px" }} />}
+                {vtcLogo !== null && vtcLogo !== "" && <img src={vtcLogo} className={`loader ${animateLoader ? "loader-animated" : ""}`} alt="" style={{ marginBottom: "10px" }} />}
                 {(!window.isElectron || !unknownDomain) && <Typography variant="body1" sx={{ fontSize: "25px" }}>{loadMessage}</Typography>}
                 {(window.isElectron && unknownDomain) && <>
                     <Typography variant="body1" sx={{ mb: "10px" }}>{tr("enter_the_drivers_hub_domain_to_start_your_app_experience")}</Typography>

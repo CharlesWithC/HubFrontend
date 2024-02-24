@@ -7,6 +7,8 @@ export const AppContext = createContext({
     apiPath: "", setApiPath: () => { },
     apiVersion: "", setApiVersion: () => { },
 
+    vtcLogo: null, setVtcLogo: () => { },
+
     apiConfig: null, setApiConfig: () => { },
     webConfig: null, setWebConfig: () => { },
     languages: [], setLanguages: () => { },
@@ -46,6 +48,8 @@ export const AppContext = createContext({
 export const AppContextProvider = ({ children }) => {
     const [apiPath, setApiPath] = useState("");
     const [apiVersion, setApiVersion] = useState("");
+
+    const [vtcLogo, setVtcLogo] = useState(null);
 
     const [apiConfig, setApiConfig] = useState(null);
     const [webConfig, setWebConfig] = useState(null);
@@ -234,6 +238,8 @@ export const AppContextProvider = ({ children }) => {
         apiPath, setApiPath,
         apiVersion, setApiVersion,
 
+        vtcLogo, setVtcLogo,
+
         apiConfig, setApiConfig,
         webConfig, setWebConfig,
         languages, setLanguages, loadLanguages,
@@ -258,7 +264,7 @@ export const AppContextProvider = ({ children }) => {
         dlogDetailsCache, setDlogDetailsCache, loadDlogDetails,
         economyCache, setEconomyCache,
         allUsersCache, setAllUsersCache, loadAllUsers
-    }), [apiPath, apiVersion, apiConfig, webConfig, languages, allRoles, allPerms, allRanks, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, announcementTypes, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache]);
+    }), [apiPath, apiVersion, apiConfig, vtcLogo, webConfig, languages, allRoles, allPerms, allRanks, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, announcementTypes, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache]);
 
     return (
         <AppContext.Provider value={value}>

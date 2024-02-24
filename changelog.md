@@ -59,6 +59,7 @@
 25. Replaced `vars.dhpath` with Context API `apiPath`
 26. Replaced `vars.host` with `window.dhhost` (Context API was not used because this variable is mostly static and is defined locally on initial load)
 27. Replaced `vars.apiversion` with Context API `apiVersion`
+28. Replaced `vars.dhlogo` with Context API `vtcLogo`
 
 ## v3.3.x
 
