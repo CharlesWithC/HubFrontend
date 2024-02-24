@@ -15,6 +15,7 @@
 11. Add page TextField in tables
 12. Simplebar for profile popover (brief)
 13. Privacy settings
+14. Support API config update real-time reflection
 
 ## v3.4.0
 
@@ -52,6 +53,7 @@
 19. Updated detection mechanism of "page changed" to prevent wrong triggers due to Context API
 20. Moved loading of `applicationTypes` and `divisions` to "before needed" rather than "on page load"
 21. Replaced `vars.languages` with Context API `languages`, also supported background loading for supported languages
+22. Replaced `vars.roles` with Context API `allRoles`, also removed `vars.orderedRoles` which is to be calculated in UserCard
 
 ## v3.3.x
 

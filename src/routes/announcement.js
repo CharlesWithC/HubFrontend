@@ -287,8 +287,9 @@ const Announcement = () => {
     const doLoad = useCallback(async () => {
         window.loading += 1;
 
+        let localAnnouncementTypes = announcementTypes;
         if (announcementTypes === null) {
-            announcementTypes = await loadAnnouncementTypes();
+            localAnnouncementTypes = await loadAnnouncementTypes();
         }
 
         var newAnns = [];

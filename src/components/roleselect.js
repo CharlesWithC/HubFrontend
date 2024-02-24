@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useMemo } from 'react';
+import { useState, useEffect, useContext, useCallback, useMemo } from 'react';
 import { AppContext } from '../context';
 
 import { Typography, useTheme } from '@mui/material';
@@ -9,21 +9,21 @@ import { checkUserPerm } from '../functions';
 
 var vars = require("../variables");
 
-const getRole = (roleId) => {
-    if (vars.roles[roleId] !== undefined) {
-        return vars.roles[roleId];
-    } else {
-        let roleIds = Object.keys(vars.roles);
-        let lastRole = roleIds[roleIds.length - 1];
-        return { "name": `Unknown Role (${roleId})`, id: roleId, order_id: vars.roles[lastRole].order_id + 1 };
-    }
-};
-
 const RoleSelect = ({ label, initialRoles, onUpdate, isMulti = true, style = {} }) => {
-    const { curUser, curUserPerm, divisions, loadDivisions } = useContext(AppContext);
+    const { allRoles, curUser, curUserPerm, divisions, loadDivisions } = useContext(AppContext);
     const theme = useTheme();
 
-    let roleIds = Object.keys(vars.roles);
+    const getRole = useCallback((roleId) => {
+        if (allRoles[roleId] !== undefined) {
+            return allRoles[roleId];
+        } else {
+            let roleIds = Object.keys(allRoles);
+            let lastRole = roleIds[roleIds.length - 1];
+            return { "name": `Unknown Role (${roleId})`, id: roleId, order_id: allRoles[lastRole].order_id + 1 };
+        }
+    }, [allRoles]);
+
+    let roleIds = Object.keys(allRoles);
     const userHighestRole = useMemo(() => {
         let highestRole = undefined;
         for (let i = 0; i < curUser.roles.length; i++) {
@@ -72,7 +72,7 @@ const RoleSelect = ({ label, initialRoles, onUpdate, isMulti = true, style = {} 
         if (isMulti) {
             setSelectedRoles(val
                 .sort((roleA, roleB) => roleA.orderId - roleB.orderId));
-            onUpdate(val.map((item) => (vars.roles[item.value])));
+            onUpdate(val.map((item) => (allRoles[item.value])));
         }
         else {
             setSelectedRoles([val]);

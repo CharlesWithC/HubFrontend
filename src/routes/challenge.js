@@ -293,7 +293,7 @@ const ChallengesMemo = memo(({ userDrivenDistance, challengeList, setChallengeLi
 
 const Challenges = () => {
     const { t: tr } = useTranslation();
-    const { curUser, curUserPerm, userSettings, dlogDetailsCache } = useContext(AppContext);
+    const { allRoles, curUser, curUserPerm, userSettings, dlogDetailsCache } = useContext(AppContext);
     const theme = useTheme();
 
     const CHALLENGE_TYPES = ["", tr("personal_onetime"), tr("company_onetime"), tr("personal_recurring"), tr("personal_distancebased"), tr("company_distancebased")];
@@ -410,7 +410,7 @@ const Challenges = () => {
             </>}</>;
 
         let required_roles = challenge.required_roles.map((role) => {
-            return vars.roles[role].name + ` (${role})  `;
+            return allRoles[role].name + ` (${role})  `;
         });
 
         let completed_users = "";

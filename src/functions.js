@@ -120,7 +120,7 @@ export function getAuthToken() {
     else return data.token;
 };
 
-export async function FetchProfile({ webConfig, setUsers, setCurUID, setCurUser, setCurUserPerm, setCurUserBanner, setUserSettings, loadMemberUIDs, loadDlogDetails }, isLogin = false) {
+export async function FetchProfile({ webConfig, allRoles, setUsers, setCurUID, setCurUser, setCurUserPerm, setCurUserBanner, setUserSettings }, isLogin = false) {
     // accept a whole appContext OR those separate vars as first argument
     // this handles login/session validation and logout data update
     const bearerToken = getAuthToken();
@@ -132,12 +132,12 @@ export async function FetchProfile({ webConfig, setUsers, setCurUID, setCurUser,
             setCurUID(curUser.uid); // do this before setUsers so setUsers could automatically setCurUser
             setUsers(users => ({ ...users, [resp.data.uid]: curUser }));
 
-            let roles = Object.values(vars.roles);
-            roles.sort((a, b) => a.order_id - b.order_id);
+            let orderedRoles = Object.values(allRoles);
+            orderedRoles.sort((a, b) => a.order_id - b.order_id);
             let roleOnDisplay = "";
-            for (let i = 0; i < roles.length; i++) {
-                if (curUser.roles.includes(roles[i].id)) {
-                    roleOnDisplay = roles[i].name;
+            for (let i = 0; i < orderedRoles.length; i++) {
+                if (curUser.roles.includes(orderedRoles[i].id)) {
+                    roleOnDisplay = orderedRoles[i].name;
                     break;
                 }
             }
@@ -189,10 +189,6 @@ export async function FetchProfile({ webConfig, setUsers, setCurUID, setCurUser,
                     // just patch, don't wait
                     customAxios({ url: `${vars.dhpath}/user/timezone`, method: "PATCH", data: { timezone: Intl.DateTimeFormat().resolvedOptions().timeZone }, headers: { "Authorization": `Bearer ${bearerToken}` } });
                 }
-
-                // init these values which are auth-required
-                loadMemberUIDs();
-                loadDlogDetails();
 
                 return { "ok": true, "member": true };
             } else {

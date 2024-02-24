@@ -24,7 +24,7 @@ const LargeUserCard = ({ user, color }) => {
 
 const Members = () => {
     const { t: tr } = useTranslation();
-    const { users, memberUIDs } = useContext(AppContext);
+    const { allRoles, users, memberUIDs } = useContext(AppContext);
     const allMembers = memberUIDs.map((uid) => users[uid]);
 
     let members = allMembers;
@@ -37,7 +37,7 @@ const Members = () => {
             return true;
         }
     });
-    let roles = Object.values(vars.roles);
+    let roles = Object.values(allRoles);
     for (let i = 0; i < roles.length; i++) {
         if (roles[i].display_order_id === undefined) {
             roles[i].display_order_id = roles[i].order_id;

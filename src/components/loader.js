@@ -14,8 +14,10 @@ const Loader = ({ onLoaderLoaded }) => {
 
     const { t: tr } = useTranslation();
     const appContext = useContext(AppContext);
-    const { setApiConfig, webConfig, setWebConfig, loadLanguages } = useContext(AppContext);
+    const { setApiConfig, webConfig, setWebConfig, loadLanguages, setAllRoles, loadMemberUIDs, loadDlogDetails } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
+
+    const [isMember, setIsMember] = useState(false);
 
     const theme = useTheme();
     const [animateLoader, setLoaderAnimation] = useState(true);
@@ -180,12 +182,11 @@ const Loader = ({ onLoaderLoaded }) => {
             if (config) {
                 setApiConfig(config.config);
             }
+            let allRoles = {}; // to be used by FetchProfile
             if (memberRoles) {
-                let roles = memberRoles;
-                for (let i = 0; i < roles.length; i++) {
-                    vars.roles[roles[i].id] = roles[i];
-                }
-                vars.orderedRoles = roles.sort((a, b) => a.order_id - b.order_id).map(role => role.id);
+                for (let i = 0; i < memberRoles.length; i++)
+                    allRoles[memberRoles[i].id] = memberRoles[i];
+                setAllRoles(allRoles);
             }
             if (memberPerms) {
                 vars.perms = memberPerms;
@@ -205,7 +206,8 @@ const Loader = ({ onLoaderLoaded }) => {
                 writeLS("cache", cache, vars.host + webConfig.abbr + webConfig.api_host);
             }
 
-            await FetchProfile({ ...appContext, webConfig: webConfig });
+            let auth = await FetchProfile({ ...appContext, webConfig: webConfig, allRoles: allRoles });
+            setIsMember(auth.member);
 
             loadLanguages();
             setThemeSettings(prevSettings => ({ ...prevSettings })); // refresh theme settings
@@ -227,6 +229,14 @@ const Loader = ({ onLoaderLoaded }) => {
     useEffect(() => {
         doLoad();
     }, []);
+
+    useEffect(() => {
+        if (isMember) {
+            // init these values which are auth-required and required config to be loaded
+            loadMemberUIDs();
+            loadDlogDetails();
+        }
+    }, [isMember]);
 
     const handleDomainUpdate = useCallback(() => {
         localStorage.setItem("domain", domain);

@@ -87,7 +87,7 @@ function TabPanel(props) {
 
 const Settings = ({ defaultTab = 0 }) => {
     const { t: tr } = useTranslation();
-    const { apiConfig, webConfig, languages, setUsers, curUser, userSettings, setUserSettings } = useContext(AppContext);
+    const { apiConfig, webConfig, languages, allRoles, setUsers, curUser, userSettings, setUserSettings } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     const sessionsColumns = useMemo(() => ([
@@ -1534,8 +1534,8 @@ const Settings = ({ defaultTab = 0 }) => {
                                     {curUser.roles.map((role) => (
                                         <Chip
                                             key={`role-${role}`}
-                                            avatar={<div style={{ marginLeft: "5px", width: "12px", height: "12px", backgroundColor: vars.roles[role] !== undefined && vars.roles[role].color !== undefined ? vars.roles[role].color : "#777777", borderRadius: "100%" }} />}
-                                            label={vars.roles[role] !== undefined ? vars.roles[role].name : `Unknown Role (${role})`}
+                                            avatar={<div style={{ marginLeft: "5px", width: "12px", height: "12px", backgroundColor: allRoles[role] !== undefined && allRoles[role].color !== undefined ? allRoles[role].color : "#777777", borderRadius: "100%" }} />}
+                                            label={allRoles[role] !== undefined ? allRoles[role].name : `Unknown Role (${role})`}
                                             variant="outlined"
                                             size="small"
                                             sx={{ borderRadius: "5px", margin: "3px" }}

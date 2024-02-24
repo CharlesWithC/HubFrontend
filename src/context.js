@@ -7,6 +7,7 @@ export const AppContext = createContext({
     apiConfig: null,
     webConfig: null,
     languages: [],
+    allRoles: [],
 
     users: {},
     userProfiles: {},
@@ -41,6 +42,7 @@ export const AppContextProvider = ({ children }) => {
     const [apiConfig, setApiConfig] = useState(null);
     const [webConfig, setWebConfig] = useState(null);
     const [languages, setLanguages] = useState([]);
+    const [allRoles, setAllRoles] = useState([]);
 
     const [users, setUsers] = useState({});
     const [userProfiles, setUserProfiles] = useState({});
@@ -82,6 +84,8 @@ export const AppContextProvider = ({ children }) => {
     const loadMemberUIDs = useCallback(async () => {
         if (memberUIDs.length > 0) return;
 
+        const orderedRoles = Object.values(allRoles).sort((a, b) => a.order_id - b.order_id).map(role => role.id);
+
         let allMembers = [];
 
         let [resp] = await makeRequestsWithAuth([`${vars.dhpath}/member/list?page=1&page_size=250`]);
@@ -102,13 +106,14 @@ export const AppContextProvider = ({ children }) => {
         }
 
         for (let i = 0; i < allMembers.length; i++) {
+            allMembers[i].roles.sort((a, b) => orderedRoles.indexOf(a) - orderedRoles.indexOf(b));
             setUsers(prevUsers => ({ ...prevUsers, [allMembers[i].uid]: allMembers[i] }));
         }
 
         let allMemberUIDs = allMembers.map((member) => member.uid);
         setMemberUIDs(allMemberUIDs);
         return allMemberUIDs;
-    }, []);
+    }, [allRoles]);
 
     // background load
     const loadDlogDetails = useCallback(async () => {
@@ -196,6 +201,7 @@ export const AppContextProvider = ({ children }) => {
         apiConfig, setApiConfig,
         webConfig, setWebConfig,
         languages, setLanguages, loadLanguages,
+        allRoles, setAllRoles,
 
         users, setUsers,
         userProfiles, setUserProfiles,
@@ -214,7 +220,7 @@ export const AppContextProvider = ({ children }) => {
         dlogDetailsCache, setDlogDetailsCache, loadDlogDetails,
         economyCache, setEconomyCache,
         allUsersCache, setAllUsersCache, loadAllUsers
-    }), [apiConfig, webConfig, languages, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, announcementTypes, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache]);
+    }), [apiConfig, webConfig, languages, allRoles, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, announcementTypes, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache]);
 
     return (
         <AppContext.Provider value={value}>

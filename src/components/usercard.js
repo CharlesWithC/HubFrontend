@@ -135,7 +135,8 @@ const UserCard = (props) => {
     const { t: tr } = useTranslation();
     const theme = useTheme();
     const navigate = useNavigate();
-    const { apiConfig, webConfig, users, setUsers, userProfiles, setUserProfiles, setMemberUIDs, curUser, curUserPerm, userSettings } = useContext(AppContext);
+    const { apiConfig, webConfig, allRoles, users, setUsers, userProfiles, setUserProfiles, setMemberUIDs, curUser, curUserPerm, userSettings } = useContext(AppContext);
+    const orderedRoles = useMemo(() => (Object.values(allRoles).sort((a, b) => a.order_id - b.order_id).map(role => role.id)), [allRoles]);
 
     const bannerRef = useRef(null); // this is a real component reference
     const availableTrackers = useMemo(() => {
@@ -155,7 +156,7 @@ const UserCard = (props) => {
         // if user is not yet cached, cache the user
         // fill undefined attributes
         let { uid, userid, name, bio, note, global_note, avatar, email, discordid, steamid, truckersmpid, roles, tracker, ban, role_history, ban_history, mfa } = { uid: -1, userid: -1, name: "", bio: "", note: "", global_note: "", avatar: "", email: "", discordid: null, steamid: null, truckersmpid: null, roles: [], tracker: availableTrackers.length !== 0 ? availableTrackers[0] : "unknown", ban: null, role_history: null, ban_history: null, mfa: null, ...props.user, ...props };
-        roles.sort((a, b) => vars.orderedRoles.indexOf(a) - vars.orderedRoles.indexOf(b));
+        roles.sort((a, b) => orderedRoles.indexOf(a) - orderedRoles.indexOf(b));
 
         setUsers(users => ({ ...users, [uid]: { ...{ uid, userid, discordid, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, tracker, ban, role_history, ban_history, mfa }, ...props.user, last_sync: +new Date() } }));
     }
@@ -193,7 +194,7 @@ const UserCard = (props) => {
     const updateUserInfo = useCallback(async () => {
         let resp = await axios({ url: `${vars.dhpath}/user/profile?uid=${user.uid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
-            resp.data.roles.sort((a, b) => vars.orderedRoles.indexOf(a) - vars.orderedRoles.indexOf(b));
+            resp.data.roles.sort((a, b) => orderedRoles.indexOf(a) - orderedRoles.indexOf(b));
 
             setUsers(users => ({ ...users, [user.uid]: resp.data }));
             // updating info for current user will be automatically handled in setUsers
@@ -479,8 +480,8 @@ const UserCard = (props) => {
     useEffect(() => {
         if (vars.vtcLevel >= 3 && webConfig.use_highest_role_color && user.roles !== undefined) {
             for (let i = 0; i < user.roles.length; i++) {
-                if (vars.roles[user.roles[i]] !== undefined && vars.roles[user.roles[i]].color !== undefined) {
-                    setSpecialColor(vars.roles[user.roles[i]].color);
+                if (allRoles[user.roles[i]] !== undefined && allRoles[user.roles[i]].color !== undefined) {
+                    setSpecialColor(allRoles[user.roles[i]].color);
                     break;
                 }
             }
@@ -494,7 +495,7 @@ const UserCard = (props) => {
         let resp = await axios({ url: `${vars.dhpath}/user/profile?uid=${user.uid}${sync_to}`, method: "PATCH", data: newProfile, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
             // the api endpoint has been updated to return user info
-            resp.data.roles.sort((a, b) => vars.orderedRoles.indexOf(a) - vars.orderedRoles.indexOf(b));
+            resp.data.roles.sort((a, b) => orderedRoles.indexOf(a) - orderedRoles.indexOf(b));
 
             setUsers(users => ({ ...users, [user.uid]: resp.data }));
             // updating info for current user will be automatically handled in setUsers
@@ -827,8 +828,8 @@ const UserCard = (props) => {
                                 {user.roles.map((role) => (
                                     <Chip
                                         key={`role-${role}`}
-                                        avatar={<div style={{ marginLeft: "5px", width: "12px", height: "12px", backgroundColor: vars.roles[role] !== undefined && vars.roles[role].color !== undefined ? vars.roles[role].color : "#777777", borderRadius: "100%" }} />}
-                                        label={vars.roles[role] !== undefined ? vars.roles[role].name : `Unknown Role (${role})`}
+                                        avatar={<div style={{ marginLeft: "5px", width: "12px", height: "12px", backgroundColor: allRoles[role] !== undefined && allRoles[role].color !== undefined ? allRoles[role].color : "#777777", borderRadius: "100%" }} />}
+                                        label={allRoles[role] !== undefined ? allRoles[role].name : `Unknown Role (${role})`}
                                         variant="outlined"
                                         size="small"
                                         sx={{ borderRadius: "5px", margin: "3px" }}
@@ -1308,8 +1309,8 @@ const UserCard = (props) => {
                         </Box>
                         {user.role_history !== undefined && user.role_history !== null && user.role_history.map((history, idx) => (<>
                             {idx !== 0 && <Divider sx={{ mt: "5px" }} />}
-                            {history.added_roles.map((role) => (<Typography key={`history-${idx}`} variant="body2" sx={{ color: theme.palette.info.main }}>+ {vars.roles[role] !== undefined ? vars.roles[role].name : `Unknown Role (${role})`}</Typography>))}
-                            {history.removed_roles.map((role) => (<Typography key={`history-${idx}`} variant="body2" sx={{ color: theme.palette.warning.main }}>- {vars.roles[role] !== undefined ? vars.roles[role].name : `Unknown Role (${role})`}</Typography>))}
+                            {history.added_roles.map((role) => (<Typography key={`history-${idx}`} variant="body2" sx={{ color: theme.palette.info.main }}>+ {allRoles[role] !== undefined ? allRoles[role].name : `Unknown Role (${role})`}</Typography>))}
+                            {history.removed_roles.map((role) => (<Typography key={`history-${idx}`} variant="body2" sx={{ color: theme.palette.warning.main }}>- {allRoles[role] !== undefined ? allRoles[role].name : `Unknown Role (${role})`}</Typography>))}
                             <Typography key={`history-${idx}-time`} variant="body2" sx={{ color: theme.palette.text.secondary }}><TimeAgo key={`${+new Date()}`} timestamp={history.timestamp * 1000} /></Typography>
                         </>
                         ))}
@@ -1563,8 +1564,8 @@ const UserCard = (props) => {
                             {user.roles.map((role) => (
                                 <Chip
                                     key={`role-${role}`}
-                                    avatar={<div style={{ marginLeft: "5px", width: "12px", height: "12px", backgroundColor: vars.roles[role] !== undefined && vars.roles[role].color !== undefined ? vars.roles[role].color : "#777777", borderRadius: "100%" }} />}
-                                    label={vars.roles[role] !== undefined ? vars.roles[role].name : `Unknown Role (${role})`}
+                                    avatar={<div style={{ marginLeft: "5px", width: "12px", height: "12px", backgroundColor: allRoles[role] !== undefined && allRoles[role].color !== undefined ? allRoles[role].color : "#777777", borderRadius: "100%" }} />}
+                                    label={allRoles[role] !== undefined ? allRoles[role].name : `Unknown Role (${role})`}
                                     variant="outlined"
                                     size="small"
                                     sx={{ borderRadius: "5px", margin: "3px" }}
