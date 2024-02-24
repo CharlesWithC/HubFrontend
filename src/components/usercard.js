@@ -492,8 +492,21 @@ const UserCard = (props) => {
         setDialogBtnDisabled(true);
         sync_to === undefined ? sync_to = "" : sync_to = `&sync_to_${sync_to}=true`;
         let resp = await axios({ url: `${vars.dhpath}/user/profile?uid=${user.uid}${sync_to}`, method: "PATCH", data: newProfile, headers: { Authorization: `Bearer ${getAuthToken()}` } });
-        if (resp.status === 204) {
-            await updateUserInfo(); // this is required as we don't know the user's "synced-to" data
+        if (resp.status === 200) {
+            // the api endpoint has been updated to return user info
+            resp.data.roles.sort((a, b) => vars.orderedRoles.indexOf(a) - vars.orderedRoles.indexOf(b));
+
+            setUsers(users => ({ ...users, [user.uid]: resp.data }));
+            // updating info for current user will be automatically handled in setUsers
+
+            setNewProfile({ name: resp.data.name, avatar: resp.data.avatar });
+            setNewAboutMe(resp.data.bio);
+            setNewNote(resp.data.note);
+            setNewGlobalNote(resp.data.global_note);
+            setNewRoles(resp.data.roles);
+            setNewConnections({ email: resp.data.email, discordid: resp.data.discordid, steamid: resp.data.steamid, truckersmpid: resp.data.truckersmpid });
+            setTrackerInUse(resp.data.tracker);
+
             setSnackbarContent(tr("profile_updated"));
             setSnackbarSeverity("success");
         } else {
