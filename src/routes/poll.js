@@ -604,7 +604,7 @@ const Poll = () => {
 
     useEffect(() => {
         doLoad();
-    }, []);
+    }, [apiPath, page]);
 
     return (
         <>

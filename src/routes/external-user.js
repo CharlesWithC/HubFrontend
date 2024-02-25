@@ -121,45 +121,48 @@ const ExternalUsers = () => {
     useEffect(() => {
         searchRef.current = search;
     }, [search]);
-    const doLoadUser = useCallback(async () => {
-        window.loading += 1;
+    useEffect(() => {
+        async function doLoadUser() {
+            window.loading += 1;
 
-        let processedParam = removeNUEValues(listParam);
+            let processedParam = removeNUEValues(listParam);
 
-        let [_userList] = [{}];
-        if (search === "")
-            [_userList] = await makeRequestsAuto([
-                { url: `${apiPath}/user/list?order=desc&order_by=uid&page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
-            ]);
-        else if (isNaN(search) || !isNaN(search) && (search.length < 17 || search.length > 19)) // not discord id
-            [_userList] = await makeRequestsAuto([
-                { url: `${apiPath}/user/list?name=${search}&order=desc&order_by=uid&page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
-            ]);
-        else if (!isNaN(search) && search.length >= 17 && search.length <= 19) { // is discord id
-            let [_userProfile] = await makeRequestsAuto([
-                { url: `${apiPath}/user/profile?discordid=${search}`, auth: true },
-            ]);
-            if (_userProfile.error === undefined) {
-                _userList = { list: [_userProfile], total_items: 1 };
-            } else {
-                _userList = { list: [], total_items: 0 };
+            let [_userList] = [{}];
+            if (search === "")
+                [_userList] = await makeRequestsAuto([
+                    { url: `${apiPath}/user/list?order=desc&order_by=uid&page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                ]);
+            else if (isNaN(search) || !isNaN(search) && (search.length < 17 || search.length > 19)) // not discord id
+                [_userList] = await makeRequestsAuto([
+                    { url: `${apiPath}/user/list?name=${search}&order=desc&order_by=uid&page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                ]);
+            else if (!isNaN(search) && search.length >= 17 && search.length <= 19) { // is discord id
+                let [_userProfile] = await makeRequestsAuto([
+                    { url: `${apiPath}/user/profile?discordid=${search}`, auth: true },
+                ]);
+                if (_userProfile.error === undefined) {
+                    _userList = { list: [_userProfile], total_items: 1 };
+                } else {
+                    _userList = { list: [], total_items: 0 };
+                }
             }
+            if (_userList.list !== undefined) {
+                let newUserList = [];
+                for (let i = 0; i < _userList.list.length; i++) {
+                    let user = _userList.list[i];
+                    let banMark = <></>;
+                    if (user.ban !== null) banMark = <FontAwesomeIcon icon={faBan} style={{ color: theme.palette.error.main }} />;
+                    newUserList.push({ uid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{user.uid}</span>&nbsp;{banMark}</Typography>, user: <UserCard key={user.uid} user={user} />, email: user.email, discordid: user.discordid, steamid: <a href={`https://steamcommunity.com/profiles/${user.steamid}`} target="_blank" rel="noreferrer" >{user.steamid}</a>, truckersmpid: <a href={`https://truckersmp.com/user/${user.truckersmpid}`} target="_blank" rel="noreferrer" >{user.truckersmpid}</a>, joined: <TimeAgo key={`${+new Date()}`} timestamp={user.join_timestamp * 1000} /> });
+                }
+                if (pageRef.current === page && searchRef.current === search) {
+                    setUserList(newUserList);
+                    setTotalItems(_userList.total_items);
+                }
+            }
+
+            window.loading -= 1;
         }
-        if (_userList.list !== undefined) {
-            let newUserList = [];
-            for (let i = 0; i < _userList.list.length; i++) {
-                let user = _userList.list[i];
-                let banMark = <></>;
-                if (user.ban !== null) banMark = <FontAwesomeIcon icon={faBan} style={{ color: theme.palette.error.main }} />;
-                newUserList.push({ uid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{user.uid}</span>&nbsp;{banMark}</Typography>, user: <UserCard key={user.uid} user={user} />, email: user.email, discordid: user.discordid, steamid: <a href={`https://steamcommunity.com/profiles/${user.steamid}`} target="_blank" rel="noreferrer" >{user.steamid}</a>, truckersmpid: <a href={`https://truckersmp.com/user/${user.truckersmpid}`} target="_blank" rel="noreferrer" >{user.truckersmpid}</a>, joined: <TimeAgo key={`${+new Date()}`} timestamp={user.join_timestamp * 1000} /> });
-            }
-            if (pageRef.current === page && searchRef.current === search) {
-                setUserList(newUserList);
-                setTotalItems(_userList.total_items);
-            }
-        }
-
-        window.loading -= 1;
+        doLoadUser();
     }, [apiPath, theme, page, pageSize, search, listParam]);
     useEffect(() => {
         banPageRef.current = banPage;
@@ -167,53 +170,50 @@ const ExternalUsers = () => {
     useEffect(() => {
         banSearchRef.current = banSearch;
     }, [banSearch]);
-    const doLoadBan = useCallback(async () => {
-        window.loading += 1;
-
-        let processedParam = removeNUEValues(banListParam);
-
-        let [_banList] = [{}];
-        if (banSearch === "")
-            [_banList] = await makeRequestsAuto([
-                { url: `${apiPath}/user/ban/list?order=desc&order_by=uid&page=${page}&page_size=${banPageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
-            ]);
-        else if (isNaN(banSearch) || !isNaN(banSearch) && (banSearch.length < 17 || banSearch.length > 19)) // not discord id
-            [_banList] = await makeRequestsAuto([
-                { url: `${apiPath}/user/ban/list?name=${banSearch}&order=desc&order_by=uid&page=${page}&page_size=${banPageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
-            ]);
-        else if (!isNaN(banSearch) && banSearch.length >= 17 && banSearch.length <= 19) { // is discord id
-            let [_banProfile] = await makeRequestsAuto([
-                { url: `${apiPath}/user/ban?discordid=${banSearch}`, auth: true },
-            ]);
-            if (_banProfile.error === undefined) {
-                _banList = { list: [_banProfile], total_items: 1 };
-            } else {
-                _banList = { list: [], total_items: 0 };
-            }
-        }
-
-        if (_banList.list !== undefined) {
-            let newBanList = [];
-            for (let i = 0; i < _banList.list.length; i++) {
-                let ban = _banList.list[i];
-                let expireDT = getFormattedDate(userSettings.display_timezone, new Date(ban.ban.expire * 1000));
-                if (ban.ban.expire >= 4102444800 || ban.ban.expire === null) expireDT = "/";
-                newBanList.push({ uid: ban.meta.uid, user: ban.user === null ? undefined : <UserCard key={ban.user.uid} user={ban.user} />, email: ban.meta.email, discordid: ban.meta.discordid, steamid: <a href={`https://steamcommunity.com/profiles/${ban.meta.steamid}`} target="_blank" rel="noreferrer" >{ban.meta.steamid}</a>, truckersmpid: <a href={`https://truckersmp.com/user/${ban.meta.truckersmpid}`} target="_blank" rel="noreferrer" >{ban.meta.truckersmpid}</a>, reason: ban.ban.reason, expire: expireDT });
-            }
-            if (banPageRef.current === banPage && banSearchRef.current === banSearch) {
-                setBanList(newBanList);
-                setBanTotalItems(_banList.total_items);
-            }
-        }
-
-        window.loading -= 1;
-    }, [apiPath, theme, banPage, banPageSize, banSearch, banListParam]);
     useEffect(() => {
-        doLoadUser();
-    }, []);
-    useEffect(() => {
+        async function doLoadBan() {
+            window.loading += 1;
+
+            let processedParam = removeNUEValues(banListParam);
+
+            let [_banList] = [{}];
+            if (banSearch === "")
+                [_banList] = await makeRequestsAuto([
+                    { url: `${apiPath}/user/ban/list?order=desc&order_by=uid&page=${page}&page_size=${banPageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                ]);
+            else if (isNaN(banSearch) || !isNaN(banSearch) && (banSearch.length < 17 || banSearch.length > 19)) // not discord id
+                [_banList] = await makeRequestsAuto([
+                    { url: `${apiPath}/user/ban/list?name=${banSearch}&order=desc&order_by=uid&page=${page}&page_size=${banPageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                ]);
+            else if (!isNaN(banSearch) && banSearch.length >= 17 && banSearch.length <= 19) { // is discord id
+                let [_banProfile] = await makeRequestsAuto([
+                    { url: `${apiPath}/user/ban?discordid=${banSearch}`, auth: true },
+                ]);
+                if (_banProfile.error === undefined) {
+                    _banList = { list: [_banProfile], total_items: 1 };
+                } else {
+                    _banList = { list: [], total_items: 0 };
+                }
+            }
+
+            if (_banList.list !== undefined) {
+                let newBanList = [];
+                for (let i = 0; i < _banList.list.length; i++) {
+                    let ban = _banList.list[i];
+                    let expireDT = getFormattedDate(userSettings.display_timezone, new Date(ban.ban.expire * 1000));
+                    if (ban.ban.expire >= 4102444800 || ban.ban.expire === null) expireDT = "/";
+                    newBanList.push({ uid: ban.meta.uid, user: ban.user === null ? undefined : <UserCard key={ban.user.uid} user={ban.user} />, email: ban.meta.email, discordid: ban.meta.discordid, steamid: <a href={`https://steamcommunity.com/profiles/${ban.meta.steamid}`} target="_blank" rel="noreferrer" >{ban.meta.steamid}</a>, truckersmpid: <a href={`https://truckersmp.com/user/${ban.meta.truckersmpid}`} target="_blank" rel="noreferrer" >{ban.meta.truckersmpid}</a>, reason: ban.ban.reason, expire: expireDT });
+                }
+                if (banPageRef.current === banPage && banSearchRef.current === banSearch) {
+                    setBanList(newBanList);
+                    setBanTotalItems(_banList.total_items);
+                }
+            }
+
+            window.loading -= 1;
+        }
         doLoadBan();
-    }, []);
+    }, [apiPath, theme, banPage, banPageSize, banSearch, banListParam]);
 
     return <>
         <CustomTable name={<><FontAwesomeIcon icon={faUserPlus} />&nbsp;&nbsp;{tr("external_users")}</>} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} titlePosition="top" columns={puColumns} data={userList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onSearch={(content) => { setPage(1); setSearch(content); }} searchHint={tr("search_by_username_or_discord_id")} />

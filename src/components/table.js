@@ -25,6 +25,15 @@ const CustomTable = ({ columns, orderBy, order, onOrderingUpdate, name, nameRigh
     const [inputPage, setInputPage] = useState(1); // page for user input (from 1)
     const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
 
+    useEffect(() => {
+        if (Math.ceil(totalItems / rowsPerPage) !== 0 && page > Math.ceil(totalItems / rowsPerPage)) {
+            setPage(Math.ceil(totalItems / rowsPerPage));
+        }
+        if (Math.ceil(totalItems / rowsPerPage) !== 0 && inputPage > Math.ceil(totalItems / rowsPerPage)) {
+            setInputPage(Math.ceil(totalItems / rowsPerPage));
+        }
+    }, [page, inputPage, totalItems, rowsPerPage]);
+
     const debouncedHandlePageChange = debounce((page) => {
         onPageChange(page);
     }, 200);
@@ -165,10 +174,20 @@ const CustomTable = ({ columns, orderBy, order, onOrderingUpdate, name, nameRigh
                                 width: '30px', margin: '0px 5px 0px 5px',
                                 '& input': {
                                     padding: '0', textAlign: 'center', fontSize: "0.875rem"
+                                },
+                                '&:not(:focus-within) .MuiInput-underline:before': {
+                                    display: 'none'
+                                },
+                                '&:not(:focus-within) .MuiInput-underline:after': {
+                                    display: 'none'
+                                },
+                                '& .MuiInput-underline.Mui-focused:after': {
+                                    display: 'block',
+                                    transition: 'none'
                                 }
                             }}
                         />
-                        / {Math.ceil(count / rowsPerPage)}
+                        / {Math.max(1, Math.ceil(count / rowsPerPage))}
                     </div>)}
                 />
             </CardContent>

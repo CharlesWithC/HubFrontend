@@ -393,7 +393,7 @@ const Announcement = () => {
 
     useEffect(() => {
         doLoad();
-    }, []);
+    }, [apiPath, page, announcementTypes]);
 
     return (
         <>{announcementTypes !== null && <>

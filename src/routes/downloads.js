@@ -420,7 +420,7 @@ const DownloadableItem = () => {
 
     useEffect(() => {
         doLoad();
-    }, []);
+    }, [apiPath, page]);
 
     return (
         <>

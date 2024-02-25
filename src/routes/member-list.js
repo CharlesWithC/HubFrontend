@@ -323,47 +323,47 @@ const MemberList = () => {
     useEffect(() => {
         searchRef.current = search;
     }, [search]);
-    const doLoad = useCallback(async () => {
-        window.loading += 1;
-
-        let processedParam = removeNUEValues(listParam);
-
-        let [_userList] = [{}];
-        if (search === "")
-            [_userList] = await makeRequestsAuto([
-                { url: `${apiPath}/member/list?order=desc&order_by=userid&page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
-            ]);
-        else if (isNaN(search) || !isNaN(search) && (search.length < 17 || search.length > 19)) // not discord id
-            [_userList] = await makeRequestsAuto([
-                { url: `${apiPath}/member/list?name=${search}&order=desc&order_by=userid&page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
-            ]);
-        else if (!isNaN(search) && search.length >= 17 && search.length <= 19) { // is discord id
-            let [_userProfile] = await makeRequestsAuto([
-                { url: `${apiPath}/user/profile?discordid=${search}`, auth: true },
-            ]);
-            if (_userProfile.error === undefined && _userProfile.userid >= 0 && _userProfile.userid !== null) {
-                _userList = { list: [_userProfile], total_items: 1 };
-            } else {
-                _userList = { list: [], total_items: 0 };
-            }
-        }
-        if (_userList.list !== undefined) {
-            let newUserList = [];
-            for (let i = 0; i < _userList.list.length; i++) {
-                let user = _userList.list[i];
-                newUserList.push({ userid: `${user.userid}`, user: <UserCard key={user.uid} user={user} />, discordid: user.discordid, steamid: <a href={`https://steamcommunity.com/profiles/${user.steamid}`} target="_blank" rel="noreferrer" >{user.steamid}</a>, truckersmpid: <a href={`https://truckersmp.com/user/${user.truckersmpid}`} target="_blank" rel="noreferrer" >{user.truckersmpid}</a>, joined: <TimeAgo key={`${+new Date()}`} timestamp={user.join_timestamp * 1000} />, last_seen: user.activity !== null && user.activity.last_seen !== undefined ? <TimeAgo key={`${+new Date()}`} timestamp={user.activity.last_seen * 1000} /> : "/" });
-            }
-            if (pageRef.current === page && searchRef.current === search) {
-                setUserList(newUserList);
-                setTotalItems(_userList.total_items);
-            }
-        }
-
-        window.loading -= 1;
-    }, [apiPath, theme, page, pageSize, search, listParam]);
     useEffect(() => {
+        async function doLoad() {
+            window.loading += 1;
+
+            let processedParam = removeNUEValues(listParam);
+
+            let [_userList] = [{}];
+            if (search === "")
+                [_userList] = await makeRequestsAuto([
+                    { url: `${apiPath}/member/list?order=desc&order_by=userid&page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                ]);
+            else if (isNaN(search) || !isNaN(search) && (search.length < 17 || search.length > 19)) // not discord id
+                [_userList] = await makeRequestsAuto([
+                    { url: `${apiPath}/member/list?name=${search}&order=desc&order_by=userid&page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                ]);
+            else if (!isNaN(search) && search.length >= 17 && search.length <= 19) { // is discord id
+                let [_userProfile] = await makeRequestsAuto([
+                    { url: `${apiPath}/user/profile?discordid=${search}`, auth: true },
+                ]);
+                if (_userProfile.error === undefined && _userProfile.userid >= 0 && _userProfile.userid !== null) {
+                    _userList = { list: [_userProfile], total_items: 1 };
+                } else {
+                    _userList = { list: [], total_items: 0 };
+                }
+            }
+            if (_userList.list !== undefined) {
+                let newUserList = [];
+                for (let i = 0; i < _userList.list.length; i++) {
+                    let user = _userList.list[i];
+                    newUserList.push({ userid: `${user.userid}`, user: <UserCard key={user.uid} user={user} />, discordid: user.discordid, steamid: <a href={`https://steamcommunity.com/profiles/${user.steamid}`} target="_blank" rel="noreferrer" >{user.steamid}</a>, truckersmpid: <a href={`https://truckersmp.com/user/${user.truckersmpid}`} target="_blank" rel="noreferrer" >{user.truckersmpid}</a>, joined: <TimeAgo key={`${+new Date()}`} timestamp={user.join_timestamp * 1000} />, last_seen: user.activity !== null && user.activity.last_seen !== undefined ? <TimeAgo key={`${+new Date()}`} timestamp={user.activity.last_seen * 1000} /> : "/" });
+                }
+                if (pageRef.current === page && searchRef.current === search) {
+                    setUserList(newUserList);
+                    setTotalItems(_userList.total_items);
+                }
+            }
+
+            window.loading -= 1;
+        };
         doLoad();
-    }, []);
+    }, [apiPath, theme, page, pageSize, search, listParam]);
 
     return <>
         <CustomTable name={<><FontAwesomeIcon icon={faUserGroup} />&nbsp;&nbsp;{tr("members")}</>} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} titlePosition="top" columns={[
