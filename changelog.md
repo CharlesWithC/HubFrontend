@@ -16,6 +16,7 @@
 12. Simplebar for profile popover (brief)
 13. Privacy settings
 14. Support API config update real-time reflection
+15. Add economy transaction list
 
 ## v3.4.0
 
@@ -63,6 +64,7 @@
 29. Replaced `vars.dhbanner` with Context API `vtcBanner`
 30. Replaced `vars.dhvtcbg` with Context API `vtcBackground`
 31. Replaced `vars.dhcustombg` with Context API `customBackground`
+32. Replaced `vars.specialRoles` and `vars.specialRolesMap` with Context API `specialRoles` and `specialUsers`
 
 ## v3.3.x
 

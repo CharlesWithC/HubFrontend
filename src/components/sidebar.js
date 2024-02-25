@@ -189,7 +189,7 @@ const SideBar = (props) => {
             </div>
         ))}
         <div style={{ marginLeft: "10px", marginBottom: "10px" }}>
-            <Typography variant="body2">Version: 3.4.0-beta.09 [BETA]</Typography>
+            <Typography variant="body2">Version: 3.4.0-beta.10 [BETA]</Typography>
             <Typography variant="body2">Report bugs in CHub Discord (#issues)</Typography>
             <Typography variant="body2"><a href="https://discord.gg/KRFsymnVKm" target="_blank" rel="noreferrer">https://discord.gg/KRFsymnVKm</a></Typography>
         </div>

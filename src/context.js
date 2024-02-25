@@ -12,6 +12,10 @@ export const AppContext = createContext({
     vtcBackground: localStorage.getItem("cache-background"), setVtcBackground: () => { },
     customBackground: (localStorage.getItem("custom-background") !== null ? localStorage.getItem("custom-background") : ""), setCustomBackground: () => { },
 
+    // chub team / supporter etc
+    specialRoles: {}, setSpecialRoles: () => { }, // {role: [users]}
+    specialUsers: {}, setSpecialUsers: () => { }, // {user[discordid]: [roles]}
+
     apiConfig: null, setApiConfig: () => { },
     webConfig: null, setWebConfig: () => { },
     languages: [], setLanguages: () => { },
@@ -56,6 +60,9 @@ export const AppContextProvider = ({ children }) => {
     const [vtcBanner, setVtcBanner] = useState(localStorage.getItem("cache-banner"));
     const [vtcBackground, setVtcBackground] = useState(localStorage.getItem("cache-background"));
     const [customBackground, setCustomBackground] = useState(localStorage.getItem("custom-background") !== null ? localStorage.getItem("custom-background") : "");
+
+    const [specialRoles, setSpecialRoles] = useState({});
+    const [specialUsers, setSpecialUsers] = useState({});
 
     const [apiConfig, setApiConfig] = useState(null);
     const [webConfig, setWebConfig] = useState(null);
@@ -249,6 +256,9 @@ export const AppContextProvider = ({ children }) => {
         vtcBackground, setVtcBackground,
         customBackground, setCustomBackground,
 
+        specialRoles, setSpecialRoles,
+        specialUsers, setSpecialUsers,
+
         apiConfig, setApiConfig,
         webConfig, setWebConfig,
         languages, setLanguages, loadLanguages,
@@ -273,7 +283,7 @@ export const AppContextProvider = ({ children }) => {
         dlogDetailsCache, setDlogDetailsCache, loadDlogDetails,
         economyCache, setEconomyCache,
         allUsersCache, setAllUsersCache, loadAllUsers
-    }), [apiPath, apiVersion, apiConfig, vtcLogo, vtcBanner, vtcBackground, customBackground, webConfig, languages, allRoles, allPerms, allRanks, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, announcementTypes, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache]);
+    }), [apiPath, apiVersion, apiConfig, vtcLogo, vtcBanner, vtcBackground, customBackground, specialRoles, specialUsers, webConfig, languages, allRoles, allPerms, allRanks, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, announcementTypes, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache]);
 
     return (
         <AppContext.Provider value={value}>

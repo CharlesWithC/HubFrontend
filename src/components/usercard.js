@@ -135,7 +135,7 @@ const UserCard = (props) => {
     const { t: tr } = useTranslation();
     const theme = useTheme();
     const navigate = useNavigate();
-    const { apiPath, apiConfig, webConfig, allRoles, allPerms, users, setUsers, userProfiles, setUserProfiles, setMemberUIDs, curUser, curUserPerm, userSettings } = useContext(AppContext);
+    const { apiPath, specialUsers, apiConfig, webConfig, allRoles, allPerms, users, setUsers, userProfiles, setUserProfiles, setMemberUIDs, curUser, curUserPerm, userSettings } = useContext(AppContext);
     const orderedRoles = useMemo(() => (Object.values(allRoles).sort((a, b) => a.order_id - b.order_id).map(role => role.id)), [allRoles]);
 
     const bannerRef = useRef(null); // this is a real component reference
@@ -384,11 +384,11 @@ const UserCard = (props) => {
         let newBadges = [];
         let badgeNames = [];
         let inCHubTeam = false;
-        if (Object.keys(vars.specialRolesMap).includes(user.discordid)) {
+        if (Object.keys(specialUsers).includes(user.discordid)) {
             // special color disabled as we are now fully using user-customized settings
-            // specialColor = vars.specialRolesMap[user.discordid][0].color;
-            for (let i = 0; i < vars.specialRolesMap[user.discordid].length; i++) {
-                let sr = vars.specialRolesMap[user.discordid][i];
+            // specialColor = specialUsers[user.discordid][0].color;
+            for (let i = 0; i < specialUsers[user.discordid].length; i++) {
+                let sr = specialUsers[user.discordid][i];
                 let badge = null;
                 let badgeName = null;
                 if (['lead_developer', 'project_manager', 'community_manager', 'development_team', 'support_leader', 'marketing_leader', 'graphic_leader', 'support_team', 'marketing_team', 'graphic_team'].includes(sr.role)) {

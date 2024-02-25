@@ -87,7 +87,7 @@ function TabPanel(props) {
 
 const Settings = ({ defaultTab = 0 }) => {
     const { t: tr } = useTranslation();
-    const { apiPath, vtcBackground, customBackground, setCustomBackground, apiConfig, webConfig, languages, allRoles, setUsers, curUser, userSettings, setUserSettings } = useContext(AppContext);
+    const { apiPath, vtcBackground, customBackground, setCustomBackground, specialUsers, apiConfig, webConfig, languages, allRoles, setUsers, curUser, userSettings, setUserSettings } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     const sessionsColumns = useMemo(() => ([
@@ -972,9 +972,9 @@ const Settings = ({ defaultTab = 0 }) => {
     useEffect(() => {
         let newBadges = [];
         let newBadgeNames = [];
-        if (Object.keys(vars.specialRolesMap).includes(curUser.discordid)) {
-            for (let i = 0; i < vars.specialRolesMap[curUser.discordid].length; i++) {
-                let sr = vars.specialRolesMap[curUser.discordid][i];
+        if (Object.keys(specialUsers).includes(curUser.discordid)) {
+            for (let i = 0; i < specialUsers[curUser.discordid].length; i++) {
+                let sr = specialUsers[curUser.discordid][i];
                 let badge = null;
                 let badgeName = null;
                 if (['lead_developer', 'project_manager', 'community_manager', 'development_team', 'support_manager', 'marketing_manager', 'support_team', 'marketing_team', 'graphic_team'].includes(sr.role)) {

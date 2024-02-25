@@ -22,6 +22,7 @@ const LargeUserCard = ({ user, color }) => {
 
 const Supporters = () => {
     const { t: tr } = useTranslation();
+    const { specialRoles } = useContext(AppContext);
 
     let groups = [];
     let SPONSOR_COLOR = { "platinum_sponsor": "#e5e4e2", "gold_sponsor": "#ffd700", "silver_sponsor": "#c0c0c0", "bronze_sponsor": "#cd7f32", "server_booster": "#f47fff" };
@@ -39,16 +40,16 @@ const Supporters = () => {
     }
 
     group = [];
-    for (let j = 0; j < vars.specialRoles["server_booster"].length; j++) {
-        let avatar = vars.specialRoles["server_booster"][j].avatar;
+    for (let j = 0; j < specialRoles["server_booster"].length; j++) {
+        let avatar = specialRoles["server_booster"][j].avatar;
         if (avatar === null) {
             avatar = "https://cdn.discordapp.com/embed/avatars/0.png";
         } else if (avatar.startsWith("a_")) {
-            avatar = `https://cdn.discordapp.com/avatars/${vars.specialRoles["server_booster"][j].id}/${avatar}.gif`;
+            avatar = `https://cdn.discordapp.com/avatars/${specialRoles["server_booster"][j].id}/${avatar}.gif`;
         } else {
-            avatar = `https://cdn.discordapp.com/avatars/${vars.specialRoles["server_booster"][j].id}/${avatar}.png`;
+            avatar = `https://cdn.discordapp.com/avatars/${specialRoles["server_booster"][j].id}/${avatar}.png`;
         }
-        group.push({ "name": vars.specialRoles["server_booster"][j].name, "avatar": avatar });
+        group.push({ "name": specialRoles["server_booster"][j].name, "avatar": avatar });
     }
     if (group.length !== 0) {
         groups.push({ "group": tr("discord_booster") + ((group.length > 1) ? "s" : ""), "color": SPONSOR_COLOR["server_booster"], "users": group });

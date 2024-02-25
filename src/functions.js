@@ -120,7 +120,7 @@ export function getAuthToken() {
     else return data.token;
 };
 
-export async function FetchProfile({ apiPath, webConfig, setUsers, setCurUID, setCurUser, setCurUserPerm, setCurUserBanner, setUserSettings }, isLogin = false) {
+export async function FetchProfile({ specialUsers, apiPath, webConfig, setUsers, setCurUID, setCurUser, setCurUserPerm, setCurUserBanner, setUserSettings }, isLogin = false) {
     // accept a whole appContext OR those separate vars as first argument
     // this handles login/session validation and logout data update
     const bearerToken = getAuthToken();
@@ -146,9 +146,9 @@ export async function FetchProfile({ apiPath, webConfig, setUsers, setCurUID, se
             }
             if (vars.userLevel === -1) vars.userLevel = 0;
 
-            if (curUser.discordid !== null && curUser.discordid !== undefined && Object.keys(vars.specialRolesMap).includes(curUser.discordid) && vars.specialRolesMap[curUser.discordid] !== undefined) {
-                for (let i = 0; i < vars.specialRolesMap[curUser.discordid].length; i++) {
-                    if (['lead_developer', 'project_manager', 'community_manager', 'development_team', 'support_leader', 'marketing_leader', 'graphic_leader', 'support_team', 'marketing_team', 'graphic_team'].includes(vars.specialRolesMap[curUser.discordid][i].role)) {
+            if (curUser.discordid !== null && curUser.discordid !== undefined && Object.keys(specialUsers).includes(curUser.discordid) && specialUsers[curUser.discordid] !== undefined) {
+                for (let i = 0; i < specialUsers[curUser.discordid].length; i++) {
+                    if (['lead_developer', 'project_manager', 'community_manager', 'development_team', 'support_leader', 'marketing_leader', 'graphic_leader', 'support_team', 'marketing_team', 'graphic_team'].includes(specialUsers[curUser.discordid][i].role)) {
                         // Team member get Platinum Perks
                         vars.userLevel = 4;
                         break;

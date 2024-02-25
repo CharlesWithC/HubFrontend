@@ -9,7 +9,7 @@ var vars = require("../variables");
 
 const Crashed = ({ errorUploaded }) => {
     const { t: tr } = useTranslation();
-    const { vtcLogo, vtcBackground, customBackground, webConfig } = useCOntext(AppContext);
+    const { vtcLogo, vtcBackground, customBackground, webConfig } = useContext(AppContext);
     const { themeSettings } = useContext(ThemeContext);
 
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');

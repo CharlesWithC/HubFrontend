@@ -14,7 +14,7 @@ const Loader = ({ onLoaderLoaded }) => {
 
     const { t: tr } = useTranslation();
     const appContext = useContext(AppContext);
-    const { apiPath, setApiPath, setApiVersion, vtcLogo, setVtcLogo, vtcBanner, setVtcBanner, vtcBackground, setVtcBackground, setApiConfig, webConfig, setWebConfig, loadLanguages, setAllRoles, setAllPerms, setAllRanks, loadMemberUIDs, loadDlogDetails } = useContext(AppContext);
+    const { apiPath, setApiPath, setApiVersion, vtcLogo, setVtcLogo, vtcBanner, setVtcBanner, vtcBackground, setVtcBackground, setSpecialRoles, setSpecialUsers, setApiConfig, webConfig, setWebConfig, loadLanguages, setAllRoles, setAllPerms, setAllRanks, loadMemberUIDs, loadDlogDetails } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     const [isMember, setIsMember] = useState(false);
@@ -154,17 +154,19 @@ const Loader = ({ onLoaderLoaded }) => {
                 setApiVersion(index.version);
             }
             if (specialRoles) {
-                vars.specialRoles = specialRoles;
+                setSpecialRoles(specialRoles);
+                const specialUsers = {};
                 let roleNames = Object.keys(specialRoles);
                 for (let i = 0; i < roleNames.length; i++) {
                     let roleName = roleNames[i];
                     for (let j = 0; j < specialRoles[roleName].length; j++) {
                         let user = specialRoles[roleName][j];
-                        if (!Object.keys(vars.specialRolesMap).includes(user.id))
-                            vars.specialRolesMap[user.id] = [];
-                        vars.specialRolesMap[user.id].push({ "role": roleName, "color": user.color });
+                        if (!Object.keys(specialUsers).includes(user.id))
+                            specialUsers[user.id] = [];
+                        specialUsers[user.id].push({ "role": roleName, "color": user.color });
                     }
                 }
+                setSpecialUsers(specialUsers);
             }
             if (patrons) {
                 vars.patrons = patrons;
