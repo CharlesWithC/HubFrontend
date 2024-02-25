@@ -13,7 +13,7 @@ var vars = require('../variables');
 
 const SideBar = (props) => {
     const { t: tr } = useTranslation();
-    const { vtcBanner, webConfig, curUID, curUser, curUserPerm } = useContext(AppContext);
+    const { vtcBanner, vtcLevel, webConfig, curUID, curUser, curUserPerm } = useContext(AppContext);
 
     const navigate = useNavigate();
     const [mobileOpen, setMobileOpen] = useState(false);
@@ -97,7 +97,7 @@ const SideBar = (props) => {
         }
     }
 
-    if (vars.vtcLevel < 1) toRemove.push("gallery");
+    if (vtcLevel < 1) toRemove.push("gallery");
 
     for (let key in pluginControl) {
         if (!plugins.includes(key)) {

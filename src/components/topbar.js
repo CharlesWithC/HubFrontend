@@ -25,7 +25,7 @@ const radioImages = { "tsr": "https://truckstopradio.co.uk/autodj.png", "tfm": "
 
 const TopBar = (props) => {
     const { t: tr } = useTranslation();
-    const { apiPath, webConfig, setUsers, curUID, setCurUID, curUser, setCurUser, setCurUserPerm, curUserBanner, userSettings, setUserSettings } = useContext(AppContext);
+    const { apiPath, userLevel, webConfig, setUsers, curUID, setCurUID, curUser, setCurUser, setCurUserPerm, curUserBanner, userSettings, setUserSettings } = useContext(AppContext);
 
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -65,7 +65,7 @@ const TopBar = (props) => {
     const loadRadio = useCallback(async () => {
         if (userSettings.radio !== "disabled") {
             let radioOK = false;
-            if (vars.userLevel < 2 && userSettings.radio_type !== "tsr" || vars.userLevel < 4 && !Object.keys(RADIO_TYPES).includes(userSettings.radio_type)) {
+            if (userLevel < 2 && userSettings.radio_type !== "tsr" || userLevel < 4 && !Object.keys(RADIO_TYPES).includes(userSettings.radio_type)) {
                 setUserSettings(userSettings => ({ ...userSettings, radio_type: "tsr" }));
             }
             if (Object.keys(radioURLs).includes(userSettings.radio_type)) {
@@ -135,7 +135,7 @@ const TopBar = (props) => {
         const interval = setInterval(async () => {
             if (radioRef.current !== null && !radioRef.current.paused) {
                 try {
-                    if (vars.userLevel < 2 && userSettings.radio_type !== "tsr" || vars.userLevel < 4 && !Object.keys(RADIO_TYPES).includes(userSettings.radio_type)) {
+                    if (userLevel < 2 && userSettings.radio_type !== "tsr" || userLevel < 4 && !Object.keys(RADIO_TYPES).includes(userSettings.radio_type)) {
                         setUserSettings(userSettings => ({ ...userSettings, radio_type: "tsr" }));
                     }
                     if (userSettings.radio_type === "tsr") {

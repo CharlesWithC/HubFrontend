@@ -22,7 +22,7 @@ var vars = require("../variables");
 
 const MemberList = () => {
     const { t: tr } = useTranslation();
-    const { apiPath, users, memberUIDs, userSettings } = useContext(AppContext);
+    const { apiPath, userLevel, users, memberUIDs, userSettings } = useContext(AppContext);
     const allMembers = memberUIDs.map((uid) => users[uid]);
 
     const theme = useTheme();
@@ -53,7 +53,7 @@ const MemberList = () => {
     const [syncProfileLog, setSyncProfileLog] = useState("");
     const [syncProfileCurrent, setSyncProfileCurrent] = useState(0);
     const syncProfile = useCallback(async () => {
-        if (vars.userLevel < 4) {
+        if (userLevel < 4) {
             setSnackbarContent(tr("sync_profiles_platinum_perk"));
             setSnackbarSeverity("warning");
             return;
@@ -101,7 +101,7 @@ const MemberList = () => {
     const [tmpVtcId, setTmpVtcId] = useState("");
     const [tmpCompareResult, setTmpCompareResult] = useState([]);
     const compareTruckersMP = useCallback(async () => {
-        if (vars.userLevel < 4) {
+        if (userLevel < 4) {
             setSnackbarContent("Compare TruckersMP Members is a Platinum Perk! Sponsor at charl.ws/patreon");
             setSnackbarSeverity("warning");
             return;
@@ -165,7 +165,7 @@ const MemberList = () => {
     const [batchRoleUpdateLog, setBatchRoleUpdateLog] = useState("");
     const [batchRoleUpdateCurrent, setBatchRoleUpdateCurrent] = useState(0);
     const batchUpdateRoles = useCallback(async () => {
-        if (vars.userLevel < 4) {
+        if (userLevel < 4) {
             setSnackbarContent(tr("batch_update_roles_platinum_perk"));
             setSnackbarSeverity("warning");
             return;
@@ -248,7 +248,7 @@ const MemberList = () => {
     const [batchTrackerUpdateLog, setBatchTrackerUpdateLog] = useState("");
     const [batchTrackerUpdateCurrent, setBatchTrackerUpdateCurrent] = useState(0);
     const batchUpdateTrackers = useCallback(async () => {
-        if (vars.userLevel < 4) {
+        if (userLevel < 4) {
             setSnackbarContent(tr("batch_update_tracker_platinum_perk"));
             setSnackbarSeverity("warning");
             return;
@@ -286,7 +286,7 @@ const MemberList = () => {
     const [batchDismissLog, setBatchDismissLog] = useState("");
     const [batchDismissCurrent, setBatchDismissCurrent] = useState(0);
     const batchDismiss = useCallback(async () => {
-        if (vars.userLevel < 4) {
+        if (userLevel < 4) {
             setSnackbarContent(tr("batch_dismiss_members_platinum_perk"));
             setSnackbarSeverity("warning");
             return;

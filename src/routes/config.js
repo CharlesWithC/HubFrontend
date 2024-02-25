@@ -3039,7 +3039,7 @@ const MemoEconomyForm = memo(({ theme, formConfig }) => {
 
 const Configuration = () => {
     const { t: tr } = useTranslation();
-    const { apiPath, apiVersion, webConfig: curWebConfig, setWebConfig: setCurWebConfig, curUser } = useContext(AppContext);
+    const { apiPath, apiVersion, vtcLevel, webConfig: curWebConfig, setWebConfig: setCurWebConfig, curUser } = useContext(AppContext);
     const theme = useTheme();
 
     const [snackbarContent, setSnackbarContent] = useState("");
@@ -3347,7 +3347,7 @@ const Configuration = () => {
                 <Grid container spacing={2} rowSpacing={-0.5}>
                     <Grid item xs={12}>
                         <Typography variant="body2">
-                            License: {DHPLAN[vars.vtcLevel]}
+                            License: {DHPLAN[vtcLevel]}
                         </Typography>
                     </Grid>
                     <Grid item xs={12} md={6}>
@@ -3817,7 +3817,7 @@ const Configuration = () => {
                             value={webConfig.use_highest_role_color}
                             onChange={(e) => { setWebConfig({ ...webConfig, use_highest_role_color: e.target.value }); }}
                             fullWidth
-                            disabled={vars.vtcLevel < 3}
+                            disabled={vtcLevel < 3}
                         >
                             <MenuItem value={false}>{tr("default")}</MenuItem>
                             <MenuItem value={true}>{tr("highest_role_color_when_not_customized")}</MenuItem>
@@ -3845,28 +3845,28 @@ const Configuration = () => {
                             value={webConfig.bgimage_url}
                             onChange={(e) => { setWebConfig({ ...webConfig, bgimage_url: e.target.value }); }}
                             fullWidth
-                            disabled={vars.vtcLevel < 1}
+                            disabled={vtcLevel < 1}
                         />
                     </Grid>
                     <Grid item xs={12} sm={12} md={6} lg={6}>
-                        <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("name_color")}&nbsp;&nbsp;<SponsorBadge vtclevel={1} disabled={vars.vtcLevel < 1} /></Typography>
+                        <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("name_color")}&nbsp;&nbsp;<SponsorBadge vtclevel={1} disabled={vtcLevel < 1} /></Typography>
                         <br />
-                        <ColorInput color={webConfig.name_color} onChange={(to) => { setWebConfig({ ...webConfig, name_color: to }); }} disableCustom={vars.vtcLevel < 1} />
+                        <ColorInput color={webConfig.name_color} onChange={(to) => { setWebConfig({ ...webConfig, name_color: to }); }} disableCustom={vtcLevel < 1} />
                     </Grid>
                     <Grid item xs={12} sm={12} md={6} lg={6}>
                         <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("theme_opacity")}&nbsp;&nbsp;<SponsorBadge vtclevel={1} /></Typography>
                         <br />
-                        <Slider value={webConfig.theme_darken_ratio * 100} onChange={(e, val) => { setWebConfig({ ...webConfig, theme_darken_ratio: val / 100 }); }} aria-labelledby="continuous-slider" sx={{ color: theme.palette.info.main, height: "20px" }} disabled={vars.vtcLevel < 1} />
+                        <Slider value={webConfig.theme_darken_ratio * 100} onChange={(e, val) => { setWebConfig({ ...webConfig, theme_darken_ratio: val / 100 }); }} aria-labelledby="continuous-slider" sx={{ color: theme.palette.info.main, height: "20px" }} disabled={vtcLevel < 1} />
                     </Grid>
                     <Grid item xs={12} sm={12} md={6} lg={6}>
                         <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("theme_main_color")}&nbsp;&nbsp;<SponsorBadge vtclevel={1} /></Typography>
                         <br />
-                        <ColorInput color={webConfig.theme_main_color} onChange={(to) => { setWebConfig({ ...webConfig, theme_main_color: to }); }} disableCustom={vars.vtcLevel < 1} />
+                        <ColorInput color={webConfig.theme_main_color} onChange={(to) => { setWebConfig({ ...webConfig, theme_main_color: to }); }} disableCustom={vtcLevel < 1} />
                     </Grid>
                     <Grid item xs={12} sm={12} md={6} lg={6}>
                         <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("theme_background_color")}&nbsp;&nbsp;<SponsorBadge vtclevel={1} /></Typography>
                         <br />
-                        <ColorInput color={webConfig.theme_background_color} onChange={(to) => { setWebConfig({ ...webConfig, theme_background_color: to }); }} disableCustom={vars.vtcLevel < 1} />
+                        <ColorInput color={webConfig.theme_background_color} onChange={(to) => { setWebConfig({ ...webConfig, theme_background_color: to }); }} disableCustom={vtcLevel < 1} />
                     </Grid>
                 </Grid>
                 <Box sx={{ display: 'grid', justifyItems: 'end' }}>

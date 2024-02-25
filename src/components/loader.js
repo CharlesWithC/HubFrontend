@@ -14,7 +14,7 @@ const Loader = ({ onLoaderLoaded }) => {
 
     const { t: tr } = useTranslation();
     const appContext = useContext(AppContext);
-    const { apiPath, setApiPath, setApiVersion, vtcLogo, setVtcLogo, vtcBanner, setVtcBanner, vtcBackground, setVtcBackground, setSpecialRoles, setSpecialUsers, setPatrons, setUserConfig, setApiConfig, webConfig, setWebConfig, loadLanguages, setAllRoles, setAllPerms, setAllRanks, loadMemberUIDs, loadDlogDetails } = useContext(AppContext);
+    const { apiPath, setApiPath, setApiVersion, vtcLogo, setVtcLogo, vtcBanner, setVtcBanner, vtcBackground, setVtcBackground, setSpecialRoles, setSpecialUsers, setPatrons, setVtcLevel, setUserConfig, setApiConfig, webConfig, setWebConfig, loadLanguages, setAllRoles, setAllPerms, setAllRanks, loadMemberUIDs, loadDlogDetails } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     const [isMember, setIsMember] = useState(false);
@@ -58,12 +58,16 @@ const Loader = ({ onLoaderLoaded }) => {
             setWebConfig(loadedConfig.config);
             setApiPath(`${webConfig.api_host}/${webConfig.abbr}`);
 
+            let vtcLevel = 0;
             if (webConfig.api_host === "https://drivershub.charlws.com") {
-                vars.vtcLevel = 3;
+                vtcLevel = 3;
+                setVtcLevel(3);
             } else if (webConfig.api_host === "https://drivershub05.charlws.com") {
-                vars.vtcLevel = 1;
+                vtcLevel = 1;
+                setVtcLevel(1);
             } else if (webConfig.api_host === "https://drivershub.charlws.com") {
-                vars.vtcLevel = 0;
+                vtcLevel = 0;
+                setVtcLevel(0);
             }
 
             setLoadMessage(tr("loading"));
@@ -95,7 +99,7 @@ const Loader = ({ onLoaderLoaded }) => {
                 loadImageAsBase64(`https://cdn.chub.page/assets/${webConfig.abbr}/bgimage.png?${webConfig.bgimage_key !== undefined ? webConfig.bgimage_key : ""}`)
                     .then((image) => {
                         if (vtcBackground === null) imageLoaded += 1;
-                        if (vars.vtcLevel >= 1) {
+                        if (vtcLevel >= 1) {
                             setVtcBackground(image);
                             try {
                                 localStorage.setItem("cache-background", image);

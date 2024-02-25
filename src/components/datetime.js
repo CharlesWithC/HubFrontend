@@ -9,10 +9,10 @@ var vars = require("../variables");
 
 // all in seconds, not milliseconds
 const DateTimeField = ({ label, defaultValue, onChange, fullWidth = false, size = undefined, sx = {}, disabled = false }) => {
-    const { userSettings } = useContext(AppContext);
-    
+    const { userLevel, userSettings } = useContext(AppContext);
+
     let displayTimezone = userSettings.display_timezone;
-    if (vars.userLevel < 3) {
+    if (userLevel < 3) {
         displayTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     }
 

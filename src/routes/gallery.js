@@ -14,15 +14,15 @@ import { customAxios as axios, checkUserPerm, getAuthToken } from '../functions'
 var vars = require("../variables");
 
 const Gallery = () => {
+    const { t: tr } = useTranslation();
+    const { apiPath, vtcLevel, webConfig, setWebConfig, curUserPerm } = useContext(AppContext);
+    const theme = useTheme();
+
     const navigate = useNavigate();
-    if (vars.vtcLevel < 1) {
+    if (vtcLevel < 1) {
         navigate("/404");
         return <></>;
     }
-
-    const { t: tr } = useTranslation();
-    const { apiPath, webConfig, setWebConfig, curUserPerm } = useContext(AppContext);
-    const theme = useTheme();
 
     const matchesXS = useMediaQuery(theme.breakpoints.down('xs'));
     const matchesSM = useMediaQuery(theme.breakpoints.between('sm', 'md'));

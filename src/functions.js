@@ -120,7 +120,7 @@ export function getAuthToken() {
     else return data.token;
 };
 
-export async function FetchProfile({ apiPath, specialUsers, patrons, webConfig, setCurUserPatreonID, setUsers, setCurUID, setCurUser, setCurUserPerm, setCurUserBanner, setUserSettings }, isLogin = false) {
+export async function FetchProfile({ apiPath, specialUsers, patrons, setUserLevel, webConfig, setCurUserPatreonID, setUsers, setCurUID, setCurUser, setCurUserPerm, setCurUserBanner, setUserSettings }, isLogin = false) {
     // accept a whole appContext OR those separate vars as first argument
     // this handles login/session validation and logout data update
     const bearerToken = getAuthToken();
@@ -128,33 +128,35 @@ export async function FetchProfile({ apiPath, specialUsers, patrons, webConfig, 
         let resp = await customAxios({ url: `${apiPath}/user/profile`, headers: { "Authorization": `Bearer ${bearerToken}` } });
         if (resp.status === 200) {
             const curUser = resp.data;
+            let userLevel = -1;
 
             setCurUID(curUser.uid); // do this before setUsers so setUsers could automatically setCurUser
             setUsers(users => ({ ...users, [resp.data.uid]: curUser }));
-
+            
             let tiers = ["platinum", "gold", "silver", "bronze"];
             for (let i = 0; i < tiers.length; i++) {
-                if (vars.userLevel !== -1) break;
+                if (userLevel !== -1) break;
                 for (let j = 0; j < patrons[tiers[i]].length; j++) {
                     let patron = patrons[tiers[i]][j];
                     if (patron.abbr === webConfig.abbr && patron.uid === curUser.uid) {
                         setCurUserPatreonID(patron.id);
-                        vars.userLevel = 4 - i;
+                        userLevel = 4 - i;
                         break;
                     }
                 }
             }
-            if (vars.userLevel === -1) vars.userLevel = 0;
+            if (userLevel === -1) userLevel = 0;
 
             if (curUser.discordid !== null && curUser.discordid !== undefined && Object.keys(specialUsers).includes(curUser.discordid) && specialUsers[curUser.discordid] !== undefined) {
                 for (let i = 0; i < specialUsers[curUser.discordid].length; i++) {
                     if (['lead_developer', 'project_manager', 'community_manager', 'development_team', 'support_leader', 'marketing_leader', 'graphic_leader', 'support_team', 'marketing_team', 'graphic_team'].includes(specialUsers[curUser.discordid][i].role)) {
                         // Team member get Platinum Perks
-                        vars.userLevel = 4;
+                        userLevel = 4;
                         break;
                     }
                 }
             }
+            setUserLevel(userLevel);
 
             resp = await customAxios({ url: `${apiPath}/user/language`, headers: { "Authorization": `Bearer ${bearerToken}` } });
             if (resp.status === 200) {

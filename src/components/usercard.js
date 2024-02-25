@@ -135,7 +135,7 @@ const UserCard = (props) => {
     const { t: tr } = useTranslation();
     const theme = useTheme();
     const navigate = useNavigate();
-    const { apiPath, specialUsers, patrons, userConfig, apiConfig, webConfig, allRoles, allPerms, users, setUsers, userProfiles, setUserProfiles, setMemberUIDs, curUser, curUserPerm, userSettings } = useContext(AppContext);
+    const { apiPath, specialUsers, patrons, userConfig, vtcLevel, apiConfig, webConfig, allRoles, allPerms, users, setUsers, userProfiles, setUserProfiles, setMemberUIDs, curUser, curUserPerm, userSettings } = useContext(AppContext);
     const orderedRoles = useMemo(() => (Object.values(allRoles).sort((a, b) => a.order_id - b.order_id).map(role => role.id)), [allRoles]);
 
     const bannerRef = useRef(null); // this is a real component reference
@@ -451,14 +451,13 @@ const UserCard = (props) => {
             }
         }
         setBadges(newBadges);
-        userLevel = vars.defaultUserLevel; // TODO: Remove after open beta
         if (inCHubTeam) userLevel = 4;
 
         if (userConfig[user.uid] !== undefined) {
             let uc = userConfig[user.uid];
             if (uc.name_color !== null) {
                 newSpecialColor = uc.name_color;
-                if (!(vars.vtcLevel >= 1 && webConfig.name_color !== null && webConfig.name_color === newSpecialColor)) {
+                if (!(vtcLevel >= 1 && webConfig.name_color !== null && webConfig.name_color === newSpecialColor)) {
                     // not using vtc name color
                     if (userLevel < 2 || userLevel === 2 && newSpecialColor !== "#c0c0c0" || userLevel === 3 && !["#c0c0c0", "#ffd700"].includes(newSpecialColor)) {
                         newSpecialColor = "";
@@ -480,7 +479,7 @@ const UserCard = (props) => {
     }, [user.discordid, userConfig]);
     useEffect(() => {
         // specialColor === "" => not customized
-        if (specialColor === "" && vars.vtcLevel >= 3 && webConfig.use_highest_role_color && user.roles !== undefined) {
+        if (specialColor === "" && vtcLevel >= 3 && webConfig.use_highest_role_color && user.roles !== undefined) {
             for (let i = 0; i < user.roles.length; i++) {
                 if (allRoles[user.roles[i]] !== undefined && allRoles[user.roles[i]].color !== undefined) {
                     setSpecialColor(allRoles[user.roles[i]].color);

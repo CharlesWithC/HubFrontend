@@ -20,7 +20,7 @@ var vars = require("../variables");
 
 const ExternalUsers = () => {
     const { t: tr } = useTranslation();
-    const { apiPath, userSettings, allUsersCache, loadAllUsers } = useContext(AppContext);
+    const { apiPath, userLevel, userSettings, allUsersCache, loadAllUsers } = useContext(AppContext);
     const theme = useTheme();
 
     const puColumns = useMemo(() => ([
@@ -59,7 +59,7 @@ const ExternalUsers = () => {
     const [batchDeleteCurrent, setBatchDeleteCurrent] = useState(0);
     const [batchDeleteLoading, setBatchDeleteLoading] = useState(false);
     const batchDelete = useCallback(async () => {
-        if (vars.userLevel < 4) {
+        if (userLevel < 4) {
             setSnackbarContent(tr("prune_user_platinum_perk"));
             setSnackbarSeverity("warning");
             return;

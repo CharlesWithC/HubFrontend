@@ -1,5 +1,3 @@
-var vars = require("./variables");
-
 export function darkenColor(hex, factor = 0.2, use_custom_theme) {
     if (hex === null) return null;
     if (factor === 0) return hex;
@@ -78,21 +76,21 @@ function intToHex(intValue) {
     return hexValue;
 }
 
-export function getDesignTokens({ vtcBackground, customBackground, webConfig }, { themeSettings, setThemeSettings }, customMode, mode, use_custom_theme = false, theme_background = null, theme_main = null, darken_ratio = null, font_size = "regular") {
+export function getDesignTokens({ vtcBackground, customBackground, vtcLevel, userLevel, webConfig }, { themeSettings, setThemeSettings }, customMode, mode, use_custom_theme = false, theme_background = null, theme_main = null, darken_ratio = null, font_size = "regular") {
     if (use_custom_theme === true) {
-        if (vars.userLevel < 2)
+        if (userLevel < 2)
             use_custom_theme = false;
     } else if (use_custom_theme !== false) {
-        if (use_custom_theme.startsWith("vtc") && vars.vtcLevel < 1 || !use_custom_theme.startsWith("vtc") && vars.userLevel < 3) {
+        if (use_custom_theme.startsWith("vtc") && vtcLevel < 1 || !use_custom_theme.startsWith("vtc") && userLevel < 3) {
             use_custom_theme = false;
         }
     }
-    if (use_custom_theme === "vtc" && vars.vtcLevel >= 1 && webConfig !== null) {
+    if (use_custom_theme === "vtc" && vtcLevel >= 1 && webConfig !== null) {
         theme_background = webConfig.theme_background_color;
         theme_main = webConfig.theme_main_color;
         darken_ratio = webConfig.theme_darken_ratio;
     }
-    if (use_custom_theme === "vtcbg" && vars.vtcLevel >= 1 && vtcBackground !== "") {
+    if (use_custom_theme === "vtcbg" && vtcLevel >= 1 && vtcBackground !== "") {
         if (darken_ratio === null) darken_ratio = 0.4;
         if (mode === "dark") {
             if (theme_background === null) theme_background = "#212529";
@@ -108,7 +106,7 @@ export function getDesignTokens({ vtcBackground, customBackground, webConfig }, 
             return; // we know there'll be a re-render
         }
     }
-    if (use_custom_theme === "custombg" && (vars.userLevel === -1 || vars.userLevel >= 3) && customBackground !== "") {
+    if (use_custom_theme === "custombg" && (userLevel === -1 || userLevel >= 3) && customBackground !== "") {
         if (darken_ratio === null) darken_ratio = 0.4;
         if (mode === "dark") {
             if (theme_background === null) theme_background = "#212529";

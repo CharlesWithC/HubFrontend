@@ -24,7 +24,7 @@ const CURRENTY_ICON = { 1: "€", 2: "$" };
 
 const Deliveries = () => {
     const { t: tr } = useTranslation();
-    const { apiPath, curUserPerm, userSettings } = useContext(AppContext);
+    const { apiPath, userLevel, curUserPerm, userSettings } = useContext(AppContext);
 
     const columns = [
         { id: 'display_logid', label: 'ID', orderKey: 'logid', defaultOrder: 'desc' },
@@ -112,7 +112,7 @@ const Deliveries = () => {
         resolve => setTimeout(resolve, ms)
     );
     const importFromTruckyMultiple = useCallback(async () => {
-        if (vars.userLevel < 4) {
+        if (userLevel < 4) {
             setSnackbarContent(tr("auto_import_multiple_trucky_jobs_is_a_platinum_perk_sponsor"));
             setSnackbarSeverity("warning");
             return;

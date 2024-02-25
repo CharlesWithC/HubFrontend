@@ -19,6 +19,9 @@ export const AppContext = createContext({
     curUserPatreonID: null, setCurUserPatreonID: () => { },
     userConfig: {}, setUserConfig: () => { }, // all users
 
+    vtcLevel: 0, setVtcLevel: () => { }, // 0: regular / 1: premium / 3: special
+    userLevel: -1, setUserLevel: () => { },
+
     apiConfig: null, setApiConfig: () => { },
     webConfig: null, setWebConfig: () => { },
     languages: [], setLanguages: () => { },
@@ -69,6 +72,9 @@ export const AppContextProvider = ({ children }) => {
     const [patrons, setPatrons] = useState({});
     const [curUserPatreonID, setCurUserPatreonID] = useState(null);
     const [userConfig, setUserConfig] = useState({});
+
+    const [vtcLevel, setVtcLevel] = useState(0);
+    const [userLevel, setUserLevel] = useState(-1);
 
     const [apiConfig, setApiConfig] = useState(null);
     const [webConfig, setWebConfig] = useState(null);
@@ -268,6 +274,9 @@ export const AppContextProvider = ({ children }) => {
         curUserPatreonID, setCurUserPatreonID,
         userConfig, setUserConfig,
 
+        userLevel, setUserLevel,
+        vtcLevel, setVtcLevel,
+
         apiConfig, setApiConfig,
         webConfig, setWebConfig,
         languages, setLanguages, loadLanguages,
@@ -292,7 +301,7 @@ export const AppContextProvider = ({ children }) => {
         dlogDetailsCache, setDlogDetailsCache, loadDlogDetails,
         economyCache, setEconomyCache,
         allUsersCache, setAllUsersCache, loadAllUsers
-    }), [apiPath, apiVersion, apiConfig, vtcLogo, vtcBanner, vtcBackground, customBackground, specialRoles, specialUsers, patrons, curUserPatreonID, userConfig, webConfig, languages, allRoles, allPerms, allRanks, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, announcementTypes, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache]);
+    }), [apiPath, apiVersion, apiConfig, vtcLogo, vtcBanner, vtcBackground, customBackground, specialRoles, specialUsers, patrons, curUserPatreonID, userConfig, userLevel, vtcLevel, webConfig, languages, allRoles, allPerms, allRanks, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, announcementTypes, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache]);
 
     return (
         <AppContext.Provider value={value}>
