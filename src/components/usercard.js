@@ -135,7 +135,7 @@ const UserCard = (props) => {
     const { t: tr } = useTranslation();
     const theme = useTheme();
     const navigate = useNavigate();
-    const { apiPath, specialUsers, apiConfig, webConfig, allRoles, allPerms, users, setUsers, userProfiles, setUserProfiles, setMemberUIDs, curUser, curUserPerm, userSettings } = useContext(AppContext);
+    const { apiPath, specialUsers, patrons, apiConfig, webConfig, allRoles, allPerms, users, setUsers, userProfiles, setUserProfiles, setMemberUIDs, curUser, curUserPerm, userSettings } = useContext(AppContext);
     const orderedRoles = useMemo(() => (Object.values(allRoles).sort((a, b) => a.order_id - b.order_id).map(role => role.id)), [allRoles]);
 
     const bannerRef = useRef(null); // this is a real component reference
@@ -431,8 +431,8 @@ const UserCard = (props) => {
         let tiers = ["platinum", "gold", "silver", "bronze"];
         for (let i = 0; i < tiers.length; i++) {
             if (userLevel !== 0) break;
-            for (let j = 0; j < vars.patrons[tiers[i]].length; j++) {
-                let patron = vars.patrons[tiers[i]][j];
+            for (let j = 0; j < patrons[tiers[i]].length; j++) {
+                let patron = patrons[tiers[i]][j];
                 if (patron.abbr === webConfig.abbr && patron.uid === user.uid) {
                     userLevel = 4 - i;
 

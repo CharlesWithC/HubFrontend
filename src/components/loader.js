@@ -14,7 +14,7 @@ const Loader = ({ onLoaderLoaded }) => {
 
     const { t: tr } = useTranslation();
     const appContext = useContext(AppContext);
-    const { apiPath, setApiPath, setApiVersion, vtcLogo, setVtcLogo, vtcBanner, setVtcBanner, vtcBackground, setVtcBackground, setSpecialRoles, setSpecialUsers, setApiConfig, webConfig, setWebConfig, loadLanguages, setAllRoles, setAllPerms, setAllRanks, loadMemberUIDs, loadDlogDetails } = useContext(AppContext);
+    const { apiPath, setApiPath, setApiVersion, vtcLogo, setVtcLogo, vtcBanner, setVtcBanner, vtcBackground, setVtcBackground, setSpecialRoles, setSpecialUsers, setPatrons, setApiConfig, webConfig, setWebConfig, loadLanguages, setAllRoles, setAllPerms, setAllRanks, loadMemberUIDs, loadDlogDetails } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     const [isMember, setIsMember] = useState(false);
@@ -153,9 +153,9 @@ const Loader = ({ onLoaderLoaded }) => {
             if (index) {
                 setApiVersion(index.version);
             }
+            const specialUsers = {};
             if (specialRoles) {
                 setSpecialRoles(specialRoles);
-                const specialUsers = {};
                 let roleNames = Object.keys(specialRoles);
                 for (let i = 0; i < roleNames.length; i++) {
                     let roleName = roleNames[i];
@@ -169,7 +169,7 @@ const Loader = ({ onLoaderLoaded }) => {
                 setSpecialUsers(specialUsers);
             }
             if (patrons) {
-                vars.patrons = patrons;
+                setPatrons(patrons);
             }
             if (userConfig) {
                 vars.userConfig = userConfig;
@@ -201,7 +201,7 @@ const Loader = ({ onLoaderLoaded }) => {
                 writeLS("cache", cache, window.dhhost + webConfig.abbr + webConfig.api_host);
             }
 
-            let auth = await FetchProfile({ ...appContext, apiPath: apiPath, webConfig: webConfig });
+            let auth = await FetchProfile({ ...appContext, apiPath: apiPath, webConfig: webConfig, specialusers: specialUsers, patrons: patrons });
             setIsMember(auth.member);
 
             setThemeSettings(prevSettings => ({ ...prevSettings })); // refresh theme settings

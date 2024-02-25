@@ -120,7 +120,7 @@ export function getAuthToken() {
     else return data.token;
 };
 
-export async function FetchProfile({ specialUsers, apiPath, webConfig, setUsers, setCurUID, setCurUser, setCurUserPerm, setCurUserBanner, setUserSettings }, isLogin = false) {
+export async function FetchProfile({ apiPath, specialUsers, patrons, webConfig, setCurUserPatreonID, setUsers, setCurUID, setCurUser, setCurUserPerm, setCurUserBanner, setUserSettings }, isLogin = false) {
     // accept a whole appContext OR those separate vars as first argument
     // this handles login/session validation and logout data update
     const bearerToken = getAuthToken();
@@ -135,10 +135,10 @@ export async function FetchProfile({ specialUsers, apiPath, webConfig, setUsers,
             let tiers = ["platinum", "gold", "silver", "bronze"];
             for (let i = 0; i < tiers.length; i++) {
                 if (vars.userLevel !== -1) break;
-                for (let j = 0; j < vars.patrons[tiers[i]].length; j++) {
-                    let patron = vars.patrons[tiers[i]][j];
+                for (let j = 0; j < patrons[tiers[i]].length; j++) {
+                    let patron = patrons[tiers[i]][j];
                     if (patron.abbr === webConfig.abbr && patron.uid === curUser.uid) {
-                        vars.userPatreonID = patron.id;
+                        setCurUserPatreonID(patron.id);
                         vars.userLevel = 4 - i;
                         break;
                     }

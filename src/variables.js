@@ -1,12 +1,3 @@
-// CHub
-var specialRoles = {};
-exports.specialRoles = specialRoles;
-var specialRolesMap = {};
-exports.specialRolesMap = specialRolesMap;
-var patrons = {};
-exports.patrons = patrons;
-var userPatreonID = null;
-exports.userPatreonID = null;
 var userConfig = {};
 exports.userConfig = userConfig;
 var defaultUserLevel = 0; // this affects all users;

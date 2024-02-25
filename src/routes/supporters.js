@@ -22,7 +22,7 @@ const LargeUserCard = ({ user, color }) => {
 
 const Supporters = () => {
     const { t: tr } = useTranslation();
-    const { specialRoles } = useContext(AppContext);
+    const { specialRoles, patrons } = useContext(AppContext);
 
     let groups = [];
     let SPONSOR_COLOR = { "platinum_sponsor": "#e5e4e2", "gold_sponsor": "#ffd700", "silver_sponsor": "#c0c0c0", "bronze_sponsor": "#cd7f32", "server_booster": "#f47fff" };
@@ -31,8 +31,8 @@ const Supporters = () => {
     let group = [];
     for (let i = 0; i < tiers.length; i++) {
         group = [];
-        for (let j = 0; j < vars.patrons[tiers[i]].length; j++) {
-            group.push({ "name": vars.patrons[tiers[i]][j].name, "avatar": vars.patrons[tiers[i]][j].avatar });
+        for (let j = 0; j < patrons[tiers[i]].length; j++) {
+            group.push({ "name": patrons[tiers[i]][j].name, "avatar": patrons[tiers[i]][j].avatar });
         }
         if (group.length !== 0) {
             groups.push({ "group": tiers[i].charAt(0).toUpperCase() + tiers[i].slice(1) + " " + tr("sponsor") + ((group.length > 1) ? "s" : ""), "color": SPONSOR_COLOR[tiers[i] + "_sponsor"], "users": group });

@@ -87,7 +87,7 @@ function TabPanel(props) {
 
 const Settings = ({ defaultTab = 0 }) => {
     const { t: tr } = useTranslation();
-    const { apiPath, vtcBackground, customBackground, setCustomBackground, specialUsers, apiConfig, webConfig, languages, allRoles, setUsers, curUser, userSettings, setUserSettings } = useContext(AppContext);
+    const { apiPath, vtcBackground, customBackground, setCustomBackground, specialUsers, patrons, curUserPatreonID, apiConfig, webConfig, languages, allRoles, setUsers, curUser, userSettings, setUserSettings } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     const sessionsColumns = useMemo(() => ([
@@ -1014,8 +1014,8 @@ const Settings = ({ defaultTab = 0 }) => {
 
         let tiers = ["platinum", "gold", "silver", "bronze"];
         for (let i = 0; i < tiers.length; i++) {
-            for (let j = 0; j < vars.patrons[tiers[i]].length; j++) {
-                let patron = vars.patrons[tiers[i]][j];
+            for (let j = 0; j < patrons[tiers[i]].length; j++) {
+                let patron = patrons[tiers[i]][j];
                 if (patron.abbr === webConfig.abbr && patron.uid === curUser.uid) {
                     let badge = <Tooltip key={`badge-${curUser.uid}-supporter`} placement="top" arrow title={tr("supporter")}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
@@ -1356,7 +1356,7 @@ const Settings = ({ defaultTab = 0 }) => {
                                 <Grid item xs={8} sm={8} md={8} lg={8}>
                                     <TextField
                                         label="Patreon"
-                                        value={vars.userPatreonID}
+                                        value={curUserPatreonID}
                                         fullWidth disabled size="small"
                                     />
                                 </Grid>

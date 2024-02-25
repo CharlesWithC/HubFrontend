@@ -14,7 +14,7 @@ var vars = require('../../../variables');
 
 const PatreonAuth = () => {
     const { t: tr } = useTranslation();
-    const { apiPath } = useContext(AppContext);
+    const { apiPath, setCurUserPatreonID } = useContext(AppContext);
     const { themeSettings } = useContext(ThemeContext);
 
     const navigate = useNavigate();
@@ -56,7 +56,7 @@ const PatreonAuth = () => {
 
                 resp = await axios({ url: `https://config.chub.page/patreon`, params: { domain: window.dhhost, code: patreonCode }, method: `PATCH`, headers: { Authorization: `Ticket ${ticket}` } });
                 if (resp.status === 200) {
-                    vars.userPatreonID = resp.data.patreon_id;
+                    setCurUserPatreonID(resp.data.patreon_id);
                     setMessage(`Patreon account connected 🎉`);
                     setContinue(true);
                     setTimeout(function () { navigate('/settings/general'); }, 3000);
