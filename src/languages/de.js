@@ -219,7 +219,7 @@ const de = {
     "confirm_wait": "Bist du sicher? Warte...",
     "confirmed_delete": "Bestätigt! Löschen!",
     "confirmed_resign": "Bestätigt! Austritt!",
-    "connect_patreon_account_to_activate_sponsor_perks": "Verbinden dein Patreon-Konto, um Supportervorteile zu aktivieren.",
+    "connect_patreon_account_to_activate_sponsor_perks": "Verbinde dein Patreon-Konto, um Supportervorteile zu aktivieren.",
     "connection_deleted": "Verknüpfung gelöscht",
     "connections_should_not_be_modified": "- Verknüpfungen sollten nicht ohne Anfrage des Benutzers geändert oder gelöscht werden.",
     "connections_updated": "Verknüpfungen aktualisiert",
