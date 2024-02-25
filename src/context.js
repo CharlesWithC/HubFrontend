@@ -17,6 +17,7 @@ export const AppContext = createContext({
     specialUsers: {}, setSpecialUsers: () => { }, // {user[discordid]: [roles]}
     patrons: {}, setPatrons: () => { },
     curUserPatreonID: null, setCurUserPatreonID: () => { },
+    userConfig: {}, setUserConfig: () => { }, // all users
 
     apiConfig: null, setApiConfig: () => { },
     webConfig: null, setWebConfig: () => { },
@@ -67,6 +68,7 @@ export const AppContextProvider = ({ children }) => {
     const [specialUsers, setSpecialUsers] = useState({});
     const [patrons, setPatrons] = useState({});
     const [curUserPatreonID, setCurUserPatreonID] = useState(null);
+    const [userConfig, setUserConfig] = useState({});
 
     const [apiConfig, setApiConfig] = useState(null);
     const [webConfig, setWebConfig] = useState(null);
@@ -264,6 +266,7 @@ export const AppContextProvider = ({ children }) => {
         specialUsers, setSpecialUsers,
         patrons, setPatrons,
         curUserPatreonID, setCurUserPatreonID,
+        userConfig, setUserConfig,
 
         apiConfig, setApiConfig,
         webConfig, setWebConfig,
@@ -289,7 +292,7 @@ export const AppContextProvider = ({ children }) => {
         dlogDetailsCache, setDlogDetailsCache, loadDlogDetails,
         economyCache, setEconomyCache,
         allUsersCache, setAllUsersCache, loadAllUsers
-    }), [apiPath, apiVersion, apiConfig, vtcLogo, vtcBanner, vtcBackground, customBackground, specialRoles, specialUsers, patrons, curUserPatreonID, webConfig, languages, allRoles, allPerms, allRanks, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, announcementTypes, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache]);
+    }), [apiPath, apiVersion, apiConfig, vtcLogo, vtcBanner, vtcBackground, customBackground, specialRoles, specialUsers, patrons, curUserPatreonID, userConfig, webConfig, languages, allRoles, allPerms, allRanks, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, announcementTypes, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache]);
 
     return (
         <AppContext.Provider value={value}>

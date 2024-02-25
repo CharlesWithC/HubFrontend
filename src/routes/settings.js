@@ -87,7 +87,7 @@ function TabPanel(props) {
 
 const Settings = ({ defaultTab = 0 }) => {
     const { t: tr } = useTranslation();
-    const { apiPath, vtcBackground, customBackground, setCustomBackground, specialUsers, patrons, curUserPatreonID, apiConfig, webConfig, languages, allRoles, setUsers, curUser, userSettings, setUserSettings } = useContext(AppContext);
+    const { apiPath, vtcBackground, customBackground, setCustomBackground, specialUsers, patrons, curUserPatreonID, userConfig, setUserConfig, apiConfig, webConfig, languages, allRoles, setUsers, curUser, userSettings, setUserSettings } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     const sessionsColumns = useMemo(() => ([
@@ -285,8 +285,8 @@ const Settings = ({ defaultTab = 0 }) => {
     const DEFAULT_USER_CONFIG = { "name_color": "/", "profile_upper_color": "/", "profile_lower_color": "/", "profile_banner_url": "/" };
     const [remoteUserConfig, setRemoteUserConfig] = useState(DEFAULT_USER_CONFIG);
     useEffect(() => {
-        if (vars.userConfig[curUser.uid] !== undefined) {
-            let uc = JSON.parse(JSON.stringify(vars.userConfig[curUser.uid]));
+        if (userConfig[curUser.uid] !== undefined) {
+            let uc = userConfig[curUser.uid];
             if (uc.name_color === null) {
                 uc.name_color = "/";
             }
@@ -326,7 +326,7 @@ const Settings = ({ defaultTab = 0 }) => {
         if (resp.status === 204) {
             setSnackbarContent(tr("appearance_settings_updated"));
             setSnackbarSeverity("success");
-            vars.userConfig[curUser.uid] = { abbr: webConfig.abbr, name_color: remoteUserConfig.name_color, profile_upper_color: remoteUserConfig.profile_upper_color, profile_lower_color: remoteUserConfig.profile_lower_color, profile_banner_url: remoteUserConfig.profile_banner_url };
+            setUserConfig(userConfig => ({ ...userConfig, [curUser.uid]: { abbr: webConfig.abbr, name_color: remoteUserConfig.name_color, profile_upper_color: remoteUserConfig.profile_upper_color, profile_lower_color: remoteUserConfig.profile_lower_color, profile_banner_url: remoteUserConfig.profile_banner_url } }));
         } else {
             if (resp.data.error !== undefined) setSnackbarContent(resp.data.error);
             else setSnackbarContent(tr("unknown_error_please_try_again_later"));

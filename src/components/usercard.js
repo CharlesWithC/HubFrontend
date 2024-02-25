@@ -135,7 +135,7 @@ const UserCard = (props) => {
     const { t: tr } = useTranslation();
     const theme = useTheme();
     const navigate = useNavigate();
-    const { apiPath, specialUsers, patrons, apiConfig, webConfig, allRoles, allPerms, users, setUsers, userProfiles, setUserProfiles, setMemberUIDs, curUser, curUserPerm, userSettings } = useContext(AppContext);
+    const { apiPath, specialUsers, patrons, userConfig, apiConfig, webConfig, allRoles, allPerms, users, setUsers, userProfiles, setUserProfiles, setMemberUIDs, curUser, curUserPerm, userSettings } = useContext(AppContext);
     const orderedRoles = useMemo(() => (Object.values(allRoles).sort((a, b) => a.order_id - b.order_id).map(role => role.id)), [allRoles]);
 
     const bannerRef = useRef(null); // this is a real component reference
@@ -380,7 +380,7 @@ const UserCard = (props) => {
     const [profileBannerURL, setProfileBannerURL] = useState(`${apiPath}/member/banner?userid=${user.userid}`);
     useEffect(() => {
         if (user.discordid === undefined) return;
-        let newSpecialColor = null;
+        let newSpecialColor = ""; // set it to <empty string> to let "highest role color" know name color is not customized
         let newBadges = [];
         let badgeNames = [];
         let inCHubTeam = false;
@@ -454,14 +454,14 @@ const UserCard = (props) => {
         userLevel = vars.defaultUserLevel; // TODO: Remove after open beta
         if (inCHubTeam) userLevel = 4;
 
-        if (vars.userConfig[user.uid] !== undefined) {
-            let uc = vars.userConfig[user.uid];
+        if (userConfig[user.uid] !== undefined) {
+            let uc = userConfig[user.uid];
             if (uc.name_color !== null) {
                 newSpecialColor = uc.name_color;
                 if (!(vars.vtcLevel >= 1 && webConfig.name_color !== null && webConfig.name_color === newSpecialColor)) {
                     // not using vtc name color
                     if (userLevel < 2 || userLevel === 2 && newSpecialColor !== "#c0c0c0" || userLevel === 3 && !["#c0c0c0", "#ffd700"].includes(newSpecialColor)) {
-                        newSpecialColor = null;
+                        newSpecialColor = "";
                     }
                 }
             }
@@ -475,10 +475,12 @@ const UserCard = (props) => {
                 }
             } catch { }
         }
+        if (newSpecialColor === "/") newSpecialColor = "";
         setSpecialColor(newSpecialColor);
-    }, [user.discordid]);
+    }, [user.discordid, userConfig]);
     useEffect(() => {
-        if (vars.vtcLevel >= 3 && webConfig.use_highest_role_color && user.roles !== undefined) {
+        // specialColor === "" => not customized
+        if (specialColor === "" && vars.vtcLevel >= 3 && webConfig.use_highest_role_color && user.roles !== undefined) {
             for (let i = 0; i < user.roles.length; i++) {
                 if (allRoles[user.roles[i]] !== undefined && allRoles[user.roles[i]].color !== undefined) {
                     setSpecialColor(allRoles[user.roles[i]].color);
@@ -486,7 +488,7 @@ const UserCard = (props) => {
                 }
             }
         }
-    }, [user.roles]);
+    }, [user.roles, specialColor]);
 
     // context menu button operations
     const updateProfile = useCallback(async (sync_to = undefined) => {
@@ -781,7 +783,7 @@ const UserCard = (props) => {
                                 {showProfileModal !== 2 && ((user.uid === curUser.uid || (user.uid !== -1 && checkUserPerm(curUserPerm, ["administrator", "manage_profiles"])))) && <>&nbsp;<IconButton size="small" aria-label={tr("edit")} onClick={(e) => { updateCtxAction(e, "update-profile"); }}><FontAwesomeIcon icon={faPencil} /></IconButton ></>}
                             </Typography>
                         </div>
-                        {user.uid === curUser.uid && !customizeProfileAck && vars.userConfig[curUser.uid] === undefined && <Typography variant="body2" sx={{ color: theme.palette.info.main }}><a style={{ cursor: "pointer" }} onClick={() => { navigate("/settings/appearance"); }}>{tr("customize_your_profile_in_settings")}</a></Typography>}
+                        {user.uid === curUser.uid && !customizeProfileAck && userConfig[curUser.uid] === undefined && <Typography variant="body2" sx={{ color: theme.palette.info.main }}><a style={{ cursor: "pointer" }} onClick={() => { navigate("/settings/appearance"); }}>{tr("customize_your_profile_in_settings")}</a></Typography>}
                         <Box sx={{ borderBottom: 1, borderColor: "divider", mb: "10px" }}>
                             <Tabs value={tab} onChange={handleTabChange} aria-label="profile tabs" TabIndicatorProps={{ style: { backgroundColor: theme.palette.info.main } }}>
                                 <Tab label={tr("user_info")} {...tabBtnProps(0, tab, theme)} />
@@ -1529,7 +1531,7 @@ const UserCard = (props) => {
                             </Typography>
                         </div>
                         {users[user.uid] !== undefined && users[user.uid].activity !== null && users[user.uid].activity !== undefined && <Typography variant="body2">{GetActivity(tr, users[user.uid].activity)}</Typography>}
-                        {user.uid === curUser.uid && !customizeProfileAck && vars.userConfig[curUser.uid] === undefined && <Typography variant="body2" sx={{ color: theme.palette.info.main }}><a style={{ cursor: "pointer" }} onClick={() => { navigate("/settings/appearance"); }}>{tr("customize_your_profile_in_settings")}</a></Typography>}
+                        {user.uid === curUser.uid && !customizeProfileAck && userConfig[curUser.uid] === undefined && <Typography variant="body2" sx={{ color: theme.palette.info.main }}><a style={{ cursor: "pointer" }} onClick={() => { navigate("/settings/appearance"); }}>{tr("customize_your_profile_in_settings")}</a></Typography>}
                         <Divider sx={{ mt: "8px", mb: "8px" }} />
                         {user.bio !== "" && <>
                             <Typography variant="body2" sx={{ fontWeight: 800 }}>

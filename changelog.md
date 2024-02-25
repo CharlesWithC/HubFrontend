@@ -66,6 +66,7 @@
 31. Replaced `vars.dhcustombg` with Context API `customBackground`
 32. Replaced `vars.specialRoles` and `vars.specialRolesMap` with Context API `specialRoles` and `specialUsers`
 33. Replaced `vars.patrons` and `vars.userPatreonID` with Context API `patrons` and `curUserPatreonID`
+34. Replaced `vars.userConfig` with Context API `userConfig`
 
 ## v3.3.x
 
