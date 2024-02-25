@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useCallback, useMemo } from 'react';
 import Select, { components } from 'react-select';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '../context';
@@ -13,35 +13,36 @@ import { customSelectStyles } from '../designs';
 const UserSelect = ({ label, users, onUpdate, isMulti = true, includeCompany = false, includeBlackhole = false, limit = undefined, style = {}, userList = undefined, disabled = false, allowSelectAll = false }) => {
     const { t: tr } = useTranslation();
     const { webConfig, users: cachedUsers, memberUIDs } = useContext(AppContext);
-
-    const [memberMap, setMemberMap] = useState({});
-    const [options, setOptions] = useState([]);
+    const theme = useTheme();
 
     userList = (userList !== undefined ? userList : memberUIDs.map((uid) => cachedUsers[uid]));
 
-    useEffect(() => {
-        let memberMap = {};
-        memberMap[-1000] = { userid: -1000, name: webConfig.name };
-        memberMap[-1005] = { userid: -1005, name: tr("blackhole") };
+    const memberMap = useMemo(() => {
+        const result = {};
+        result[-1000] = { userid: -1000, name: webConfig.name };
+        result[-1005] = { userid: -1005, name: tr("blackhole") };
         for (let i = 0; i < userList.length; i++) {
-            memberMap[userList[i].userid !== null ? userList[i].userid : userList[i].uid] = userList[i];
+            result[userList[i].userid !== null ? userList[i].userid : userList[i].uid] = userList[i];
         }
-        setMemberMap(memberMap);
+        return result;
+    }, [webConfig, userList]);
 
-        let options = userList.map((user) => ({ value: user.userid !== null ? user.userid : user.uid, label: `${user.name} (${user.userid !== null ? user.userid : `UID: ${user.uid}`})` }));
+    const options = useMemo(() => {
+        const result = userList.map((user) => ({ value: user.userid !== null ? user.userid : user.uid, label: `${user.name} (${user.userid !== null ? user.userid : `UID: ${user.uid}`})` }));
         if (includeCompany) {
-            options.unshift({ value: -1000, label: webConfig.name });
+            result.unshift({ value: -1000, label: webConfig.name });
         }
         if (includeBlackhole) {
-            options.unshift({ value: -1005, label: tr("blackhole") });
+            result.unshift({ value: -1005, label: tr("blackhole") });
         }
-        setOptions(options);
-    }, []);
+        return result;
+    }, [userList, includeCompany, includeBlackhole]);
 
     const [selectedUsers, setSelectedUsers] = useState([]);
     useEffect(() => {
         let formattedInit = [];
         for (let i = 0; i < users.length; i++) {
+            if (users[i] === undefined) continue;
             if (users[i].userid === undefined || users[i].name === undefined) continue;
             formattedInit.push({ value: users[i].userid !== null ? users[i].userid : users[i].uid, label: `${users[i].name} ${(users[i].userid === null || users[i].userid >= 0) ? `(${users[i].userid !== null ? users[i].userid : `UID: ${users[i].uid}`})` : ``}` });
         }
@@ -50,17 +51,17 @@ const UserSelect = ({ label, users, onUpdate, isMulti = true, includeCompany = f
         }
     }, [users]);
 
-    const handleInputChange = (val) => {
+    const handleInputChange = useCallback((val) => {
         if (limit !== undefined && limit > 0 && !isNaN(limit)) val = val.splice(0, limit);
         setSelectedUsers(val);
         if (isMulti) onUpdate(val.map((item) => (memberMap[item.value])));
         else onUpdate(memberMap[val.value]);
-    };
+    }, [memberMap]);
 
-    const handleSelectAll = () => {
+    const handleSelectAll = useCallback(() => {
         setSelectedUsers(options);
         onUpdate(options.map((item) => (memberMap[item.value])));
-    };
+    }, [memberMap]);
 
     const DropdownIndicator = props => {
         return (
@@ -74,8 +75,6 @@ const UserSelect = ({ label, users, onUpdate, isMulti = true, includeCompany = f
             )
         );
     };
-
-    const theme = useTheme();
 
     return (
         <div style={style}>

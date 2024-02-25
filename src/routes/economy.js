@@ -329,6 +329,8 @@ const Economy = () => {
 
     const [modalGarage, setModalGarage] = useState({});
     const [modalGarageDetails, setModalGarageDetails] = useState(null);
+    const [garageOwner, setGarageOwner] = useState({}); // automatic update on garage change
+    const [message, setMessage] = useState("");
     const handleGarageClick = useCallback(async (garage) => {
         setDialogAction("garage");
         setModalGarage(garage);
@@ -337,6 +339,10 @@ const Economy = () => {
         let resp = await axios({ url: `${apiPath}/economy/garages/${garage.id}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         setModalGarageDetails(resp.data);
     }, [apiPath]);
+    useEffect(() => {
+        if (modalGarageDetails !== null)
+            setGarageOwner(modalGarageDetails.garage_owner);
+    }, [modalGarageDetails]);
 
     const purchaseGarage = useCallback(async () => {
         setDialogDisabled(true);
@@ -353,8 +359,6 @@ const Economy = () => {
         setDialogDisabled(false);
     }, [apiPath, modalGarage]);
 
-    const [garageOwner, setGarageOwner] = useState({});
-    const [message, setMessage] = useState("");
     const transferGarage = useCallback(async () => {
         setDialogDisabled(true);
         let owner = garageOwner.userid;
@@ -397,6 +401,7 @@ const Economy = () => {
     const [slotPageSize, setSlotPageSize] = useState(userSettings.default_row_per_page);
 
     const [activeSlot, setActiveSlot] = useState({});
+    const [slotOwner, setSlotOwner] = useState({});
     useEffect(() => {
         if (dialogAction === "slot")
             setSlotPage(1);
@@ -404,6 +409,9 @@ const Economy = () => {
     useEffect(() => {
         slotPageRef.current = slotPage;
     }, [slotPage]);
+    useEffect(() => {
+        setSlotOwner(activeSlot.slot_owner);
+    }, [activeSlot]);
     useEffect(() => {
         async function doLoad() {
             window.loading += 1;
@@ -414,7 +422,7 @@ const Economy = () => {
                 let slot = resp.data.list[i];
                 let ctxMenu = <><MenuItem onClick={() => { setActiveSlot(slot); setDialogAction("transfer-slot"); }} sx={{ color: theme.palette.warning.main }}>{tr("transfer_slot")}</MenuItem><MenuItem onClick={() => { setActiveSlot(slot); setDialogAction("sell-slot"); }} sx={{ color: theme.palette.error.main }} disabled={slot.note === "garage-owner"}>{tr("sell_slot")}</MenuItem></>;
                 if (slot.truck !== null) {
-                    newSlotList.push({ slotid: slot.slotid, owner: <UserCard key={`${slotPage}-i`} user={slot.slot_owner} />, truck: <a className="hover-underline" style={{ cursor: "pointer" }} onClick={() => { setTruckReferer("slot"); setActiveTruck(slot.truck); setTruckOwner(slot.truck.owner); setTruckAssignee(slot.truck.assignee); loadTruck(slot.truck); setDialogAction("truck"); }}>{slot.truck.truck.brand} {slot.truck.truck.model}</a>, odometer: TSep(slot.truck.odometer), income: TSep(slot.truck.income), contextMenu: ctxMenu });
+                    newSlotList.push({ slotid: slot.slotid, owner: <UserCard key={`${slotPage}-i`} user={slot.slot_owner} />, truck: <a className="hover-underline" style={{ cursor: "pointer" }} onClick={() => { setTruckReferer("slot"); setActiveTruck(slot.truck); loadTruck(slot.truck); setDialogAction("truck"); }}>{slot.truck.truck.brand} {slot.truck.truck.model}</a>, odometer: TSep(slot.truck.odometer), income: TSep(slot.truck.income), contextMenu: ctxMenu });
                 } else {
                     newSlotList.push({ slotid: slot.slotid, owner: <UserCard key={`${slotPage}-i`} user={slot.slot_owner} />, truck: <a className="hover-underline" style={{ cursor: "pointer" }} onClick={() => { setTruckSlotId(slot.slotid); setTruckReferer("slot"); setDialogAction("purchase-truck"); }}>{tr("empty_slot")}</a>, odometer: "/", income: "/", contextMenu: ctxMenu });
                 }
@@ -446,7 +454,6 @@ const Economy = () => {
         setDialogDisabled(false);
     }, [apiPath, modalGarage]);
 
-    const [slotOwner, setSlotOwner] = useState({});
     const transferSlot = useCallback(async () => {
         setDialogDisabled(true);
         let owner = slotOwner.userid;
@@ -485,13 +492,14 @@ const Economy = () => {
     const [truckReferer, setTruckReferer] = useState("");
     const [activeTruck, setActiveTruck] = useState({});
     const [truckSlotId, setTruckSlotId] = useState("");
-    const [truckOwner, setTruckOwner] = useState({});
-    const [truckAssignee, setTruckAssignee] = useState({});
+    const [truckOwner, setTruckOwner] = useState({}); // automatic update on truck change
+    const [truckAssignee, setTruckAssignee] = useState({}); // automatic update on truck change
+    useEffect(() => {
+        setTruckOwner(activeTruck.owner); setTruckAssignee(activeTruck.assignee);
+    }, [activeTruck]);
     const loadTruck = useCallback(async (truck) => {
         let resp = await axios({ url: `${apiPath}/economy/trucks/${truck.vehicleid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         setActiveTruck({ ...truck, ...resp.data, update: +new Date() });
-        setTruckOwner(resp.data.owner);
-        setTruckAssignee(resp.data.assignee);
     }, [apiPath]);
     const activateTruck = useCallback(async () => {
         setDialogDisabled(true);
@@ -878,7 +886,7 @@ const Economy = () => {
             let newMerchList = [];
             for (let i = 0; i < resp.data.list.length; i++) {
                 let merch = resp.data.list[i];
-                let ctxMenu = <><MenuItem onClick={() => { setActiveMerch(merch); setDialogAction("transfer-merch"); }} sx={{ color: theme.palette.warning.main }}>{tr("transfer_merch")}</MenuItem><MenuItem onClick={() => { setActiveMerch(merch); setDialogAction("sell-merch"); }} sx={{ color: theme.palette.error.main }}>{tr("sell_merch")}</MenuItem></>;
+                let ctxMenu = <><MenuItem onClick={() => { setActiveMerch(merch); setMerchOwner(merch.owner); setDialogAction("transfer-merch"); }} sx={{ color: theme.palette.warning.main }}>{tr("transfer_merch")}</MenuItem><MenuItem onClick={() => { setActiveMerch(merch); setMerchOwner(merch.owner); setDialogAction("sell-merch"); }} sx={{ color: theme.palette.error.main }}>{tr("sell_merch")}</MenuItem></>;
                 newMerchList.push({ name: economyCache.merchMap[merch.merchid] !== undefined ? economyCache.merchMap[merch.merchid].name : merch.merchid, value: TSep(merch.price), purchased: <TimeAgo timestamp={merch.purchase_timestamp * 1000} />, data: merch, contextMenu: ctxMenu });
             }
             if (merchPageRef.current === merchPage) {
@@ -1012,7 +1020,7 @@ const Economy = () => {
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("new_garage_owner")}</Typography>
-                            <Typography variant="body2"><UserSelect users={[modalGarageDetails.garage_owner]} isMulti={false} includeCompany={true} onUpdate={setGarageOwner} /></Typography>
+                            <Typography variant="body2"><UserSelect users={[garageOwner]} isMulti={false} includeCompany={true} onUpdate={setGarageOwner} /></Typography>
                         </Grid>
                         <Grid item xs={12}>
                             <TextField
@@ -1064,7 +1072,7 @@ const Economy = () => {
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("new_slot_owner")}</Typography>
-                            <Typography variant="body2"><UserSelect users={[activeSlot.slot_owner]} isMulti={false} includeCompany={true} onUpdate={setSlotOwner} /></Typography>
+                            <Typography variant="body2"><UserSelect users={[slotOwner]} isMulti={false} includeCompany={true} onUpdate={setSlotOwner} /></Typography>
                         </Grid>
                         <Grid item xs={12}>
                             <TextField
@@ -1199,7 +1207,7 @@ const Economy = () => {
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("new_truck_owner")}</Typography>
-                            <Typography variant="body2"><UserSelect users={[activeTruck.owner]} isMulti={false} includeCompany={true} onUpdate={setTruckOwner} /></Typography>
+                            <Typography variant="body2"><UserSelect users={[truckOwner]} isMulti={false} includeCompany={true} onUpdate={setTruckOwner} /></Typography>
                         </Grid>
                         <Grid item xs={12}>
                             <TextField
@@ -1222,7 +1230,7 @@ const Economy = () => {
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("new_truck_assignee")}</Typography>
-                            <Typography variant="body2"><UserSelect users={[activeTruck.assignee]} isMulti={false} includeCompany={true} onUpdate={setTruckAssignee} /></Typography>
+                            <Typography variant="body2"><UserSelect users={[truckAssignee]} isMulti={false} includeCompany={true} onUpdate={setTruckAssignee} /></Typography>
                         </Grid>
                         <Grid item xs={12}>
                             <TextField
@@ -1396,7 +1404,7 @@ const Economy = () => {
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("new_owner")}</Typography>
-                            <Typography variant="body2"><UserSelect users={[activeMerch.owner]} isMulti={false} includeCompany={true} onUpdate={setMerchOwner} /></Typography>
+                            <Typography variant="body2"><UserSelect users={[merchOwner]} isMulti={false} includeCompany={true} onUpdate={setMerchOwner} /></Typography>
                         </Grid>
                         <Grid item xs={12}>
                             <TextField
@@ -1505,10 +1513,10 @@ const Economy = () => {
                 <CustomTable name={<><FontAwesomeIcon icon={faWarehouse} />&nbsp;&nbsp;{tr("top_garages")}</>} columns={garageColumns} data={garageList} totalItems={garageTotal} rowsPerPageOptions={[5, 10, 25, 50]} defaultRowsPerPage={garagePageSize} onPageChange={setGaragePage} onRowsPerPageChange={setGaragePageSize} onRowClick={(row) => { if (economyCache.garagesMap[row.data.garageid] !== undefined) { setModalGarage(economyCache.garagesMap[row.data.garageid]); } setModalGarageDetails(row.data); setDialogAction("garage"); }} />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={6}>
-                <CustomTable name={<><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;{tr("top_trucks")}</>} columns={truckColumns} data={truckList} totalItems={truckTotal} rowsPerPageOptions={[5, 10, 25, 50]} defaultRowsPerPage={truckPageSize} onPageChange={setTruckPage} onRowsPerPageChange={setTruckPageSize} onRowClick={(row) => { setTruckReferer(""); setActiveTruck(row.data); setTruckOwner(row.data.owner); setTruckAssignee(row.data.assignee); loadTruck(row.data); setDialogAction("truck"); }} />
+                <CustomTable name={<><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;{tr("top_trucks")}</>} columns={truckColumns} data={truckList} totalItems={truckTotal} rowsPerPageOptions={[5, 10, 25, 50]} defaultRowsPerPage={truckPageSize} onPageChange={setTruckPage} onRowsPerPageChange={setTruckPageSize} onRowClick={(row) => { setTruckReferer(""); setActiveTruck(row.data); loadTruck(row.data); setDialogAction("truck"); }} />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={6}>
-                <CustomTable name={<><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;{tr("my_trucks")}</>} nameRight={<IconButton onClick={() => { setTruckReferer(""); setDialogAction("purchase-truck"); }}><FontAwesomeIcon icon={faPlus} /></IconButton>} columns={myTruckColumns} data={myTruckList} totalItems={myTruckTotal} rowsPerPageOptions={[5, 10, 25, 50]} defaultRowsPerPage={myTruckPageSize} onPageChange={setMyTruckPage} onRowsPerPageChange={setMyTruckPageSize} onRowClick={(row) => { setTruckReferer(""); setActiveTruck(row.data); setTruckOwner(row.data.owner); setTruckAssignee(row.data.assignee); loadTruck(row.data); setDialogAction("truck"); }} />
+                <CustomTable name={<><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;{tr("my_trucks")}</>} nameRight={<IconButton onClick={() => { setTruckReferer(""); setDialogAction("purchase-truck"); }}><FontAwesomeIcon icon={faPlus} /></IconButton>} columns={myTruckColumns} data={myTruckList} totalItems={myTruckTotal} rowsPerPageOptions={[5, 10, 25, 50]} defaultRowsPerPage={myTruckPageSize} onPageChange={setMyTruckPage} onRowsPerPageChange={setMyTruckPageSize} onRowClick={(row) => { setTruckReferer(""); setActiveTruck(row.data); loadTruck(row.data); setDialogAction("truck"); }} />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={6}>
                 <CustomTable name={<><FontAwesomeIcon icon={faShoppingCart} />&nbsp;&nbsp;{tr("owned_merchandise")}</>} nameRight={<IconButton onClick={() => { setDialogAction("purchase-merch"); }}><FontAwesomeIcon icon={faPlus} /></IconButton>} columns={merchColumns} data={merchList} totalItems={merchTotal} rowsPerPageOptions={[5, 10, 25, 50]} defaultRowsPerPage={merchPageSize} onPageChange={setMerchPage} onRowsPerPageChange={setMerchPageSize} />
