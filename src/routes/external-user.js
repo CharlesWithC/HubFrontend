@@ -16,8 +16,6 @@ import UserSelect from '../components/userselect';
 import DateTimeField from '../components/datetime';
 import SponsorBadge from '../components/sponsorBadge';
 
-var vars = require("../variables");
-
 const ExternalUsers = () => {
     const { t: tr } = useTranslation();
     const { apiPath, userLevel, userSettings, allUsersCache, loadAllUsers } = useContext(AppContext);

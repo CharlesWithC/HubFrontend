@@ -9,8 +9,6 @@ import { AnalyticsRounded, NewspaperRounded, MapRounded, BrowserUpdatedRounded, 
 import SimpleBar from 'simplebar-react';
 import 'simplebar-react/dist/simplebar.min.css';
 
-var vars = require('../variables');
-
 const SideBar = (props) => {
     const { t: tr } = useTranslation();
     const { vtcBanner, vtcLevel, webConfig, curUID, curUser, curUserPerm } = useContext(AppContext);

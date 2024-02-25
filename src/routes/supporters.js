@@ -4,8 +4,6 @@ import { AppContext } from '../context';
 
 import { Card, CardHeader, CardContent, Typography, Avatar, Grid } from '@mui/material';
 
-var vars = require("../variables");
-
 const LargeUserCard = ({ user, color }) => {
     const { userSettings } = useContext(AppContext);
     return (

@@ -10,8 +10,6 @@ import { faDiscord } from '@fortawesome/free-brands-svg-icons';
 
 import { FetchProfile, customAxios as axios, setAuthToken, getAuthToken, getAuthMode, eraseAuthMode } from '../../../functions';
 
-var vars = require('../../../variables');
-
 const DiscordAuth = () => {
     const { t: tr } = useTranslation();
     const appContext = useContext(AppContext);

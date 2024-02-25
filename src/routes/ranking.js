@@ -12,8 +12,6 @@ import { faDiscord } from '@fortawesome/free-brands-svg-icons';
 
 import { makeRequestsWithAuth, TSep, customAxios as axios, getAuthToken, isSameDay } from '../functions';
 
-var vars = require("../variables");
-
 const Ranking = () => {
     const { t: tr } = useTranslation();
     const { apiPath, allRanks, curUser } = useContext(AppContext);

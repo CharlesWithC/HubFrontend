@@ -17,8 +17,6 @@ import UserCard from './usercard';
 
 import { FetchProfile, customAxios as axios, getAuthToken, eraseAuthMode } from "../functions";
 
-var vars = require("../variables");
-
 const radioURLs = { "tsr": "https://oreo.truckstopradio.co.uk/radio/8000/radio.mp3", "tfm": "https://live.truckers.fm/", "simhit": "https://radio.simulatorhits.com/radio/8000/stream" };
 const radioNames = { "tsr": "TruckStopRadio", "tfm": "TruckersFM", "simhit": "SimulatorHits" };
 const radioImages = { "tsr": "https://truckstopradio.co.uk/autodj.png", "tfm": "https://truckersfm.s3.fr-par.scw.cloud/static/tfm-2020.png", "simhit": "https://simulatorhits.com/images/SH_Logo.jpg" };

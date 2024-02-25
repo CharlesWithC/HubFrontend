@@ -10,8 +10,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckSquare } from '@fortawesome/free-solid-svg-icons';
 import { customSelectStyles } from '../designs';
 
-var vars = require("../variables");
-
 const UserSelect = ({ label, users, onUpdate, isMulti = true, includeCompany = false, includeBlackhole = false, limit = undefined, style = {}, userList = undefined, disabled = false, allowSelectAll = false }) => {
     const { t: tr } = useTranslation();
     const { webConfig, users: cachedUsers, memberUIDs } = useContext(AppContext);

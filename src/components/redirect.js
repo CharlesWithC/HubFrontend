@@ -2,8 +2,6 @@ import React from 'react';
 
 import BrowserLogin from './browserAuth';
 
-var vars = require("../variables");
-
 class Redirect extends React.Component {
     componentDidMount() {
         const { to, path } = this.props;

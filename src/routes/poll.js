@@ -17,8 +17,6 @@ import TimeAgo from '../components/timeago';
 
 import { makeRequestsWithAuth, checkUserPerm, customAxios as axios, checkPerm, getAuthToken } from '../functions';
 
-var vars = require("../variables");
-
 const PollCard = ({ poll: inputPoll, onEdit, onDelete, onPollVoters }) => {
     const { t: tr } = useTranslation();
     const { apiPath, curUID, curUserPerm } = useContext(AppContext);

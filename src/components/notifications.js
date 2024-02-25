@@ -14,8 +14,6 @@ import SimpleBar from 'simplebar-react';
 
 import { customAxios as axios, getAuthToken } from '../functions';
 
-var vars = require("../variables");
-
 const NotificationsPopover = () => {
     const { t: tr } = useTranslation();
     const { apiPath, userSettings } = useContext(AppContext);

@@ -7,8 +7,6 @@ import { Card, CardContent, CardActions, Button } from '@mui/material';
 
 import { FetchProfile, customAxios as axios, setAuthToken } from '../../functions';
 
-var vars = require('../../variables');
-
 const TokenAuth = () => {
     const { t: tr } = useTranslation();
     const appContext = useContext(AppContext);

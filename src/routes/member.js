@@ -6,8 +6,6 @@ import { Card, CardContent, Typography, Avatar, Grid, Tooltip } from '@mui/mater
 
 import UserCard from '../components/usercard';
 
-var vars = require("../variables");
-
 const LargeUserCard = ({ user, color }) => {
     const { userSettings } = useContext(AppContext);
     return (

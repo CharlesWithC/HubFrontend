@@ -10,8 +10,6 @@ import { faPatreon } from '@fortawesome/free-brands-svg-icons';
 
 import { customAxios as axios, getAuthToken, getAuthMode, eraseAuthMode } from '../../../functions';
 
-var vars = require('../../../variables');
-
 const PatreonAuth = () => {
     const { t: tr } = useTranslation();
     const { apiPath, setCurUserPatreonID } = useContext(AppContext);

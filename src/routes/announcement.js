@@ -11,8 +11,6 @@ import MarkdownRenderer from '../components/markdown';
 import TimeAgo from '../components/timeago';
 import { makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios, checkPerm, getAuthToken, makeRequestsAuto } from '../functions';
 
-var vars = require("../variables");
-
 const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
     const { t: tr } = useTranslation();
     const { curUID, curUserPerm } = useContext(AppContext);

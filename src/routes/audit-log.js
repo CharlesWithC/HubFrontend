@@ -10,8 +10,6 @@ import { makeRequestsAuto } from '../functions';
 import MarkdownRenderer from '../components/markdown';
 import UserCard from '../components/usercard';
 
-var vars = require("../variables");
-
 const AuditLog = () => {
     const { t: tr } = useTranslation();
     const { apiPath, userSettings } = useContext(AppContext);

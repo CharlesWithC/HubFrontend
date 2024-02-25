@@ -7,8 +7,6 @@ import { Button, Card, CardActions, CardContent, Typography, TextField, useTheme
 
 import { customAxios as axios } from '../../functions';
 
-var vars = require('../../variables');
-
 // rp -> reset password
 // rg -> register (confirm email)
 // ue -> update email (confirm email)

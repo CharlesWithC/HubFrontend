@@ -16,8 +16,6 @@ import CustomTable from '../components/table';
 
 import { ConvertUnit, TSep, makeRequestsWithAuth, checkUserPerm, checkPerm, customAxios as axios, getAuthToken } from '../functions';
 
-var vars = require("../variables");
-
 const CURRENTY_ICON = { 1: "€", 2: "$" };
 
 const DivisionCard = ({ division }) => {

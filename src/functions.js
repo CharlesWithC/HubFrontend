@@ -5,8 +5,6 @@ import CryptoJS from 'crypto-js';
 
 import i18n from './i18n';
 
-var vars = require('./variables');
-
 const customAxios = axios.create();
 axiosRetry(customAxios, {
     retries: 3,

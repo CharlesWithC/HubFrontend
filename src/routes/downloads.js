@@ -12,8 +12,6 @@ import TimeAgo from '../components/timeago';
 
 import { makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios, checkPerm, downloadFile, getAuthToken } from '../functions';
 
-var vars = require("../variables");
-
 const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }) => {
     const { t: tr } = useTranslation();
     const { curUID, curUserPerm } = useContext(AppContext);

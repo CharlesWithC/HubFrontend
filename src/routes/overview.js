@@ -14,8 +14,6 @@ import UserCard from '../components/usercard';
 
 import { TSep, ConvertUnit, makeRequestsAuto, getTodayUTC, getMonthUTC } from '../functions';
 
-var vars = require("../variables");
-
 const Overview = () => {
     const { t: tr } = useTranslation();
     const { apiPath, users, memberUIDs, curUID, userSettings } = useContext(AppContext);

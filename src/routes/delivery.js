@@ -17,8 +17,6 @@ import TileMap from '../components/tilemap';
 
 import { makeRequestsAuto, ConvertUnit, CalcInterval, b62decode, customAxios as axios, checkUserPerm, getAuthToken } from '../functions';
 
-var vars = require("../variables");
-
 const CURRENTY_ICON = { "eut2": "€", "ats": "$" };
 function bool2int(b) { return b ? 1 : 0; }
 

@@ -31,8 +31,6 @@ const CONFIG_SECTIONS = {
 
 const CONFIG_SECTIONS_INDEX = { "general": 0, "profile": 1, "tracker": 2, "dlog": 3, "discord-steam": 4, "role": 5, "rank": 7, "smtp": 6, "announcement": 8, "division": 9, "application": 10, "discord-member": 11, "discord-other": 12, "economy": 13 };
 
-var vars = require("../variables");
-
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
     clipPath: 'inset(50%)',

@@ -48,8 +48,6 @@ import { darkenColor } from '../designs';
 
 import { customAxios as axios, getAuthToken, checkUserPerm, removeNUEValues, getFormattedDate, getTodayUTC, makeRequestsAuto, ConvertUnit, TSep } from '../functions';
 
-var vars = require("../variables");
-
 const PROFILE_COLOR = {
     light: {
         default: '#fafafa',

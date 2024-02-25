@@ -17,8 +17,6 @@ import UserSelect from '../components/userselect';
 
 import { getRankName, makeRequestsAuto, getMonthUTC, TSep, getCurrentMonthName, removeNUEValues } from '../functions';
 
-var vars = require("../variables");
-
 function replaceUnderscores(str) {
     return str.split('_')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))

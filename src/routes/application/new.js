@@ -8,8 +8,6 @@ import { Portal } from '@mui/base';
 
 import { customAxios as axios, getAuthToken } from '../../functions';
 
-var vars = require("../../variables");
-
 // [
 //     {
 //         "type": "info",

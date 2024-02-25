@@ -16,8 +16,6 @@ import UserSelect from '../components/userselect';
 
 import { makeRequestsWithAuth, makeRequests, getFormattedDate, customAxios as axios, checkPerm, checkUserPerm, getAuthToken, toLocalISOString } from '../functions';
 
-var vars = require("../variables");
-
 function ParseEventImage(events) {
     for (let i = 0; i < events.length; i++) {
         let event = events[i];

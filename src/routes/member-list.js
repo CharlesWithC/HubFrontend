@@ -18,8 +18,6 @@ import SponsorBadge from '../components/sponsorBadge';
 
 import { makeRequestsAuto, customAxios as axios, getAuthToken, removeNUEValues } from '../functions';
 
-var vars = require("../variables");
-
 const MemberList = () => {
     const { t: tr } = useTranslation();
     const { apiPath, userLevel, users, memberUIDs, userSettings } = useContext(AppContext);

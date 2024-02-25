@@ -59,8 +59,6 @@ import SideBar from './components/sidebar';
 
 import { readLS, writeLS } from './functions.js';
 
-var vars = require('./variables');
-
 const drivershub = `    ____       _                         __  __      __
    / __ \\_____(_)   _____  __________   / / / /_  __/ /_
   / / / / ___/ / | / / _ \\/ ___/ ___/  / /_/ / / / / __ \\

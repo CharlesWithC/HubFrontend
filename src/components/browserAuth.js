@@ -5,9 +5,6 @@ import { ThemeContext } from '../context';
 
 import { Button, Card, CardActions, CardContent, Typography } from '@mui/material';
 
-
-var vars = require('../variables');
-
 const BrowserAuth = ({ completed = false }) => {
     // completed = true => definitely browser client
 

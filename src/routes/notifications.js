@@ -12,8 +12,6 @@ import CustomTable from "../components/table";
 import { makeRequestsAuto } from '../functions';
 import MarkdownRenderer from '../components/markdown';
 
-var vars = require("../variables");
-
 const Notifications = () => {
     const { t: tr } = useTranslation();
     const { apiPath, userSettings } = useContext(AppContext);

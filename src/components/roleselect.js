@@ -7,8 +7,6 @@ import { customSelectStyles } from '../designs';
 
 import { checkUserPerm } from '../functions';
 
-var vars = require("../variables");
-
 const RoleSelect = ({ label, initialRoles, onUpdate, isMulti = true, style = {} }) => {
     const { allRoles, curUser, curUserPerm, divisions, loadDivisions } = useContext(AppContext);
     const theme = useTheme();

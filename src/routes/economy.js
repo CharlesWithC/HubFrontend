@@ -31,8 +31,6 @@ import { customSelectStyles } from '../designs';
 
 import { makeRequestsAuto, customAxios as axios, getAuthToken, TSep, checkUserPerm, ConvertUnit, downloadLocal } from '../functions';
 
-var vars = require("../variables");
-
 function calculateCenterPoint(points) {
     if (points.length === 0) {
         throw new Error(tr("empty_points_array"));

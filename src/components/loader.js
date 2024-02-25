@@ -7,8 +7,6 @@ import { Typography, TextField, Button, useTheme } from '@mui/material';
 
 import { FetchProfile, loadImageAsBase64, customAxios as axios, makeRequestsAuto, compareVersions, writeLS, readLS } from '../functions';
 
-var vars = require('../variables');
-
 const Loader = ({ onLoaderLoaded }) => {
     const [domain, setDomain] = useState(window.location.hostname !== "localhost" ? window.location.hostname : window.dhhost);
 

@@ -18,8 +18,6 @@ import RoleSelect from '../components/roleselect';
 
 import { makeRequestsWithAuth, customAxios as axios, checkPerm, checkUserPerm, checkUserRole, getAuthToken, getFormattedDate, ConvertUnit, sortDictWithValue, removeNUEValues } from '../functions';
 
-var vars = require("../variables");
-
 const DEFAULT_JOB_REQUIREMENTS = { game: "", market: "", source_city_id: "", source_company_id: "", destination_city_id: "", destination_company_id: "", minimum_distance: "-1", maximum_distance: "-1", maximum_detour_percentage: "-1", minimum_detour_percentage: "-1", minimum_seconds_spent: "-1", maximum_seconds_spent: "-1", truck_id: "", truck_plate_country_id: "", minimum_truck_wheel: "-1", maximum_truck_wheel: "-1", minimum_fuel: "-1", maximum_fuel: "-1", minimum_average_fuel: "-1", maximum_average_fuel: "-1", minimum_adblue: "-1", maximum_adblue: "-1", minimum_average_speed: "-1", maximum_average_speed: "-1", maximum_speed: "-1", cargo_id: "", minimum_cargo_mass: "-1", maximum_cargo_mass: "-1", minimum_cargo_damage: "-1", maximum_cargo_damage: "-1", minimum_profit: "-1", maximum_profit: "-1", minimum_offence: "-1", maximum_offence: "-1", minimum_xp: "-1", maximum_xp: "-1", minimum_train: "-1", maximum_train: "-1", minimum_ferry: "-1", maximum_ferry: "-1", minimum_teleport: "-1", maximum_teleport: "-1", minimum_tollgate: "-1", maximum_tollgate: "-1", minimum_toll_paid: "-1", maximum_toll_paid: "-1", minimum_collision: "-1", maximum_collision: "-1", allow_overspeed: "1", allow_auto_park: "1", allow_auto_load: "1", must_not_be_late: "0", must_be_special: "0", minimum_warp: "-1", maximum_warp: "-1", enabled_realistic_settings: "" };
 
 const ControlButtons = ({ challenge, onUpdateDelivery, onEdit, onDelete }) => {

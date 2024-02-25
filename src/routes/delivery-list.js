@@ -18,8 +18,6 @@ import TimeAgo from '../components/timeago';
 import SponsorBadge from '../components/sponsorBadge';
 import { makeRequestsAuto, getMonthUTC, ConvertUnit, customAxios as axios, getAuthToken, downloadLocal, checkUserPerm, removeNUEValues } from '../functions';
 
-var vars = require("../variables");
-
 const CURRENTY_ICON = { 1: "€", 2: "$" };
 
 const Deliveries = () => {

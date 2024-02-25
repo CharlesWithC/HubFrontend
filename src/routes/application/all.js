@@ -11,8 +11,6 @@ import TimeAgo from '../../components/timeago';
 
 import { makeRequestsAuto, customAxios as axios, getAuthToken, getMonthUTC, removeNUEValues } from '../../functions';
 
-var vars = require("../../variables");
-
 const ApplicationTable = memo(({ showDetail, doReload }) => {
     const { t: tr } = useTranslation();
     const { apiPath, curUser, userSettings, applicationTypes, loadApplicationTypes } = useContext(AppContext);

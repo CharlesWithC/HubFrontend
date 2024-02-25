@@ -10,8 +10,6 @@ import { faFingerprint } from '@fortawesome/free-solid-svg-icons';
 
 import { FetchProfile, customAxios as axios, setAuthToken } from '../../functions';
 
-var vars = require('../../variables');
-
 const MfaAuth = () => {
     const { t: tr } = useTranslation();
     const appContext = useContext(AppContext);

@@ -14,8 +14,6 @@ import HCaptcha from '@hcaptcha/react-hcaptcha';
 
 import { customAxios as axios } from '../../functions';
 
-var vars = require("../../variables");
-
 const AuthLogin = () => {
     const { t: tr } = useTranslation();
     const { apiPath, apiConfig, webConfig } = useContext(AppContext);

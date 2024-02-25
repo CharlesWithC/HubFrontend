@@ -5,8 +5,6 @@ import { TextField } from '@mui/material';
 
 import { getTimezoneOffset } from '../functions';
 
-var vars = require("../variables");
-
 // all in seconds, not milliseconds
 const DateTimeField = ({ label, defaultValue, onChange, fullWidth = false, size = undefined, sx = {}, disabled = false }) => {
     const { userLevel, userSettings } = useContext(AppContext);

@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, createContext } from 'react';
 
 import { makeRequestsAuto, makeRequestsWithAuth } from "./functions";
-var vars = require("./variables");
 
 export const AppContext = createContext({
     apiPath: "", setApiPath: () => { },

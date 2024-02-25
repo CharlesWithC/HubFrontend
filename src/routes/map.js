@@ -7,8 +7,6 @@ import { Card, Box, Tabs, Tab, Grid, Dialog, DialogActions, DialogContent, Dialo
 import UserCard from '../components/usercard';
 import TileMap from '../components/tilemap';
 
-var vars = require("../variables");
-
 function tabBtnProps(index, current, theme) {
     return {
         id: `map-tab-${index}`,

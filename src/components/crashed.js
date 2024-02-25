@@ -5,8 +5,6 @@ import { AppContext, ThemeContext } from '../context';
 import { Button, useMediaQuery, createTheme, ThemeProvider } from '@mui/material';
 import { getDesignTokens } from '../designs';
 
-var vars = require("../variables");
-
 const Crashed = ({ errorUploaded }) => {
     const { t: tr } = useTranslation();
     const { vtcLogo, vtcBackground, vtcLevel, userLevel, customBackground, webConfig } = useContext(AppContext);

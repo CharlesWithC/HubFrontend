@@ -11,8 +11,6 @@ import { faGears, faPlus, faMinus, faArrowUp, faArrowDown } from '@fortawesome/f
 
 import { customAxios as axios, checkUserPerm, getAuthToken } from '../functions';
 
-var vars = require("../variables");
-
 const Gallery = () => {
     const { t: tr } = useTranslation();
     const { apiPath, vtcLevel, webConfig, setWebConfig, curUserPerm } = useContext(AppContext);
