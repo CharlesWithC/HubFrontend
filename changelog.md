@@ -12,11 +12,15 @@
 8. Improve challenge plugin (better form, include more select like for game (eut2/ats))
 9. Provide pre-generated list of cities/cargos for Special Guest and Premium Plan
 10. Add loading placeholder effect
-11. Add page TextField in tables
-12. Simplebar for profile popover (brief)
-13. Privacy settings
-14. Support API config update real-time reflection
-15. Add economy transaction list
+11. Simplebar for profile popover (brief)
+12. Privacy settings
+13. Support API config update real-time reflection
+14. Add economy transaction list
+
+## v3.4.1
+
+1. Added inputable page number in tables
+2. Added debounce in table page change to reduce unnecessary API calls
 
 ## v3.4.0
 

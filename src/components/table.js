@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
+import { debounce } from 'lodash';
 import { Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Card, CardContent, TablePagination, Typography, Menu, TextField } from '@mui/material';
 
-import useLongPress from './useLongPress';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowDown, faArrowUp, faArrowsUpDown } from '@fortawesome/free-solid-svg-icons';
 
-const CustomTableRow = ({ children, onContextMenu, ...props }) => {
+import useLongPress from './useLongPress';
+
+const CustomTableRow = memo(({ children, onContextMenu, ...props }) => {
     const ref = useRef(null);
     if (onContextMenu) {
         useLongPress(ref, onContextMenu, 500);
@@ -16,11 +18,26 @@ const CustomTableRow = ({ children, onContextMenu, ...props }) => {
             {children}
         </TableRow>
     );
-};
+});
 
 const CustomTable = ({ columns, orderBy, order, onOrderingUpdate, name, nameRight, data, totalItems, rowsPerPageOptions, defaultRowsPerPage, onPageChange, onRowsPerPageChange, onRowClick, onSearch, searchHint, searchUpdateInterval, searchWidth, style, pstyle }) => {
-    const [page, setPage] = useState(0);
+    const [page, setPage] = useState(0); // page for MUI Table (from 0)
+    const [inputPage, setInputPage] = useState(1); // page for user input (from 1)
     const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
+
+    const debouncedHandlePageChange = debounce((page) => {
+        onPageChange(page);
+    }, 200);
+
+    const handleInputPage = useCallback((event) => {
+        let newPage = event.target.value;
+        if (isNaN(newPage) || newPage === "")
+            newPage = 1;
+
+        setPage(newPage - 1);
+        setInputPage(newPage);
+        debouncedHandlePageChange(newPage);
+    }, []);
 
     if (searchUpdateInterval === undefined) searchUpdateInterval = 100;
     if (searchWidth === undefined) searchWidth = "300px";
@@ -42,20 +59,21 @@ const CustomTable = ({ columns, orderBy, order, onOrderingUpdate, name, nameRigh
         return () => clearInterval(interval);
     }, [searchContent, searchContentLU]);
 
-    const handleChangePage = (event, newPage) => {
+    const handleChangePage = useCallback((event, newPage) => {
         setPage(newPage);
-        onPageChange(newPage + 1);
-    };
+        setInputPage(newPage + 1);
+        debouncedHandlePageChange(newPage + 1);
+    }, []);
 
-    const handleChangeRowsPerPage = (event) => {
+    const handleChangeRowsPerPage = useCallback((event) => {
         const newRowsPerPage = parseInt(event.target.value);
         setRowsPerPage(newRowsPerPage);
         onRowsPerPageChange(newRowsPerPage);
-    };
+    }, []);
 
     const [anchorPosition, setAnchorPosition] = useState({ top: 0, left: 0 });
 
-    const handleContextMenu = (e, row_idx) => {
+    const handleContextMenu = useCallback((e, row_idx) => {
         e.preventDefault();
         if (e.stopPropagation !== undefined) e.stopPropagation();
         if (anchorPosition[row_idx]) {
@@ -63,13 +81,14 @@ const CustomTable = ({ columns, orderBy, order, onOrderingUpdate, name, nameRigh
             return;
         }
         setAnchorPosition({ [row_idx]: { top: e.clientY !== undefined ? e.clientY : e.center.y, left: e.clientX !== undefined ? e.clientX : e.center.x } });
-    };
+    }, []);
 
-    const handleCloseMenu = (e) => {
+    const handleCloseMenu = useCallback((e) => {
         e.preventDefault();
         e.stopPropagation();
         setAnchorPosition({});
-    };
+    }, []);
+
     return (
         <Card className="PaperShadow" sx={style} onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}>
             <CardContent sx={name === undefined ? { p: 0 } : {}} style={{ paddingBottom: 0 }}>
@@ -136,6 +155,21 @@ const CustomTable = ({ columns, orderBy, order, onOrderingUpdate, name, nameRigh
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
                     sx={pstyle}
+                    labelDisplayedRows={({ from, to, count }) => (<div>
+                        Page
+                        <TextField
+                            value={inputPage}
+                            onChange={handleInputPage}
+                            size="small" variant="standard"
+                            sx={{
+                                width: '30px', margin: '0px 5px 0px 5px',
+                                '& input': {
+                                    padding: '0', textAlign: 'center', fontSize: "0.875rem"
+                                }
+                            }}
+                        />
+                        / {Math.ceil(count / rowsPerPage)}
+                    </div>)}
                 />
             </CardContent>
         </Card>
