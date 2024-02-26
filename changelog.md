@@ -4,8 +4,7 @@
 
 1. Dedicated Statistics page for comprehensive chart and statistics information
 2. Provide pre-generated list of cities/cargos for Special Guest and Premium Plan
-3. Simplebar for profile popover (brief)
-4. Privacy settings
+3. Privacy settings
 
 ## v3.4.1
 
@@ -14,6 +13,7 @@
 3. Improved challenge job requirements input (added select with choices)
 4. Optimized challenge edit dialog render speed
 5. Optimized components render speed
+6. Added SimpleBar to profile popover
 
 ## v3.4.0
 

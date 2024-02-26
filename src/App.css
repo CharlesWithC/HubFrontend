@@ -97,3 +97,7 @@ a {
     overflow-x: scroll;
     -webkit-overflow-scrolling: touch;
 }
+
+.profile-popover-simplebar .simplebar-scrollbar:before {
+    right: 5px !important;
+}

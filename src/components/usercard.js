@@ -136,7 +136,8 @@ const UserCard = (props) => {
     const { apiPath, specialUsers, patrons, userConfig, vtcLevel, apiConfig, webConfig, allRoles, allPerms, users, setUsers, userProfiles, setUserProfiles, setMemberUIDs, curUser, curUserPerm, userSettings } = useContext(AppContext);
     const orderedRoles = useMemo(() => (Object.values(allRoles).sort((a, b) => a.order_id - b.order_id).map(role => role.id)), [allRoles]);
 
-    const bannerRef = useRef(null); // this is a real component reference
+    const modalBannerRef = useRef(null); // this is a real component reference
+    const popoverBannerRef = useRef(null); // this is a real component reference
     const availableTrackers = useMemo(() => {
         const result = [];
         if (apiConfig !== null) {
@@ -757,7 +758,7 @@ const UserCard = (props) => {
     }} fullWidth >
         <Card sx={{ padding: "5px", backgroundImage: `linear-gradient(${profileBackground[0]}, ${profileBackground[1]})` }}>
             {!userSettings.data_saver && <CardMedia
-                ref={bannerRef}
+                ref={modalBannerRef}
                 component="img"
                 image={profileBannerURL}
                 onError={(event) => {
@@ -789,7 +790,7 @@ const UserCard = (props) => {
                             </Tabs>
                         </Box>
                     </div>
-                    <SimpleBar style={{ height: `calc(100vh - 310px - ${(bannerRef.current !== null && bannerRef.current.height !== 0 ? bannerRef.current.height : 104.117)}px)` }}>
+                    <SimpleBar style={{ height: `calc(100vh - 310px - ${(modalBannerRef.current !== null && modalBannerRef.current.height !== 0 ? modalBannerRef.current.height : 104.117)}px)` }}>
                         <TabPanel value={tab} index={0}>
                             {user.bio !== "" && <>
                                 <Typography variant="body2" sx={{ fontWeight: 800 }}>
@@ -843,7 +844,24 @@ const UserCard = (props) => {
                                     value={newNote}
                                     onChange={(e) => setNewNote(e.target.value)}
                                     fullWidth multiline
-                                    size="small"
+                                    size="small" variant="standard"
+                                    placeholder="Click to add a note"
+                                    sx={{
+                                        paddingLeft: "3px", paddingRight: "3px",
+                                        '& input': {
+                                            padding: '0 !important', fontSize: "0.4rem"
+                                        },
+                                        '.MuiInput-underline:before': {
+                                            display: 'none'
+                                        },
+                                        '.MuiInput-underline:after': {
+                                            display: 'none'
+                                        },
+                                        '& .MuiInput-underline.Mui-focused:after': {
+                                            display: 'block',
+                                            transition: 'none'
+                                        }
+                                    }}
                                 />
                             </Box>
                             <Divider />
@@ -1508,6 +1526,7 @@ const UserCard = (props) => {
             <Card sx={{ maxWidth: 340, minWidth: 340, padding: "5px", backgroundImage: `linear-gradient(${profileBackground[0]}, ${profileBackground[1]})` }}>
                 {!userSettings.data_saver && <CardMedia
                     component="img"
+                    ref={popoverBannerRef}
                     image={profileBannerURL}
                     onError={(event) => {
                         event.target.src = `${apiPath}/member/banner?userid=${user.userid}`;
@@ -1530,58 +1549,77 @@ const UserCard = (props) => {
                         {users[user.uid] !== undefined && users[user.uid].activity !== null && users[user.uid].activity !== undefined && <Typography variant="body2">{GetActivity(tr, users[user.uid].activity)}</Typography>}
                         {user.uid === curUser.uid && !customizeProfileAck && userConfig[curUser.uid] === undefined && <Typography variant="body2" sx={{ color: theme.palette.info.main }}><a style={{ cursor: "pointer" }} onClick={() => { navigate("/settings/appearance"); }}>{tr("customize_your_profile_in_settings")}</a></Typography>}
                         <Divider sx={{ mt: "8px", mb: "8px" }} />
-                        {user.bio !== "" && <>
-                            <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                {tr("about_me").toUpperCase()}
-                            </Typography>
-                            <Typography variant="body2">
-                                <MarkdownRenderer>{user.bio}</MarkdownRenderer>
-                            </Typography>
-                        </>}
-                        <Grid container sx={{ mt: "10px" }}>
-                            <Grid item xs={6}>
+                        <SimpleBar className="profile-popover-simplebar" style={{ width: "calc(100% + 13px)", paddingRight: "13px", maxHeight: `calc(100vh - 260px - ${(popoverBannerRef.current !== null && popoverBannerRef.current.height !== 0 ? popoverBannerRef.current.height : 104.117)}px)` }}>
+                            {user.bio !== "" && <>
                                 <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                    {user.userid !== null && user.userid !== -1 ? `MEMBER` : `USER`} {tr("since").toUpperCase()}
-                                </Typography>
-                                {users[user.uid] !== undefined && <Typography variant="body2" sx={{ display: "inline-block" }}>
-                                    {getFormattedDate(userSettings.display_timezone, new Date(users[user.uid].join_timestamp * 1000)).split(" at ")[0]}
-                                </Typography>}
-                            </Grid>
-                            <Grid item xs={6}>
-                                <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                    {tr("tracker").toUpperCase()}
+                                    {tr("about_me").toUpperCase()}
                                 </Typography>
                                 <Typography variant="body2">
-                                    {trackerMapping[trackerInUse]}
+                                    <MarkdownRenderer>{user.bio}</MarkdownRenderer>
                                 </Typography>
+                            </>}
+                            <Grid container sx={{ mt: "10px" }}>
+                                <Grid item xs={6}>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                        {user.userid !== null && user.userid !== -1 ? `MEMBER` : `USER`} {tr("since").toUpperCase()}
+                                    </Typography>
+                                    {users[user.uid] !== undefined && <Typography variant="body2" sx={{ display: "inline-block" }}>
+                                        {getFormattedDate(userSettings.display_timezone, new Date(users[user.uid].join_timestamp * 1000)).split(" at ")[0]}
+                                    </Typography>}
+                                </Grid>
+                                <Grid item xs={6}>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                        {tr("tracker").toUpperCase()}
+                                    </Typography>
+                                    <Typography variant="body2">
+                                        {trackerMapping[trackerInUse]}
+                                    </Typography>
+                                </Grid>
                             </Grid>
-                        </Grid>
-                        {user.roles !== null && user.roles !== undefined && user.roles.length !== 0 && <Box sx={{ mt: "10px" }}>
-                            <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                {user.roles.length > 1 ? `ROLES` : `ROLE`}
-                            </Typography>
-                            {user.roles.map((role) => (
-                                <Chip
-                                    key={`role-${role}`}
-                                    avatar={<div style={{ marginLeft: "5px", width: "12px", height: "12px", backgroundColor: allRoles[role] !== undefined && allRoles[role].color !== undefined ? allRoles[role].color : "#777777", borderRadius: "100%" }} />}
-                                    label={allRoles[role] !== undefined ? allRoles[role].name : `Unknown Role (${role})`}
-                                    variant="outlined"
-                                    size="small"
-                                    sx={{ borderRadius: "5px", margin: "3px" }}
+                            {user.roles !== null && user.roles !== undefined && user.roles.length !== 0 && <Box sx={{ mt: "10px" }}>
+                                <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                    {user.roles.length > 1 ? `ROLES` : `ROLE`}
+                                </Typography>
+                                {user.roles.map((role) => (
+                                    <Chip
+                                        key={`role-${role}`}
+                                        avatar={<div style={{ marginLeft: "5px", width: "12px", height: "12px", backgroundColor: allRoles[role] !== undefined && allRoles[role].color !== undefined ? allRoles[role].color : "#777777", borderRadius: "100%" }} />}
+                                        label={allRoles[role] !== undefined ? allRoles[role].name : `Unknown Role (${role})`}
+                                        variant="outlined"
+                                        size="small"
+                                        sx={{ borderRadius: "5px", margin: "3px" }}
+                                    />
+                                ))}
+                            </Box>}
+                            <Box sx={{ mt: "10px" }}>
+                                <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                    {tr("note").toUpperCase()}
+                                </Typography>
+                                <TextField
+                                    value={newNote}
+                                    onChange={(e) => setNewNote(e.target.value)}
+                                    fullWidth multiline
+                                    size="small" variant="standard"
+                                    placeholder="Click to add a note"
+                                    sx={{
+                                        paddingLeft: "3px", paddingRight: "3px",
+                                        '& input': {
+                                            padding: '0 !important', fontSize: "0.4rem"
+                                        },
+                                        '.MuiInput-underline:before': {
+                                            display: 'none'
+                                        },
+                                        '.MuiInput-underline:after': {
+                                            display: 'none'
+                                        },
+                                        '& .MuiInput-underline.Mui-focused:after': {
+                                            display: 'block',
+                                            transition: 'none'
+                                        }
+                                    }}
                                 />
-                            ))}
-                        </Box>}
-                        <Box sx={{ mt: "10px" }}>
-                            <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                {tr("note").toUpperCase()}
-                            </Typography>
-                            <TextField
-                                value={newNote}
-                                onChange={(e) => setNewNote(e.target.value)}
-                                fullWidth multiline
-                                size="small"
-                            />
-                        </Box>
+                            </Box>
+                        </SimpleBar>
                     </CardContent>
                 </CardContent>
             </Card>
