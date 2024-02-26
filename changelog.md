@@ -2,19 +2,10 @@
 
 ## TODO
 
-1. Check and remove unnecessary `memo` quote and imports  
-2. Merge setSnackbarContent and setSnackbarSeverity, also move things like these to Context API to be handled by root wrapper
-3. Optimize "Members" tab to display/re-render data in multiple sections
-4. Optimize other pre-loading like member list - make them background loading
-5. Optimize memory consumption and performance with useMemo being used correctly
-6. Optimize page switch loading with useTransition
-7. Dedicated Statistics page for comprehensive chart and statistics information
-8. Provide pre-generated list of cities/cargos for Special Guest and Premium Plan
-9. Add loading placeholder effect
-10. Simplebar for profile popover (brief)
-11. Privacy settings
-12. Support API config update real-time reflection
-13. Add economy transaction list
+1. Dedicated Statistics page for comprehensive chart and statistics information
+2. Provide pre-generated list of cities/cargos for Special Guest and Premium Plan
+3. Simplebar for profile popover (brief)
+4. Privacy settings
 
 ## v3.4.1
 
@@ -22,6 +13,7 @@
 2. Added debounce in table page change to reduce unnecessary API calls
 3. Improved challenge job requirements input (added select with choices)
 4. Optimized challenge edit dialog render speed
+5. Optimized components render speed
 
 ## v3.4.0
 

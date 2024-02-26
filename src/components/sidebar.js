@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { AppContext } from '../context';
@@ -15,14 +15,14 @@ const SideBar = (props) => {
 
     const navigate = useNavigate();
     const [mobileOpen, setMobileOpen] = useState(false);
-    const handleDrawerToggle = () => {
+    const handleDrawerToggle = useCallback(() => {
         setMobileOpen(!mobileOpen);
-    };
+    }, [mobileOpen]);
 
     const [selectedIndex, setSelectedIndex] = useState(-1);
-    const handleListItemClick = (event, index) => {
+    const handleListItemClick = useCallback((event, index) => {
         setSelectedIndex(index);
-    };
+    }, []);
 
     const [reload, setReload] = useState(+new Date());
     const [reload404, setReload404] = useState(false);
@@ -42,68 +42,72 @@ const SideBar = (props) => {
         };
     }, []);
 
-    const plugins = webConfig.plugins;
+    const plugins = useMemo(() => (webConfig.plugins), []);
     // const allPlugins = ["announcement", "application", "challenge", "division", "downloads", "economy", "event", "poll"];
-    const pluginControl = { "announcement": ["announcement"], "application": ["new_application", "my_application", "all_application"], "challenge": ["challenge"], "division": ["division"], "downloads": ["downloads"], "economy": ["economy"], "event": ["event"], "poll": ["poll"] };
-    const menuName = { "overview": tr("overview"), "gallery": tr("gallery"), "announcement": tr("announcements"), "downloads": tr("downloads"), "poll": tr("polls"), "live_map": tr("map"), "delivery": tr("deliveries"), "challenge": tr("challenges"), "division": tr("divisions"), "economy": tr("economy"), "event": tr("events"), "member": tr("members"), "leaderboard": tr("leaderboard"), "ranking": tr("rankings"), "new_application": tr("new_application"), "my_application": tr("my_applications"), "all_application": tr("all_applications"), "member_list": tr("member_list"), "external_user": tr("external_users"), "audit_log": tr("audit_log"), "configuration": tr("configuration") };
-    const menuIcon = { "overview": <AnalyticsRounded />, "gallery": <CollectionsRounded />, "announcement": <NewspaperRounded />, "downloads": <BrowserUpdatedRounded />, "poll": <BallotRounded />, "live_map": <MapRounded />, "delivery": <LocalShippingRounded />, "challenge": <ChecklistRounded />, "division": <WarehouseRounded />, "economy": <MapsHomeWorkRounded />, "event": <EventNoteRounded />, "member": <PeopleAltRounded />, "leaderboard": <LeaderboardRounded />, "ranking": <EmojiEventsRounded />, "new_application": <SendRounded />, "my_application": <MarkAsUnreadRounded />, "all_application": <AllInboxRounded />, "member_list": <PeopleAltRounded />, "external_user": <PersonAddAltRounded />, "audit_log": <VerifiedUserRounded />, "configuration": <ConstructionRounded /> };
-    const menuRoute = { "overview": "/", "gallery": "/gallery", "announcement": "/announcement", "downloads": "/downloads", "poll": "/poll", "live_map": "/map", "delivery": "/delivery", "challenge": "/challenge", "division": "/division", "economy": "/economy", "event": "/event", "member": "/member", "leaderboard": "/leaderboard", "ranking": "/ranking", "new_application": "/application/new", "my_application": "/application/my", "all_application": "/application/all", "member_list": "/member-list", "external_user": "/external-user", "audit_log": "/audit-log", "configuration": "/config" };
+    const pluginControl = useMemo(() => ({ "announcement": ["announcement"], "application": ["new_application", "my_application", "all_application"], "challenge": ["challenge"], "division": ["division"], "downloads": ["downloads"], "economy": ["economy"], "event": ["event"], "poll": ["poll"] }), []);
+    const menuName = useMemo(() => ({ "overview": tr("overview"), "gallery": tr("gallery"), "announcement": tr("announcements"), "downloads": tr("downloads"), "poll": tr("polls"), "live_map": tr("map"), "delivery": tr("deliveries"), "challenge": tr("challenges"), "division": tr("divisions"), "economy": tr("economy"), "event": tr("events"), "member": tr("members"), "leaderboard": tr("leaderboard"), "ranking": tr("rankings"), "new_application": tr("new_application"), "my_application": tr("my_applications"), "all_application": tr("all_applications"), "member_list": tr("member_list"), "external_user": tr("external_users"), "audit_log": tr("audit_log"), "configuration": tr("configuration") }), []);
+    const menuIcon = useMemo(() => ({ "overview": <AnalyticsRounded />, "gallery": <CollectionsRounded />, "announcement": <NewspaperRounded />, "downloads": <BrowserUpdatedRounded />, "poll": <BallotRounded />, "live_map": <MapRounded />, "delivery": <LocalShippingRounded />, "challenge": <ChecklistRounded />, "division": <WarehouseRounded />, "economy": <MapsHomeWorkRounded />, "event": <EventNoteRounded />, "member": <PeopleAltRounded />, "leaderboard": <LeaderboardRounded />, "ranking": <EmojiEventsRounded />, "new_application": <SendRounded />, "my_application": <MarkAsUnreadRounded />, "all_application": <AllInboxRounded />, "member_list": <PeopleAltRounded />, "external_user": <PersonAddAltRounded />, "audit_log": <VerifiedUserRounded />, "configuration": <ConstructionRounded /> }), []);
+    const menuRoute = useMemo(() => ({ "overview": "/", "gallery": "/gallery", "announcement": "/announcement", "downloads": "/downloads", "poll": "/poll", "live_map": "/map", "delivery": "/delivery", "challenge": "/challenge", "division": "/division", "economy": "/economy", "event": "/event", "member": "/member", "leaderboard": "/leaderboard", "ranking": "/ranking", "new_application": "/application/new", "my_application": "/application/my", "all_application": "/application/all", "member_list": "/member-list", "external_user": "/external-user", "audit_log": "/audit-log", "configuration": "/config" }), []);
 
-    let menu = [];
-    let toRemove = [];
+    const menu = useMemo(() => {
+        let menu = [];
+        let toRemove = [];
 
-    if (curUID === null) {
-        menu = [["overview", "announcement", "gallery"], ["live_map", "delivery", "event"]];
-        if (webConfig.gallery.length === 0) {
-            toRemove.push("gallery");
-        } else {
-            toRemove = toRemove.filter(item => item !== "gallery");
-        }
-    } else {
-        menu = [["overview", "announcement", "gallery", "downloads", "poll"], ["live_map", "delivery", "challenge", "division", "event", "economy"], ["member", "leaderboard", "ranking"], ["new_application", "my_application", "all_application"], ["member_list", "external_user", "audit_log", "configuration"]];
-        if (!curUserPerm.includes("administrator")) {
-            if (!curUserPerm.includes("driver") || curUser.userid === -1) {
-                toRemove = ["downloads", "challenge", "division", "economy", "member", "leaderboard", "ranking", "external_user", "audit_log", "configuration"];
-            }
-            if (!curUserPerm.includes("update_config") && !curUserPerm.includes("reload_config")) {
-                toRemove.push("configuration");
-            } else {
-                toRemove = toRemove.filter(item => item !== "configuration");
-            }
-            if (!curUserPerm.includes("manage_profiles") && !curUserPerm.includes("view_external_user_list") && !curUserPerm.includes("ban_users") && !curUserPerm.includes("disable_mfa") && !curUserPerm.includes("update_connections") && !curUserPerm.includes("delete_connections") && !curUserPerm.includes("delete_users")) {
-                toRemove.push("external_user");
-                toRemove.push("member_list");
-            } else {
-                toRemove = toRemove.filter(item => item !== "external_user");
-                toRemove = toRemove.filter(item => item !== "member_list");
-            }
-            if (!curUserPerm.includes("manage_applications")) {
-                toRemove.push("all_application");
-            } else {
-                toRemove = toRemove.filter(item => item !== "all_application");
-            }
-            if (!curUserPerm.includes("view_audit_log")) {
-                toRemove.push("audit_log");
-            } else {
-                toRemove = toRemove.filter(item => item !== "audit_log");
-            }
-            if (webConfig.gallery.length === 0 && !curUserPerm.includes("manage_gallery")) {
+        if (curUID === null) {
+            menu = [["overview", "announcement", "gallery"], ["live_map", "delivery", "event"]];
+            if (webConfig.gallery.length === 0) {
                 toRemove.push("gallery");
             } else {
                 toRemove = toRemove.filter(item => item !== "gallery");
             }
+        } else {
+            menu = [["overview", "announcement", "gallery", "downloads", "poll"], ["live_map", "delivery", "challenge", "division", "event", "economy"], ["member", "leaderboard", "ranking"], ["new_application", "my_application", "all_application"], ["member_list", "external_user", "audit_log", "configuration"]];
+            if (!curUserPerm.includes("administrator")) {
+                if (!curUserPerm.includes("driver") || curUser.userid === -1) {
+                    toRemove = ["downloads", "challenge", "division", "economy", "member", "leaderboard", "ranking", "external_user", "audit_log", "configuration"];
+                }
+                if (!curUserPerm.includes("update_config") && !curUserPerm.includes("reload_config")) {
+                    toRemove.push("configuration");
+                } else {
+                    toRemove = toRemove.filter(item => item !== "configuration");
+                }
+                if (!curUserPerm.includes("manage_profiles") && !curUserPerm.includes("view_external_user_list") && !curUserPerm.includes("ban_users") && !curUserPerm.includes("disable_mfa") && !curUserPerm.includes("update_connections") && !curUserPerm.includes("delete_connections") && !curUserPerm.includes("delete_users")) {
+                    toRemove.push("external_user");
+                    toRemove.push("member_list");
+                } else {
+                    toRemove = toRemove.filter(item => item !== "external_user");
+                    toRemove = toRemove.filter(item => item !== "member_list");
+                }
+                if (!curUserPerm.includes("manage_applications")) {
+                    toRemove.push("all_application");
+                } else {
+                    toRemove = toRemove.filter(item => item !== "all_application");
+                }
+                if (!curUserPerm.includes("view_audit_log")) {
+                    toRemove.push("audit_log");
+                } else {
+                    toRemove = toRemove.filter(item => item !== "audit_log");
+                }
+                if (webConfig.gallery.length === 0 && !curUserPerm.includes("manage_gallery")) {
+                    toRemove.push("gallery");
+                } else {
+                    toRemove = toRemove.filter(item => item !== "gallery");
+                }
+            }
         }
-    }
 
-    if (vtcLevel < 1) toRemove.push("gallery");
+        if (vtcLevel < 1) toRemove.push("gallery");
 
-    for (let key in pluginControl) {
-        if (!plugins.includes(key)) {
-            toRemove = toRemove.concat(pluginControl[key]);
+        for (let key in pluginControl) {
+            if (!plugins.includes(key)) {
+                toRemove = toRemove.concat(pluginControl[key]);
+            }
         }
-    }
-    menu = menu.map(subMenu => subMenu.filter(item => (!toRemove.includes(item))));
-    menu = menu.filter(subMenu => subMenu.length > 0);
+        menu = menu.map(subMenu => subMenu.filter(item => (!toRemove.includes(item))));
+        menu = menu.filter(subMenu => subMenu.length > 0);
+
+        return menu;
+    }, [webConfig, curUID, curUser, curUserPerm, vtcLevel]);
 
     useEffect(() => {
         let routeIndex = {};

@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '../context';
 
@@ -23,54 +23,50 @@ const LargeUserCard = ({ user, color }) => {
 const Members = () => {
     const { t: tr } = useTranslation();
     const { allRoles, users, memberUIDs } = useContext(AppContext);
-    const allMembers = memberUIDs.map((uid) => users[uid]);
+    const allMembers = useMemo(() => memberUIDs.map((uid) => users[uid]), [memberUIDs, users]);
 
-    let members = allMembers;
-    let uniqueUserIds = [];
-    members = members.filter(member => {
-        if (uniqueUserIds.includes(member.userid)) {
-            return false;
-        } else {
-            uniqueUserIds.push(member.userid);
-            return true;
-        }
-    });
-    let roles = Object.values(allRoles);
-    for (let i = 0; i < roles.length; i++) {
-        if (roles[i].display_order_id === undefined) {
-            roles[i].display_order_id = roles[i].order_id;
-        } else {
-            roles[i].display_order_id = parseInt(roles[i].display_order_id);
-        }
-    }
-    roles.sort((a, b) =>
-        a.display_order_id - b.display_order_id ||
-        a.order_id - b.order_id ||
-        a.id - b.id
-    );
-
-    let groups = [];
-    let norole_group = [];
-    for (let i = 0; i < roles.length; i++) {
-        if (roles[i].display_order_id === -1) continue;
-        let group = [];
-        for (let j = 0; j < members.length; j++) {
-            if (members[j].roles.includes(roles[i].id)) {
-                group.push(members[j]);
+    const roles = useMemo(() => {
+        let roles = Object.values(allRoles);
+        for (let i = 0; i < roles.length; i++) {
+            if (roles[i].display_order_id === undefined) {
+                roles[i].display_order_id = roles[i].order_id;
+            } else {
+                roles[i].display_order_id = parseInt(roles[i].display_order_id);
             }
         }
-        if (group.length !== 0) {
-            groups.push({ "group": roles[i].name, "color": roles[i].color, "description": roles[i].description, "users": group });
+        roles.sort((a, b) =>
+            a.display_order_id - b.display_order_id ||
+            a.order_id - b.order_id ||
+            a.id - b.id
+        );
+        return roles;
+    }, [allRoles]);
+
+    const groups = useMemo(() => {
+        let groups = [];
+        let norole_group = [];
+        for (let i = 0; i < roles.length; i++) {
+            if (roles[i].display_order_id === -1) continue;
+            let group = [];
+            for (let j = 0; j < allMembers.length; j++) {
+                if (allMembers[j].roles.includes(roles[i].id)) {
+                    group.push(allMembers[j].uid);
+                }
+            }
+            if (group.length !== 0) {
+                groups.push({ "group": roles[i].name, "color": roles[i].color, "description": roles[i].description, "uids": group });
+            }
         }
-    }
-    for (let i = 0; i < members.length; i++) {
-        if (members[i].roles.length === 0) {
-            norole_group.push(members[i]);
+        for (let i = 0; i < allMembers.length; i++) {
+            if (allMembers[i].roles.length === 0) {
+                norole_group.push(allMembers[i].uid);
+            }
         }
-    }
-    if (norole_group.length > 0) {
-        groups.push({ "group": tr("no_role"), "description": tr("these_users_have_no_role_assigned"), "users": norole_group });
-    }
+        if (norole_group.length > 0) {
+            groups.push({ "group": tr("no_role"), "description": tr("these_users_have_no_role_assigned"), "uids": norole_group });
+        }
+        return groups;
+    }, [roles, allMembers]);
 
     return (<div style={{ width: "100%" }}>
         {groups.map((group) => (<div key={group.group}>
@@ -82,9 +78,9 @@ const Members = () => {
             </Tooltip>
             <div style={{ display: 'flex', justifyContent: 'center' }}>
                 <Grid container spacing={2} justifyContent="center">
-                    {group.users.map((user) => (
-                        <Grid item key={`${group.group}-${user.userid}`} xs={6} sm={6} md={4} lg={2} sx={{ minWidth: 150 }}>
-                            <LargeUserCard user={user} />
+                    {group.uids.map((uid) => (
+                        <Grid item key={`${group.group}-${uid}`} xs={6} sm={6} md={4} lg={2} sx={{ minWidth: 150 }}>
+                            <LargeUserCard user={users[uid]} />
                         </Grid>
                     ))}
                 </Grid>
