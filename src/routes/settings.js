@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AppContext, ThemeContext } from '../context';
 import { useTranslation } from 'react-i18next';
 import i18n from '../i18n';
+import { debounce } from 'lodash';
 
 import { Card, CardMedia, CardContent, Box, Tabs, Tab, Grid, Typography, Button, ButtonGroup, IconButton, Snackbar, Alert, useTheme, MenuItem, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Slider, Divider, Chip, Tooltip, useMediaQuery } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -120,6 +121,15 @@ const Settings = ({ defaultTab = 0 }) => {
         "poll_result": tr("poll_result")
     }), []);
     const NOTIFICATION_TYPES = useMemo(() => Object.keys(NOTIFICATION_NAMES), []);
+    const PRIVACY_ATTRIBUTES = useMemo(() => ({
+        "role_history": "Hide role history",
+        "ban_history": "Hide ban history",
+        "email": "Hide email",
+        "account_connections": "Hide account connections",
+        "activity": "Hide activity",
+        "public_profile": "Hide profile from external users"
+    }), []);
+    const PRIVACY_TYPES = useMemo(() => Object.keys(PRIVACY_ATTRIBUTES), []);
 
     const [tab, setTab] = useState(defaultTab);
     const handleChange = useCallback((event, newValue) => {
@@ -414,6 +424,47 @@ const Settings = ({ defaultTab = 0 }) => {
 
         window.loading -= 1;
     }, [apiPath, notificationSettings]);
+
+    const [privacySettings, setPrivacySettings] = useState(null);
+    const reloadPrivacySettings = useCallback(async () => {
+        const [_privacySettings] = await makeRequestsWithAuth([`${apiPath}/user/privacy`]);
+        let newPrivacySettings = [];
+        for (let i = 0; i < PRIVACY_TYPES.length; i++) {
+            if (_privacySettings[PRIVACY_TYPES[i]]) {
+                newPrivacySettings.push({ value: PRIVACY_TYPES[i], label: PRIVACY_ATTRIBUTES[PRIVACY_TYPES[i]] });
+            }
+        }
+        setPrivacySettings(newPrivacySettings);
+    }, [apiPath]);
+    const debounceUpdatePrivacySettings = debounce(async (newSettings) => {
+        if(window.privacyUpdating) return;
+        window.privacyUpdating = true;
+        window.loading += 1;
+
+        const objSettings = JSON.parse(JSON.stringify(PRIVACY_ATTRIBUTES));
+        for (let i = 0; i < PRIVACY_TYPES.length; i++) {
+            objSettings[PRIVACY_TYPES[i]] = false;
+        }
+        for (let i = 0; i < newSettings.length; i++) {
+            objSettings[newSettings[i].value] = true;
+        }
+
+        let resp = await axios({ url: `${apiPath}/user/privacy`, method: "PATCH", data: { ...objSettings }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            setSnackbarContent("Updated privacy settings");
+            setSnackbarSeverity("success");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+
+        window.loading -= 1;
+        delete window.privacyUpdating;
+    }, 3000);
+    const updatePrivacySettings = useCallback(async (newSettings) => {
+        setPrivacySettings(newSettings);
+        debounceUpdatePrivacySettings(newSettings);
+    }, [apiPath, privacySettings]);
 
     const [userLanguage, setUserLanguage] = useState(userSettings.language);
     const [languageLoading, setLanguageLoading] = useState(false);
@@ -831,17 +882,8 @@ const Settings = ({ defaultTab = 0 }) => {
     }, [apiPath]);
 
     useEffect(() => {
-        async function doLoad() {
-            const [_notificationSettings] = await makeRequestsWithAuth([`${apiPath}/user/notification/settings`]);
-            let newNotificationSettings = [];
-            for (let i = 0; i < NOTIFICATION_TYPES.length; i++) {
-                if (_notificationSettings[NOTIFICATION_TYPES[i]]) {
-                    newNotificationSettings.push({ value: NOTIFICATION_TYPES[i], label: NOTIFICATION_NAMES[NOTIFICATION_TYPES[i]] });
-                }
-            }
-            setNotificationSettings(newNotificationSettings);
-        }
-        doLoad();
+        reloadNotificationSettings();
+        reloadPrivacySettings();
     }, [apiPath]);
 
     const [sessions, setSessions] = useState([]);
@@ -1614,6 +1656,28 @@ const Settings = ({ defaultTab = 0 }) => {
         </TabPanel>
         <TabPanel value={tab} index={3}>
             <Grid container spacing={2}>
+                <Grid item xs={12} sm={12} md={12} lg={12}>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Privacy Settings<IconButton size="small" aria-label={tr("edit")} onClick={(e) => { reloadPrivacySettings(); }}><FontAwesomeIcon icon={faRefresh} /></IconButton ></Typography>
+                    <Typography variant="body2">- Control what information about you internal members and external users may see.</Typography>
+                    <Typography variant="body2">- Team members with certain permissions may still see relevant information regardless of your settings.</Typography>
+                    {privacySettings !== null && <Select
+                        defaultValue={privacySettings}
+                        isMulti
+                        name="colors"
+                        options={Object.keys(PRIVACY_ATTRIBUTES)
+                            .map((notification_type) => ({
+                                value: notification_type,
+                                label: PRIVACY_ATTRIBUTES[notification_type]
+                            }))}
+                        className="basic-multi-select"
+                        classNamePrefix="select"
+                        styles={customSelectStyles(theme)}
+                        value={privacySettings}
+                        onChange={updatePrivacySettings}
+                        menuPortalTarget={document.body}
+                    />}
+                    {privacySettings === null && <Typography variant="body2">{tr("loading")}</Typography>}
+                </Grid>
                 <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("password_login")}</Typography>
                     <br />

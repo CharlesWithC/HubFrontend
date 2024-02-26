@@ -4,7 +4,6 @@
 
 1. Dedicated Statistics page for comprehensive chart and statistics information
 2. Provide pre-generated list of cities/cargos for Special Guest and Premium Plan
-3. Privacy settings
 
 ## v3.4.1
 
