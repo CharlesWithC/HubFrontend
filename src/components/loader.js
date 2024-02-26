@@ -31,7 +31,6 @@ const Loader = ({ onLoaderLoaded }) => {
                 setLoaderAnimation(false);
                 setTitle(tr("drivers_hub"));
                 setVtcLogo(await loadImageAsBase64(`./logo.png`));
-                setBgSrc(null);
                 setUnknownDomain(true);
                 setLoadMessage(<>{tr("drivers_hub_not_found")}<br />{tr("no_drivers_hub_under_domain")}<br /><br /><a href="https://drivershub.charlws.com/">The Drivers Hub Project (CHub)</a></>);
                 return;

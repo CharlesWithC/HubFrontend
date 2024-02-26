@@ -9,18 +9,19 @@
 5. Optimize memory consumption and performance with useMemo being used correctly
 6. Optimize page switch loading with useTransition
 7. Dedicated Statistics page for comprehensive chart and statistics information
-8. Improve challenge plugin (better form, include more select like for game (eut2/ats))
-9. Provide pre-generated list of cities/cargos for Special Guest and Premium Plan
-10. Add loading placeholder effect
-11. Simplebar for profile popover (brief)
-12. Privacy settings
-13. Support API config update real-time reflection
-14. Add economy transaction list
+8. Provide pre-generated list of cities/cargos for Special Guest and Premium Plan
+9. Add loading placeholder effect
+10. Simplebar for profile popover (brief)
+11. Privacy settings
+12. Support API config update real-time reflection
+13. Add economy transaction list
 
 ## v3.4.1
 
 1. Added inputable page number in tables
 2. Added debounce in table page change to reduce unnecessary API calls
+3. Improved challenge job requirements input (added select with choices)
+4. Optimized challenge edit dialog render speed
 
 ## v3.4.0
 
