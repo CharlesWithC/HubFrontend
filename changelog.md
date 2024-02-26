@@ -3,7 +3,6 @@
 ## TODO
 
 1. Dedicated Statistics page for comprehensive chart and statistics information
-2. Provide pre-generated list of cities/cargos for Special Guest and Premium Plan
 
 ## v3.4.1
 

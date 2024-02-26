@@ -45,7 +45,7 @@ export const AppContext = createContext({
     applicationTypes: null, setApplicationTypes: () => { },
     divisions: null, setDivisions: () => { },
 
-    dlogDetailsCache: {}, setDlogDetailsCache: () => { },
+    dlogDetailsCache: {}, setDlogDetailsCache: () => { }, // dlogDetails from ATM database
     economyCache: { config: null, trucks: [], garagesMap: {}, merchMap: {} }, setEconomyCache: () => { },
     allUsersCache: [], setAllUsersCache: () => { }, // only loaded to purge inactive
 
@@ -178,7 +178,8 @@ export const AppContextProvider = ({ children }) => {
 
     // background load
     const loadDlogDetails = useCallback(async () => {
-        let [resp] = await makeRequestsAuto([{ url: `${apiPath}/dlog/statistics/details`, auth: true }]);
+        // use atm's data
+        let [resp] = await makeRequestsAuto([{ url: `https://drivershub.charlws.com/atm/dlog/statistics/details`, auth: true }]);
         if (resp.error === undefined) {
             setDlogDetailsCache(resp);
         }
