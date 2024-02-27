@@ -18,6 +18,7 @@ import Loader from './components/loader';
 import Redirect from './components/redirect';
 import UpgradeCard from './routes/sponsor';
 import Overview from './routes/overview';
+import Statistics from './routes/statistics';
 import Gallery from './routes/gallery';
 import Announcement from './routes/announcement';
 import Downloads from './routes/downloads';
@@ -190,7 +191,7 @@ function App() {
     if (window.isElectron && webConfig !== null) {
         window.electron.ipcRenderer.send("presence-settings", userSettings.presence);
 
-        const STATUS_NAMES = { "/": "Viewing Overview", "/overview": "Viewing Overview", "/gallery": "Viewing Gallery", "/announcement": "Viewing Announcements", "/downloads": "Viewing Downloads", "/poll": "Viewing Polls", "/map": "Viewing Map", "/delivery": "Viewing Deliveries", "/challenge": "Viewing Challenges", "/division": "Viewing Divisions", "/economy": "Viewing Economy", "/event": "Viewing Events", "/member": "Viewing Members", "/leaderboard": "Viewing Leaderboard", "/ranking": "Viewing Rankings", "/apply": "Submitting Application", "/application/new": "Submitting Application", "/application/my": "Viewing Own Applications", "/application/all": "Viewing All Applications", "/member-list": "Viewing Member List", "/external-user": "Viewing External Users", "/audit-log": "Viewing Audit Log", "/config": "Modifying Configuration", "/settings": "Modifying Settings", "/sponsor": "Sponsoring...", "/supporters": "Viewing Supporters", "/badges": "Viewing Badges", "/notifications": "Viewing Notifications", "/auth": "Logging in..." };
+        const STATUS_NAMES = { "/": "Viewing Overview", "/overview": "Viewing Overview", "/statistics": "Viewing Statistics", "/gallery": "Viewing Gallery", "/announcement": "Viewing Announcements", "/downloads": "Viewing Downloads", "/poll": "Viewing Polls", "/map": "Viewing Map", "/delivery": "Viewing Deliveries", "/challenge": "Viewing Challenges", "/division": "Viewing Divisions", "/economy": "Viewing Economy", "/event": "Viewing Events", "/member": "Viewing Members", "/leaderboard": "Viewing Leaderboard", "/ranking": "Viewing Rankings", "/apply": "Submitting Application", "/application/new": "Submitting Application", "/application/my": "Viewing Own Applications", "/application/all": "Viewing All Applications", "/member-list": "Viewing Member List", "/external-user": "Viewing External Users", "/audit-log": "Viewing Audit Log", "/config": "Modifying Configuration", "/settings": "Modifying Settings", "/sponsor": "Sponsoring...", "/supporters": "Viewing Supporters", "/badges": "Viewing Badges", "/notifications": "Viewing Notifications", "/auth": "Logging in..." };
         let path = window.location.pathname;
         if (path.startsWith("/auth")) path = "/auth";
         if (Object.keys(STATUS_NAMES).includes(path)) {
@@ -302,6 +303,7 @@ function App() {
                                     <Route path="/settings/sessions" element={<Settings defaultTab={4} />}></Route>
                                     <Route path="/notifications" element={<Notifications />}></Route>
                                     <Route path="/overview" element={<Overview />}></Route>
+                                    <Route path="/statistics" element={<Statistics />}></Route>
                                     <Route path="/gallery" element={<Gallery />}></Route>
                                     <Route path="/announcement" element={<Announcement />}></Route>
                                     <Route path="/downloads" element={<Downloads />}></Route>

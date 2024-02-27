@@ -2,7 +2,7 @@
 
 ## TODO
 
-1. Dedicated Statistics page for comprehensive chart and statistics information
+1. Cache page data (e.g. table options)
 
 ## v3.4.1
 
@@ -12,6 +12,7 @@
 4. Optimized challenge edit dialog render speed
 5. Optimized components render speed
 6. Added SimpleBar to profile popover
+7. Added statistics tab
 
 ## v3.4.0
 

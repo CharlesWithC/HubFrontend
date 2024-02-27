@@ -215,4 +215,4 @@ const Overview = () => {
         </Grid></>);
 };
 
-export default memo(Overview);
+export default Overview;

@@ -1,11 +1,18 @@
-import React, { useEffect, useRef } from 'react';
-import Chart from 'chart.js/auto';
+import { useEffect, useRef, useContext } from 'react';
+import { AppContext } from '../context';
+
 import { Card, CardContent, Typography, Chip } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
+import Chart from 'chart.js/auto';
+
+import { getTimezoneOffset } from '../functions';
+
 const StatCard = (props) => {
-    let { icon, title, latest, inputs, size, height } = props;
+    let { icon, title, latest, inputs, originalInputs, xAxis, size, height } = props;
+
     const theme = useTheme();
+    const { userSettings } = useContext(AppContext);
 
     if (height === undefined) height = "100%";
 
@@ -57,7 +64,24 @@ const StatCard = (props) => {
                     display: false,
                 },
                 tooltip: {
-                    enabled: false,
+                    enabled: originalInputs !== undefined,
+                    callbacks: originalInputs === undefined ? {} : {
+                        title: function (context) {
+                            return title;
+                        },
+                        label: function (context) {
+                            let endTime = new Date(xAxis[context.dataIndex].endTime * 1000 - getTimezoneOffset(userSettings.display_timezone) * 60000).toISOString().replaceAll("T", " ").split(".")[0];
+
+                            // remove the seconds part
+                            endTime = endTime.split(":");
+                            endTime.pop();
+                            endTime = endTime.join(":");
+
+                            if (originalInputs.length === 100) endTime = endTime.split(" ")[0];
+
+                            return [originalInputs[context.dataIndex], endTime];
+                        }
+                    }
                 },
             },
             layout: {
