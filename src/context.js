@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, createContext } from 'react';
+import _ from 'lodash';
 
-import { makeRequestsAuto, makeRequestsWithAuth, getTodayUTC } from "./functions";
+import { makeRequestsAuto, makeRequestsWithAuth, getTodayUTC, readLS, writeLS } from "./functions";
 
 export const AppContext = createContext({
     apiPath: "", setApiPath: () => { },
@@ -462,6 +463,43 @@ export const CacheContextProvider = ({ children }) => {
     const [cache, setCache] = useState(DEFAULT_CACHE);
 
     const value = useMemo(() => ({ cache, setCache }), [cache]);
+
+    useEffect(() => {
+        // Get the initial listParam values from localStorage
+        const initialListParamCache = readLS("cache-list-param", window.dhhost) || {};
+
+        // Overwrite the default cache's listParams with the values from localStorage
+        Object.keys(initialListParamCache).forEach(path => {
+            setCache(prevCache => _.set({ ...prevCache }, path, initialListParamCache[path]));
+        });
+    }, []);
+    useEffect(() => {
+        // Get the initial listParam values from localStorage
+        const initialListParamCache = readLS("cache-list-param", window.dhhost) || {};
+
+        // Check if any listParam values have changed
+        const listParamPaths = [
+            'challenge.listParam',
+            'delivery_list.listParam',
+            'external_user.userListParam',
+            'external_user.banListParam',
+            'leaderboard.listParam',
+            'member_list.listParam'
+        ];
+
+        const listParamCache = listParamPaths.reduce((acc, path) => {
+            const listParamValue = _.get(cache, path);
+            if (!_.isEqual(listParamValue, initialListParamCache[path])) {
+                acc[path] = listParamValue;
+            }
+            return acc;
+        }, {});
+
+        // If any listParam values have changed, save them to localStorage
+        if (!_.isEmpty(listParamCache)) {
+            writeLS("cache-list-param", listParamCache, window.dhhost);
+        }
+    }, [cache]);
 
     return (
         <CacheContext.Provider value={value}>
