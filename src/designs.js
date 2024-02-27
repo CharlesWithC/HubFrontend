@@ -153,6 +153,15 @@ export function getDesignTokens({ vtcBackground, customBackground, vtcLevel, use
     };
 
     let compoBase = {
+        MuiOutlinedInput: {
+            styleOverrides: {
+                root: {
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'rgba(64, 64, 64, 0.5)',
+                    },
+                },
+            },
+        },
         MuiTypography: {
             styleOverrides: {
                 h1: {
@@ -263,10 +272,10 @@ export function getDesignTokens({ vtcBackground, customBackground, vtcLevel, use
                 root: {
                     borderRadius: '5px',
                     '&.Mui-selected': {
-                        backgroundColor: darkenColor(bgBase[customMode].default, darkenRatio[customMode], use_custom_theme),
+                        backgroundColor: darkenColor(bgBase[customMode].default, Math.max(darkenRatio[customMode], 0.2), use_custom_theme),
                     },
                     '&.Mui-selected:hover': {
-                        backgroundColor: darkenColor(bgBase[customMode].default, darkenRatio[customMode], use_custom_theme),
+                        backgroundColor: darkenColor(bgBase[customMode].default, Math.max(darkenRatio[customMode], 0.2), use_custom_theme),
                     },
                 },
             },
