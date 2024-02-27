@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState, useCallback, useContext, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { AppContext } from '../context';
+import { AppContext, CacheContext } from '../context';
 
 import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Snackbar, Alert, useTheme } from '@mui/material';
 import { PermContactCalendarRounded, LocalShippingRounded, EuroRounded, AttachMoneyRounded, RouteRounded, LocalGasStationRounded, EmojiEventsRounded, PeopleAltRounded, RefreshRounded, VerifiedOutlined } from '@mui/icons-material';
@@ -103,6 +103,8 @@ const DivisionsMemo = memo(({ doReload }) => {
 const DivisionsDlog = memo(({ doReload }) => {
     const { t: tr } = useTranslation();
     const { apiPath, curUserPerm, userSettings } = useContext(AppContext);
+    const { cache, setCache } = useContext(CacheContext);
+    const theme = useTheme();
 
     const columns = [
         { id: 'display_logid', label: 'ID' },
@@ -115,17 +117,22 @@ const DivisionsDlog = memo(({ doReload }) => {
         { id: 'time', label: tr("time") },
     ];
 
-    const [dlogList, setDlogList] = useState([]);
-    const [totalItems, setTotalItems] = useState(0);
-    const [page, setPage] = useState(1);
-    const pageRef = useRef(1);
-    const [pageSize, setPageSize] = useState(userSettings.default_row_per_page);
-
-    const theme = useTheme();
-
+    const [dlogList, setDlogList] = useState(cache.division.dlog.dlogList);
+    const [page, setPage] = useState(cache.division.dlog.page);
+    const pageRef = useRef(cache.division.dlog.page);
+    const [pageSize, setPageSize] = useState(cache.division.dlog.pageSize === null ? userSettings.default_row_per_page : cache.division.dlog.pageSize === null);
+    const [totalItems, setTotalItems] = useState(cache.division.dlog.totalItems);
     useEffect(() => {
         pageRef.current = page;
     }, [page]);
+
+    useEffect(() => {
+        return () => {
+            // Pending may overwrite the data so we need to use the latest data
+            setCache(cache => ({ ...cache, division: { ...cache.division, dlog: { dlogList, page, pageSize, totalItems } } }));
+        };
+    }, [dlogList, page, pageSize, totalItems]);
+
     useEffect(() => {
         async function doLoad() {
             window.loading += 1;
@@ -154,13 +161,14 @@ const DivisionsDlog = memo(({ doReload }) => {
     }
 
     return <>
-        {dlogList.length !== 0 && <CustomTable columns={columns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} style={{ marginTop: "15px" }} pstyle={checkUserPerm(curUserPerm, ["administrator", "manage_divisions"]) ? {} : { marginRight: "60px" }} name={<><FontAwesomeIcon icon={faWarehouse} />&nbsp;&nbsp;{tr("recent_validated_division_deliveries")}</>} />}
+        {dlogList.length !== 0 && <CustomTable page={page} columns={columns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage= {pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} style={{ marginTop: "15px" }} pstyle={checkUserPerm(curUserPerm, ["administrator", "manage_divisions"]) ? {} : { marginRight: "60px" }} name={<><FontAwesomeIcon icon={faWarehouse} />&nbsp;&nbsp;{tr("recent_validated_division_deliveries")}</>} />}
     </>;
 });
 
 const DivisionsPending = memo(({ doReload }) => {
     const { t: tr } = useTranslation();
     const { apiPath, userSettings, divisions, loadDivisions } = useContext(AppContext);
+    const { cache, setCache } = useContext(CacheContext);
 
     const pendingColumns = [
         { id: 'display_logid', label: tr("log_id") },
@@ -174,15 +182,22 @@ const DivisionsPending = memo(({ doReload }) => {
         setSnackbarContent("");
     }, []);
 
-    const [dlogList, setDlogList] = useState([]);
-    const [totalItems, setTotalItems] = useState(0);
-    const [page, setPage] = useState(1);
-    const pageRef = useRef(1);
-    const [pageSize, setPageSize] = useState(userSettings.default_row_per_page);
-
+    const [dlogList, setDlogList] = useState(cache.division.pending.dlogList);
+    const [page, setPage] = useState(cache.division.pending.page);
+    const pageRef = useRef(cache.division.pending.page);
+    const [pageSize, setPageSize] = useState(cache.division.pending.pageSize === null ? userSettings.default_row_per_page : cache.division.pending.pageSize === null);
+    const [totalItems, setTotalItems] = useState(cache.division.pending.totalItems);
     useEffect(() => {
         pageRef.current = page;
     }, [page]);
+
+    useEffect(() => {
+        return () => {
+            // Dlog may overwrite the data so we need to use the latest data
+            setCache(cache => ({ ...cache, division: { ...cache.division, pending: { dlogList, page, pageSize, totalItems } } }));
+        };
+    }, [dlogList, page, pageSize, totalItems]);
+
     useEffect(() => {
         async function doLoad() {
             window.loading += 1;
@@ -230,7 +245,7 @@ const DivisionsPending = memo(({ doReload }) => {
     }
 
     return <>
-        {dlogList.length !== 0 && <CustomTable columns={pendingColumns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} style={{ marginTop: "15px" }} pstyle={{ marginRight: "60px" }} name={<><FontAwesomeIcon icon={faClock} />&nbsp;&nbsp;{tr("pending_division_validation_requests")}</>} />}
+        {dlogList.length !== 0 && <CustomTable page={page} columns={pendingColumns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage= {pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} style={{ marginTop: "15px" }} pstyle={{ marginRight: "60px" }} name={<><FontAwesomeIcon icon={faClock} />&nbsp;&nbsp;{tr("pending_division_validation_requests")}</>} />}
         <Portal>
             <Snackbar
                 open={!!snackbarContent}

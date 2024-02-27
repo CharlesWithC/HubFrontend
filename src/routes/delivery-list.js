@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppContext } from '../context';
+import { AppContext, CacheContext } from '../context';
 
 import { Typography, Grid, Tooltip, SpeedDial, SpeedDialAction, SpeedDialIcon, Dialog, DialogActions, DialogTitle, DialogContent, TextField, Button, Snackbar, Alert, Divider, FormControl, FormControlLabel, Checkbox, MenuItem, useTheme } from '@mui/material';
 import { LocalShippingRounded, WidgetsRounded, VerifiedOutlined } from '@mui/icons-material';
@@ -23,6 +23,8 @@ const CURRENTY_ICON = { 1: "€", 2: "$" };
 const Deliveries = () => {
     const { t: tr } = useTranslation();
     const { apiPath, userLevel, curUserPerm, userSettings } = useContext(AppContext);
+    const { cache, setCache } = useContext(CacheContext);
+    const theme = useTheme();
 
     const columns = [
         { id: 'display_logid', label: 'ID', orderKey: 'logid', defaultOrder: 'desc' },
@@ -36,22 +38,28 @@ const Deliveries = () => {
     ];
 
     const inited = useRef(false);
-    const [detailStats, setDetailStats] = useState("loading");
-    const [dlogList, setDlogList] = useState([]);
-    const [totalItems, setTotalItems] = useState(0);
-    const [page, setPage] = useState(1);
-    const pageRef = useRef(1);
-    const [pageSize, setPageSize] = useState(userSettings.default_row_per_page);
-    const [tempListParam, setTempListParam] = useState({ order_by: "logid", order: "desc", after: undefined, before: undefined, game: 0, status: 0 });
-    const [listParam, setListParam] = useState({});
+
+    const [detailStats, setDetailStats] = useState(cache.delivery_list.detailStats);
+    const [dlogList, setDlogList] = useState(cache.delivery_list.dlogList);
+
+    const [page, setPage] = useState(cache.delivery_list.page);
+    const pageRef = useRef(cache.delivery_list.page);
+    const [pageSize, setPageSize] = useState(cache.delivery_list.pageSize === null ? userSettings.default_row_per_page : cache.delivery_list.pageSize);
+    const [totalItems, setTotalItems] = useState(cache.delivery_list.totalItems);
+    const [tempListParam, setTempListParam] = useState(cache.delivery_list.listParam);
+    const [listParam, setListParam] = useState(cache.delivery_list.listParam);
+
+    useEffect(() => {
+        return () => {
+            setCache(cache => ({ ...cache, delivery_list: { ...cache.delivery_list, detailStats, dlogList, page, pageSize, totalItems, listParam } }));
+        };
+    }, [detailStats, dlogList, page, pageSize, totalItems, listParam]);
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
     const handleCloseSnackbar = useCallback(() => {
         setSnackbarContent("");
     }, []);
-
-    const theme = useTheme();
 
     const [dialogOpen, setDialogOpen] = useState("");
     const [dialogButtonDisabled, setDialogButtonDisabled] = useState(false);
@@ -292,11 +300,11 @@ const Deliveries = () => {
                     } first={{ name: replaceUnderscores(detailStats.fine[0].unique_id), stat: detailStats.fine[0].count }} second={{ name: replaceUnderscores(detailStats.fine[1].unique_id), stat: detailStats.fine[1].count }} third={{ name: replaceUnderscores(detailStats.fine[2].unique_id), stat: detailStats.fine[2].count }} fixWidth={true} />
                 </Grid>}
             </Grid>
-            <CustomTable columns={columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); setTempListParam({ ...tempListParam, order_by: order_by, order: order }); }} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />
+            <CustomTable page={page} columns={columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); setTempListParam({ ...tempListParam, order_by: order_by, order: order }); }} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage= {pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />
         </>
         }
         {detailStats.truck === undefined && detailStats !== "loading" &&
-            <CustomTable columns={columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); setTempListParam({ ...tempListParam, order_by: order_by, order: order }); }} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />}
+            <CustomTable page={page} columns={columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); setTempListParam({ ...tempListParam, order_by: order_by, order: order }); }} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage= {pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />}
         <Dialog open={dialogOpen === "export"} onClose={() => setDialogOpen("")}>
             <DialogTitle><FontAwesomeIcon icon={faFileExport} />&nbsp;&nbsp;{tr("export_delivery_logs")}</DialogTitle>
             <DialogContent>

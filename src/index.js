@@ -7,7 +7,7 @@ import './fonts/opensans/opensans.css';
 import './fonts/orbitron/orbitron.css';
 
 import App from './App';
-import { AppContextProvider, ThemeContextProvider } from './context';
+import { AppContextProvider, CacheContextProvider, ThemeContextProvider } from './context';
 import reportWebVitals from './reportWebVitals';
 
 import { I18nextProvider } from 'react-i18next';
@@ -93,16 +93,18 @@ class ErrorBoundary extends React.Component {
 root.render(
     <AppContextProvider>
         <ThemeContextProvider>
-            <I18nextProvider i18n={i18n}>
-                {(window.isElectron || window.location.hostname !== "localhost") &&
-                    <ErrorBoundary>
+            <CacheContextProvider>
+                <I18nextProvider i18n={i18n}>
+                    {(window.isElectron || window.location.hostname !== "localhost") &&
+                        <ErrorBoundary>
+                            <BrowserRouter><App /></BrowserRouter>
+                        </ErrorBoundary>
+                    }
+                    {(!window.isElectron && window.location.hostname === "localhost") &&
                         <BrowserRouter><App /></BrowserRouter>
-                    </ErrorBoundary>
-                }
-                {(!window.isElectron && window.location.hostname === "localhost") &&
-                    <BrowserRouter><App /></BrowserRouter>
-                }
-            </I18nextProvider>
+                    }
+                </I18nextProvider>
+            </CacheContextProvider>
         </ThemeContextProvider>
     </AppContextProvider>
 );

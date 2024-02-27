@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppContext } from '../context';
+import { AppContext, CacheContext } from '../context';
 
 import { Card, CardContent, Typography, Avatar, Grid, Box, SpeedDial, SpeedDialAction, Dialog, DialogContent, DialogTitle, DialogActions, Button, TextField, MenuItem, SpeedDialIcon, useTheme } from '@mui/material';
 import { customSelectStyles } from '../designs';
@@ -40,6 +40,7 @@ const LargeUserCard = ({ user, color }) => {
 const Leaderboard = () => {
     const { t: tr } = useTranslation();
     const { apiPath, allRanks, userSettings } = useContext(AppContext);
+    const { cache, setCache } = useContext(CacheContext);
     const theme = useTheme();
 
     const columns = [
@@ -54,23 +55,29 @@ const Leaderboard = () => {
         { id: 'total', label: tr("total") },
     ];
 
+    const inited = useRef(false);
     const [dialogOpen, setDialogOpen] = useState("");
 
-    const [monthly, setMonthly] = useState([]);
-    const [allTime, setAllTime] = useState([]);
+    const [leaderboard, setLeaderboard] = useState(cache.leaderboard.leaderboard);
+    const [monthly, setMonthly] = useState(cache.leaderboard.monthly);
+    const [allTime, setAllTime] = useState(cache.leaderboard.allTime);
 
-    const inited = useRef(false);
-    const [leaderboard, setLeaderboard] = useState([]);
-    const [totalItems, setTotalItems] = useState(0);
-    const [page, setPage] = useState(1);
-    const pageRef = useRef(1);
-    const [pageSize, setPageSize] = useState(userSettings.default_row_per_page);
-    const [tempListParam, setTempListParam] = useState({ after: undefined, before: undefined, game: 0, point_types: ["bonus", "distance", "challenge", "division", "event"], users: [] });
-    const [listParam, setListParam] = useState({ userids: [], users: [] });
-
+    const [page, setPage] = useState(cache.leaderboard.page);
+    const pageRef = useRef(cache.leaderboard.page);
+    const [pageSize, setPageSize] = useState(cache.leaderboard.pageSize === null ? userSettings.default_row_per_page : cache.leaderboard.pageSize);
+    const [totalItems, setTotalItems] = useState(cache.leaderboard.totalItems);
+    const [tempListParam, setTempListParam] = useState(cache.leaderboard.listParam);
+    const [listParam, setListParam] = useState(cache.leaderboard.listParam);
     useEffect(() => {
         pageRef.current = page;
     }, [page]);
+
+    useEffect(() => {
+        return () => {
+            setCache(cache => ({ ...cache, leaderboard: { leaderboard, monthly, allTime, page, pageSize, totalItems, listParam } }));
+        };
+    }, [leaderboard, monthly, allTime, page, pageSize, totalItems, listParam]);
+
     useEffect(() => {
         async function doLoad() {
             window.loading += 1;
@@ -177,7 +184,7 @@ const Leaderboard = () => {
             </Box>
         </>
         }
-        {leaderboard.length > 0 && <CustomTable columns={columns} data={leaderboard} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} style={{ marginTop: "30px" }} />}
+        {leaderboard.length > 0 && <CustomTable page={page} columns={columns} data={leaderboard} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage= {pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} style={{ marginTop: "30px" }} />}
         <Dialog open={dialogOpen === "settings"} onClose={() => { setDialogOpen(""); }} fullWidth>
             <DialogTitle><FontAwesomeIcon icon={faGears} />&nbsp;&nbsp;{tr("settings")}</DialogTitle>
             <DialogContent>

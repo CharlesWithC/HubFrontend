@@ -42,14 +42,13 @@ const UserSelect = ({ label, users, onUpdate, isMulti = true, includeCompany = f
     useEffect(() => {
         let formattedInit = [];
         for (let i = 0; i < users.length; i++) {
-            if (users[i] === undefined) continue;
-            if (users[i].userid === undefined || users[i].name === undefined) continue;
-            formattedInit.push({ value: users[i].userid !== null ? users[i].userid : users[i].uid, label: `${users[i].name} ${(users[i].userid === null || users[i].userid >= 0) ? `(${users[i].userid !== null ? users[i].userid : `UID: ${users[i].uid}`})` : ``}` });
+            if (users[i] === undefined || users[i].userid === undefined) continue;
+            formattedInit.push({ value: users[i].userid !== null ? users[i].userid : users[i].uid, label: `${memberMap[users[i].userid].name} ${(users[i].userid === null || users[i].userid >= 0) ? `(${users[i].userid !== null ? users[i].userid : `UID: ${users[i].uid}`})` : ``}` });
         }
         if (selectedUsers !== formattedInit) {
             setSelectedUsers(formattedInit);
         }
-    }, [users]);
+    }, [users, memberMap]);
 
     const handleInputChange = useCallback((val) => {
         if (limit !== undefined && limit > 0 && !isNaN(limit)) val = val.splice(0, limit);

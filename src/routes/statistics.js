@@ -1,6 +1,6 @@
 import { useEffect, useState, useContext, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppContext } from '../context';
+import { AppContext, CacheContext } from '../context';
 import debounce from 'lodash.debounce';
 
 import { Grid, Typography, Snackbar, Alert } from '@mui/material';
@@ -25,7 +25,8 @@ function replaceUnderscores(str) {
 
 const Statistics = () => {
     const { t: tr } = useTranslation();
-    const { apiPath, webConfig, userSettings } = useContext(AppContext);
+    const { apiPath, userSettings } = useContext(AppContext);
+    const { cache, setCache } = useContext(CacheContext);
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -33,16 +34,32 @@ const Statistics = () => {
         setSnackbarContent("");
     }, []);
 
-    const [startTime, setStartTime] = useState(getTodayUTC() / 1000 - 86400 * 7);
-    const [endTime, setEndTime] = useState(getTodayUTC() / 1000);
-    const [selectedUser, setSelectedUser] = useState({ userid: -1000, name: webConfig.name });
+    const [startTime, setStartTime] = useState(cache.statistics.startTime);
+    const [endTime, setEndTime] = useState(cache.statistics.endTime);
+    const [selectedUser, setSelectedUser] = useState(cache.statistics.selectedUser);
+    const [latest, setLatest] = useState(cache.statistics.latest);
+    const [charts, setCharts] = useState(cache.statistics.charts);
+    const [originalChart, setOriginalChart] = useState(cache.statistics.originalChart);
+    const [xAxis, setXAxis] = useState(cache.statistics.xAxis);
+    const [detailStats, setDetailStats] = useState(cache.statistics.detailStats);
 
-    const [latest, setLatest] = useState({ driver: 0, job: 0, distance: 0, fuel: 0, profit_euro: 0, profit_dollar: 0 });
-    const [charts, setCharts] = useState({ driver: [], job: [], distance: [], fuel: [], profit_euro: [], profit_dollar: [] });
-    const [originalChart, setOriginalChart] = useState({ driver: [], job: [], distance: [], fuel: [], profit_euro: [], profit_dollar: [] });
-    const [xAxis, setXAxis] = useState([]);
-
-    const [detailStats, setDetailStats] = useState({});
+    useEffect(() => {
+        return () => {
+            setCache(cache => ({
+                ...cache,
+                statistics: {
+                    startTime,
+                    endTime,
+                    selectedUser,
+                    latest,
+                    charts,
+                    originalChart,
+                    xAxis,
+                    detailStats
+                }
+            }));
+        };
+    }, [startTime, endTime, selectedUser, latest, charts, originalChart, xAxis, detailStats]);
 
     useEffect(() => {
         const doLoad = debounce(async () => {

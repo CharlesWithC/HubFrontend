@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect, useCallback, useContext, useMemo, memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppContext } from '../context';
+import { AppContext, CacheContext } from '../context';
 
 import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction, LinearProgress, MenuItem, RadioGroup, Radio, Chip, Checkbox, Tooltip, Collapse, useTheme } from '@mui/material';
 import { LocalShippingRounded, EmojiEventsRounded, EditRounded, DeleteRounded, CategoryRounded, InfoRounded, TaskAltRounded, DoneOutlineRounded, BlockRounded, PlayCircleRounded, ScheduleRounded, HourglassBottomRounded, StopCircleRounded, EditNoteRounded, PeopleAltRounded, RefreshRounded, ExpandMoreRounded } from '@mui/icons-material';
@@ -207,6 +207,7 @@ const ChallengeManagers = memo(() => {
 const ChallengesMemo = memo(({ userDrivenDistance, challengeList, setChallengeList, upcomingChallenges, setUpcomingChallenges, activeChallenges, setActiveChallenges, onShowDetails, onUpdateDelivery, onEdit, onDelete, doReload }) => {
     const { t: tr } = useTranslation();
     const { apiPath, curUser, curUserPerm, userSettings } = useContext(AppContext);
+    const { cache, setCache } = useContext(CacheContext);
 
     const CHALLENGE_TYPES = useMemo(() => (["", tr("personal_onetime"), tr("company_onetime"), tr("personal_recurring"), tr("personal_distancebased"), tr("company_distancebased")]), []);
 
@@ -229,15 +230,23 @@ const ChallengesMemo = memo(({ userDrivenDistance, challengeList, setChallengeLi
     ]), []);
 
     const inited = useRef(false);
-    const [totalItems, setTotalItems] = useState(0);
-    const [page, setPage] = useState(1);
-    const pageRef = useRef(1);
-    const [pageSize, setPageSize] = useState(userSettings.default_row_per_page);
-    const [listParam, setListParam] = useState({ order_by: "challengeid", order: "desc" });
 
-    const [rawUpcomingChallenges, setRawUpcomingChallenges] = useState([]);
-    const [rawActiveChallenges, setRawActiveChallenges] = useState([]);
-    const [rawChallengeList, setRawChallengeList] = useState([]);
+    const [page, setPage] = useState(cache.challenge.page);
+    const pageRef = useRef(cache.challenge.page);
+    const [pageSize, setPageSize] = useState(cache.challenge.pageSize === null ? userSettings.default_row_per_page : cache.challenge.pageSize === null);
+    const [totalItems, setTotalItems] = useState(cache.challenge.totalItems);
+    const [listParam, setListParam] = useState(cache.challenge.listParam);
+
+    const [rawUpcomingChallenges, setRawUpcomingChallenges] = useState(cache.challenge.rawUpcomingChallenges);
+    const [rawActiveChallenges, setRawActiveChallenges] = useState(cache.challenge.rawActiveChallenges);
+    const [rawChallengeList, setRawChallengeList] = useState(cache.challenge.rawChallengeList);
+
+    useEffect(() => {
+        return () => {
+            // Challenge may overwrite the data so we need to use the latest data
+            setCache(cache => ({ ...cache, challenge: { ...cache.challenge, page, pageSize, totalItems, listParam, rawUpcomingChallenges, rawActiveChallenges, rawChallengeList } }));
+        };
+    }, [page, pageSize, totalItems, listParam, rawUpcomingChallenges, rawActiveChallenges, rawChallengeList]);
 
     const theme = useTheme();
 
@@ -298,21 +307,29 @@ const ChallengesMemo = memo(({ userDrivenDistance, challengeList, setChallengeLi
                 <ChallengeCard challenge={challenge} onShowDetails={onShowDetails} onUpdateDelivery={onUpdateDelivery} onEdit={onEdit} onDelete={onDelete} />
             </Grid>)}
         </Grid>
-        {challengeList.length !== 0 && <CustomTable columns={checkUserPerm(curUserPerm, ["administrator", "manage_challenges"]) ? staffColumns : columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} data={challengeList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={onShowDetails} pstyle={{ marginRight: "60px" }} />}
+        {challengeList.length !== 0 && <CustomTable page={page} columns={checkUserPerm(curUserPerm, ["administrator", "manage_challenges"]) ? staffColumns : columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} data={challengeList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage= {pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={onShowDetails} pstyle={{ marginRight: "60px" }} />}
     </>;
 });
 
 const Challenges = () => {
     const { t: tr } = useTranslation();
     const { apiPath, allRoles, curUser, curUserPerm, userSettings, dlogDetailsCache } = useContext(AppContext);
+    const { cache, setCache } = useContext(CacheContext);
     const theme = useTheme();
 
     const CHALLENGE_TYPES = ["", tr("personal_onetime"), tr("company_onetime"), tr("personal_recurring"), tr("personal_distancebased"), tr("company_distancebased")];
 
-    const [challengeList, setChallengeList] = useState([]);
-    const [upcomingChallenges, setUpcomingChallenges] = useState([]);
-    const [activeChallenges, setActiveChallenges] = useState([]);
+    const [challengeList, setChallengeList] = useState(cache.challenge.challengeList);
+    const [upcomingChallenges, setUpcomingChallenges] = useState(cache.challenge.upcomingChallenges);
+    const [activeChallenges, setActiveChallenges] = useState(cache.challenge.activeChallenges);
     const [doReload, setDoReload] = useState(0);
+
+    useEffect(() => {
+        return () => {
+            // ChallengeMemo may overwrite the data so we need to use the latest data
+            setCache(cache => ({ ...cache, challenge: { ...cache.challenge, challengeList, upcomingChallenges, activeChallenges } }));
+        };
+    }, [challengeList, upcomingChallenges, activeChallenges]);
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");

@@ -278,7 +278,7 @@ const Loader = ({ onLoaderLoaded }) => {
             width: '100%',
             height: '100%',
         }}>
-            <div className="loading-div" style={{ backgroundColor: theme.palette.background.default.substring(0, 7) + (themeSettings.theme_darken_ratio !== null ? intToHex(themeSettings.theme_darken_ratio * 100) : "66") }}>
+            <div className="loading-div" style={{ backgroundColor: theme.palette.background.default.substring(0, 7) + "66" }}>
                 <HelmetProvider>
                     <Helmet>
                         <title>{title}</title>

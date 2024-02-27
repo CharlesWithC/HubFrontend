@@ -1,6 +1,6 @@
-import { useEffect, useState, useCallback, useContext, memo } from 'react';
+import { useEffect, useState, useCallback, useContext, useRef, memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppContext } from '../context';
+import { AppContext, CacheContext } from '../context';
 
 import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, TextField, Snackbar, Alert, Pagination, IconButton, Checkbox } from '@mui/material';
 import { DownloadRounded, EditNoteRounded, RefreshRounded, EditRounded, DeleteRounded, PeopleAltRounded } from '@mui/icons-material';
@@ -261,15 +261,27 @@ const DownloadableItemManagers = memo(() => {
 const DownloadableItem = () => {
     const { t: tr } = useTranslation();
     const { apiPath, curUID, curUser, curUserPerm } = useContext(AppContext);
+    const { cache, setCache } = useContext(CacheContext);
 
-    const [downloadableItems, setDownloadableItems] = useState([]);
+    const [downloadableItems, setDownloadableItems] = useState(cache.downloads.downloadableItems);
     const [lastUpdate, setLastUpdate] = useState(0);
     const [submitLoading, setSubmitLoading] = useState(false);
-    const [page, setPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
+
+    const [page, setPage] = useState(cache.downloads.page);
+    const pageRef = useRef(cache.downloads.page);
+    const [totalPages, setTotalPages] = useState(cache.downloads.totalPages);
     const handlePagination = useCallback((event, value) => {
         setPage(value);
     }, []);
+    useEffect(() => {
+        pageRef.current = page;
+    }, [page]);
+
+    useEffect(() => {
+        return () => {
+            setCache(cache => ({ ...cache, downloads: { downloadableItems, page, totalPages } }));
+        };
+    }, [downloadableItems, page, totalPages]);
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -304,27 +316,22 @@ const DownloadableItem = () => {
 
         let url = `${apiPath}/downloads/list?page_size=10&page=${page}`;
 
-        var newDowns = [];
+        let [newDowns] = [null];
         if (curUID !== null) {
-            const [anns] = await makeRequestsWithAuth([
+            [newDowns] = await makeRequestsWithAuth([
                 url
             ]);
-            newDowns = anns.list;
-            setTotalPages(anns.total_pages);
         } else {
-            const [anns] = await makeRequests([
+            [newDowns] = await makeRequests([
                 url
             ]);
-            newDowns = anns.list;
-            setTotalPages(anns.total_pages);
         }
 
-        for (let i = 0; i < newDowns.length; i++) {
-            newDowns[i] = { ...newDowns[i] };
+        if (pageRef.current === page) {
+            setDownloadableItems(newDowns.list);
+            setTotalPages(newDowns.total_pages);
+            setLastUpdate(+new Date());
         }
-
-        setDownloadableItems(newDowns);
-        setLastUpdate(+new Date());
 
         window.loading -= 1;
     }, [apiPath, page]);

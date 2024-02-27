@@ -1,7 +1,7 @@
 import { memo, useEffect, useState, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { AppContext } from '../context';
+import { AppContext, CacheContext } from '../context';
 
 import { Grid, Table, TableHead, TableRow, TableBody, TableCell, Card, CardContent, Typography } from '@mui/material';
 import { PermContactCalendarRounded, LocalShippingRounded, RouteRounded, EuroRounded, AttachMoneyRounded, LocalGasStationRounded, LeaderboardRounded, DirectionsRunRounded, EmojiPeopleRounded } from '@mui/icons-material';
@@ -17,18 +17,35 @@ import { TSep, ConvertUnit, makeRequestsAuto, getTodayUTC, getMonthUTC } from '.
 const Overview = () => {
     const { t: tr } = useTranslation();
     const { apiPath, users, memberUIDs, curUID, userSettings } = useContext(AppContext);
+    const { cache, setCache } = useContext(CacheContext);
     const allMembers = memberUIDs.map((uid) => users[uid]);
 
     const { userid } = useParams(); // profile display handling
     let memberIdx = allMembers.findIndex(member => member.userid === parseInt(userid));
     const [showProfileModal, setShowProfileModal] = useState(memberIdx !== -1 ? 2 : 0);
 
-    const [latest, setLatest] = useState({ driver: 0, job: 0, distance: 0, fuel: 0, profit_euro: 0, profit_dollar: 0 });
-    const [charts, setCharts] = useState({ driver: [], job: [], distance: [], fuel: [], profit_euro: [], profit_dollar: [] });
-    const [leaderboard, setLeaderboard] = useState([]);
-    const [recentVisitors, setRecentVisitors] = useState([]);
-    const [newestMember, setNewestMember] = useState(null);
-    const [latestDelivery, setLatestDelivery] = useState(null);
+    const [latest, setLatest] = useState(cache.overview.latest);
+    const [charts, setCharts] = useState(cache.overview.charts);
+    const [leaderboard, setLeaderboard] = useState(cache.overview.leaderboard);
+    const [recentVisitors, setRecentVisitors] = useState(cache.overview.recentVisitors);
+    const [newestMember, setNewestMember] = useState(cache.overview.newestMember);
+    const [latestDelivery, setLatestDelivery] = useState(cache.overview.latestDelivery);
+
+    useEffect(() => {
+        return () => {
+            setCache(cache => ({
+                ...cache,
+                overview: {
+                    latest,
+                    charts,
+                    leaderboard,
+                    recentVisitors,
+                    newestMember,
+                    latestDelivery
+                }
+            }));
+        };
+    }, [latest, charts, leaderboard, recentVisitors, newestMember, latestDelivery]);
 
     useEffect(() => {
         async function doLoad() {

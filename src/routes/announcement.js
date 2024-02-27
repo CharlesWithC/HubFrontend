@@ -1,6 +1,6 @@
-import { useEffect, useState, useCallback, useContext, memo } from 'react';
+import { useEffect, useState, useCallback, useContext, useRef, memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppContext } from '../context';
+import { AppContext, CacheContext } from '../context';
 
 import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, MenuItem, Snackbar, Alert, Pagination, IconButton, Checkbox } from '@mui/material';
 import { InfoRounded, EventNoteRounded, WarningRounded, ErrorOutlineRounded, CheckCircleOutlineRounded, EditNoteRounded, RefreshRounded, EditRounded, DeleteRounded, PeopleAltRounded } from '@mui/icons-material';
@@ -242,15 +242,26 @@ const AnnouncementManagers = memo(() => {
 const Announcement = () => {
     const { t: tr } = useTranslation();
     const { apiPath, curUID, curUser, curUserPerm, announcementTypes, loadAnnouncementTypes } = useContext(AppContext);
+    const { cache, setCache } = useContext(CacheContext);
 
-    const [announcements, setAnnouncemnts] = useState([]);
+    const [announcements, setAnnouncemnts] = useState(cache.announcement.announcements);
     const [lastUpdate, setLastUpdate] = useState(0);
     const [submitLoading, setSubmitLoading] = useState(false);
-    const [page, setPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
+    const [page, setPage] = useState(cache.announcement.page);
+    const pageRef = useRef(cache.announcement.page);
+    const [totalPages, setTotalPages] = useState(cache.announcement.totalPages);
+    useEffect(() => {
+        pageRef.current = page;
+    }, [page]);
     const handlePagination = useCallback((event, value) => {
         setPage(value);
     }, []);
+
+    useEffect(() => {
+        return () => {
+            setCache({ ...cache, announcement: { announcements, page, totalPages } });
+        };
+    }, [announcements, page, totalPages]);
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -290,23 +301,18 @@ const Announcement = () => {
             localAnnouncementTypes = await loadAnnouncementTypes();
         }
 
-        var newAnns = [];
+        let [anns] = [null];
         if (curUID !== null) {
-            const [anns] = await makeRequestsWithAuth([`${apiPath}/announcements/list?page_size=10&page=${page}`]);
-            newAnns = anns.list;
-            setTotalPages(anns.total_pages);
+            [anns] = await makeRequestsWithAuth([`${apiPath}/announcements/list?page_size=10&page=${page}`]);
         } else {
-            const [anns] = await makeRequests([`${apiPath}/announcements/list?page_size=10&page=${page}`]);
-            newAnns = anns.list;
+            [anns] = await makeRequests([`${apiPath}/announcements/list?page_size=10&page=${page}`]);
+        }
+
+        if(page === pageRef.current){
+            setAnnouncemnts(anns.list);
             setTotalPages(anns.total_pages);
+            setLastUpdate(+new Date());
         }
-
-        for (let i = 0; i < newAnns.length; i++) {
-            newAnns[i] = { ...newAnns[i] };
-        }
-
-        setAnnouncemnts(newAnns);
-        setLastUpdate(+new Date());
 
         window.loading -= 1;
     }, [apiPath, page, announcementTypes]);
@@ -394,6 +400,8 @@ const Announcement = () => {
     useEffect(() => {
         doLoad();
     }, [apiPath, page, announcementTypes]);
+
+
 
     return (
         <>{announcementTypes !== null && <>

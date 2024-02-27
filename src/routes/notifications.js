@@ -57,7 +57,7 @@ const Notifications = () => {
 
     return <>
         {notiList.length !== 0 &&
-            <CustomTable name={<><FontAwesomeIcon icon={faBell} />&nbsp;&nbsp;{tr("notifications")}</>} columns={columns} data={notiList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} />
+            <CustomTable page={page} name={<><FontAwesomeIcon icon={faBell} />&nbsp;&nbsp;{tr("notifications")}</>} columns={columns} data={notiList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage= {pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} />
         }
     </>;
 };

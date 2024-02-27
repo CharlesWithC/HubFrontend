@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, createContext } from 'react';
 
-import { makeRequestsAuto, makeRequestsWithAuth } from "./functions";
+import { makeRequestsAuto, makeRequestsWithAuth, getTodayUTC } from "./functions";
 
 export const AppContext = createContext({
     apiPath: "", setApiPath: () => { },
@@ -337,5 +337,135 @@ export const ThemeContextProvider = ({ children }) => {
         <ThemeContext.Provider value={value}>
             {children}
         </ThemeContext.Provider>
+    );
+};
+
+const DEFAULT_CACHE = {
+    announcement: {
+        announcements: [],
+        page: 1,
+        totalPages: 1
+    },
+    audit_log: {
+        auditList: [],
+        page: 1,
+        pageSize: null,
+        totalPages: 1
+    },
+    challenge: {
+        challengeList: [],
+        upcomingChallenges: [],
+        activeChallenges: [],
+        page: 1,
+        pageSize: null,
+        totalItems: 1,
+        listParam: { order_by: "challengeid", order: "desc" },
+        rawUpcomingChallenges: [],
+        rawActiveChallenges: [],
+        rawChallengeList: []
+    },
+    delivery_list: {
+        detailStats: "loading",
+        dlogList: [],
+        page: 1,
+        pageSize: null,
+        totalItems: 1,
+        listParam: { order_by: "logid", order: "desc", after: undefined, before: undefined, game: 0, status: 0 }
+    },
+    division: {
+        dlog: {
+            dlogList: [],
+            page: 1,
+            pageSize: null,
+            totalItems: 1,
+        },
+        pending: {
+            dlogList: [],
+            page: 1,
+            pageSize: null,
+            totalItems: 1,
+        }
+    },
+    downloads: {
+        downloadableItems: [],
+        page: 1,
+        totalPages: 1
+    },
+    event: {
+        upcomingEvents: [],
+        calendarEvents: [],
+        allEvents: []
+    },
+    external_user: {
+        userList: [],
+        userPage: 1,
+        userPageSize: null,
+        userTotalItems: 1,
+        userSearch: "",
+        userListParam: { order_by: "uid", order: "desc" },
+
+        banList: [],
+        banPage: 1,
+        banPageSize: null,
+        banTotalItems: 1,
+        banSearch: "",
+        banListParam: { order_by: "uid", order: "desc" }
+    },
+    leaderboard: {
+        monthly: [],
+        allTime: [],
+        leaderboard: [],
+        totalItems: 1,
+        page: 1,
+        pageSize: null,
+        listParam: { after: undefined, before: undefined, game: 0, point_types: ["bonus", "distance", "challenge", "division", "event"], users: [] }
+    },
+    member_list: {
+        userList: [],
+        page: 1,
+        pageSize: null,
+        totalItems: 1,
+        search: "",
+        listParam: { order_by: "userid", order: "asc" }
+    },
+    overview: {
+        latest: { driver: 0, job: 0, distance: 0, fuel: 0, profit_euro: 0, profit_dollar: 0 },
+        charts: { driver: [], job: [], distance: [], fuel: [], profit_euro: [], profit_dollar: [] },
+        leaderboard: [],
+        recentVisitors: [],
+        newestMember: null,
+        latestDelivery: null
+    },
+    poll: {
+        polls: [],
+        page: 1,
+        totalPages: 1
+    },
+    statistics: {
+        startTime: getTodayUTC() / 1000 - 86400 * 7,
+        endTime: getTodayUTC() / 1000,
+        selectedUser: { userid: -1000 },
+        latest: { driver: 0, job: 0, distance: 0, fuel: 0, profit_euro: 0, profit_dollar: 0 },
+        charts: { driver: [], job: [], distance: [], fuel: [], profit_euro: [], profit_dollar: [] },
+        originalChart: { driver: [], job: [], distance: [], fuel: [], profit_euro: [], profit_dollar: [] },
+        xAxis: [],
+        detailStats: {}
+    }
+};
+
+export const CacheContext = createContext({
+    cache: DEFAULT_CACHE,
+    setCache: () => { }
+});
+
+export const CacheContextProvider = ({ children }) => {
+    const [cache, setCache] = useState(DEFAULT_CACHE);
+
+    const value = useMemo(() => ({ cache, setCache }), [cache]);
+
+    return (
+        <CacheContext.Provider value={value}>
+            {children}
+        </CacheContext.Provider>
     );
 };

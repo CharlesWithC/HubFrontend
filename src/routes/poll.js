@@ -1,6 +1,6 @@
-import { useEffect, useState, useCallback, useContext, memo } from 'react';
+import { useEffect, useState, useCallback, useContext, useRef, memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppContext } from '../context';
+import { AppContext, CacheContext } from '../context';
 
 import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, TextField, Snackbar, Alert, Pagination, IconButton, Tooltip, Box, Checkbox, ButtonGroup, useTheme } from '@mui/material';
 import { EditNoteRounded, RefreshRounded, EditRounded, DeleteRounded, PeopleAltRounded } from '@mui/icons-material';
@@ -434,15 +434,26 @@ const PollManagers = memo(() => {
 const Poll = () => {
     const { t: tr } = useTranslation();
     const { apiPath, curUser, curUserPerm } = useContext(AppContext);
+    const { cache, setCache } = useContext(CacheContext);
 
-    const [polls, setPolls] = useState([]);
     const [lastUpdate, setLastUpdate] = useState(0);
     const [submitLoading, setSubmitLoading] = useState(false);
-    const [page, setPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
+
+    const [polls, setPolls] = useState(cache.poll.polls);
+    const [page, setPage] = useState(cache.poll.page);
+    const pageRef = useRef(cache.poll.page);
+    const [totalPages, setTotalPages] = useState(cache.poll.totalPages);
     const handlePagination = useCallback((event, value) => {
         setPage(value);
     }, []);
+    useEffect(() => {
+        pageRef.current = page;
+    }, [page]);
+    useEffect(() => {
+        return () => {
+            setCache({ ...cache, poll: { polls, page, totalPages } });
+        };
+    }, [polls, page, totalPages]);
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -485,9 +496,12 @@ const Poll = () => {
         window.loading += 1;
 
         const [polls] = await makeRequestsWithAuth([`${apiPath}/polls/list?page_size=10&page=${page}`]);
-        setPolls(polls.list);
-        setTotalPages(polls.total_pages);
-        setLastUpdate(+new Date());
+
+        if (pageRef.current === page) {
+            setPolls(polls.list);
+            setTotalPages(polls.total_pages);
+            setLastUpdate(+new Date());
+        }
 
         window.loading -= 1;
     }, [apiPath, page]);

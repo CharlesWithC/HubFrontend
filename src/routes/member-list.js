@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppContext } from '../context';
+import { AppContext, CacheContext } from '../context';
 
 import { useTheme, Dialog, DialogTitle, DialogContent, DialogActions, LinearProgress, Typography, Button, SpeedDial, SpeedDialAction, SpeedDialIcon, MenuItem, TextField, Grid, Snackbar, Alert, TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Card, CardContent } from '@mui/material';
 import { Portal } from '@mui/base';
@@ -21,18 +21,27 @@ import { makeRequestsAuto, customAxios as axios, getAuthToken, removeNUEValues }
 const MemberList = () => {
     const { t: tr } = useTranslation();
     const { apiPath, userLevel, users, memberUIDs, userSettings } = useContext(AppContext);
+    const { cache, setCache } = useContext(CacheContext);
     const allMembers = memberUIDs.map((uid) => users[uid]);
 
     const theme = useTheme();
 
-    const [userList, setUserList] = useState([]);
-    const [totalItems, setTotalItems] = useState(0);
-    const [page, setPage] = useState(1);
-    const pageRef = useRef(1);
-    const [pageSize, setPageSize] = useState(userSettings.default_row_per_page);
-    const [search, setSearch] = useState("");
-    const searchRef = useRef("");
-    const [listParam, setListParam] = useState({ order_by: "userid", order: "asc" });
+    const [userList, setUserList] = useState(cache.member_list.userList);
+    const [page, setPage] = useState(cache.member_list.page);
+    const pageRef = useRef(cache.member_list.page);
+    const [pageSize, setPageSize] = useState(
+        cache.member_list.pageSize === null ? userSettings.default_row_per_page : cache.member_list.pageSize
+    );
+    const [totalItems, setTotalItems] = useState(cache.member_list.totalItems);
+    const [search, setSearch] = useState(cache.member_list.search);
+    const searchRef = useRef(cache.member_list.search);
+    const [listParam, setListParam] = useState(cache.member_list.listParam);
+
+    useEffect(() => {
+        return () => {
+            setCache(cache => ({ ...cache, member_list: { userList, page, pageSize, totalItems, search, listParam } }));
+        };
+    }, [userList, page, pageSize, totalItems, search, listParam]);
 
     const [dialogOpen, setDialogOpen] = useState("");
     const [dialogButtonDisabled, setDialogButtonDisabled] = useState(false);
@@ -366,7 +375,7 @@ const MemberList = () => {
     }, [apiPath, theme, page, pageSize, search, listParam]);
 
     return <>
-        <CustomTable name={<><FontAwesomeIcon icon={faUserGroup} />&nbsp;&nbsp;{tr("members")}</>} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} titlePosition="top" columns={[
+        <CustomTable page={page} name={<><FontAwesomeIcon icon={faUserGroup} />&nbsp;&nbsp;{tr("members")}</>} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} titlePosition="top" columns={[
             { id: 'userid', label: tr("user_id"), orderKey: 'userid', defaultOrder: 'asc' },
             { id: 'user', label: tr("user"), orderKey: 'name', defaultOrder: 'asc' },
             { id: 'discordid', label: tr("discord_id"), orderKey: 'discordid', defaultOrder: 'asc' },

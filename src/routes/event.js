@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useContext, memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppContext } from '../context';
+import { AppContext, CacheContext } from '../context';
 
 import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction } from '@mui/material';
 import { LocalParkingRounded, TimeToLeaveRounded, FlightTakeoffRounded, FlightLandRounded, RouteRounded, HowToRegRounded, LocalShippingRounded, EmojiEventsRounded, EditRounded, DeleteRounded, CheckBoxRounded, CheckBoxOutlineBlankRounded, PeopleAltRounded, EditNoteRounded } from '@mui/icons-material';
@@ -489,12 +489,19 @@ const EventManagers = memo(() => {
 const Events = () => {
     const { t: tr } = useTranslation();
     const { apiPath, curUser, curUserPerm } = useContext(AppContext);
+    const { cache, setCache } = useContext(CacheContext);
 
-    const [upcomingEvents, setUpcomingEvents] = useState([]);
-    const [calendarEvents, setCalendarEvents] = useState([]);
-    const [allEvents, setAllEvents] = useState([]);
+    const [upcomingEvents, setUpcomingEvents] = useState(cache.event.upcomingEvents);
+    const [calendarEvents, setCalendarEvents] = useState(cache.event.calendarEvents);
+    const [allEvents, setAllEvents] = useState(cache.event.allEvents);
     const [editId, setEditId] = useState(null);
     const [doReload, setDoReload] = useState(0);
+
+    useEffect(() => {
+        return () => {
+            setCache(cache => ({ ...cache, event: { upcomingEvents, calendarEvents, allEvents } }));
+        };
+    }, [upcomingEvents, calendarEvents, allEvents]);
 
     const [openEventDetails, setOpenEventDetals] = useState(false);
     const [modalEvent, setModalEvent] = useState({});
