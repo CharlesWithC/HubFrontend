@@ -1,9 +1,5 @@
 # Changelog
 
-## TODO
-
-1. Cache page data (e.g. table options)
-
 ## v3.4.1
 
 1. Added inputable page number in tables
