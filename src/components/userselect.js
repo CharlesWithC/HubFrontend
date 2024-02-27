@@ -10,12 +10,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckSquare } from '@fortawesome/free-solid-svg-icons';
 import { customSelectStyles } from '../designs';
 
-const UserSelect = ({ label, users, onUpdate, isMulti = true, includeCompany = false, includeBlackhole = false, limit = undefined, style = {}, userList = undefined, disabled = false, allowSelectAll = false }) => {
+const UserSelect = ({ label, users, onUpdate, isMulti = true, includeCompany = false, includeBlackhole = false, limit = undefined, style = {}, userList: inputUserList = undefined, disabled = false, allowSelectAll = false }) => {
     const { t: tr } = useTranslation();
     const { webConfig, users: cachedUsers, memberUIDs } = useContext(AppContext);
     const theme = useTheme();
-
-    userList = (userList !== undefined ? userList : memberUIDs.map((uid) => cachedUsers[uid]));
+    
+    const userList = useMemo(() => (inputUserList !== undefined ? inputUserList : memberUIDs.map((uid) => cachedUsers[uid])), [inputUserList]);
 
     const memberMap = useMemo(() => {
         const result = {};
