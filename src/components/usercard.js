@@ -790,7 +790,7 @@ const UserCard = (props) => {
                             </Tabs>
                         </Box>
                     </div>
-                    <SimpleBar style={{ height: `calc(100vh - 310px - ${(modalBannerRef.current !== null && modalBannerRef.current.height !== 0 ? modalBannerRef.current.height : 104.117)}px)` }}>
+                    <SimpleBar className="profile-popover-simplebar" style={{ width: "calc(100% + 13px)", paddingRight: "13px", paddingBottom: "10px", maxHeight: `calc(100vh - 310px - ${(modalBannerRef.current !== null && modalBannerRef.current.height !== 0 ? modalBannerRef.current.height : 104.117)}px)` }}>
                         <TabPanel value={tab} index={0}>
                             {user.bio !== "" && <>
                                 <Typography variant="body2" sx={{ fontWeight: 800 }}>
@@ -1075,7 +1075,7 @@ const UserCard = (props) => {
                 </CardContent>
             </CardContent>
         </Card>
-    </Dialog>;
+    </Dialog >;
 
     if (showProfileModal === 2) return <>{profileModal}</>;
     else if (showProfileModal === 1) return <></>;

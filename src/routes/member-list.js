@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useCallback, useContext } from 'react';
+import { useRef, useEffect, useState, useCallback, useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppContext, CacheContext } from '../context';
 
@@ -20,9 +20,9 @@ import { makeRequestsAuto, customAxios as axios, getAuthToken, removeNUEValues }
 
 const MemberList = () => {
     const { t: tr } = useTranslation();
-    const { apiPath, userLevel, users, memberUIDs, userSettings } = useContext(AppContext);
+    const { apiPath, userLevel, users, memberUIDs, userSettings, setUsers } = useContext(AppContext);
     const { cache, setCache } = useContext(CacheContext);
-    const allMembers = memberUIDs.map((uid) => users[uid]);
+    const allMembers = useMemo(() => (memberUIDs.map((uid) => users[uid])), [memberUIDs, users]);
 
     const theme = useTheme();
 
@@ -83,7 +83,8 @@ const MemberList = () => {
             sync_to = `&sync_to_${sync_to}=true`;
             let st = +new Date();
             let resp = await axios({ url: `${apiPath}/user/profile?uid=${allMembers[i].uid}${sync_to}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
-            if (resp.status === 204) {
+            if (resp.status === 200) {
+                setUsers((users) => ({ ...users, [allMembers[i].uid]: resp.data }));
                 setSyncProfileLog(`Synced ${allMembers[i].name}'s profile`);
                 setLogSeverity("success");
                 setSyncProfileCurrent(i + 1);

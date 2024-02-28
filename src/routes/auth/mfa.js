@@ -39,6 +39,8 @@ const MfaAuth = () => {
                 setOtpText(tr("you_are_authorized"));
                 setOtpReadOnly(true);
                 await FetchProfile(appContext, true);
+                appContext.loadMemberUIDs();
+                appContext.loadDlogDetails();
                 setTimeout(function () { navigate("/"); }, 500);
             } else {
                 setOtpError(true);

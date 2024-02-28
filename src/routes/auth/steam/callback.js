@@ -35,6 +35,8 @@ const SteamAuth = () => {
                             setAuthToken(resp.data.token);
                             setMessage(tr("you_are_authorized"));
                             await FetchProfile(appContext, true);
+                            appContext.loadMemberUIDs();
+                            appContext.loadDlogDetails();
                             setContinue(true);
                             setTimeout(function () { navigate('/'); }, 500);
                         } else {
