@@ -94,6 +94,7 @@ const TileMap = ({ tilesUrl, title, style, route, points, onPointClick, onBounda
                     const center = view.getCenter();
                     const resolution = view.getResolution();
                     const size = map.getSize();
+                    if(!size) return;
                     const width = size[0] * resolution;
                     const height = size[1] * resolution;
                     const extent = [
