@@ -155,6 +155,7 @@ const UserCard = (props) => {
         // if user is not yet cached, cache the user
         // fill undefined attributes
         let { uid, userid, name, bio, note, global_note, avatar, email, discordid, steamid, truckersmpid, roles, tracker, ban, role_history, ban_history, mfa } = { uid: -1, userid: -1, name: "", bio: "", note: "", global_note: "", avatar: "", email: "", discordid: null, steamid: null, truckersmpid: null, roles: [], tracker: availableTrackers.length !== 0 ? availableTrackers[0] : "unknown", ban: null, role_history: null, ban_history: null, mfa: null, ...props.user, ...props };
+        if (!roles) roles = [];
         roles.sort((a, b) => orderedRoles.indexOf(a) - orderedRoles.indexOf(b));
 
         setUsers(users => ({ ...users, [uid]: { ...{ uid, userid, discordid, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, tracker, ban, role_history, ban_history, mfa }, ...props.user, last_sync: +new Date() } }));
@@ -163,7 +164,7 @@ const UserCard = (props) => {
     const user = users[props.user.uid] !== undefined ? users[props.user.uid] : { ...props.user, ...props };
 
     const userPerm = useMemo(() => {
-        if (user.roles === undefined) return [];
+        if (!user.roles) return [];
         const permsKey = Object.keys(allPerms);
         let result = [];
         for (let i = 0; i < user.roles.length; i++) {
@@ -477,6 +478,7 @@ const UserCard = (props) => {
         setSpecialColor(newSpecialColor);
     }, [user.discordid, userConfig]);
     useEffect(() => {
+        if (!user.roles) return;
         // specialColor === "" => not customized
         if (specialColor === "" && vtcLevel >= 3 && webConfig.use_highest_role_color && user.roles !== undefined) {
             for (let i = 0; i < user.roles.length; i++) {

@@ -538,6 +538,7 @@ const Delivery = memo(() => {
     const [divisions, setDivisions] = useState(cachedDivisions === null ? [] : cachedDivisions);
 
     const userDivisionIDs = useMemo(() => {
+        if (!curUser.roles) return [];
         const divisionIDs = Object.keys(divisions);
         const result = [];
         for (let i = 0; i < divisionIDs.length; i++) {
