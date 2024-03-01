@@ -137,7 +137,7 @@ const TopBar = (props) => {
                         setUserSettings(userSettings => ({ ...userSettings, radio_type: "tsr" }));
                     }
                     if (userSettings.radio_type === "tsr") {
-                        let resp = await axios({ url: `https://tsr-static.omnibyte.tech/cache.php?url=https://panel.truckstopradio.co.uk/api/v1/song-history/now-playing` });
+                        let resp = await axios({ url: `https://truckstopradio.co.uk/api/cache?url=/api/v1/song-history/now-playing` });
                         setRadioSongName(resp.data.song.title);
                         if (!userSettings.data_saver) setRadioImage(resp.data.song.graphic.medium);
                         else setRadioImage(radioImages[userSettings.radio_type]);
@@ -188,6 +188,7 @@ const TopBar = (props) => {
         loadRadio();
     }, [userSettings.radio, userSettings.radio_type]);
     useEffect(() => {
+        if (radioRef.current === null) return;
         const handleRadioTypeUpdate = async () => {
             setRadioSongName(tr("now_playing"));
             setRadioSpotifyId(undefined);
@@ -200,12 +201,15 @@ const TopBar = (props) => {
             }
         };
         handleRadioTypeUpdate();
-    }, [userSettings.radio_type]);
+    }, [radioRef.current, userSettings.radio_type]);
     useEffect(() => {
+        if (radioRef.current === null) return;
         radioRef.current.volume = userSettings.radio_volume / 100;
         radioRef.current.play();
-    }, [userSettings.radio_volume]);
+    }, [radioRef.current, userSettings.radio_volume]);
     useEffect(() => {
+        if (radioRef.current === null) return;
+
         const intervalId = setInterval(() => {
             if (radioRef.current && radioRef.current.paused) {
                 setIsPlaying(false);
@@ -217,7 +221,7 @@ const TopBar = (props) => {
         return () => {
             clearInterval(intervalId);
         };
-    }, []);
+    }, [radioRef.current]);
 
     const [anchorEl, setAnchorEl] = useState(null);
     const isMenuOpen = Boolean(anchorEl);

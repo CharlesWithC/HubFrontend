@@ -1157,7 +1157,7 @@ const Settings = ({ defaultTab = 0 }) => {
 
                 <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("display_timezone")}&nbsp;&nbsp;<SponsorBadge level={3} /></Typography>
-                    <br />
+                    <div style={{ display: "relative", width: "100%", height: "6.5px" }}></div>
                     <Select
                         name="colors"
                         className="basic-multi-select"
@@ -1214,7 +1214,7 @@ const Settings = ({ defaultTab = 0 }) => {
 
                 <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("notification_settings")}<IconButton size="small" aria-label={tr("edit")} onClick={(e) => { reloadNotificationSettings(); }}><FontAwesomeIcon icon={faRefresh} /></IconButton ></Typography>
-                    <br />
+                    <div style={{ display: "relative", width: "100%", height: "3px" }}></div>
                     {notificationSettings !== null && <Select
                         defaultValue={notificationSettings}
                         isMulti
@@ -1237,7 +1237,7 @@ const Settings = ({ defaultTab = 0 }) => {
                 <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("language")}</Typography>
                     <br />
-                    <TextField select size="small"
+                    {languages && <TextField select size="small"
                         key="user-language"
                         name={tr("user_language")}
                         value={userLanguage}
@@ -1249,7 +1249,8 @@ const Settings = ({ defaultTab = 0 }) => {
                         {languages.map(language => (
                             <MenuItem key={language} value={language}>{LANGUAGES[language]}</MenuItem>
                         ))}
-                    </TextField>
+                    </TextField>}
+                    {!languages && <Typography variant="body2">{tr("loading")}</Typography>}
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={12} lg={12}>
@@ -1659,6 +1660,7 @@ const Settings = ({ defaultTab = 0 }) => {
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Privacy Settings<IconButton size="small" aria-label={tr("edit")} onClick={(e) => { reloadPrivacySettings(); }}><FontAwesomeIcon icon={faRefresh} /></IconButton ></Typography>
                     <Typography variant="body2">- Control what information about you internal members and external users may see.</Typography>
                     <Typography variant="body2">- Team members with certain permissions may still see relevant information regardless of your settings.</Typography>
+                    <div style={{ display: "relative", width: "100%", height: "6.5px" }}></div>
                     {privacySettings !== null && <Select
                         defaultValue={privacySettings}
                         isMulti

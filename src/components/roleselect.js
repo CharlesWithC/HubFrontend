@@ -86,12 +86,12 @@ const RoleSelect = ({ label, initialRoles, onUpdate, isMulti = true, style = {} 
                 isMulti={isMulti}
                 name="colors"
                 options={roleIds
-                    .filter((roleId) => !divisionOnly ? getRole(roleId).order_id > userHighestRole : divisionRoles.includes(roleId))
                     .map((roleId) => ({
                         value: parseInt(roleId),
                         label: getRole(roleId).name,
                         orderId: getRole(roleId).order_id,
-                        isFixed: !divisionOnly ? getRole(roleId).order_id <= userHighestRole : !divisionRoles.includes(roleId)
+                        isFixed: !divisionOnly ? getRole(roleId).order_id <= userHighestRole : !divisionRoles.includes(roleId),
+                        isDisabled: !divisionOnly ? getRole(roleId).order_id <= userHighestRole : !divisionRoles.includes(roleId)
                     }))}
                 isClearable={selectedRoles.some((v) => !v.isFixed)}
                 className="basic-multi-select"

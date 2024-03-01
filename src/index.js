@@ -27,11 +27,11 @@ if (window.isElectron) {
     // window.host will only be defined when it's a custom build
     // otherwise, an official release will not include window.host
     window.dhhost = localStorage.getItem("domain");
-    if (window.dhhost === null) vwindow.dhhost = "";
 } else {
     window.dhhost = window.location.host;
     if (window.location.hostname === "localhost") window.dhhost = localStorage.getItem("domain");
 }
+if (window.dhhost === null) window.dhhost = "";
 
 const searchParams = new URLSearchParams(window.location.search);
 if (!window.isElectron && window.location.hostname === "localhost" && searchParams.get("domain") !== null) {

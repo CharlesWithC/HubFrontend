@@ -45,6 +45,7 @@ const DiscordAuth = () => {
                             await FetchProfile(appContext, true);
                             appContext.loadMemberUIDs();
                             appContext.loadDlogDetails();
+                            appContext.loadLanguages();
                             setContinue(true);
                             setTimeout(function () { navigate('/'); }, 500);
                         } else {

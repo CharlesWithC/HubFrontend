@@ -41,6 +41,7 @@ const MfaAuth = () => {
                 await FetchProfile(appContext, true);
                 appContext.loadMemberUIDs();
                 appContext.loadDlogDetails();
+                appContext.loadLanguages();
                 setTimeout(function () { navigate("/"); }, 500);
             } else {
                 setOtpError(true);

@@ -35,8 +35,8 @@ export function customSelectStyles(theme) {
         }),
         option: (base, state) => ({
             ...base,
-            color: theme.palette.text.primary,
-            backgroundColor: state.isFocused ? theme.palette.background.paper.substring(0, 7) : base.backgroundColor,
+            color: state.isDisabled ? 'grey' : theme.palette.text.primary,
+            backgroundColor: state.isFocused && !state.isDisabled ? theme.palette.background.paper.substring(0, 7) : theme.palette.background.default.substring(0, 7),
         }),
         menu: (base) => ({
             ...base,
