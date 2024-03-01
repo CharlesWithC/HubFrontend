@@ -186,13 +186,7 @@ const TopBar = (props) => {
     }, [userSettings]);
     useEffect(() => {
         loadRadio();
-    }, [userSettings.radio]);
-    useEffect(() => {
-        window.addEventListener("radioUpdated", loadRadio);
-        return () => {
-            window.removeEventListener("radioUpdated", loadRadio);
-        };
-    }, []);
+    }, [userSettings.radio, userSettings.radio_type]);
     useEffect(() => {
         const handleRadioTypeUpdate = async () => {
             setRadioSongName(tr("now_playing"));
@@ -205,21 +199,12 @@ const TopBar = (props) => {
                 setRadioSongName(tr("failed_to_play"));
             }
         };
-        window.addEventListener("radioTypeUpdated", handleRadioTypeUpdate);
-        return () => {
-            window.removeEventListener("radioTypeUpdated", handleRadioTypeUpdate);
-        };
-    }, []);
-    async function handleRadioVolumeUpdate() {
+        handleRadioTypeUpdate();
+    }, [userSettings.radio_type]);
+    useEffect(() => {
         radioRef.current.volume = userSettings.radio_volume / 100;
         radioRef.current.play();
-    };
-    useEffect(() => {
-        window.addEventListener("radioVolumeUpdated", handleRadioVolumeUpdate);
-        return () => {
-            window.removeEventListener("radioVolumeUpdated", handleRadioVolumeUpdate);
-        };
-    }, []);
+    }, [userSettings.radio_volume]);
     useEffect(() => {
         const intervalId = setInterval(() => {
             if (radioRef.current && radioRef.current.paused) {

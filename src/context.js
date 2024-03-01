@@ -38,7 +38,7 @@ export const AppContext = createContext({
     curUserPerm: [], setCurUserPerm: () => { },
     curUserBanner: { name: "", role: "", avatar: "" }, setCurUserBanner: () => { },
 
-    userSettings: { "notification_refresh_interval": 30, "unit": "metric", "radio": "disabled", "radio_type": "tsr", "radio_volume": 100, "display_timezone": Intl.DateTimeFormat().resolvedOptions().timeZone, "data_saver": false, "font_size": "regular", "default_row_per_page": 10, "language": null, "presence": "full" }, setUserSettings: () => { },
+    userSettings: { "notification_refresh_interval": 30, "unit": "metric", "radio": "disabled", "radio_type": "tsr", "radio_volume": 100, "display_timezone": Intl.DateTimeFormat().resolvedOptions().timeZone, "data_saver": false, "font_size": "regular", "default_row_per_page": 10, "language": null, "presence": "full", "streamer_mode": false }, setUserSettings: () => { },
     // radio: enabled / disabled / auto-play (enabled)
     // radio-type: tsr / {url}
 
@@ -92,7 +92,7 @@ export const AppContextProvider = ({ children }) => {
     const [curUserPerm, setCurUserPerm] = useState([]);
     const [curUserBanner, setCurUserBanner] = useState({ name: "", role: "", avatar: "" });
 
-    const [userSettings, setUserSettings] = useState({ "notification_refresh_interval": 30, "unit": "metric", "radio": "disabled", "radio_type": "tsr", "radio_volume": 100, "display_timezone": Intl.DateTimeFormat().resolvedOptions().timeZone, "data_saver": false, "font_size": "regular", "default_row_per_page": 10, "language": null, "presence": "full" });
+    const [userSettings, setUserSettings] = useState({ "notification_refresh_interval": 30, "unit": "metric", "radio": "disabled", "radio_type": "tsr", "radio_volume": 100, "display_timezone": Intl.DateTimeFormat().resolvedOptions().timeZone, "data_saver": false, "font_size": "regular", "default_row_per_page": 10, "language": null, "presence": "full", "streamer_mode": false });
 
     const [announcementTypes, setAnnouncementTypes] = useState(null);
     const [applicationTypes, setApplicationTypes] = useState(null);

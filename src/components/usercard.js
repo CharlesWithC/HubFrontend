@@ -873,7 +873,7 @@ const UserCard = (props) => {
                                         <a href={`mailto:${user.email}`} target="_blank" rel="noreferrer"><Chip
                                             avatar={<Tooltip placement="top" arrow title={tr("email")}
                                                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><FontAwesomeIcon icon={faAt} /></Tooltip>}
-                                            label={user.email}
+                                            label={!userSettings.streamer_mode ? user.email : user.email[0] + "..."}
                                             sx={{
                                                 borderRadius: "5px",
                                                 margin: "3px",
@@ -893,7 +893,7 @@ const UserCard = (props) => {
                                         <a href={`https://discord.com/users/${user.discordid}`} target="_blank" rel="noreferrer"><Chip
                                             avatar={<Tooltip placement="top" arrow title="Discord"
                                                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><FontAwesomeIcon icon={faDiscord} /></Tooltip>}
-                                            label={user.discordid}
+                                            label={!userSettings.streamer_mode ? user.discordid : String(user.discordid)[0] + "..."}
                                             sx={{
                                                 borderRadius: "5px",
                                                 margin: "3px",
@@ -913,7 +913,7 @@ const UserCard = (props) => {
                                         <a href={`https://steamcommunity.com/profiles/${user.steamid}`} target="_blank" rel="noreferrer"><Chip
                                             avatar={<Tooltip placement="top" arrow title="Steam"
                                                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><FontAwesomeIcon icon={faSteam} /></Tooltip>}
-                                            label={user.steamid}
+                                                label={!userSettings.streamer_mode ? user.steamid : String(user.steamid)[0] + "..."}
                                             sx={{
                                                 borderRadius: "5px",
                                                 margin: "3px",
@@ -933,10 +933,10 @@ const UserCard = (props) => {
                                         <a href={`https://truckersmp.com/user/${user.truckersmpid}`} target="_blank" rel="noreferrer"><Chip
                                             avatar={<Tooltip placement="top" arrow title="TruckersMP"
                                                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><img src="data:image/webp;base64,UklGRugCAABXRUJQVlA4TNwCAAAvH8AHEK/CMADQJIDd/f9XXtG6zQJ5g5UkSaZ6Fs/m6d7x36+tGYdtJClSbx/zPeWf1WfB/wvSDTittm1Znt8VJzvJvXliABpTMAwD0J1GdEkOAxDdXQMAAPAnIpDCn38xAEACwCh8rewUqmCXX+/KrgNAVHGDOh52b6q6J/lxDborLlOBZtX1+z1kxpg08Iizm8v5YzFaikk8QF66zAFYmO/vZJFdsDfeyX/AvWn5yaH+2c4miHpe5LXzl12uB9gV/Nohq8BKgnkj7BehcDAdP/mNEFYwCXF9EVU3o4sv6Nrzd6hun8Y9cezrq0yXPRL1sd8NAtPaUKCMwh6haeqh05pir6+RYlqsacjlL7raXJ7MCd82m1h1IXJZIU2np+t86LQpT/GehuOVFPux24tA6Pimzoz9PQAIsm2nbb6sMJNSxjDJDGFmpv2vxRQ5O4joPwO3bRtJ3bfvfJ+AZyVPrpCnqnNb9rlRJPP1/8TIn/kpN6jseRR5KTRFWaTUYw28lEVJoJTyvLeaKYi0nG+IlPcCgdBbQym/hJJVyRMEAp986zMC4MJD/ZYbL1nIumHW4KfcSAEh3nlp8W/2IcQTJAuxilIIAIFHDSsDP3LzFbIAj5qH+QiGU1WlErb7YCCScr9350rAykClSeVCPPP69VMs/FV4h2CNspGUnQFJEqnQrDZbVFSq738idQCRc3fzpyiKLEuU8qIkOj64LLmaWA8bBaH09/v7V7EH1HG7lFIXe854L9yHuqYZ84+aQpnCspP7bWNky2n3kiJKDCGdW6icNjmZTlQOb0rNOkNIjDDS09vuoLu+aQjPF3OGgQHCanrcux1ug8kBYcQ0pmPUvfRuOtJu3YOBMMfSAm/Hqy7CyNhN1ggzDRtYjfd3hoV+6KdU9hT2vVF0OjparGbj8NDosAQSDEGkt7pNjrteFAJ+lz6XhAAQuA6Hs1HvCsTrb0rAt1/uHYFlSgA=" /></Tooltip>}
-                                            label={<>{tmpLastOnline === null ? user.truckersmpid : <Tooltip placement="top" arrow
+                                            label={<>{tmpLastOnline === null ? `${!userSettings.streamer_mode ? user.truckersmpid : String(user.truckersmpid)[0] + "..."}` : <Tooltip placement="top" arrow
                                                 title={<><>{tr("last_seen")}</>: <TimeAgo key={`${+new Date()}`} timestamp={tmpLastOnline * 1000} /></>}
                                                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-                                                {user.truckersmpid}
+                                                {!userSettings.streamer_mode ? user.truckersmpid : String(user.truckersmpid)[0] + "..."}
                                             </Tooltip>}</>}
                                             sx={{
                                                 borderRadius: "5px",
@@ -1138,7 +1138,7 @@ const UserCard = (props) => {
             <MenuItem onClick={(e) => { updateUserInfo(); updateCtxAction(e, "role-ban-history"); }}><ListItemIcon><FontAwesomeIcon icon={faBarsStaggered} /></ListItemIcon>{tr("roleban_history")}</MenuItem>
             {((user.userid === null || user.userid < 0) && user.ban === null && checkUserPerm(curUserPerm, ["administrator", "accept_members"]) || checkUserPerm(curUserPerm, ["administrator", "update_connections"]) || checkUserPerm(curUserPerm, ["administrator", "disable_mfa"])) && <Divider />}
             {(user.userid === null || user.userid < 0) && user.ban === null && checkUserPerm(curUserPerm, ["administrator", "accept_members"]) && <MenuItem sx={{ color: theme.palette.success.main }} onClick={(e) => { updateCtxAction(e, "accept-user"); }}><ListItemIcon><FontAwesomeIcon icon={faUserCheck} /></ListItemIcon>{tr("accept_as_member")}</MenuItem>}
-            {checkUserPerm(curUserPerm, ["administrator", "update_connections"]) && <MenuItem sx={{ color: theme.palette.warning.main }} onClick={(e) => { updateCtxAction(e, "update-connections"); }}><ListItemIcon><FontAwesomeIcon icon={faLink} /></ListItemIcon>{tr("update_connections")}</MenuItem>}
+            {checkUserPerm(curUserPerm, ["administrator", "update_connections"]) && <MenuItem sx={{ color: theme.palette.warning.main }} onClick={(e) => { updateCtxAction(e, "update-connections"); }} disabled={userSettings.streamer_mode}><ListItemIcon><FontAwesomeIcon icon={faLink} /></ListItemIcon>{tr("update_connections")}</MenuItem>}
             {checkUserPerm(curUserPerm, ["administrator", "disable_mfa"]) && <MenuItem sx={{ color: theme.palette.warning.main }} onClick={(e) => { updateCtxAction(e, "disable-mfa"); }}><ListItemIcon><FontAwesomeIcon icon={faUnlockKeyhole} /></ListItemIcon>{tr("disable_mfa")}</MenuItem>}
             {((user.userid === null || user.userid < 0) && user.ban === null && checkUserPerm(curUserPerm, ["administrator", "ban_users"]) || user.userid !== null && user.userid >= 0 && checkUserPerm(curUserPerm, ["administrator", "dismiss_members"]) || checkUserPerm(curUserPerm, ["administrator", "delete_users"])) && <Divider />}
             {(user.userid === null || user.userid < 0) && user.ban === null && checkUserPerm(curUserPerm, ["administrator", "ban_users"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "ban-user"); }}><ListItemIcon><FontAwesomeIcon icon={faBan} /></ListItemIcon>{tr("ban")}</MenuItem>}

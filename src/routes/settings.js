@@ -262,32 +262,22 @@ const Settings = ({ defaultTab = 0 }) => {
 
     const updateDataSaver = useCallback((to) => {
         setUserSettings(prevSettings => ({ ...prevSettings, data_saver: to }));
+    }, []);
 
-        const dataSaverUpdated = new CustomEvent('dataSaverUpdated', { detail: { enabled: to } });
-        window.dispatchEvent(dataSaverUpdated);
-        const radioUpdated = new CustomEvent('radioUpdated', {});
-        window.dispatchEvent(radioUpdated);
+    const updateStreamerMode = useCallback((to) => {
+        setUserSettings(prevSettings => ({ ...prevSettings, streamer_mode: to }));
     }, []);
 
     const updateRadio = useCallback((to) => {
         setUserSettings(prevSettings => ({ ...prevSettings, radio: to }));
-
-        const radioUpdated = new CustomEvent('radioUpdated', {});
-        window.dispatchEvent(radioUpdated);
     }, []);
 
     const updateRadioType = useCallback((to) => {
         setUserSettings(prevSettings => ({ ...prevSettings, radio_type: to }));
-
-        const radioTypeUpdated = new CustomEvent('radioTypeUpdated', {});
-        window.dispatchEvent(radioTypeUpdated);
     }, []);
 
     const updateRadioVolume = useCallback((to) => {
         setUserSettings(prevSettings => ({ ...prevSettings, radio_volume: to }));
-
-        const radioVolumeUpdated = new CustomEvent('radioVolumeUpdated', {});
-        window.dispatchEvent(radioVolumeUpdated);
     }, []);
 
     const DEFAULT_USER_CONFIG = { "name_color": "/", "profile_upper_color": "/", "profile_lower_color": "/", "profile_banner_url": "/" };
@@ -437,7 +427,7 @@ const Settings = ({ defaultTab = 0 }) => {
         setPrivacySettings(newPrivacySettings);
     }, [apiPath]);
     const debounceUpdatePrivacySettings = debounce(async (newSettings) => {
-        if(window.privacyUpdating) return;
+        if (window.privacyUpdating) return;
         window.privacyUpdating = true;
         window.loading += 1;
 
@@ -1205,7 +1195,16 @@ const Settings = ({ defaultTab = 0 }) => {
                     </ButtonGroup>
                 </Grid>
 
-                <Grid item xs={12} sm={12} md={6} lg={6}>
+                <Grid item xs={12} sm={12} md={3} lg={3}>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Streamer Mode</Typography>
+                    <br />
+                    <ButtonGroup fullWidth>
+                        <Button variant="contained" color={userSettings.streamer_mode === true ? "info" : "secondary"} onClick={() => { updateStreamerMode(true); }}>On</Button>
+                        <Button variant="contained" color={userSettings.streamer_mode === false ? "info" : "secondary"} onClick={() => { updateStreamerMode(false); }}>Off</Button>
+                    </ButtonGroup>
+                </Grid>
+
+                <Grid item xs={12} sm={12} md={3} lg={3}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("data_cache")}</Typography>
                     <br />
                     <ButtonGroup fullWidth>
@@ -1330,7 +1329,7 @@ const Settings = ({ defaultTab = 0 }) => {
                     </Grid>
                 </>}
 
-                <Grid item xs={12} sm={12} md={12} lg={12}>
+                {!userSettings.streamer_mode && <Grid item xs={12} sm={12} md={12} lg={12}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("account_connections")}</Typography>
                     <Grid container spacing={2} sx={{ mt: "5px" }}>
                         <Grid item xs={12} sm={12} md={6} lg={6}>
@@ -1409,7 +1408,7 @@ const Settings = ({ defaultTab = 0 }) => {
                             <Typography variant="body2" align="center"><FontAwesomeIcon icon={faPatreon} />&nbsp;&nbsp;{tr("connect_patreon_account_to_activate_sponsor_perks")}</Typography>
                         </Grid>}
                     </Grid>
-                </Grid>
+                </Grid>}
             </Grid>
         </TabPanel>
         <TabPanel value={tab} index={1}>
