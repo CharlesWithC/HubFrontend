@@ -176,6 +176,14 @@ const Loader = ({ onLoaderLoaded }) => {
                 setUserConfig(userConfig);
             }
             if (config) {
+                if (config.config === undefined) {
+                    setLoaderAnimation(false);
+                    setTitle(tr("drivers_hub"));
+                    setVtcLogo(await loadImageAsBase64(`./logo.png`));
+                    setUnknownDomain(true);
+                    setLoadMessage(<>{tr("drivers_hub_not_found")}<br />{tr("no_drivers_hub_under_domain")}<br /><br /><a href="https://drivershub.charlws.com/">The Drivers Hub Project (CHub)</a></>);
+                    return;
+                }
                 setApiConfig(config.config);
             }
             let allRoles = {}; // to be used by FetchProfile
