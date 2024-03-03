@@ -5,6 +5,30 @@ import CryptoJS from 'crypto-js';
 
 import i18n from './i18n';
 
+let cache = "";
+let cacheExp = 0;
+let cacheA = "";
+let cacheAExp = 0;
+
+async function gck(ua, au, ts) {
+    const te = new TextEncoder();
+    let km = te.encode(ts.toString());
+    let k = await window.crypto.subtle.importKey(
+        "raw", km, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+    let d = te.encode(ua);
+    let sig = await window.crypto.subtle.sign("HMAC", k, d);
+
+    if (au) {
+        km = te.encode(au);
+        k = await window.crypto.subtle.importKey(
+            "raw", km, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+        d = new Uint8Array(sig);
+        sig = await window.crypto.subtle.sign("HMAC", k, d);
+    }
+
+    return Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 const customAxios = axios.create();
 axiosRetry(customAxios, {
     retries: 3,
@@ -14,6 +38,29 @@ axiosRetry(customAxios, {
     retryCondition: (error) => {
         return error.response === undefined && error.response.status in [429, 503];
     },
+});
+customAxios.interceptors.request.use(async (config) => {
+    if (config.headers['Authorization']) {
+        if (cacheAExp > +new Date()) {
+            config.headers['Client-Key'] = cacheA;
+            return config;
+        }
+    } else {
+        if (cacheExp > +new Date()) {
+            config.headers['Client-Key'] = cache;
+            return config;
+        }
+    }
+    const ts = parseInt(+new Date() / 1000 / 20);
+    const au = config.headers['Authorization'];
+    const hmac = await gck(navigator.userAgent, au, ts);
+    config.headers['Client-Key'] = hmac;
+    if (config.headers['Authorization']) {
+        cacheA = hmac; cacheAExp = +new Date() + 20000;
+    } else {
+        cache = hmac; cacheExp = +new Date() + 20000;
+    }
+    return config;
 });
 customAxios.interceptors.response.use(
     (response) => {
@@ -130,7 +177,7 @@ export async function FetchProfile({ apiPath, specialUsers, patrons, setUserLeve
 
             setCurUID(curUser.uid); // do this before setUsers so setUsers could automatically setCurUser
             setUsers(users => ({ ...users, [resp.data.uid]: curUser }));
-            
+
             let tiers = ["platinum", "gold", "silver", "bronze"];
             for (let i = 0; i < tiers.length; i++) {
                 if (userLevel !== -1) break;
