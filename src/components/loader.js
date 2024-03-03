@@ -77,7 +77,9 @@ const Loader = ({ onLoaderLoaded }) => {
                         if (vtcLogo === null) imageLoaded += 1;
                         setVtcLogo(image);
                         try {
-                            localStorage.setItem("cache-logo", image);
+                            if (window.electron) {
+                                localStorage.setItem("cache-logo", image);
+                            }
                         } catch { }
                     })
                     .catch(() => {
@@ -88,6 +90,11 @@ const Loader = ({ onLoaderLoaded }) => {
                     .then((image) => {
                         if (vtcBanner === null) imageLoaded += 1;
                         setVtcBanner(image);
+                        try {
+                            if (window.electron) {
+                                localStorage.setItem("cache-banner", image);
+                            }
+                        } catch { }
                     })
                     .catch(() => {
                         if (vtcBanner === null) imageLoaded += 1;
@@ -99,7 +106,9 @@ const Loader = ({ onLoaderLoaded }) => {
                         if (vtcLevel >= 1) {
                             setVtcBackground(image);
                             try {
-                                localStorage.setItem("cache-background", image);
+                                if (window.electron) {
+                                    localStorage.setItem("cache-background", image);
+                                }
                             } catch { }
                         } else {
                             setVtcBackground("");
