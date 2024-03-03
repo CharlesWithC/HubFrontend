@@ -267,7 +267,7 @@ const Leaderboard = () => {
                 </Grid>
             </DialogContent>
             <DialogActions>
-                <Button variant="contained" onClick={() => { setListParam(tempListParam); setPage(0); }}>{tr("update")}</Button>
+                <Button variant="contained" onClick={() => { setListParam(tempListParam); setPage(1); }}>{tr("update")}</Button>
             </DialogActions>
         </Dialog>
         <SpeedDial
