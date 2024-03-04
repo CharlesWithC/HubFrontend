@@ -237,7 +237,7 @@ const Loader = ({ onLoaderLoaded }) => {
             console.error(error);
             setLoadMessage(tr("error_occurred"));
         }
-    }, []);
+    }, [domain]);
     useEffect(() => {
         doLoad();
     }, []);
@@ -263,13 +263,6 @@ const Loader = ({ onLoaderLoaded }) => {
         setUnknownDomain(false);
         doLoad();
     }, [domain]);
-
-    function intToHex(intValue) {
-        const scaledInt = Math.floor(intValue * 255 / 100);
-        let hexValue = scaledInt.toString(16);
-        if (hexValue.length === 1) hexValue = '0' + hexValue;
-        return hexValue;
-    }
 
     if (window.isElectron && unknownDomain) {
         window.electron.ipcRenderer.send("presence-update", {
