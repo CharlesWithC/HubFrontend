@@ -1,13 +1,15 @@
 # Drivers Hub: Frontend (Extension)
 # Author: @CharlesWithC
 
+import hashlib
+import hmac
 import json
 import os
 import sqlite3
 import threading
 import time
-import uuid
 import urllib
+import uuid
 
 import requests
 import uvicorn
@@ -296,16 +298,26 @@ async def validateTicket(domain: str, authorization: str, response: Response, pe
 
     ok = False
     try:
-        r = requests.get(f"{api_host}/{abbr}/auth/ticket?token="+token, timeout = 3)
+        sig = hmac.new(str(int(time.time() / 20)).encode(), "CHub Frontend Extension".encode(), hashlib.sha256).digest()
+        sig = ''.join(format(x, '02x') for x in sig)
+        headers = {
+            "Accept": "application/json",
+            "Client-Key": sig,
+            "User-Agent": "CHub Frontend Extension"
+        }
+        
+        r = requests.get(f"{api_host}/{abbr}/auth/ticket?token="+token, timeout = 3, headers=headers)
         if r.status_code != 200:
-            return (r.status_code, {"error": json.loads(r.text)["descriptor"]})
+            return (r.status_code, {"error": json.loads(r.text)["error"]})
         resp = json.loads(r.text)
         roles = resp["roles"]
-
+        if roles is None:
+            return (403, {"error": "You must set your profile to visible by external users to use this function."})
+        
         if perm is not None:
-            r = requests.get(f"{api_host}/{abbr}/member/perms", timeout = 3)
+            r = requests.get(f"{api_host}/{abbr}/member/perms", timeout = 3, headers=headers)
             if r.status_code != 200:
-                return (r.status_code, {"error": json.loads(r.text)["descriptor"]})
+                return (r.status_code, {"error": json.loads(r.text)["error"]})
             resp = json.loads(r.text)
             perms = resp
             if isinstance(perm, str):
@@ -327,6 +339,8 @@ async def validateTicket(domain: str, authorization: str, response: Response, pe
         else:
             ok = True
     except:
+        import traceback
+        traceback.print_exc()
         return (503, {"error": "API Unavailable"})
 
     if not ok:
