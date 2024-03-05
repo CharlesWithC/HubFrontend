@@ -51,14 +51,14 @@ customAxios.interceptors.request.use(async (config) => {
             return config;
         }
     }
-    const ts = parseInt(+new Date() / 1000 / 20);
+    const ts = parseInt(+new Date() / 1000 / 60);
     const au = config.headers['Authorization'];
     const hmac = await gck(navigator.userAgent, au, ts);
     config.headers['Client-Key'] = hmac;
     if (config.headers['Authorization']) {
-        cacheA = hmac; cacheAExp = +new Date() + 20000;
+        cacheA = hmac; cacheAExp = +new Date() + 60000;
     } else {
-        cache = hmac; cacheExp = +new Date() + 20000;
+        cache = hmac; cacheExp = +new Date() + 60000;
     }
     return config;
 });
