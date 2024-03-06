@@ -298,7 +298,7 @@ async def validateTicket(domain: str, authorization: str, response: Response, pe
 
     ok = False
     try:
-        sig = hmac.new(str(int(time.time() / 20)).encode(), "CHub Frontend Extension".encode(), hashlib.sha256).digest()
+        sig = hmac.new(str(int(time.time() / 60)).encode(), "CHub Frontend Extension".encode(), hashlib.sha256).digest()
         sig = ''.join(format(x, '02x') for x in sig)
         headers = {
             "Accept": "application/json",
