@@ -2,7 +2,7 @@ import { useRef, useEffect, useState, useCallback, useContext, useMemo } from 'r
 import { useTranslation } from 'react-i18next';
 import { AppContext, CacheContext } from '../context';
 
-import { useTheme, Typography, Snackbar, Alert, SpeedDial, SpeedDialAction, SpeedDialIcon, Dialog, DialogTitle, DialogActions, DialogContent, Grid, Button, LinearProgress } from '@mui/material';
+import { useTheme, Typography, Snackbar, Alert, SpeedDial, SpeedDialAction, SpeedDialIcon, Dialog, DialogTitle, DialogActions, DialogContent, Grid, Button, LinearProgress, MenuItem } from '@mui/material';
 import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -230,7 +230,7 @@ const ExternalUsers = () => {
                     let ban = _banList.list[i];
                     let expireDT = getFormattedDate(userSettings.display_timezone, new Date(ban.ban.expire * 1000));
                     if (ban.ban.expire >= 4102444800 || ban.ban.expire === null) expireDT = "/";
-                    newBanList.push({ uid: ban.meta.uid, user: ban.user === null ? undefined : <UserCard key={ban.user.uid} user={ban.user} />, email: ban.meta.email, discordid: ban.meta.discordid, steamid: <a href={`https://steamcommunity.com/profiles/${ban.meta.steamid}`} target="_blank" rel="noreferrer" >{ban.meta.steamid}</a>, truckersmpid: <a href={`https://truckersmp.com/user/${ban.meta.truckersmpid}`} target="_blank" rel="noreferrer" >{ban.meta.truckersmpid}</a>, reason: ban.ban.reason, expire: expireDT });
+                    newBanList.push({ uid: ban.meta.uid, user: ban.user === null ? undefined : <UserCard key={ban.user.uid} user={ban.user} />, email: ban.meta.email, discordid: ban.meta.discordid, steamid: <a href={`https://steamcommunity.com/profiles/${ban.meta.steamid}`} target="_blank" rel="noreferrer" >{ban.meta.steamid}</a>, truckersmpid: <a href={`https://truckersmp.com/user/${ban.meta.truckersmpid}`} target="_blank" rel="noreferrer" >{ban.meta.truckersmpid}</a>, reason: ban.ban.reason, expire: expireDT, contextMenu: <MenuItem onClick={() => { unbanUser(ban.meta); doLoadBan(); }}>{tr("unban")}</MenuItem> });
                 }
                 if (banPageRef.current === banPage && banSearchRef.current === banSearch) {
                     setBanList(newBanList);
@@ -242,6 +242,18 @@ const ExternalUsers = () => {
         }
         doLoadBan();
     }, [apiPath, theme, banPage, banPageSize, banSearch, banListParam]);
+
+    const unbanUser = useCallback(async (meta) => {
+        meta = removeNullValues(meta);
+        let resp = await axios({ url: `${apiPath}/user/ban`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: meta });
+        if (resp.status === 204) {
+            setSnackbarContent(tr("user_unbanned"));
+            setSnackbarSeverity("success");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+    }, [apiPath]);
 
     return <>
         <CustomTable page={userPage} name={<><FontAwesomeIcon icon={faUserPlus} />&nbsp;&nbsp;{tr("external_users")}</>} order={userListParam.order} orderBy={userListParam.order_by} onOrderingUpdate={(order_by, order) => { setUserListParam({ ...userListParam, order_by: order_by, order: order }); }} titlePosition="top" columns={puColumns} data={userList} totalItems={userTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={userPageSize} onPageChange={setUserPage} onRowsPerPageChange={setUserPageSize} onSearch={(content) => { setUserPage(1); setUserSearch(content); }} searchHint={tr("search_by_username_or_discord_id")} />
