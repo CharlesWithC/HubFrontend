@@ -86,7 +86,7 @@ function TabPanel(props) {
 
 const Settings = ({ defaultTab = 0 }) => {
     const { t: tr } = useTranslation();
-    const { apiPath, vtcBackground, customBackground, setCustomBackground, specialUsers, patrons, curUserPatreonID, userConfig, setUserConfig, vtcLevel, userLevel, apiConfig, webConfig, languages, allRoles, setUsers, curUser, userSettings, setUserSettings } = useContext(AppContext);
+    const { apiPath, vtcBackground, customBackground, setCustomBackground, specialUsers, patrons, curUserPatreonID, vtcLogo, userConfig, setUserConfig, vtcLevel, userLevel, apiConfig, webConfig, languages, allRoles, setUsers, curUser, userSettings, setUserSettings } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     const sessionsColumns = useMemo(() => ([
@@ -717,7 +717,7 @@ const Settings = ({ defaultTab = 0 }) => {
                 height: 200,
                 type: "svg",
                 data: `otpauth://totp/${webConfig.name.replaceAll(" ", "%20")}%20Drivers%20Hub?secret=${newSecret}&issuer=drivershub.charlws&digits=6&period=30`,
-                image: "./logo.png",
+                image: vtcLogo,
                 dotsOptions: {
                     color: theme.palette.text.secondary,
                     type: "extra-rounded"

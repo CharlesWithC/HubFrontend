@@ -180,7 +180,7 @@ export const AppContextProvider = ({ children }) => {
     // background load
     const loadDlogDetails = useCallback(async () => {
         // use atm's data
-        let [resp] = await makeRequestsAuto([{ url: `https://drivershub.charlws.com/atm/dlog/statistics/details`, auth: true }]);
+        let [resp] = await makeRequestsAuto([{ url: `https://corsproxy.io/?https%3A%2F%2Fdrivershub.charlws.com%2Fatm%2Fdlog%2Fstatistics%2Fdetails`, auth: true }]);
         if (resp.error === undefined) {
             setDlogDetailsCache(resp);
         }
