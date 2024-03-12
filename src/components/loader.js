@@ -7,6 +7,10 @@ import { Typography, TextField, Button, useTheme } from '@mui/material';
 
 import { FetchProfile, loadImageAsBase64, customAxios as axios, makeRequestsAuto, compareVersions, writeLS, readLS } from '../functions';
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 const Loader = ({ onLoaderLoaded }) => {
     const [domain, setDomain] = useState(window.location.hostname !== "localhost" ? window.location.hostname : window.dhhost);
 
@@ -121,7 +125,7 @@ const Loader = ({ onLoaderLoaded }) => {
                     })
             ]).then(() => { imageLoaded = 3; });
 
-            let [index, specialRoles, patrons, userConfig, config, memberRoles, memberPerms, memberRanks] = [null, null, null, null, null, null, null, null, null];
+            let [index, apiStatus, specialRoles, patrons, userConfig, config, memberRoles, memberPerms, memberRanks] = [null, null, null, null, null, null, null, null, null];
             let useCache = false;
 
             let cache = readLS("cache", window.dhhost + webConfig.abbr + webConfig.api_host);
@@ -137,9 +141,47 @@ const Loader = ({ onLoaderLoaded }) => {
                 }
             }
 
+            [index, apiStatus] = await makeRequestsAuto([{ url: `https://corsproxy.io/?${apiPath}/`, auth: false },
+            { url: `${apiPath}/status`, auth: false }]);
+
+            if (index) {
+                if (String(index).toLowerCase().indexOf(`bad gateway`) !== -1) {
+                    setLoaderAnimation(false);
+                    setLoadMessage(<>{tr("drivers_hub_is_experiencing_a_temporary_outage")}<br />{tr("please_refresh_the_page_later_and_report_the_incident_if")}</>);
+                    return;
+                }
+                setApiVersion(index.version);
+            }
+            if (apiStatus) {
+                if (apiStatus.database === "unavailable") {
+                    setLoadMessage(<>{tr("drivers_hub_is_experiencing_a_database_outage")}<br />{tr("an_attempt_has_been_made_to_restart_the_database")}</>);
+                    await axios({ url: `${apiPath}/status/database/restart`, method: "POST" });
+                    await sleep(1000);
+
+                    let ok = false;
+                    for (let i = 0; i < 5; i++) {
+                        let resp = await axios({ url: `${apiPath}/status`, method: "GET" });
+                        if (resp.data.database === "unavailable") {
+                            setLoadMessage(<>{tr("drivers_hub_is_experiencing_a_database_outage")}<br />{tr("an_attempt_has_been_made_to_restart_the_database")}</>);
+                            await axios({ url: `${apiPath}/status/database/restart`, method: "POST" });
+                            await sleep(i * 1000 + 2000);
+                        } else {
+                            setLoadMessage(<>{tr("drivers_hub_database_is_back_online")}<br />{tr("loading_has_resumed")}</>);
+                            ok = true;
+                            await sleep(1000);
+                            break;
+                        }
+                    }
+                    if (!ok) {
+                        setLoaderAnimation(false);
+                        setLoadMessage(<>{tr("drivers_hub_is_experiencing_a_database_outage")}<br />{tr("the_attempt_to_restart_the_database_has_failed")}<br />{tr("please_refresh_the_page_later_and_report_the_incident_if")}</>);
+                        return;
+                    }
+                }
+            }
+
             if (!useCache) {
                 const urlsBatch = [
-                    { url: `${apiPath}/`, auth: false },
                     { url: "https://config.chub.page/roles", auth: false },
                     { url: "https://config.chub.page/patrons", auth: false },
                     { url: `https://config.chub.page/config/user?abbr=${webConfig.abbr}`, auth: false },
@@ -149,20 +191,17 @@ const Loader = ({ onLoaderLoaded }) => {
                     { url: `${apiPath}/member/ranks`, auth: false },
                 ];
 
-                [index, specialRoles, patrons, userConfig, config, memberRoles, memberPerms, memberRanks] = await makeRequestsAuto(urlsBatch);
+                [specialRoles, patrons, userConfig, config, memberRoles, memberPerms, memberRanks] = await makeRequestsAuto(urlsBatch);
             } else {
                 const urlsBatch = [
-                    { url: `${apiPath}/`, auth: false },
                     { url: "https://config.chub.page/roles", auth: false },
                     { url: "https://config.chub.page/patrons", auth: false },
                     { url: `https://config.chub.page/config/user?abbr=${webConfig.abbr}`, auth: false },
                 ];
 
-                [index, specialRoles, patrons, userConfig] = await makeRequestsAuto(urlsBatch);
+                [specialRoles, patrons, userConfig] = await makeRequestsAuto(urlsBatch);
             }
-            if (index) {
-                setApiVersion(index.version);
-            }
+
             const specialUsers = {};
             if (specialRoles) {
                 setSpecialRoles(specialRoles);
@@ -224,9 +263,6 @@ const Loader = ({ onLoaderLoaded }) => {
 
             setThemeSettings(prevSettings => ({ ...prevSettings })); // refresh theme settings
 
-            function sleep(ms) {
-                return new Promise(resolve => setTimeout(resolve, ms));
-            }
             while (imageLoaded < 3) {
                 await sleep(10);
             }

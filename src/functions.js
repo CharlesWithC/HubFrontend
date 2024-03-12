@@ -107,9 +107,9 @@ export const makeRequestsWithAuth = async (urls) => {
 
 export const makeRequestsAuto = async (urls) => {
     const responses = await Promise.all(
-        urls.map(({ url, auth }) => {
+        urls.map(async ({ url, auth }) => {
             if (auth === false || (auth === true && getAuthToken() !== null) || auth === "prefer") {
-                return customAxios({
+                return await customAxios({
                     url,
                     headers: auth === true || auth === "prefer" && getAuthToken() !== null ? {
                         Authorization: `Bearer ${getAuthToken()}`
@@ -120,7 +120,7 @@ export const makeRequestsAuto = async (urls) => {
             }
         })
     );
-    return responses.map((response) => response.data);
+    return responses.map((response) => response ? (response.error || response.data) : {});
 };
 
 export function writeLS(key, data, secretKey) {
@@ -311,7 +311,6 @@ export const loadImageAsBase64 = async (imageUrl, fallback = "") => {
             reader.readAsDataURL(blob); // Read the blob as data URL (base64)
         });
     } catch (error) {
-        console.error('Error loading image:', error);
         throw error;
     }
 };

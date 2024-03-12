@@ -76,6 +76,7 @@ const skips = [
     "Arabic (العربية)",
     "Armenian (Հայերեն)",
     "Authorization",
+    "Bad Gateway",
     "Belarusian (беларуская)",
     "Bulgarian (български)",
     "CHub unveils itself as a Software as a Service (SaaS) marvel, inviting you to subscribe and forge your own Drivers Hub. Immerse yourself in the essence of\n                                            our creation by exploring our",
