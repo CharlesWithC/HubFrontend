@@ -233,7 +233,7 @@ const ChallengesMemo = memo(({ userDrivenDistance, challengeList, setChallengeLi
 
     const [page, setPage] = useState(cache.challenge.page);
     const pageRef = useRef(cache.challenge.page);
-    const [pageSize, setPageSize] = useState(cache.challenge.pageSize === null ? userSettings.default_row_per_page : cache.challenge.pageSize === null);
+    const [pageSize, setPageSize] = useState(cache.challenge.pageSize === null ? userSettings.default_row_per_page : cache.challenge.pageSize);
     const [totalItems, setTotalItems] = useState(cache.challenge.totalItems);
     const [listParam, setListParam] = useState(cache.challenge.listParam);
 

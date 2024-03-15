@@ -120,7 +120,7 @@ const DivisionsDlog = memo(({ doReload }) => {
     const [dlogList, setDlogList] = useState(cache.division.dlog.dlogList);
     const [page, setPage] = useState(cache.division.dlog.page);
     const pageRef = useRef(cache.division.dlog.page);
-    const [pageSize, setPageSize] = useState(cache.division.dlog.pageSize === null ? userSettings.default_row_per_page : cache.division.dlog.pageSize === null);
+    const [pageSize, setPageSize] = useState(cache.division.dlog.pageSize === null ? userSettings.default_row_per_page : cache.division.dlog.pageSize);
     const [totalItems, setTotalItems] = useState(cache.division.dlog.totalItems);
     useEffect(() => {
         pageRef.current = page;
@@ -185,7 +185,7 @@ const DivisionsPending = memo(({ doReload }) => {
     const [dlogList, setDlogList] = useState(cache.division.pending.dlogList);
     const [page, setPage] = useState(cache.division.pending.page);
     const pageRef = useRef(cache.division.pending.page);
-    const [pageSize, setPageSize] = useState(cache.division.pending.pageSize === null ? userSettings.default_row_per_page : cache.division.pending.pageSize === null);
+    const [pageSize, setPageSize] = useState(cache.division.pending.pageSize === null ? userSettings.default_row_per_page : cache.division.pending.pageSize);
     const [totalItems, setTotalItems] = useState(cache.division.pending.totalItems);
     useEffect(() => {
         pageRef.current = page;
