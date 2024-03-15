@@ -575,7 +575,7 @@ const UserCard = (props) => {
     const updatePoints = useCallback(async () => {
         // no need to update user info since points are not included in user info
         setDialogBtnDisabled(true);
-        let resp = await axios({ url: `${apiPath}/member/${user.userid}/points`, method: "PATCH", data: { distance: newPoints.distance, bonus: newPoints.bonus }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/member/${user.userid}/points`, method: "PATCH", data: { distance: parseInt(newPoints.distance) || 0, bonus: parseInt(newPoints.bonus) || 0 }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("points_updated"));
             setSnackbarSeverity("success");
