@@ -117,7 +117,7 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
                 </Card>
             </Grid>
         </Grid>}
-        {applications.length > 0 && <CustomTable page={page} columns={columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} data={applications} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100]} defaultRowsPerPage= {pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />}
+        {applications.length > 0 && <CustomTable page={page} columns={columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} data={applications} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />}
     </>;
 });
 
@@ -139,8 +139,12 @@ const AllApplication = () => {
         setSnackbarContent("");
     }, []);
 
+    const [tmpData, setTmpData] = useState(null);
+
     const showDetail = useCallback(async (application) => {
         window.loading += 1;
+
+        setTmpData(null);
 
         let resp = await axios({ url: `${apiPath}/applications/${application.applicationid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
@@ -148,12 +152,21 @@ const AllApplication = () => {
             setNewStatus(String(resp.data.status));
             setMessage("");
             setDialogOpen(true);
+
+            window.loading -= 1;
+
+            if (!isNaN(resp.data.creator.truckersmpid)) {
+                resp = await axios({ url: `https://corsproxy.io/?https://api.truckersmp.com/v2/player/${resp.data.creator.truckersmpid}` });
+                if (resp.status === 200) {
+                    setTmpData(resp.data.response);
+                }
+            }
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
-        }
 
-        window.loading -= 1;
+            window.loading -= 1;
+        }
     }, [apiPath]);
 
     const updateStatus = useCallback(async () => {
@@ -228,6 +241,28 @@ const AllApplication = () => {
                 </Typography>
                 <Typography variant="body2" sx={{ marginBottom: "5px" }}>
                     <b><>TruckersMP</>: </b><a href={`https://truckersmp.com/user/${detailApp.creator.truckersmpid}`} target="_blank" rel="noreferrer">{detailApp.creator.truckersmpid}</a>
+                    {tmpData !== null && <>
+                        {!tmpData.displayBans && <>&nbsp;({tr("punishments_hidden")})</>}
+                        {tmpData.displayBans && <>
+                            {!tmpData.banned && <>&nbsp;({tr("no_active_bans")})</>}
+                            {tmpData.banned && <>
+                                &nbsp;({tmpData.bansCount} {tr("active_bans")})</>}
+                        </>}<br />
+                        {tmpData.vtc.id !== 0 && <>
+                            <b>{tr("current_vtc")}</b>: <a href={`https://truckersmp.com/vtc/${tmpData.vtc.id}`} target="_blank" rel="noreferrer">{tmpData.vtc.name}</a>
+                        </>}
+                        {tmpData.vtc.id === 0 && <>
+                            <b>{tr("current_vtc")}</b>{tr("na")}</>}<br />
+                        {tmpData.vtcHistory.length !== 0 && <>
+                            <b>{tr("vtc_history")} ({tmpData.vtcHistory.length})</b>: <>{tmpData.vtcHistory.map((vtc, index) => <><a href={`https://truckersmp.com/vtc/${vtc.id}`} target="_blank" rel="noreferrer">{vtc.name}</a> ({tr("left")} <TimeAgo timestamp={+new Date(vtc.leftDate)} rough={true}></TimeAgo>)<>{index !== tmpData.vtcHistory.length - 1 && `, `}</></>)}</>
+                        </>}
+                        {tmpData.vtcHistory.length === 0 && <>
+                            <b>{tr("vtc_history_0")}</b>{tr("na")}</>}
+                    </>}
+                    {tmpData === null && <><br />
+                        <b>{tr("current_vtc")}</b>{tr("na")}<br />
+                        <b>{tr("vtc_history_0")}</b>{tr("na")}</>
+                    }
                 </Typography>
                 <br />
                 {Object.entries(detailApp.application).map(([question, answer]) => (

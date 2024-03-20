@@ -5,7 +5,7 @@ import { AppContext } from '../context';
 import { getFormattedDate } from "../functions";
 
 
-const TimeAgo = ({ timestamp, lower = false }) => {
+const TimeAgo = ({ timestamp, lower = false, rough = false }) => {
     const { t: tr } = useTranslation();
     const { userSettings } = useContext(AppContext);
 
@@ -39,6 +39,7 @@ const TimeAgo = ({ timestamp, lower = false }) => {
         } else if (isYesterday) {
             ret = getFormattedDate(userSettings.display_timezone, date, tr("yesterday")); // Yesterday at 10:20
         }
+        if (rough) ret = ret.split(" at")[0];
         if (ret !== "") {
             if (lower) return ret.toLowerCase();
             else return ret;
@@ -48,6 +49,7 @@ const TimeAgo = ({ timestamp, lower = false }) => {
         } else {
             ret = getFormattedDate(userSettings.display_timezone, date); // 10. January 2017. at 10:20
         }
+        if (rough) ret = ret.split(" at")[0];
         return ret;
     }, []);
 
