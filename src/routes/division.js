@@ -8,13 +8,14 @@ import { PermContactCalendarRounded, LocalShippingRounded, EuroRounded, AttachMo
 import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faWarehouse, faClock } from '@fortawesome/free-solid-svg-icons';
+import { faWarehouse, faClock, faGears } from '@fortawesome/free-solid-svg-icons';
 
 import UserCard from '../components/usercard';
 import TimeAgo from '../components/timeago';
 import CustomTable from '../components/table';
+import DateTimeField from '../components/datetime';
 
-import { ConvertUnit, TSep, makeRequestsWithAuth, checkUserPerm, checkPerm, customAxios as axios, getAuthToken } from '../functions';
+import { ConvertUnit, TSep, makeRequestsWithAuth, checkUserPerm, checkPerm, customAxios as axios, getAuthToken, removeNUEValues } from '../functions';
 
 const CURRENTY_ICON = { 1: "€", 2: "$" };
 
@@ -71,7 +72,7 @@ const DivisionCard = ({ division }) => {
     </Card>);
 };
 
-const DivisionsMemo = memo(({ doReload, loadComplete, setLoadComplete }) => {
+const DivisionsMemo = memo(({ doReload, loadComplete, setLoadComplete, listParam }) => {
     const { apiPath } = useContext(AppContext);
 
     const [divisions, setDivisions] = useState([]);
@@ -80,8 +81,10 @@ const DivisionsMemo = memo(({ doReload, loadComplete, setLoadComplete }) => {
         async function doLoad() {
             window.loading += 1;
 
+            let processedParam = removeNUEValues(listParam);
+            
             let urls = [
-                `${apiPath}/divisions`,
+                `${apiPath}/divisions?${new URLSearchParams(processedParam).toString()}`,
             ];
             let [_divisions] = await makeRequestsWithAuth(urls);
             setDivisions(_divisions);
@@ -91,7 +94,7 @@ const DivisionsMemo = memo(({ doReload, loadComplete, setLoadComplete }) => {
             window.loading -= 1;
         }
         doLoad();
-    }, [apiPath, doReload]);
+    }, [apiPath, doReload, listParam]);
 
     return <>{loadComplete >= 3 && <Grid container spacing={2}>
         {divisions.map((division, index) => (
@@ -288,14 +291,25 @@ const DivisionManagers = memo(() => {
 const Divisions = () => {
     const { t: tr } = useTranslation();
     const { curUser } = useContext(AppContext);
+    const { cache, setCache } = useContext(CacheContext);
 
     const [doReload, setDoReload] = useState(0);
     const [dialogManagers, setDialogManagers] = useState(false);
+    const [dialogOpen, setDialogOpen] = useState("");
+
+    const [tempListParam, setTempListParam] = useState(cache.division.listParam);
+    const [listParam, setListParam] = useState(cache.division.listParam);
+
+    useEffect(() => {
+        return () => {
+            setCache(cache => ({ ...cache, division: { ...cache.division, listParam } }));
+        };
+    }, [listParam]);
 
     const [loadComplete, setLoadComplete] = useState(0); // increment
 
     return <>
-        <DivisionsMemo doReload={doReload} loadComplete={loadComplete} setLoadComplete={setLoadComplete} />
+        <DivisionsMemo doReload={doReload} loadComplete={loadComplete} setLoadComplete={setLoadComplete} listParam={listParam} />
         <DivisionsDlog doReload={doReload} loadComplete={loadComplete} setLoadComplete={setLoadComplete} />
         <DivisionsPending doReload={doReload} loadComplete={loadComplete} setLoadComplete={setLoadComplete} />
         <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
@@ -307,11 +321,42 @@ const Divisions = () => {
                 <Button variant="primary" onClick={() => { setDialogManagers(false); }}>{tr("close")}</Button>
             </DialogActions>
         </Dialog>
+        <Dialog open={dialogOpen === "settings"} onClose={() => { setDialogOpen(""); }} fullWidth>
+            <DialogTitle><FontAwesomeIcon icon={faGears} />&nbsp;&nbsp;{tr("settings")}</DialogTitle>
+            <DialogContent>
+                <Grid container spacing={2} sx={{ mt: "5px" }}>
+                    <Grid item xs={6}>
+                        <DateTimeField
+                            label={tr("after")}
+                            defaultValue={tempListParam.after}
+                            onChange={(timestamp) => { setTempListParam({ ...tempListParam, after: timestamp }); }}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <DateTimeField
+                            label={tr("before")}
+                            defaultValue={tempListParam.before}
+                            onChange={(timestamp) => { setTempListParam({ ...tempListParam, before: timestamp }); }}
+                            fullWidth
+                        />
+                    </Grid>
+                </Grid>
+            </DialogContent>
+            <DialogActions>
+                <Button variant="contained" onClick={() => { setListParam(tempListParam); }}>{tr("update")}</Button>
+            </DialogActions>
+        </Dialog>
         <SpeedDial
             ariaLabel={tr("controls")}
             sx={{ position: 'fixed', bottom: 20, right: 20 }}
             icon={<SpeedDialIcon />}
         >
+            <SpeedDialAction
+                key="settings"
+                tooltipTitle={tr("settings")}
+                icon={<FontAwesomeIcon icon={faGears} />}
+                onClick={() => { setDialogOpen("settings"); }} />
             {curUser.userid !== -1 && <SpeedDialAction
                 key="managers"
                 icon={<PeopleAltRounded />}

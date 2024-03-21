@@ -630,11 +630,11 @@ export function removeNullValues(obj) {
     return newObj;
 };
 
-export function removeNUEValues(obj) { // NUE => null + undefined + empty string
+export function removeNUEValues(obj) { // NUE => null + nan + undefined + empty string
     const newObj = {};
 
     for (const key in obj) {
-        if (obj.hasOwnProperty(key) && obj[key] !== null && obj[key] !== undefined && obj[key] !== "") {
+        if (obj.hasOwnProperty(key) && obj[key] !== null && obj[key] !== undefined && obj[key] !== "" && !isNaN(obj[key])) {
             newObj[key] = obj[key];
         }
     }

@@ -7,9 +7,11 @@
 3. Added login screen tips
 4. Improved ranking tab stability
 5. Improved division tab to show data simultaneously after load
-6. Fixed date time input ignores display time zone settings
-7. Added TruckersMP event import
-8. Added automatic profile synchronization on load (if avatar expires)
+6. Added TruckersMP event import
+7. Added automatic profile synchronization on load (if avatar expires)
+8. Added division time range settings
+9. Fixed date time input ignores display time zone settings
+10. Fixed date time input crashes when input is invalid (should clear input)
 
 ## v3.4.1
 

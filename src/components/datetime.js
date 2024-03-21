@@ -19,7 +19,11 @@ const DateTimeField = ({ label, defaultValue, onChange, fullWidth = false, size 
 
     // init
     useEffect(() => { // only consider the initial value
-        setDefaultValueConverted(defaultValue !== undefined ? new Date(new Date(defaultValue * 1000).getTime() - getTimezoneOffset(displayTimezone) * 60000).toISOString().slice(0, 16) : undefined);
+        try {
+            setDefaultValueConverted(defaultValue !== undefined ? new Date(new Date(defaultValue * 1000).getTime() - getTimezoneOffset(displayTimezone) * 60000).toISOString().slice(0, 16) : undefined);
+        } catch (error) { // invalid date
+            setDefaultValueConverted(undefined);
+        }
     }, []);
 
     useEffect(() => { // only consider the initial value

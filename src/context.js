@@ -385,7 +385,8 @@ const DEFAULT_CACHE = {
             page: 1,
             pageSize: null,
             totalItems: 1,
-        }
+        },
+        listParam: { after: undefined, before: undefined }
     },
     downloads: {
         downloadableItems: [],
@@ -492,7 +493,8 @@ export const CacheContextProvider = ({ children }) => {
             'leaderboard.listParam',
             'member_list.listParam',
             'ranking.detailedPoints',
-            'ranking.curRankTypeId'
+            'ranking.curRankTypeId',
+            'division.listParam'
         ];
 
         const listParamCache = listParamPaths.reduce((acc, path) => {
