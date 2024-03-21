@@ -7,6 +7,20 @@ import { Typography, TextField, Button, useTheme } from '@mui/material';
 
 import { FetchProfile, loadImageAsBase64, customAxios as axios, makeRequestsAuto, compareVersions, writeLS, readLS } from '../functions';
 
+const TIPS = [
+    "The pre-login avatar belongs to CharlesWithC. He's a Night Fury.",
+    "The Drivers Hub is operated by CHub, owned by CharlesWithC.",
+    "CHub was originally called GeHub, as part of the Gecko ecosystem.",
+    "We've got a website which may solve your problems: wiki.charlws.com",
+    "Find hidden features by hovering on the + in the bottom right.",
+    "Some components have context menus. Right-click to find out.",
+    "CHub is an open platform that supports Trucky, TrackSim and custom trackers.",
+    "Multiple rankings is supported, but you'll need JSON knowledge to manage them.",
+    "All statistics and points are traceable, allowing data fetching of any time range."
+];
+
+const tip = TIPS[Math.floor(Math.random() * TIPS.length)];
+
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -334,6 +348,7 @@ const Loader = ({ onLoaderLoaded }) => {
                 </HelmetProvider>
                 {vtcLogo !== null && vtcLogo !== "" && <img src={vtcLogo} className={`loader ${animateLoader ? "loader-animated" : ""}`} alt="" style={{ marginBottom: "10px" }} />}
                 {(!window.isElectron || !unknownDomain) && <Typography variant="body1" sx={{ fontSize: "25px" }}>{loadMessage}</Typography>}
+                {(!window.isElectron || !unknownDomain) && animateLoader && <Typography variant="body2" sx={{ fontSize: "15px", opacity: 0.8 }}>{tip}</Typography>}
                 {(window.isElectron && unknownDomain) && <>
                     <Typography variant="body1" sx={{ mb: "10px" }}>{tr("enter_the_drivers_hub_domain_to_start_your_app_experience")}</Typography>
                     <TextField
