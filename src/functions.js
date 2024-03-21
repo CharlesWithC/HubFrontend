@@ -385,11 +385,11 @@ export function getCurrentMonthName() {
     return months[date.getMonth()];
 }
 
-export function getTimezoneOffset(timezone) {
+export function getTimezoneOffset(timezone, compareWith = 'UTC') {
     const date = new Date();
-    const utcDate = new Date(date.toLocaleString('en-US', { timeZone: 'UTC' }));
+    const baseDate = new Date(date.toLocaleString('en-US', { timeZone: compareWith }));
     const tzDate = new Date(date.toLocaleString('en-US', { timeZone: timezone }));
-    return (utcDate - tzDate) / (1000 * 60);
+    return (baseDate - tzDate) / (1000 * 60);
 }
 
 export function getFormattedDate(display_timezone, date, prefomattedDate = false, hideYear = false) {

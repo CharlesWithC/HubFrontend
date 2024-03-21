@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useContext, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppContext, CacheContext } from '../context';
 
-import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction } from '@mui/material';
+import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction, InputAdornment } from '@mui/material';
 import { LocalParkingRounded, TimeToLeaveRounded, FlightTakeoffRounded, FlightLandRounded, RouteRounded, HowToRegRounded, LocalShippingRounded, EmojiEventsRounded, EditRounded, DeleteRounded, CheckBoxRounded, CheckBoxOutlineBlankRounded, PeopleAltRounded, EditNoteRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
 
@@ -582,6 +582,34 @@ const Events = () => {
         setDialogOpen(true);
     }, [clearModal]);
 
+    const [importDisabled, setImportDisabled] = useState(false);
+    const importTMPEvent = useCallback(async () => {
+        setImportDisabled(true);
+
+        const eventId = link.replace("https://truckersmp.com/events/", "");
+        const resp = await axios({ url: `https://corsproxy.io/?https://api.truckersmp.com/v2/events/${eventId}` });
+        if (resp.status !== 200) {
+            setImportDisabled(false);
+            setSnackbarContent("Invalid TruckersMP event link");
+            setSnackbarSeverity("error");
+            return;
+        }
+
+        const event = resp.data.response;
+
+        setTitle(event.name);
+        setDescription(event.description);
+        setDeparture(event.departure.city + ` (${event.departure.location})`);
+        setDestination(event.arrive.city + ` (${event.arrive.location})`);
+        setMeetupTime(undefined); // first clear datetime data
+        setDepartureTime(undefined); // first clear datetime data
+        setTimeout(function () { // wait after data is cleaned
+            if (event.meetup_at) setMeetupTime(+new Date(event.meetup_at.replace(" ", "T") + ".000000Z") / 1000);
+            if (event.start_at) setDepartureTime(+new Date(event.start_at.replace(" ", "T") + ".000000Z") / 1000);
+            setImportDisabled(false);
+        }, 50);
+    }, [link]);
+
     const editEventAttendees = useCallback(async (eventid) => {
         window.loading += 1;
 
@@ -709,6 +737,13 @@ const Events = () => {
                                 value={link}
                                 onChange={(e) => setLink(e.target.value)}
                                 fullWidth
+                                InputProps={{
+                                    endAdornment: (
+                                        <>{link.startsWith("https://truckersmp.com/events/") && link.replace("https://truckersmp.com/events/", "") !== "" && <InputAdornment position="end">
+                                            <Button variant="contained" onClick={() => { importTMPEvent(); }} disabled={importDisabled}>{tr("import")}</Button>
+                                        </InputAdornment>}</>
+                                    ),
+                                }}
                             />
                         </Grid>
                         <Grid item xs={12}>

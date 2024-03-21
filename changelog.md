@@ -7,6 +7,8 @@
 3. Added login screen tips
 4. Improved ranking tab stability
 5. Improved division tab to show data simultaneously after load
+6. Fixed date time input ignores display time zone settings
+7. Added TruckersMP event import
 
 ## v3.4.1
 
