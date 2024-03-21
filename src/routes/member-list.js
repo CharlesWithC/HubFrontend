@@ -119,7 +119,7 @@ const MemberList = () => {
     const [tmpCompareResult, setTmpCompareResult] = useState([]);
     const compareTruckersMP = useCallback(async () => {
         if (userLevel < 4) {
-            setSnackbarContent("Compare TruckersMP Members is a Platinum Perk! Sponsor at charl.ws/patreon");
+            setSnackbarContent(tr("compare_truckersmp_members_is_a_platinum_perk_sponsor_at_charlwspatreon"));
             setSnackbarSeverity("warning");
             return;
         }
@@ -129,7 +129,7 @@ const MemberList = () => {
         let resp = await axios({ url: `https://corsproxy.io/?https%3A%2F%2Fapi.truckersmp.com%2Fv2%2Fvtc%2F${tmpVtcId}%2Fmembers` });
         if (resp.status !== 200) {
             setTmpCompareResult(newTmpCompareResult);
-            setSnackbarContent("Failed to fetch TruckersMP members.");
+            setSnackbarContent(tr("failed_to_fetch_truckersmp_members"));
             setSnackbarSeverity("error");
             return;
         }
@@ -166,10 +166,10 @@ const MemberList = () => {
 
         let newTmpCompareResult = [];
         for (let i = 0; i < tmpNoDh.length; i++) {
-            newTmpCompareResult.push({ name: tmpNoDh[i].username, steamid: tmpNoDh[i].steam_id, truckersmpid: tmpNoDh[i].user_id, status: "Not in Drivers Hub" });
+            newTmpCompareResult.push({ name: tmpNoDh[i].username, steamid: tmpNoDh[i].steam_id, truckersmpid: tmpNoDh[i].user_id, status: tr("not_in_drivers_hub") });
         }
         for (let i = 0; i < dhNoTmp.length; i++) {
-            newTmpCompareResult.push({ ...dhNoTmp[i], status: "Not in TruckersMP VTC" });
+            newTmpCompareResult.push({ ...dhNoTmp[i], status: tr("not_in_truckersmp_vtc") });
         }
         setTmpCompareResult(newTmpCompareResult);
 
@@ -413,10 +413,10 @@ const MemberList = () => {
             </DialogActions>
         </Dialog>
         <Dialog fullWidth open={dialogOpen === "compare-truckersmp"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
-            <DialogTitle><FontAwesomeIcon icon={faCodeCompare} />&nbsp;&nbsp;Compare TruckersMP Members&nbsp;&nbsp;<SponsorBadge level={4} /></DialogTitle>
+            <DialogTitle><FontAwesomeIcon icon={faCodeCompare} />{tr("compare_truckersmp_members")}<SponsorBadge level={4} /></DialogTitle>
             <DialogContent>
                 <TextField size="small"
-                    label="TruckersMP VTC ID"
+                    label={tr("truckersmp_vtc_id")}
                     value={tmpVtcId}
                     onChange={(e) => { if (!isNaN(e.target.value)) setTmpVtcId(e.target.value); }}
                     fullWidth sx={{ mt: "5px", mb: "10px" }}
@@ -428,9 +428,9 @@ const MemberList = () => {
                             <Table>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>Name</TableCell>
-                                        <TableCell>TruckersMP ID</TableCell>
-                                        <TableCell>Status</TableCell>
+                                        <TableCell>{tr("name")}</TableCell>
+                                        <TableCell>{tr("truckersmp_id")}</TableCell>
+                                        <TableCell>{tr("status")}</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -447,7 +447,7 @@ const MemberList = () => {
                 </Card>
             </DialogContent>
             <DialogActions>
-                <Button variant="contained" color="info" onClick={() => { compareTruckersMP(); }} disabled={dialogButtonDisabled || tmpVtcId.replaceAll(" ", "") === ""}>Compare</Button>
+                <Button variant="contained" color="info" onClick={() => { compareTruckersMP(); }} disabled={dialogButtonDisabled || tmpVtcId.replaceAll(" ", "") === ""}>{tr("compare")}</Button>
             </DialogActions>
         </Dialog>
         <Dialog open={dialogOpen === "batch-role-update"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
@@ -554,7 +554,7 @@ const MemberList = () => {
             <SpeedDialAction
                 key="export-member-list"
                 icon={<FontAwesomeIcon icon={faFileExport} />}
-                tooltipTitle="Export Members"
+                tooltipTitle={tr("export_members")}
                 onClick={() => exportMemberList()}
             />
             <SpeedDialAction
@@ -566,7 +566,7 @@ const MemberList = () => {
             <SpeedDialAction
                 key="compare-truckersmp"
                 icon={<FontAwesomeIcon icon={faCodeCompare} />}
-                tooltipTitle="Compare TruckersMP Members"
+                tooltipTitle={tr("compare_truckersmp_members")}
                 onClick={() => setDialogOpen("compare-truckersmp")}
             />
             <SpeedDialAction
