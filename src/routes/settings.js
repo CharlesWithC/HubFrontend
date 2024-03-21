@@ -86,7 +86,7 @@ function TabPanel(props) {
 
 const Settings = ({ defaultTab = 0 }) => {
     const { t: tr } = useTranslation();
-    const { apiPath, vtcBackground, customBackground, setCustomBackground, specialUsers, patrons, curUserPatreonID, vtcLogo, userConfig, setUserConfig, vtcLevel, userLevel, apiConfig, webConfig, languages, allRoles, setUsers, curUser, userSettings, setUserSettings } = useContext(AppContext);
+    const { apiPath, vtcBackground, customBackground, setCustomBackground, specialUsers, patrons, curUserPatreonID, vtcLogo, userConfig, setUserConfig, vtcLevel, userLevel, apiConfig, webConfig, languages, allRoles, setUsers, curUser, setCurUser, userSettings, setUserSettings } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     const sessionsColumns = useMemo(() => ([
@@ -542,18 +542,9 @@ const Settings = ({ defaultTab = 0 }) => {
         setNewProfileDisabled(true);
         sync_to === undefined ? sync_to = "" : sync_to = `?sync_to_${sync_to}=true`;
         let resp = await axios({ url: `${apiPath}/user/profile${sync_to}`, method: "PATCH", data: newProfile, headers: { Authorization: `Bearer ${getAuthToken()}` } });
-        if (resp.status === 204) {
-            if (sync_to !== "") {
-                resp = await axios({ url: `${apiPath}/user/profile`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
-                setNewProfile({ name: resp.data.name, avatar: resp.data.avatar });
-                curUser = resp.data;
-                setUsers(users => ({ ...users, [curUser.uid]: resp.data }));
-            } else {
-                curUser.name = newProfile.name;
-                curUser.avatar = newProfile.avatar;
-                curUser = curUser;
-                setUsers(users => ({ ...users, [curUser.uid]: curUser }));
-            }
+        if (resp.status === 200) {
+            setUsers(users => ({ ...users, [curUser.uid]: resp.data }));
+            setNewProfile({ name: resp.data.name, avatar: resp.data.avatar });
             setSnackbarContent(tr("profile_updated"));
             setSnackbarSeverity("success");
         } else {
@@ -1437,6 +1428,9 @@ const Settings = ({ defaultTab = 0 }) => {
                             />
                         </Grid>
                         <Grid item xs={12} sm={12} md={12} lg={12}>
+                            <Button variant="contained" onClick={() => { updateProfile(); }} disabled={newAboutMeDisabled} sx={{ mt: "5px" }} fullWidth>{tr("save")}</Button>
+                        </Grid>
+                        <Grid item xs={12} sm={12} md={12} lg={12}>
                             <ButtonGroup fullWidth sx={{ mt: "5px" }}>
                                 <Button variant="contained" color="secondary">{tr("sync_to")}</Button>
                                 <Button variant="contained" color="success" onClick={() => { updateProfile("discord"); }} disabled={newProfileDisabled}>Discord</Button>
@@ -1444,7 +1438,43 @@ const Settings = ({ defaultTab = 0 }) => {
                                 <Button variant="contained" color="error" onClick={() => { updateProfile("truckersmp"); }} disabled={newProfileDisabled}>TruckersMP</Button>
                             </ButtonGroup>
                         </Grid>
-                        <Grid item xs={12} sm={12} md={12} lg={12}>
+                    </Grid>
+                </Grid>
+                <Grid item xs={12} sm={12} md={6} lg={6}>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("about_me")}</Typography>
+                    <br />
+                    <TextField
+                        multiline
+                        key="about-me"
+                        name={tr("about_me")}
+                        value={newAboutMe}
+                        onChange={(e) => { setNewAboutMe(e.target.value); }}
+                        rows={8}
+                        placeholder={tr("say_something_about_you")}
+                        sx={{ mt: "5px" }} fullWidth
+                    />
+                    <Button variant="contained" onClick={() => { updateAboutMe(); }} disabled={newAboutMeDisabled} sx={{ mt: "5px" }} fullWidth>{tr("save")}</Button>
+                </Grid>
+                <Grid item xs={12} sm={12} md={12} lg={12}>
+                    <Divider />
+                </Grid>
+                <Grid item xs={12} sm={12} md={6} lg={6}>
+                    <Grid container spacing={2}>
+                        {userLevel < 3 && <Grid item xs={12}>
+                            <Typography variant="h7" sx={{ fontWeight: 800, mb: "10px", color: theme.palette.info.main }}>{tr("customize_your_profile_with")}&nbsp;&nbsp;<SponsorBadge level={3} plus={true} /></Typography>
+                            <br />
+                        </Grid>}
+                        <Grid item xs={12}>
+                            <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("profile_banner_url")}&nbsp;&nbsp;<SponsorBadge level={3} /></Typography>
+                            <TextField
+                                value={remoteUserConfig.profile_banner_url}
+                                onChange={(e) => { setRemoteUserConfig({ ...remoteUserConfig, profile_banner_url: e.target.value }); }}
+                                fullWidth size="small"
+                                sx={{ marginLeft: "5px" }}
+                                disabled={userLevel < 3}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
                             <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("name_color")}&nbsp;&nbsp;<SponsorBadge level={2} plus={true} /></Typography>
                             <br />
                             {(vtcLevel >= 1 && webConfig.name_color !== null || userLevel >= 2) && <Box display="flex" flexDirection="row">
@@ -1471,48 +1501,20 @@ const Settings = ({ defaultTab = 0 }) => {
                                 <ColorInput boxWrapper={false} color={remoteUserConfig.name_color} onChange={(val) => { setRemoteUserConfig({ ...remoteUserConfig, name_color: val }); }} customTooltip={tr("custom_color_platinum")} disableDefault={userLevel < 2} disableCustom={userLevel < 4} />
                             </Box>}
                         </Grid>
+                        <Grid item xs={12} md={6}>
+                            <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("profile_theme_primary")}&nbsp;&nbsp;<SponsorBadge level={3} /></Typography>
+                            <br />
+                            <ColorInput color={remoteUserConfig.profile_upper_color} onChange={(val) => { setRemoteUserConfig({ ...remoteUserConfig, profile_upper_color: val }); }} disableDefault={userLevel < 3} disableCustom={userLevel < 3} />
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("profile_theme_accent")}&nbsp;&nbsp;<SponsorBadge level={3} /></Typography>
+                            <br />
+                            <ColorInput color={remoteUserConfig.profile_lower_color} onChange={(val) => { setRemoteUserConfig({ ...remoteUserConfig, profile_lower_color: val }); }} disableDefault={userLevel < 3} disableCustom={userLevel < 3} />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Button fullWidth variant="contained" onClick={() => { updateRemoteUserConfig(); }} disabled={remoteUserConfigDisabled || userLevel < 2}>{tr("save")}</Button>
+                        </Grid>
                     </Grid>
-                </Grid>
-                <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("about_me")}</Typography>
-                    <br />
-                    <TextField
-                        multiline
-                        key="about-me"
-                        name={tr("about_me")}
-                        value={newAboutMe}
-                        onChange={(e) => { setNewAboutMe(e.target.value); }}
-                        rows={9}
-                        placeholder={tr("say_something_about_you")}
-                        sx={{ mt: "5px" }} fullWidth
-                    />
-                    <Button variant="contained" onClick={() => { updateAboutMe(); }} disabled={newAboutMeDisabled} sx={{ mt: "5px" }} fullWidth>{tr("save")}</Button>
-                </Grid>
-                <Grid item xs={12} sm={12} md={12} lg={12}>
-                    <Divider />
-                </Grid>
-                <Grid item xs={12} sm={12} md={6} lg={6}>
-                    {userLevel < 3 && <>
-                        <Typography variant="h7" sx={{ fontWeight: 800, mb: "10px", color: theme.palette.info.main }}>{tr("customize_your_profile_with")}&nbsp;&nbsp;<SponsorBadge level={3} plus={true} /></Typography>
-                        <br />
-                    </>}
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("profile_theme_primary")}&nbsp;&nbsp;<SponsorBadge level={3} /></Typography>
-                    <br />
-                    <ColorInput color={remoteUserConfig.profile_upper_color} onChange={(val) => { setRemoteUserConfig({ ...remoteUserConfig, profile_upper_color: val }); }} disableDefault={userLevel < 3} disableCustom={userLevel < 3} />
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("profile_theme_accent")}&nbsp;&nbsp;<SponsorBadge level={3} /></Typography>
-                    <br />
-                    <ColorInput color={remoteUserConfig.profile_lower_color} onChange={(val) => { setRemoteUserConfig({ ...remoteUserConfig, profile_lower_color: val }); }} disableDefault={userLevel < 3} disableCustom={userLevel < 3} />
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("profile_banner_url")}&nbsp;&nbsp;<SponsorBadge level={3} /></Typography>
-                    <br />
-                    <TextField
-                        value={remoteUserConfig.profile_banner_url}
-                        onChange={(e) => { setRemoteUserConfig({ ...remoteUserConfig, profile_banner_url: e.target.value }); }}
-                        fullWidth size="small"
-                        sx={{ marginLeft: "5px", width: "280px" }}
-                        disabled={userLevel < 3}
-                    />
-                    <br />
-                    <Button variant="contained" onClick={() => { updateRemoteUserConfig(); }} disabled={remoteUserConfigDisabled || userLevel < 2} sx={{ mt: "10px", width: "280px" }}>{tr("save")}</Button>
                 </Grid>
                 <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Card sx={{ maxWidth: 340, minWidth: 340, padding: "5px", backgroundImage: `linear-gradient(${remoteUserConfig.profile_upper_color}, ${remoteUserConfig.profile_lower_color})` }}>

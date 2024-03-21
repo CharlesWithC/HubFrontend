@@ -9,6 +9,7 @@
 5. Improved division tab to show data simultaneously after load
 6. Fixed date time input ignores display time zone settings
 7. Added TruckersMP event import
+8. Added automatic profile synchronization on load (if avatar expires)
 
 ## v3.4.1
 

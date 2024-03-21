@@ -176,7 +176,34 @@ export async function FetchProfile({ apiPath, specialUsers, patrons, setUserLeve
             let userLevel = -1;
 
             setCurUID(curUser.uid); // do this before setUsers so setUsers could automatically setCurUser
-            setUsers(users => ({ ...users, [resp.data.uid]: curUser }));
+            setUsers(users => ({ ...users, [curUser.uid]: curUser }));
+
+            let sync_to = undefined;
+            if (curUser.avatar.startsWith("https://cdn.discordapp.com/")) {
+                sync_to = "discord";
+            } else if (curUser.avatar.startsWith("https://avatars.steamstatic.com/")) {
+                sync_to = "steam";
+            } else if (curUser.avatar.startsWith("https://static.truckersmp.com/")) {
+                sync_to = "truckersmp";
+            }
+            sync_to === undefined ? sync_to = "" : sync_to = `?sync_to_${sync_to}=true`;
+            if (sync_to !== "") {
+                let avatarOk = true;
+                try {
+                    const response = await fetch(curUser.avatar, {
+                        method: 'HEAD',
+                        mode: 'no-cors'
+                    });
+                    if (!response.ok) { avatarOk = false; }
+                } catch (error) { avatarOk = false; }
+
+                if (!avatarOk) {
+                    let resp = await customAxios({ url: `${apiPath}/user/profile${sync_to}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                    if (resp.status === 200) {
+                        setUsers(users => ({ ...users, [curUser.uid]: resp.data }));
+                    }
+                }
+            }
 
             let tiers = ["platinum", "gold", "silver", "bronze"];
             for (let i = 0; i < tiers.length; i++) {
