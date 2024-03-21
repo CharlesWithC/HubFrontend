@@ -153,7 +153,7 @@ const DeliveryDetail = memo(({ userDivisionIDs, doReload, divisionMeta, setDoRel
 
             const data = dlogD;
             const detail = dlogD.detail.data.object;
-            const TRACKER = { "navio": "Navio", "tracksim": "TrackSim", "trucky": "Trucky" };
+            const TRACKER = { "navio": "Navio", "tracksim": "TrackSim", "trucky": "Trucky", "custom": "Custom" };
 
             let fine = 0;
             let autoLoad = false;

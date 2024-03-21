@@ -355,6 +355,9 @@ const TrackerForm = ({ theme, tracker, onUpdate }) => {
                 <MenuItem key="tracksim" value="tracksim">
                     TrackSim
                 </MenuItem>
+                <MenuItem key="custom" value="custom">
+                    Custom
+                </MenuItem>
             </TextField>
         </Grid>
         <Grid item xs={6} md={6}>

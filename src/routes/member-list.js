@@ -493,6 +493,7 @@ const MemberList = () => {
                 >
                     <MenuItem value="trucky">Trucky</MenuItem>
                     <MenuItem value="tracksim">TrackSim</MenuItem>
+                    <MenuItem value="custom">Custom</MenuItem>
                 </TextField>
                 {(dialogButtonDisabled || batchTrackerUpdateCurrent !== 0 && batchTrackerUpdateCurrent == batchTrackerUpdateUsers.length) && <>
                     <Typography variant="body2" gutterBottom sx={{ mt: "5px" }}>{tr("completed")}{batchTrackerUpdateCurrent} / {batchTrackerUpdateUsers.length}</Typography>
