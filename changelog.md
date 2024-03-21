@@ -5,6 +5,7 @@
 1. Added TruckersMP user info in applications
 2. Added export member list (csv)
 3. Added login screen tips
+4. Improved ranking tab stability
 
 ## v3.4.1
 

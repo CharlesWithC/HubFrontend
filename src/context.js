@@ -451,6 +451,12 @@ const DEFAULT_CACHE = {
         originalChart: { driver: [], job: [], distance: [], fuel: [], profit_euro: [], profit_dollar: [] },
         xAxis: [],
         detailStats: {}
+    },
+    ranking: {
+        userPoints: 0,
+        detailedPoints: { distance: 0, challenge: 0, event: 0, division: 0, bonus: 0 },
+        bonusStreak: "/",
+        curRankTypeId: null
     }
 };
 
@@ -484,7 +490,9 @@ export const CacheContextProvider = ({ children }) => {
             'external_user.userListParam',
             'external_user.banListParam',
             'leaderboard.listParam',
-            'member_list.listParam'
+            'member_list.listParam',
+            'ranking.detailedPoints',
+            'ranking.curRankTypeId'
         ];
 
         const listParamCache = listParamPaths.reduce((acc, path) => {

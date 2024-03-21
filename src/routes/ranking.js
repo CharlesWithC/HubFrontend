@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useCallback, useContext } from 'react';
-import { AppContext } from '../context';
+import { AppContext, CacheContext } from '../context';
 
 import { Grid, Card, CardContent, Typography, Snackbar, Alert, SpeedDial, SpeedDialIcon, SpeedDialAction, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, Button, TextField } from '@mui/material';
 import { RefreshRounded, AltRouteRounded } from '@mui/icons-material';
@@ -15,6 +15,7 @@ import { makeRequestsWithAuth, TSep, customAxios as axios, getAuthToken, isSameD
 const Ranking = () => {
     const { t: tr } = useTranslation();
     const { apiPath, allRanks, curUser } = useContext(AppContext);
+    const { cache, setCache } = useContext(CacheContext);
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -27,20 +28,40 @@ const Ranking = () => {
         setModalCRTOpen(false);
     }, [setModalCRTOpen]);
 
-    const [curRankTypeId, setRankTypeId] = useState(null);
+    const [rankIdx, setRankIdx] = useState(null);
+    const [curRankTypeId, setRankTypeId] = useState(cache.ranking.curRankTypeId);
     const [curRankRoles, setCurRankRoles] = useState([]);
     const [curRankPointTypes, setCurRankPointTypes] = useState([]);
-    const [userPoints, setUserPoints] = useState(null);
-    const [rankIdx, setRankIdx] = useState(null);
-    const [bonusStreak, setBonusStreak] = useState("/");
+
+    const [userPoints, setUserPoints] = useState(cache.ranking.userPoints);
+    const [detailedPoints, setDetailedPoints] = useState(cache.ranking.detailedPoints);
+    const [bonusStreak, setBonusStreak] = useState(cache.ranking.bonusStreak);
+
+    useEffect(() => {
+        return () => {
+            setCache(cache => ({
+                ...cache,
+                ranking: {
+                    userPoints,
+                    detailedPoints,
+                    bonusStreak,
+                    curRankTypeId
+                }
+            }));
+        };
+    }, [userPoints, detailedPoints, bonusStreak, curRankTypeId]);
 
     const handleRankTypeIdChange = useCallback((e) => {
         setRankTypeId(e.target.value);
+        for (let i = 0; i < allRanks.length; i++) {
+            if (allRanks[i].id === e.target.value) {
+                setCurRankRoles(allRanks[i].details);
+                setCurRankPointTypes(allRanks[i].point_types);
+                break;
+            }
+        }
     }, []);
-
-    const doLoad = useCallback(async () => {
-        window.loading += 1;
-
+    useEffect(() => { // init only (handle null / cached data)
         if (curRankTypeId === null) {
             for (let i = 0; i < allRanks.length; i++) {
                 if (allRanks[i].default) {
@@ -50,28 +71,21 @@ const Ranking = () => {
                     break;
                 }
             }
-        }
-
-        const [_leaderboard, _bonusHistory] = await makeRequestsWithAuth([`${apiPath}/dlog/leaderboard?userids=${curUser.userid}`, `${apiPath}/member/bonus/history`]);
-        for (let i = _bonusHistory.length - 1; i >= 0; i--) {
-            if (isSameDay(_bonusHistory[i].timestamp * 1000)) {
-                setBonusStreak(`${_bonusHistory[i].streak + 1}`);
-                break;
-            } else if (isSameDay(_bonusHistory[i].timestamp * 1000 + 86400000)) {
-                setBonusStreak(`${_bonusHistory[i].streak + 1}*`);
-                break;
+        } else {
+            for (let i = 0; i < allRanks.length; i++) {
+                if (allRanks[i].id === curRankTypeId) {
+                    setCurRankRoles(allRanks[i].details);
+                    setCurRankPointTypes(allRanks[i].point_types);
+                    break;
+                }
             }
         }
-        if (_leaderboard.list.length === 0) {
-            setUserPoints(0);
-            setRankIdx(-1);
-            window.loading -= 1;
-            return;
-        }
+    }, []);
 
+    useEffect(() => {
         let points = 0;
         for (let i = 0; i < curRankPointTypes.length; i++) {
-            points += _leaderboard.list[0].points[curRankPointTypes[i]];
+            points += detailedPoints[curRankPointTypes[i]];
         }
         setUserPoints(points);
 
@@ -84,12 +98,33 @@ const Ranking = () => {
             }
             if (points > curRankRoles[curRankRoles.length - 1].points) setRankIdx(curRankRoles.length - 1);
         }
+    }, [detailedPoints, curRankRoles, curRankPointTypes]);
+
+    const doLoad = useCallback(async () => {
+        window.loading += 1;
+
+        const [_leaderboard, _bonusHistory] = await makeRequestsWithAuth([`${apiPath}/dlog/leaderboard?userids=${curUser.userid}`, `${apiPath}/member/bonus/history`]);
+
+        for (let i = _bonusHistory.length - 1; i >= 0; i--) {
+            if (isSameDay(_bonusHistory[i].timestamp * 1000)) {
+                setBonusStreak(`${_bonusHistory[i].streak + 1}`);
+                break;
+            } else if (isSameDay(_bonusHistory[i].timestamp * 1000 + 86400000)) {
+                setBonusStreak(`${_bonusHistory[i].streak + 1}*`);
+                break;
+            }
+        }
+        if (_leaderboard.list.length === 0) {
+            setDetailedPoints({ distance: 0, challenge: 0, event: 0, division: 0, bonus: 0 });
+        } else {
+            setDetailedPoints(_leaderboard.list[0].points);
+        }
 
         window.loading -= 1;
-    }, [apiPath, allRanks, curRankPointTypes, curRankRoles, curRankTypeId]);
+    }, [apiPath]);
     useEffect(() => {
         doLoad();
-    }, [curRankPointTypes, curRankRoles, curRankTypeId]);
+    }, [apiPath]);
 
     const getDiscordRole = useCallback(async () => {
         let resp = await axios({ url: `${apiPath}/member/roles/rank/${curRankTypeId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
@@ -114,6 +149,48 @@ const Ranking = () => {
     }, [apiPath]);
 
     return <>
+        {(userPoints === null || rankIdx === null) && <Grid container spacing={2} sx={{ marginBottom: "20px" }}>
+            <Grid item xs={12} sm={12} md={4} lg={4}>
+                <Card>
+                    <CardContent>
+                        <Typography variant="subtitle2" align="center" gutterBottom>{tr("previous_rank")}</Typography>
+                        <Typography variant="h5" align="center" component="div" sx={{ color: "grey" }}>
+                            N/A
+                        </Typography>
+                        <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
+                            0 {tr("pts")} | -0 {tr("pts")}
+                        </Typography>
+                    </CardContent>
+                </Card>
+            </Grid>
+            <Grid item xs={12} sm={12} md={4} lg={4}>
+                <Card>
+                    <CardContent>
+                        <Typography variant="subtitle2" align="center" gutterBottom>{tr("current_rank")}</Typography>
+                        <Typography variant="h5" align="center" component="div" sx={{ color: "grey" }}>
+                            N/A
+                        </Typography>
+                        <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
+                            0 {tr("pts")}
+                        </Typography>
+                        <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>{tr("daily_bonus")}: / {tr("streak")}</Typography>
+                    </CardContent>
+                </Card>
+            </Grid>
+            <Grid item xs={12} sm={12} md={4} lg={4}>
+                <Card>
+                    <CardContent>
+                        <Typography variant="subtitle2" align="center" gutterBottom>{tr("next_rank")}</Typography>
+                        <Typography variant="h5" align="center" component="div" sx={{ color: "grey" }}>
+                            N/A
+                        </Typography>
+                        <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
+                            0 {tr("pts")} | +0 {tr("pts")}
+                        </Typography>
+                    </CardContent>
+                </Card>
+            </Grid>
+        </Grid>}
         {userPoints !== null && rankIdx !== null && <Grid container spacing={2} sx={{ marginBottom: "20px" }}>
             <Grid item xs={12} sm={12} md={4} lg={4}>
                 <Card>
@@ -149,7 +226,7 @@ const Ranking = () => {
                             <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
                                 {TSep(userPoints)} {tr("pts")}
                             </Typography>
-                            <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>{tr("daily_bonus")}: {bonusStreak}{tr("streak")}</Typography>
+                            <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>{tr("daily_bonus")}: {bonusStreak} {tr("streak")}</Typography>
                         </>}
                         {rankIdx <= 0 && <>
                             <Typography variant="h5" align="center" component="div" sx={{ color: "grey" }}>
@@ -158,7 +235,7 @@ const Ranking = () => {
                             <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
                                 0 {tr("pts")}
                             </Typography>
-                            <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>{tr("daily_bonus")}: {bonusStreak}{tr("streak")}</Typography>
+                            <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>{tr("daily_bonus")}: {bonusStreak} {tr("streak")}</Typography>
                         </>}
                     </CardContent>
                 </Card>
