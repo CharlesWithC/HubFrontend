@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.4.2
+
+1. Added TruckersMP user info in applications
+2. Added export member list (csv)
+
 ## v3.4.1
 
 1. Added inputable page number in tables

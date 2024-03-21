@@ -6,7 +6,7 @@ import { useTheme, Dialog, DialogTitle, DialogContent, DialogActions, LinearProg
 import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowsRotate, faCodeCompare, faIdCard, faTruck, faUserGroup, faUsersSlash } from '@fortawesome/free-solid-svg-icons';
+import { faArrowsRotate, faCodeCompare, faFileExport, faIdCard, faTruck, faUserGroup, faUsersSlash } from '@fortawesome/free-solid-svg-icons';
 
 import TimeAgo from '../components/timeago';
 import CustomTable from "../components/table";
@@ -16,11 +16,11 @@ import RoleSelect from '../components/roleselect';
 import DateTimeField from '../components/datetime';
 import SponsorBadge from '../components/sponsorBadge';
 
-import { makeRequestsAuto, customAxios as axios, getAuthToken, removeNUEValues } from '../functions';
+import { makeRequestsAuto, customAxios as axios, getAuthToken, removeNUEValues, downloadLocal } from '../functions';
 
 const MemberList = () => {
     const { t: tr } = useTranslation();
-    const { apiPath, userLevel, users, memberUIDs, userSettings, setUsers } = useContext(AppContext);
+    const { apiPath, userLevel, allRoles, users, memberUIDs, userSettings, setUsers } = useContext(AppContext);
     const { cache, setCache } = useContext(CacheContext);
     const allMembers = useMemo(() => (memberUIDs.map((uid) => users[uid])), [memberUIDs, users]);
 
@@ -56,6 +56,15 @@ const MemberList = () => {
     );
 
     const [logSeverity, setLogSeverity] = useState("success");
+
+    const exportMemberList = useCallback(async () => {
+        let csv = "uid,userid,name,email,avatar_url,discordid,steamid,truckersmpid,join_date,roles\n";
+        for (let i = 0; i < allMembers.length; i++) {
+            let user = allMembers[i];
+            csv += `"${user.uid}","${user.userid}","${user.name}","${user.email}","${user.avatar}","${String(user.discordid)}\t","${String(user.steamid)}\t","${String(user.truckersmpid)}\t","${new Date(user.join_timestamp * 1000).toISOString()}","${user.roles.map((roleid, index) => (allRoles[roleid] !== undefined ? `${allRoles[roleid].name} (${roleid})` : `Unknown Role (${roleid})`)).join(", ")}"\n`;
+        }
+        downloadLocal("members.csv", csv);
+    }, [allMembers, allRoles]);
 
     const [syncProfileLog, setSyncProfileLog] = useState("");
     const [syncProfileCurrent, setSyncProfileCurrent] = useState(0);
@@ -543,22 +552,16 @@ const MemberList = () => {
             icon={<SpeedDialIcon />}
         >
             <SpeedDialAction
-                key="batch-member-dismiss"
-                icon={<FontAwesomeIcon icon={faUsersSlash} />}
-                tooltipTitle={tr("batch_dismiss_members")}
-                onClick={() => setDialogOpen("batch-member-dismiss")}
+                key="export-member-list"
+                icon={<FontAwesomeIcon icon={faFileExport} />}
+                tooltipTitle="Export Members"
+                onClick={() => exportMemberList()}
             />
             <SpeedDialAction
-                key="batch-tracker-update"
-                icon={<FontAwesomeIcon icon={faTruck} />}
-                tooltipTitle={tr("batch_update_tracker")}
-                onClick={() => setDialogOpen("batch-tracker-update")}
-            />
-            <SpeedDialAction
-                key="batch-role-update"
-                icon={<FontAwesomeIcon icon={faIdCard} />}
-                tooltipTitle={tr("batch_update_roles")}
-                onClick={() => setDialogOpen("batch-role-update")}
+                key="sync-profile"
+                icon={<FontAwesomeIcon icon={faArrowsRotate} />}
+                tooltipTitle={tr("sync_profiles")}
+                onClick={() => setDialogOpen("sync-profile")}
             />
             <SpeedDialAction
                 key="compare-truckersmp"
@@ -567,10 +570,22 @@ const MemberList = () => {
                 onClick={() => setDialogOpen("compare-truckersmp")}
             />
             <SpeedDialAction
-                key="sync-profile"
-                icon={<FontAwesomeIcon icon={faArrowsRotate} />}
-                tooltipTitle={tr("sync_profiles")}
-                onClick={() => setDialogOpen("sync-profile")}
+                key="batch-role-update"
+                icon={<FontAwesomeIcon icon={faIdCard} />}
+                tooltipTitle={tr("batch_update_roles")}
+                onClick={() => setDialogOpen("batch-role-update")}
+            />
+            <SpeedDialAction
+                key="batch-tracker-update"
+                icon={<FontAwesomeIcon icon={faTruck} />}
+                tooltipTitle={tr("batch_update_tracker")}
+                onClick={() => setDialogOpen("batch-tracker-update")}
+            />
+            <SpeedDialAction
+                key="batch-member-dismiss"
+                icon={<FontAwesomeIcon icon={faUsersSlash} />}
+                tooltipTitle={tr("batch_dismiss_members")}
+                onClick={() => setDialogOpen("batch-member-dismiss")}
             />
         </SpeedDial>
         <Portal>
