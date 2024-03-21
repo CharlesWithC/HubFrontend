@@ -6,6 +6,7 @@
 2. Added export member list (csv)
 3. Added login screen tips
 4. Improved ranking tab stability
+5. Improved division tab to show data simultaneously after load
 
 ## v3.4.1
 

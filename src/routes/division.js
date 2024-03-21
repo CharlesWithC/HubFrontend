@@ -71,7 +71,7 @@ const DivisionCard = ({ division }) => {
     </Card>);
 };
 
-const DivisionsMemo = memo(({ doReload }) => {
+const DivisionsMemo = memo(({ doReload, loadComplete, setLoadComplete }) => {
     const { apiPath } = useContext(AppContext);
 
     const [divisions, setDivisions] = useState([]);
@@ -86,21 +86,23 @@ const DivisionsMemo = memo(({ doReload }) => {
             let [_divisions] = await makeRequestsWithAuth(urls);
             setDivisions(_divisions);
 
+            setLoadComplete(cnt => cnt + 1);
+
             window.loading -= 1;
         }
         doLoad();
     }, [apiPath, doReload]);
 
-    return (<Grid container spacing={2}>
+    return <>{loadComplete >= 3 && <Grid container spacing={2}>
         {divisions.map((division, index) => (
             <Grid key={`grid-${index}`} item xs={12} sm={12} md={divisions.length % 2 === 0 ? 6 : index === divisions.length - 1 ? 12 : 6} lg={divisions.length % 2 === 0 ? 6 : index === divisions.length - 1 ? 12 : 6}>
                 <DivisionCard division={division} />
             </Grid>
         ))}
-    </Grid>);
+    </Grid>}</>;
 });
 
-const DivisionsDlog = memo(({ doReload }) => {
+const DivisionsDlog = memo(({ doReload, loadComplete, setLoadComplete }) => {
     const { t: tr } = useTranslation();
     const { apiPath, curUserPerm, userSettings } = useContext(AppContext);
     const { cache, setCache } = useContext(CacheContext);
@@ -150,6 +152,8 @@ const DivisionsDlog = memo(({ doReload }) => {
                 setTotalItems(dlogL.total_items);
             }
 
+            setLoadComplete(cnt => cnt + 1);
+
             window.loading -= 1;
         }
         doLoad();
@@ -161,11 +165,11 @@ const DivisionsDlog = memo(({ doReload }) => {
     }
 
     return <>
-        {dlogList.length !== 0 && <CustomTable page={page} columns={columns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage= {pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} style={{ marginTop: "15px" }} pstyle={checkUserPerm(curUserPerm, ["administrator", "manage_divisions"]) ? {} : { marginRight: "60px" }} name={<><FontAwesomeIcon icon={faWarehouse} />&nbsp;&nbsp;{tr("recent_validated_division_deliveries")}</>} />}
+        {loadComplete >= 3 && dlogList.length !== 0 && <CustomTable page={page} columns={columns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} style={{ marginTop: "15px" }} pstyle={checkUserPerm(curUserPerm, ["administrator", "manage_divisions"]) ? {} : { marginRight: "60px" }} name={<><FontAwesomeIcon icon={faWarehouse} />&nbsp;&nbsp;{tr("recent_validated_division_deliveries")}</>} sx={{ display: loadComplete >= 3 ? undefined : "hidden" }} />}
     </>;
 });
 
-const DivisionsPending = memo(({ doReload }) => {
+const DivisionsPending = memo(({ doReload, loadComplete, setLoadComplete }) => {
     const { t: tr } = useTranslation();
     const { apiPath, userSettings, divisions, loadDivisions } = useContext(AppContext);
     const { cache, setCache } = useContext(CacheContext);
@@ -220,6 +224,8 @@ const DivisionsPending = memo(({ doReload }) => {
                 setTotalItems(dlogL.total_items);
             }
 
+            setLoadComplete(cnt => cnt + 1);
+
             window.loading -= 1;
         }
         doLoad();
@@ -245,7 +251,7 @@ const DivisionsPending = memo(({ doReload }) => {
     }
 
     return <>
-        {dlogList.length !== 0 && <CustomTable page={page} columns={pendingColumns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage= {pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} style={{ marginTop: "15px" }} pstyle={{ marginRight: "60px" }} name={<><FontAwesomeIcon icon={faClock} />&nbsp;&nbsp;{tr("pending_division_validation_requests")}</>} />}
+        {loadComplete >= 3 && dlogList.length !== 0 && <CustomTable page={page} columns={pendingColumns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} style={{ marginTop: "15px" }} pstyle={{ marginRight: "60px" }} name={<><FontAwesomeIcon icon={faClock} />&nbsp;&nbsp;{tr("pending_division_validation_requests")}</>} sx={{ display: loadComplete >= 3 ? undefined : "hidden" }} />}
         <Portal>
             <Snackbar
                 open={!!snackbarContent}
@@ -286,10 +292,12 @@ const Divisions = () => {
     const [doReload, setDoReload] = useState(0);
     const [dialogManagers, setDialogManagers] = useState(false);
 
+    const [loadComplete, setLoadComplete] = useState(0); // increment
+
     return <>
-        <DivisionsMemo doReload={doReload} />
-        <DivisionsDlog doReload={doReload} />
-        <DivisionsPending doReload={doReload} />
+        <DivisionsMemo doReload={doReload} loadComplete={loadComplete} setLoadComplete={setLoadComplete} />
+        <DivisionsDlog doReload={doReload} loadComplete={loadComplete} setLoadComplete={setLoadComplete} />
+        <DivisionsPending doReload={doReload} loadComplete={loadComplete} setLoadComplete={setLoadComplete} />
         <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
             <DialogTitle>{tr("division_managers")}</DialogTitle>
             <DialogContent>
