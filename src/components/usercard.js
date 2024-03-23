@@ -71,6 +71,7 @@ const GetActivity = (tr, activity) => {
         return <>{tr("online")}</>;
     } else {
         let name = activity.status;
+        if (name === undefined) return <></>;
         if (name.startsWith("dlog_")) {
             const deliveryId = name.split("_")[1];
             return <Link to={`/delivery/${deliveryId}`}>{tr("viewing_delivery", { deliveryId: deliveryId })}</Link>;
@@ -913,7 +914,7 @@ const UserCard = (props) => {
                                         <a href={`https://steamcommunity.com/profiles/${user.steamid}`} target="_blank" rel="noreferrer"><Chip
                                             avatar={<Tooltip placement="top" arrow title="Steam"
                                                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><FontAwesomeIcon icon={faSteam} /></Tooltip>}
-                                                label={!userSettings.streamer_mode ? user.steamid : String(user.steamid)[0] + "..."}
+                                            label={!userSettings.streamer_mode ? user.steamid : String(user.steamid)[0] + "..."}
                                             sx={{
                                                 borderRadius: "5px",
                                                 margin: "3px",

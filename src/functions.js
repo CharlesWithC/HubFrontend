@@ -634,7 +634,7 @@ export function removeNUEValues(obj) { // NUE => null + nan + undefined + empty 
     const newObj = {};
 
     for (const key in obj) {
-        if (obj.hasOwnProperty(key) && obj[key] !== null && obj[key] !== undefined && obj[key] !== "" && !isNaN(obj[key])) {
+        if (obj.hasOwnProperty(key) && obj[key] !== null && obj[key] !== undefined && obj[key] !== "" && !Number.isNaN(obj[key])) {
             newObj[key] = obj[key];
         }
     }
