@@ -11,6 +11,7 @@ import time
 import urllib
 import uuid
 
+import freightmaster
 import requests
 import uvicorn
 from fastapi import FastAPI, Header, Request, Response
@@ -715,6 +716,68 @@ async def patchConfigGallery(domain: str, request: Request, response: Response, 
 
     return Response(status_code=204)
 
+@app.get("/freightmaster/d")
+def get_freightmaster_d(abbr: str, page: int, page_size: int):
+    config = json.loads(open("./freightmaster-config.json", "r").read())
+    data_folder = config["data_folder"]
+    
+    if not os.path.exists(data_folder):
+        return {"error": "Data folder does not exist"}
+    if not os.path.exists(data_folder + "/latest") or not os.path.exists(data_folder + "/latest/chub-fmd.json"):
+        return {"error": "No data available"}
+    
+    fmd = json.loads(open(data_folder + "/latest/chub-fmd.json", "r").read())
+    fmd = fmd[(page - 1) * page_size : page * page_size]
+
+    return fmd
+
+@app.get("/freightmaster/a")
+def get_freightmaster_a(abbr: str, page: int, page_size: int):
+    config = json.loads(open("./freightmaster-config.json", "r").read())
+    data_folder = config["data_folder"]
+    
+    if not os.path.exists(data_folder):
+        return {"error": "Data folder does not exist"}
+    if not os.path.exists(data_folder + "/latest") or not os.path.exists(data_folder + "/latest/" + abbr + ".json"):
+        return {"error": "No data available"}
+    
+    fma = json.loads(open(data_folder + "/latest/" + abbr + ".json", "r").read())["fma"]
+    fma = fma[(page - 1) * page_size : page * page_size]
+
+    return fma
+
+@app.get("/freightmaster/position")
+def get_frieghtmaster_position(abbr: str, uid: int):
+    config = json.loads(open("./freightmaster-config.json", "r").read())
+    season_name = config["season_name"]
+    start_time = config["start_time"]
+    end_time = config["end_time"]
+    data_folder = config["data_folder"]
+    
+    if not os.path.exists(data_folder):
+        return {"season_name": season_name, "start_time": start_time, "end_time": end_time, "error": "Data folder does not exist"}
+    if not os.path.exists(data_folder + "/latest") or not os.path.exists(data_folder + "/latest/chub-fmd.json"):
+        return {"season_name": season_name, "start_time": start_time, "end_time": end_time, "error": "No data available"}
+    if not os.path.exists(data_folder + "/latest") or not os.path.exists(data_folder + "/latest/" + abbr + ".json"):
+        return {"season_name": season_name, "start_time": start_time, "end_time": end_time, "error": "No data available"}
+    
+    fmd = json.loads(open(data_folder + "/latest/chub-fmd.json", "r").read())
+    rankd = None
+    for i in range(0, len(fmd)):
+        if fmd[i]["user"]["uid"] == uid and fmd[i]["abbr"] == abbr:
+            rankd = i + 1
+            break
+
+    fma = json.loads(open(data_folder + "/latest/" + abbr + ".json", "r").read())["fma"]
+    ranka = None
+    for i in range(0, len(fma)):
+        if fma[i]["user"]["uid"] == uid:
+            ranka = i + 1
+            break
+
+    return {"season_name": season_name, "start_time": start_time, "end_time": end_time, "rankd": rankd, "ranka": ranka}
+
 if __name__ == "__main__":
     threading.Thread(target=updateTruckersMP, daemon=True).start()
+    threading.Thread(target=freightmaster.control, daemon=True).start()
     uvicorn.run("main:app", host = "127.0.0.1", port = 8299, access_log = False)
