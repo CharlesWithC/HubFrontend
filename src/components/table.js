@@ -21,6 +21,8 @@ const CustomTableRow = memo(({ children, onContextMenu, ...props }) => {
 });
 
 const CustomTable = ({ page: initPage, columns, orderBy, order, onOrderingUpdate, name, nameRight, data, totalItems, rowsPerPageOptions, defaultRowsPerPage, onPageChange, onRowsPerPageChange, onRowClick, onSearch, searchHint, searchUpdateInterval, searchWidth, style, pstyle }) => {
+    if (onOrderingUpdate === undefined) onOrderingUpdate = function (order, order_by) { };
+
     const [page, setPage] = useState(initPage - 1); // page for MUI Table (from 0)
     const [inputPage, setInputPage] = useState(initPage); // page for user input (from 1)
     const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);

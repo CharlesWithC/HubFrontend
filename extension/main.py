@@ -726,7 +726,19 @@ def get_freightmaster_d(abbr: str, page: int, page_size: int):
     if not os.path.exists(data_folder + "/latest") or not os.path.exists(data_folder + "/latest/chub-fmd.json"):
         return {"error": "No data available"}
     
+    if page_size > 1000:
+        return {"error": "Page size too large"}
+    if page_size < 10:
+        return {"error": "Page size too small"}
+    
     fmd = json.loads(open(data_folder + "/latest/chub-fmd.json", "r").read())
+    last = -1
+    rank = 0
+    for i in range(len(fmd)):
+        if last != fmd[i]["point"]:
+            rank += 1
+        fmd[i]["rank"] = rank
+        last = fmd[i]["point"]
     fmd = fmd[(page - 1) * page_size : page * page_size]
 
     return fmd
@@ -741,7 +753,19 @@ def get_freightmaster_a(abbr: str, page: int, page_size: int):
     if not os.path.exists(data_folder + "/latest") or not os.path.exists(data_folder + "/latest/" + abbr + ".json"):
         return {"error": "No data available"}
     
+    if page_size > 1000:
+        return {"error": "Page size too large"}
+    if page_size < 10:
+        return {"error": "Page size too small"}
+    
     fma = json.loads(open(data_folder + "/latest/" + abbr + ".json", "r").read())["fma"]
+    last = -1
+    rank = 0
+    for i in range(len(fma)):
+        if last != fma[i]["point"]:
+            rank += 1
+        fma[i]["rank"] = rank
+        last = fma[i]["point"]
     fma = fma[(page - 1) * page_size : page * page_size]
 
     return fma

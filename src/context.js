@@ -458,6 +458,17 @@ const DEFAULT_CACHE = {
         detailedPoints: { distance: 0, challenge: 0, event: 0, division: 0, bonus: 0 },
         bonusStreak: "/",
         curRankTypeId: null
+    },
+    freightmaster: {
+        seasonName: "Unknown Season",
+        startTime: "2024/01/01",
+        endTime: "2025/01/01",
+        rank: "Unranked",
+        points: 0,
+        level: 1,
+        page: 1,
+        pageSize: 10,
+        totalitems: 0
     }
 };
 

@@ -31,6 +31,7 @@ import Divisions from './routes/division';
 import Members from './routes/member';
 import Leaderboard from './routes/leaderboard';
 import Ranking from './routes/ranking';
+import FreightMaster from './routes/freightmaster';
 import NewApplication from './routes/application/new';
 import MyApplication from './routes/application/my';
 import AllApplication from './routes/application/all';
@@ -191,7 +192,7 @@ function App() {
     if (window.isElectron && webConfig !== null) {
         window.electron.ipcRenderer.send("presence-settings", userSettings.presence);
 
-        const STATUS_NAMES = { "/": "Viewing Overview", "/overview": "Viewing Overview", "/statistics": "Viewing Statistics", "/gallery": "Viewing Gallery", "/announcement": "Viewing Announcements", "/downloads": "Viewing Downloads", "/poll": "Viewing Polls", "/map": "Viewing Map", "/delivery": "Viewing Deliveries", "/challenge": "Viewing Challenges", "/division": "Viewing Divisions", "/economy": "Viewing Economy", "/event": "Viewing Events", "/member": "Viewing Members", "/leaderboard": "Viewing Leaderboard", "/ranking": "Viewing Rankings", "/apply": "Submitting Application", "/application/new": "Submitting Application", "/application/my": "Viewing Own Applications", "/application/all": "Viewing All Applications", "/member-list": "Viewing Member List", "/external-user": "Viewing External Users", "/audit-log": "Viewing Audit Log", "/config": "Modifying Configuration", "/settings": "Modifying Settings", "/sponsor": "Sponsoring...", "/supporters": "Viewing Supporters", "/badges": "Viewing Badges", "/notifications": "Viewing Notifications", "/auth": "Logging in..." };
+        const STATUS_NAMES = { "/": "Viewing Overview", "/overview": "Viewing Overview", "/statistics": "Viewing Statistics", "/gallery": "Viewing Gallery", "/announcement": "Viewing Announcements", "/downloads": "Viewing Downloads", "/poll": "Viewing Polls", "/map": "Viewing Map", "/delivery": "Viewing Deliveries", "/challenge": "Viewing Challenges", "/division": "Viewing Divisions", "/economy": "Viewing Economy", "/event": "Viewing Events", "/member": "Viewing Members", "/leaderboard": "Viewing Leaderboard", "/ranking": "Viewing Rankings", "/freightmaster": "Viewing FreightMaster™", "/apply": "Submitting Application", "/application/new": "Submitting Application", "/application/my": "Viewing Own Applications", "/application/all": "Viewing All Applications", "/member-list": "Viewing Member List", "/external-user": "Viewing External Users", "/audit-log": "Viewing Audit Log", "/config": "Modifying Configuration", "/settings": "Modifying Settings", "/sponsor": "Sponsoring...", "/supporters": "Viewing Supporters", "/badges": "Viewing Badges", "/notifications": "Viewing Notifications", "/auth": "Logging in..." };
         let path = window.location.pathname;
         if (path.startsWith("/auth")) path = "/auth";
         if (Object.keys(STATUS_NAMES).includes(path)) {
@@ -319,6 +320,7 @@ function App() {
                                     <Route path="/member/:userid" element={<Overview />} />
                                     <Route path="/leaderboard" element={<Leaderboard />}></Route>
                                     <Route path="/ranking" element={<Ranking />}></Route>
+                                    <Route path="/freightmaster" element={<FreightMaster />}></Route>
                                     <Route path="/application/new" element={<NewApplication />}></Route>
                                     <Route path="/apply" element={<NewApplication />}></Route>
                                     <Route path="/application/my" element={<MyApplication />}></Route>
