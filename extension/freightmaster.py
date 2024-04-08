@@ -226,7 +226,7 @@ def control():
             print(f"Taking snapshot from {next_snapshot_start_time} to {next_snapshot_end_time}")
             res = take_snapshot(next_snapshot_start_time, next_snapshot_end_time)
             print(res)
-            while res is not True and (time.time() <= next_snapshot_end_time + 86400 or len(res["rlerror"]) > 0):
+            while res is not True and (time.time() <= next_snapshot_end_time + 86400 or len(res["rlerror"]) > 0 or len(res["failed"]) > 0):
                 print("Retrying in 600 seconds...")
                 os.system(f"rm -rf ./{data_folder}/snapshot-{next_snapshot_start_time}-{next_snapshot_end_time}")
                 time.sleep(600)

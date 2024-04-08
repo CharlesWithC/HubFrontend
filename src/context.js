@@ -463,12 +463,14 @@ const DEFAULT_CACHE = {
         seasonName: "Unknown Season",
         startTime: "2024/01/01",
         endTime: "2025/01/01",
-        rank: "Unranked",
-        points: 0,
-        level: 1,
+        rankd: "Unranked",
+        pointd: 0,
+        ranka: "Unranked",
+        pointa: 0,
         page: 1,
         pageSize: 10,
-        totalitems: 0
+        totalItems: 0,
+        fMode: "d"
     }
 };
 
