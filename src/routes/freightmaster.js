@@ -80,7 +80,7 @@ const FreightMaster = () => {
                         />
                         <span key={`user-${Math.random()}`} style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginLeft: "2px" }}>{lb.list[i].vtc}</span>
                     </>,
-                    user: lb.list[i].abbr === webConfig.abbr || fMode === "a" ? <UserCard user={users[lb.list[i].user.uid]} /> : <>
+                    user: (lb.list[i].abbr === webConfig.abbr || fMode === "a") && users[lb.list[i].user.uid] ? <UserCard user={users[lb.list[i].user.uid]} /> : <>
                         <Avatar src={!userSettings.data_saver ? lb.list[i].user.avatar : ""}
                             style={{
                                 width: `20px`,
