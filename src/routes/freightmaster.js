@@ -60,9 +60,9 @@ const FreightMaster = () => {
         setStartTime(getFormattedDate(userSettings.display_timezone, new Date(position.start_time * 1000)));
         setEndTime(getFormattedDate(userSettings.display_timezone, new Date(position.end_time * 1000)));
         setRankd(position.rankd ?? "Unranked");
-        setPointd(TSep(position.pointd ?? 0));
+        setPointd(position.pointd ?? 0);
         setRanka(position.ranka ?? "Unranked");
-        setPointa(TSep(position.pointa ?? 0));
+        setPointa(position.pointa ?? 0);
 
         if (pageRef.current === page) {
             let newlb = [];
@@ -128,7 +128,7 @@ const FreightMaster = () => {
                         Rank: {fMode === "d" ? rankd : ranka}
                     </Typography>
                     <Typography variant="body2" fontSize="25px">
-                        Points: {fMode === "d" ? pointd : pointa}
+                        Points: {TSep(fMode === "d" ? pointd : pointa)}
                     </Typography>
                     <Typography variant="body2" fontSize="25px">
                         Level: {fMode === "d" ? parseInt(pointd / D_LEVEL_POINT + 1) : parseInt(pointa / A_LEVEL_POINT + 1)}
