@@ -820,7 +820,7 @@ def get_freightmaster_a(request: Request, abbr: str, page: int, page_size: int):
         if page_size < 10:
             return {"error": "Page size too small"}
 
-    cache = r.hgetall("freightmaster:fma")
+    cache = r.hgetall(f"freightmaster:fma:{abbr}")
     if len(cache.keys()) == 0:
         fma = json.loads(open(data_folder + "/latest/" + abbr + ".json", "r", encoding="utf-8").read())["fma"]
         last = -1
@@ -832,7 +832,7 @@ def get_freightmaster_a(request: Request, abbr: str, page: int, page_size: int):
             fma[i]["rank"] = rank
             last = fma[i]["point"]
             cache[i] = json.dumps(fma[i])
-        r.hset("freightmaster:fma", mapping = cache)
+        r.hset(f"freightmaster:fma:{abbr}", mapping = cache)
     else:
         fma = []
         cache = [v for k, v in sorted(cache.items(), key=lambda item: int(item[0]))]
