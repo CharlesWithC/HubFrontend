@@ -34,7 +34,8 @@ def calculate_fmd_rewards():
     # this only applies to FMD
     # reward id must start with an identifiable season id, like fms0
     config = json.loads(open("./freightmaster-config.json", "r", encoding="utf-8").read())
-    rewards = [x for x in config["rewards"] if x["active"]]
+    end_time = config["end_time"]
+    rewards = [x for x in config["rewards"] if x["active"] and (end_time <= time.time() and x["finisher_reward"] or not x["finisher_reward"])]
     data_folder = config["data_folder"]
     if not os.path.exists(data_folder):
         return {"error": "Data folder does not exist"}
@@ -315,6 +316,7 @@ if __name__ == "__main__":
             print("Season has not ended.")
             sys.exit(1)
         
+        calculate_fmd_rewards()
         os.system(f"mv freightmaster-config.json {data_folder}/freightmaster-config.json")
 
         history_rewards = []
@@ -343,3 +345,6 @@ if __name__ == "__main__":
     elif cmd == "recalculate-latest":
         recalculate_latest()
         print("Recalculated latest.")
+    
+    else:
+        print("Unknown command.")

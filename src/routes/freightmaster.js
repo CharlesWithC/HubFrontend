@@ -153,8 +153,8 @@ const FreightMaster = () => {
                     {fmRewards.filter((reward) => reward.reward_type === "title").map((reward) =>
                         <Typography variant="body2" fontSize="15px">
                             {reward.reward_value}
-                            {reward.qualify_type === "percentage" && <> (Finishes {reward.qualify_value.substring(0, 2) == "==" ? "at" : "top"} {parseFloat(reward.qualify_value.substring(2)) * 100}%)</>}
-                            {reward.qualify_type === "rank" && <> (Finishes {reward.qualify_value.substring(0, 2) == "==" ? "at" : "top"} {reward.qualify_value.substring(2)})</>}
+                            {reward.qualify_type === "percentage" && <> ({reward.finisher_reward ? `Finishes` : `Been`} {reward.qualify_value.substring(0, 2) == "==" ? "at" : "top"} {parseFloat(reward.qualify_value.substring(2)) * 100}%)</>}
+                            {reward.qualify_type === "rank" && <> ({reward.finisher_reward ? `Finishes` : `Been`} {reward.qualify_value.substring(0, 2) == "==" ? "at" : "top"} {reward.qualify_value.substring(2)})</>}
                             {/* we only care about == and <= */}
                         </Typography>)}
                 </CardContent>

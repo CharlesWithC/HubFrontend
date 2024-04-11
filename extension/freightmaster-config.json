@@ -11,7 +11,8 @@
             "qualify_type": "rank",
             "qualify_value": "==1",
             "reward_type": "title",
-            "reward_value": "FreightMaster Beta No.1 Finisher"
+            "reward_value": "FreightMaster Beta No.1 Finisher",
+            "finisher_reward": true
         },
         {
             "active": true,
@@ -19,7 +20,8 @@
             "qualify_type": "rank",
             "qualify_value": "<=10",
             "reward_type": "title",
-            "reward_value": "FreightMaster Beta Top 10 Finisher"
+            "reward_value": "FreightMaster Beta Top 10 Finisher",
+            "finisher_reward": true
         },
         {
             "active": true,
@@ -27,7 +29,8 @@
             "qualify_type": "percentage",
             "qualify_value": "<=0.01",
             "reward_type": "title",
-            "reward_value": "FreightMaster Beta Top 1% Finisher"
+            "reward_value": "FreightMaster Beta Top 1% Finisher",
+            "finisher_reward": true
         },
         {
             "active": true,
@@ -35,7 +38,8 @@
             "qualify_type": "percentage",
             "qualify_value": "<=0.99",
             "reward_type": "title",
-            "reward_value": "FreightMaster Beta Tester"
+            "reward_value": "FreightMaster Beta Tester",
+            "finisher_reward": false
         }
     ]
 }
