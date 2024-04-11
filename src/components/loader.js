@@ -30,7 +30,7 @@ const Loader = ({ onLoaderLoaded }) => {
 
     const { t: tr } = useTranslation();
     const appContext = useContext(AppContext);
-    const { apiPath, setApiPath, setApiVersion, vtcLogo, setVtcLogo, vtcBanner, setVtcBanner, vtcBackground, setVtcBackground, setSpecialRoles, setSpecialUsers, setPatrons, setVtcLevel, setUserConfig, setApiConfig, webConfig, setWebConfig, loadLanguages, setAllRoles, setAllPerms, setAllRanks, loadMemberUIDs, loadDlogDetails } = useContext(AppContext);
+    const { apiPath, setApiPath, setApiVersion, vtcLogo, setVtcLogo, vtcBanner, setVtcBanner, vtcBackground, setVtcBackground, setSpecialRoles, setSpecialUsers, setPatrons, setFMRewards, setFMRewardsDistributed, setVtcLevel, setUserConfig, setApiConfig, webConfig, setWebConfig, loadLanguages, setAllRoles, setAllPerms, setAllRanks, loadMemberUIDs, loadDlogDetails } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     const [isMember, setIsMember] = useState(false);
@@ -139,23 +139,7 @@ const Loader = ({ onLoaderLoaded }) => {
                     })
             ]).then(() => { imageLoaded = 3; });
 
-            let [index, apiStatus, specialRoles, patrons, userConfig, config, memberRoles, memberPerms, memberRanks] = [null, null, null, null, null, null, null, null, null];
-            let useCache = false;
-
-            let cache = readLS("cache", window.dhhost + webConfig.abbr + webConfig.api_host);
-            if (cache !== null) {
-                if (cache.timestamp === undefined || +new Date() - cache.timestamp > 86400000) {
-                    localStorage.removeItem("cache");
-                } else {
-                    useCache = true;
-                    config = cache.config;
-                    memberRoles = cache.memberRoles;
-                    memberPerms = cache.memberPerms;
-                    memberRanks = cache.memberRanks;
-                }
-            }
-
-            [index, apiStatus] = await makeRequestsAuto([{ url: `https://corsproxy.io/?${apiPath}/`, auth: false },
+            const [index, apiStatus] = await makeRequestsAuto([{ url: `https://corsproxy.io/?${apiPath}/`, auth: false },
             { url: `${apiPath}/status`, auth: false }]);
 
             if (index) {
@@ -194,27 +178,19 @@ const Loader = ({ onLoaderLoaded }) => {
                 }
             }
 
-            if (!useCache) {
-                const urlsBatch = [
-                    { url: "https://config.chub.page/roles", auth: false },
-                    { url: "https://config.chub.page/patrons", auth: false },
-                    { url: `https://config.chub.page/config/user?abbr=${webConfig.abbr}`, auth: false },
-                    { url: `${apiPath}/config`, auth: false },
-                    { url: `${apiPath}/member/roles`, auth: false },
-                    { url: `${apiPath}/member/perms`, auth: false },
-                    { url: `${apiPath}/member/ranks`, auth: false },
-                ];
+            const urlsBatch = [
+                { url: "https://config.chub.page/roles", auth: false },
+                { url: "https://config.chub.page/patrons", auth: false },
+                { url: "https://config.chub.page/freightmaster/rewards", auth: false },
+                { url: `https://config.chub.page/freightmaster/rewards/distributed?abbr=${webConfig.abbr}`, auth: false },
+                { url: `https://config.chub.page/config/user?abbr=${webConfig.abbr}`, auth: false },
+                { url: `${apiPath}/config`, auth: false },
+                { url: `${apiPath}/member/roles`, auth: false },
+                { url: `${apiPath}/member/perms`, auth: false },
+                { url: `${apiPath}/member/ranks`, auth: false },
+            ];
 
-                [specialRoles, patrons, userConfig, config, memberRoles, memberPerms, memberRanks] = await makeRequestsAuto(urlsBatch);
-            } else {
-                const urlsBatch = [
-                    { url: "https://config.chub.page/roles", auth: false },
-                    { url: "https://config.chub.page/patrons", auth: false },
-                    { url: `https://config.chub.page/config/user?abbr=${webConfig.abbr}`, auth: false },
-                ];
-
-                [specialRoles, patrons, userConfig] = await makeRequestsAuto(urlsBatch);
-            }
+            const [specialRoles, patrons, fmRewards, fmRewardsDistributed, userConfig, config, memberRoles, memberPerms, memberRanks] = await makeRequestsAuto(urlsBatch);
 
             const specialUsers = {};
             if (specialRoles) {
@@ -233,6 +209,19 @@ const Loader = ({ onLoaderLoaded }) => {
             }
             if (patrons) {
                 setPatrons(patrons);
+            }
+            if (fmRewards) {
+                setFMRewards(fmRewards);
+            }
+            if (fmRewardsDistributed) {
+                let fmrd = {};
+                for (let i = 0; i < fmRewardsDistributed.length; i++) {
+                    let ureward = fmRewardsDistributed[i];
+                    let uruid = ureward.uid;
+                    if (fmrd[uruid] === undefined) fmrd[uruid] = [ureward];
+                    else fmrd[uruid].push(ureward);
+                }
+                setFMRewardsDistributed(fmrd);
             }
             if (userConfig) {
                 setUserConfig(userConfig);
@@ -259,17 +248,6 @@ const Loader = ({ onLoaderLoaded }) => {
             }
             if (memberRanks) {
                 setAllRanks(memberRanks);
-            }
-
-            if (!useCache) {
-                let cache = {
-                    timestamp: +new Date(),
-                    config: config,
-                    memberRoles: memberRoles,
-                    memberPerms: memberPerms,
-                    memberRanks: memberRanks
-                };
-                writeLS("cache", cache, window.dhhost + webConfig.abbr + webConfig.api_host);
             }
 
             let auth = await FetchProfile({ ...appContext, apiPath: apiPath, webConfig: webConfig, specialUsers: specialUsers, patrons: patrons });

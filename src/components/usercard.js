@@ -134,8 +134,16 @@ const UserCard = (props) => {
     const { t: tr } = useTranslation();
     const theme = useTheme();
     const navigate = useNavigate();
-    const { apiPath, specialUsers, patrons, userConfig, vtcLevel, apiConfig, webConfig, allRoles, allPerms, users, setUsers, userProfiles, setUserProfiles, setMemberUIDs, curUser, curUserPerm, userSettings } = useContext(AppContext);
+    const { apiPath, specialUsers, patrons, userConfig, vtcLevel, apiConfig, webConfig, allRoles, allPerms, users, setUsers, userProfiles, setUserProfiles, setMemberUIDs, curUser, curUserPerm, userSettings, fmRewards, fmRewardsDistributed } = useContext(AppContext);
     const orderedRoles = useMemo(() => (Object.values(allRoles).sort((a, b) => a.order_id - b.order_id).map(role => role.id)), [allRoles]);
+    const fmRewardsMapping = useMemo(() => {
+        let result = {};
+        for (let i = 0; i < fmRewards.length; i++) {
+            result[fmRewards[i].id] = fmRewards[i];
+        }
+        return result;
+    }, [fmRewards]);
+    const [fmRDsingle, setFMRDSingle] = useState(undefined);
 
     const modalBannerRef = useRef(null); // this is a real component reference
     const popoverBannerRef = useRef(null); // this is a real component reference
@@ -163,6 +171,7 @@ const UserCard = (props) => {
     }
     // use the user in store | check if exist (could be non-existent when uid is NaN)
     const user = users[props.user.uid] !== undefined ? users[props.user.uid] : { ...props.user, ...props };
+    console.log(props.user.uid);
 
     const userPerm = useMemo(() => {
         if (!user.roles) return [];
@@ -227,6 +236,7 @@ const UserCard = (props) => {
     const [anchorPosition, setAnchorPosition] = useState({ top: 0, left: 0 });
     // right click
     const handleContextMenu = useCallback((e) => {
+        if (isNaN(user.uid)) return; // other vtc (e.g. rsl-123)
         if (+new Date() - user.last_sync >= 30000) updateUserInfo(); // sync user data in background
         e.preventDefault();
         if (e.stopPropagation !== undefined) e.stopPropagation();
@@ -249,6 +259,16 @@ const UserCard = (props) => {
 
     // brief user profile popover (left click / single press)
     const handleClick = useCallback((e) => {
+        if (isNaN(user.uid)) {
+            // user is from other vtc - load freightmaster reward
+            async function loadFMRewards() {
+                let resp = await axios({ url: `https://config.chub.page/freightmaster/rewards/distributed?abbr=${user.uid.split("-")[0]}&uid=${user.uid.split("-")[1]}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                if (resp.status === 200) {
+                    setFMRDSingle(resp.data);
+                }
+            }
+            loadFMRewards();
+        }
         e.preventDefault();
         e.stopPropagation();
         setAnchorPosition({ top: e.clientY, left: e.clientX });
@@ -821,6 +841,18 @@ const UserCard = (props) => {
                                     </Typography>
                                 </Grid>
                             </Grid>
+                            {fmRewardsDistributed[user.uid] !== undefined && fmRewardsDistributed[user.uid].length !== 0 && <Box sx={{ mt: "10px" }}>
+                                <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                    FREIGHTMASTER TITLE{fmRewardsDistributed[user.uid].length > 1 ? `S` : ``}
+                                </Typography>
+                                <SimpleBar style={{ width: "calc(100% + 15px)", maxHeight: "50px" }}>
+                                    {fmRewardsDistributed[user.uid].map((reward) => (
+                                        <Typography variant="body2">
+                                            {fmRewardsMapping[reward.reward].reward_value}
+                                        </Typography>
+                                    ))}
+                                </SimpleBar>
+                            </Box>}
                             {user.roles !== null && user.roles !== undefined && user.roles.length !== 0 && <Box sx={{ mt: "10px" }}>
                                 <Typography variant="body2" sx={{ fontWeight: 800 }}>
                                     {user.roles.length > 1 ? `ROLES` : `ROLE`}
@@ -1552,7 +1584,8 @@ const UserCard = (props) => {
                         {users[user.uid] !== undefined && users[user.uid].activity !== null && users[user.uid].activity !== undefined && <Typography variant="body2">{GetActivity(tr, users[user.uid].activity)}</Typography>}
                         {user.uid === curUser.uid && !customizeProfileAck && userConfig[curUser.uid] === undefined && <Typography variant="body2" sx={{ color: theme.palette.info.main }}><a style={{ cursor: "pointer" }} onClick={() => { navigate("/settings/appearance"); }}>{tr("customize_your_profile_in_settings")}</a></Typography>}
                         <Divider sx={{ mt: "8px", mb: "8px" }} />
-                        <SimpleBar className="profile-popover-simplebar" style={{ width: "calc(100% + 13px)", paddingRight: "13px", maxHeight: `calc(100vh - 260px - ${(popoverBannerRef.current !== null && popoverBannerRef.current.height !== 0 ? popoverBannerRef.current.height : 104.117)}px)` }}>
+                        {!isNaN(user.uid) && <SimpleBar className="profile-popover-simplebar" style={{ width: "calc(100% + 13px)", paddingRight: "13px", maxHeight: `calc(100vh - 260px - ${(popoverBannerRef.current !== null && popoverBannerRef.current.height !== 0 ? popoverBannerRef.current.height : 104.117)}px)` }}>
+                            {/* ensure user is from current vtc (with isNaN)*/}
                             {user.bio !== "" && <>
                                 <Typography variant="body2" sx={{ fontWeight: 800 }}>
                                     {tr("about_me").toUpperCase()}
@@ -1579,6 +1612,18 @@ const UserCard = (props) => {
                                     </Typography>
                                 </Grid>
                             </Grid>
+                            {fmRewardsDistributed[user.uid] !== undefined && fmRewardsDistributed[user.uid].length !== 0 && <Box sx={{ mt: "10px" }}>
+                                <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                    FREIGHTMASTER TITLE{fmRewardsDistributed[user.uid].length > 1 ? `S` : ``}
+                                </Typography>
+                                <SimpleBar style={{ width: "calc(100% + 15px)", maxHeight: "50px" }}>
+                                    {fmRewardsDistributed[user.uid].map((reward) => (
+                                        <Typography variant="body2">
+                                            {fmRewardsMapping[reward.reward].reward_value}
+                                        </Typography>
+                                    ))}
+                                </SimpleBar>
+                            </Box>}
                             {user.roles !== null && user.roles !== undefined && user.roles.length !== 0 && <Box sx={{ mt: "10px" }}>
                                 <Typography variant="body2" sx={{ fontWeight: 800 }}>
                                     {user.roles.length > 1 ? `ROLES` : `ROLE`}
@@ -1622,7 +1667,36 @@ const UserCard = (props) => {
                                     }}
                                 />
                             </Box>
-                        </SimpleBar>
+                        </SimpleBar>}
+                        {isNaN(user.uid) && <>
+                            {/* fm title for users of other vtcs */}
+                            {fmRDsingle === undefined && <Box sx={{ mt: "10px" }}>
+                                <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                    FREIGHTMASTER TITLE
+                                </Typography>
+                                <Typography variant="body2">
+                                    Loading...
+                                </Typography>
+                            </Box>}
+                            {fmRDsingle !== undefined && fmRDsingle.length === 0 && <Box sx={{ mt: "10px" }}>
+                                <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                    FREIGHTMASTER TITLE
+                                </Typography>
+                                <Typography variant="body2">
+                                    No data
+                                </Typography>
+                            </Box>}
+                            {fmRDsingle !== undefined && fmRDsingle.length !== 0 && <Box sx={{ mt: "10px" }}>
+                                <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                    FREIGHTMASTER TITLE{fmRDsingle.length > 1 ? `S` : ``}
+                                </Typography>
+                                {fmRDsingle.map((reward) => (
+                                    <Typography variant="body2">
+                                        {fmRewardsMapping[reward.reward].reward_value}
+                                    </Typography>
+                                ))}
+                            </Box>}
+                        </>}
                     </CardContent>
                 </CardContent>
             </Card>

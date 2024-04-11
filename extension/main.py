@@ -10,9 +10,10 @@ import threading
 import time
 import urllib
 import uuid
-import redis
+from typing import Optional
 
 import freightmaster
+import redis
 import requests
 import uvicorn
 from fastapi import FastAPI, Header, Request, Response
@@ -723,12 +724,16 @@ def get_freightmaster_d(request: Request, page: int, page_size: int):
     config = r.hgetall("freightmaster:config")
     if len(config.keys()) == 0:
         config = json.loads(open("./freightmaster-config.json", "r").read())
-        del config["excluded_vtcs"]
-        r.hset("freightmaster:config", mapping = config)
+        tconfig = json.loads(json.dumps(config))
+        tconfig["excluded_vtcs"] = json.dumps(config["excluded_vtcs"])
+        tconfig["rewards"] = json.dumps(config["rewards"])
+        r.hset("freightmaster:config", mapping = tconfig)
         r.expire("freightmaster:config", 3600)
     else:
         config["start_time"] = int(config["start_time"])
         config["end_time"] = int(config["end_time"])
+        config["excluded_vtcs"] = json.loads(config["excluded_vtcs"])
+        config["rewards"] = json.loads(config["rewards"])
     data_folder = config["data_folder"]
     
     if r.get("freightmaster:ok:d") is None:
@@ -798,12 +803,16 @@ def get_freightmaster_a(request: Request, abbr: str, page: int, page_size: int):
     config = r.hgetall("freightmaster:config")
     if len(config.keys()) == 0:
         config = json.loads(open("./freightmaster-config.json", "r").read())
-        del config["excluded_vtcs"]
-        r.hset("freightmaster:config", mapping = config)
+        tconfig = json.loads(json.dumps(config))
+        tconfig["excluded_vtcs"] = json.dumps(config["excluded_vtcs"])
+        tconfig["rewards"] = json.dumps(config["rewards"])
+        r.hset("freightmaster:config", mapping = tconfig)
         r.expire("freightmaster:config", 3600)
     else:
         config["start_time"] = int(config["start_time"])
         config["end_time"] = int(config["end_time"])
+        config["excluded_vtcs"] = json.loads(config["excluded_vtcs"])
+        config["rewards"] = json.loads(config["rewards"])
     data_folder = config["data_folder"]
     
     if r.get(f"freightmaster:ok:{abbr}") is None:
@@ -853,12 +862,16 @@ def get_frieghtmaster_position(abbr: str, uid: int):
     config = r.hgetall("freightmaster:config")
     if len(config.keys()) == 0:
         config = json.loads(open("./freightmaster-config.json", "r").read())
-        del config["excluded_vtcs"]
-        r.hset("freightmaster:config", mapping = config)
+        tconfig = json.loads(json.dumps(config))
+        tconfig["excluded_vtcs"] = json.dumps(config["excluded_vtcs"])
+        tconfig["rewards"] = json.dumps(config["rewards"])
+        r.hset("freightmaster:config", mapping = tconfig)
         r.expire("freightmaster:config", 3600)
     else:
         config["start_time"] = int(config["start_time"])
         config["end_time"] = int(config["end_time"])
+        config["excluded_vtcs"] = json.loads(config["excluded_vtcs"])
+        config["rewards"] = json.loads(config["rewards"])
     season_name = config["season_name"]
     start_time = config["start_time"]
     end_time = config["end_time"]
@@ -900,6 +913,56 @@ def get_frieghtmaster_position(abbr: str, uid: int):
         pass
 
     return {"season_name": season_name, "start_time": start_time, "end_time": end_time, "rankd": rankd, "pointd": pointd, "ranka": ranka, "pointa": pointa}
+
+@app.get("/freightmaster/rewards")
+def get_freightmaster_rewards():
+    config = r.hgetall("freightmaster:config")
+    if len(config.keys()) == 0:
+        config = json.loads(open("./freightmaster-config.json", "r").read())
+        tconfig = json.loads(json.dumps(config))
+        tconfig["excluded_vtcs"] = json.dumps(config["excluded_vtcs"])
+        tconfig["rewards"] = json.dumps(config["rewards"])
+        r.hset("freightmaster:config", mapping = tconfig)
+        r.expire("freightmaster:config", 3600)
+    else:
+        config["start_time"] = int(config["start_time"])
+        config["end_time"] = int(config["end_time"])
+        config["excluded_vtcs"] = json.loads(config["excluded_vtcs"])
+        config["rewards"] = json.loads(config["rewards"])
+        
+    return config["rewards"]
+
+@app.get("/freightmaster/rewards/distributed")
+def get_freightmaster_distributed_rewards(abbr: str, uid: Optional[int] = None):
+    config = r.hgetall("freightmaster:config")
+    if len(config.keys()) == 0:
+        config = json.loads(open("./freightmaster-config.json", "r").read())
+        tconfig = json.loads(json.dumps(config))
+        tconfig["excluded_vtcs"] = json.dumps(config["excluded_vtcs"])
+        tconfig["rewards"] = json.dumps(config["rewards"])
+        r.hset("freightmaster:config", mapping = tconfig)
+        r.expire("freightmaster:config", 3600)
+    else:
+        config["start_time"] = int(config["start_time"])
+        config["end_time"] = int(config["end_time"])
+        config["excluded_vtcs"] = json.loads(config["excluded_vtcs"])
+        config["rewards"] = json.loads(config["rewards"])
+    data_folder = config["data_folder"]
+
+    history_rewards = []
+    if os.path.exists(data_folder + "/latest/chub-fmd-rewards-history.json"):
+        history_rewards = json.loads(open(data_folder + "/latest/chub-fmd-rewards-history.json", "r", encoding="utf-8").read())
+
+    current_rewards = json.loads(open(data_folder + "/latest/chub-fmd-rewards.json", "r", encoding="utf-8").read())
+
+    all_rewards = history_rewards + current_rewards
+
+    ret = []
+    for reward in all_rewards:
+        if reward["abbr"] == abbr and (uid is None or uid == reward["uid"]):
+            ret.append(reward)
+
+    return ret
 
 if __name__ == "__main__":
     threading.Thread(target=updateTruckersMP, daemon=True).start()

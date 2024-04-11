@@ -3,5 +3,39 @@
     "data_folder": "freightmaster/fms0",
     "season_name": "FreightMaster Beta",
     "start_time": 1710633600,
-    "end_time": 1712448000
+    "end_time": 1713657600,
+    "rewards": [
+        {
+            "active": true,
+            "id": "fms0-first",
+            "qualify_type": "rank",
+            "qualify_value": "==1",
+            "reward_type": "title",
+            "reward_value": "FreightMaster Beta No.1 Finisher"
+        },
+        {
+            "active": true,
+            "id": "fms0-top10",
+            "qualify_type": "rank",
+            "qualify_value": "<=10",
+            "reward_type": "title",
+            "reward_value": "FreightMaster Beta Top 10 Finisher"
+        },
+        {
+            "active": true,
+            "id": "fms0-top0.1",
+            "qualify_type": "percentage",
+            "qualify_value": "<=0.01",
+            "reward_type": "title",
+            "reward_value": "FreightMaster Beta Top 1% Finisher"
+        },
+        {
+            "active": true,
+            "id": "fms0-top0.99",
+            "qualify_type": "percentage",
+            "qualify_value": "<=0.99",
+            "reward_type": "title",
+            "reward_value": "FreightMaster Beta Tester"
+        }
+    ]
 }

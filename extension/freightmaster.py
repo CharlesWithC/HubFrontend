@@ -2,18 +2,74 @@
 # Author: @CharlesWithC
 
 # freightmaster-config.json must be correctly set to manage seasons.
+# data_folder must be a child of "freightmaster/"
+
 # Use a different data folder for each season and move outdated config
 # to the corresponding data folder for archive purpose.
+
+# Remember to merge `latest/chub-fmd-rewards.json` and write the result
+# to `latest/chub-fmd-rewards-history.json` for api query.
 
 import hashlib
 import hmac
 import json
 import os
+import sys
 import time
 import traceback
 
 import requests
 
+
+def custom_if(compare, a, b):
+    if compare == "==" and a == b or \
+            compare == "<=" and a <= b or \
+            compare == ">=" and a >= b or \
+            compare == "<" and a < b or \
+            compare == ">" and a > b:
+        return True
+    return False
+
+def calculate_fmd_rewards():
+    # this only applies to FMD
+    # reward id must start with an identifiable season id, like fms0
+    config = json.loads(open("./freightmaster-config.json", "r", encoding="utf-8").read())
+    rewards = [x for x in config["rewards"] if x["active"]]
+    data_folder = config["data_folder"]
+    if not os.path.exists(data_folder):
+        return {"error": "Data folder does not exist"}
+    if not os.path.exists(data_folder + "/latest"):
+        return {"error": "No data available"}
+    
+    output = []
+
+    fmd = json.loads(open(data_folder + "/latest/chub-fmd.json", "r", encoding="utf-8").read())
+
+    allrank = 0
+    alllast = -1
+    for row in fmd:
+        if alllast != row["point"]:
+            alllast = row["point"]
+            allrank += 1
+
+    rank = 0
+    last = -1
+    for row in fmd:
+        if last != row["point"]:
+            last = row["point"]
+            rank += 1
+
+        for reward in rewards:
+            qualify_compare = reward["qualify_value"][0:2]
+            qualify_value = float(reward["qualify_value"][2:])
+            if reward["qualify_type"] == "rank":
+                if custom_if(qualify_compare, rank, qualify_value):
+                    output.append({"abbr": row["abbr"], "uid": row["user"]["uid"], "reward": reward["id"]})
+            elif reward["qualify_type"] == "percentage":
+                if custom_if(qualify_compare, rank / allrank, qualify_value):
+                    output.append({"abbr": row["abbr"], "uid": row["user"]["uid"], "reward": reward["id"]})
+    
+    open(data_folder + "/latest/chub-fmd-rewards.json", "w", encoding="utf-8").write(json.dumps(output))
 
 def calculate_fmd():
     config = json.loads(open("./freightmaster-config.json", "r", encoding="utf-8").read())
@@ -37,6 +93,8 @@ def calculate_fmd():
     
     all_data = dict(sorted(all_data.items(),key=lambda x: (-x[1]["point"], x[0])))
     open(data_folder + "/latest/chub-fmd.json", "w", encoding="utf-8").write(json.dumps(list(all_data.values())))
+
+    calculate_fmd_rewards()
 
     return True
 
@@ -210,7 +268,7 @@ def control():
             time.sleep(int(time.time()) - start_time)
     
         if end_time < time.time():
-            print(f"Season {config['season_name']} already ended, waiting for new config...")
+            print(f"Season {config['season_name']} already ended, waiting for new config...\nRun `python3 freightmaster.py new-season` after creating `freightmaster-config-next.json` to start new season.")
             time.sleep(60)
             continue
 
@@ -236,3 +294,52 @@ def control():
         else:
             print(f"Next snapshot to be taken in {next_snapshot_end_time - int(time.time())} seconds...")
             time.sleep(next_snapshot_end_time - int(time.time()))
+
+if __name__ == "__main__":
+    cmd = sys.argv[1]
+    if cmd == "new-season":
+        # archive current season (that HAS ENDED)
+        # AND move freightmaster-next-config.json to freightmaster-config.json
+        if not os.path.exists("freightmaster-config-next.json"):
+            print("Next season config not found. Complete freightmaster-config-next.json and re-run the command.")
+            sys.exit(1)
+
+        config = json.loads(open("./freightmaster-config.json", "r", encoding="utf-8").read())
+        data_folder = config["data_folder"]
+        rewards = [{**x, "active": False} for x in config["rewards"]]
+        if not os.path.exists(data_folder):
+            print("Data folder does not exist.")
+            sys.exit(1)
+        
+        if config["end_time"] > int(time.time()):
+            print("Season has not ended.")
+            sys.exit(1)
+        
+        os.system(f"mv freightmaster-config.json {data_folder}/freightmaster-config.json")
+
+        history_rewards = []
+        if os.path.exists(data_folder + "/latest/chub-fmd-rewards-history.json"):
+            history_rewards = json.loads(open(data_folder + "/latest/chub-fmd-rewards-history.json", "r", encoding="utf-8"))
+
+        current_rewards = json.loads(open(data_folder + "/latest/chub-fmd-rewards.json", "r", encoding="utf-8"))
+
+        new_history_rewards = history_rewards + current_rewards
+
+        os.system("mv freightmaster-config-next.json freightmaster-config.json")
+        new_config = json.loads(open("./freightmaster-config.json", "r", encoding="utf-8").read())
+        new_data_folder = new_config["data_folder"]
+        os.mkdir(new_data_folder)
+        os.mkdir(new_data_folder + "/latest")
+        open(new_data_folder + "/latest/chub-fmd-rewards-history.json", "w", encoding="utf-8").write(new_history_rewards)
+        new_config["rewards"] = new_config["rewards"] + [x for x in rewards if x["id"] not in new_config["rewards"]]
+        open(new_data_folder + "/freightmaster-config.json", "w", encoding="utf-8").write(json.dumps(new_config, indent=4))
+
+        print("Next season started.")
+    
+    elif cmd == "recalculate-rewards":
+        calculate_fmd_rewards()
+        print("Recalculated rewards.")
+
+    elif cmd == "recalculate-latest":
+        recalculate_latest()
+        print("Recalculated latest.")

@@ -17,6 +17,8 @@ export const AppContext = createContext({
     specialUsers: {}, setSpecialUsers: () => { }, // {user[discordid]: [roles]}
     patrons: {}, setPatrons: () => { },
     curUserPatreonID: null, setCurUserPatreonID: () => { },
+    fmRewards: [], setFMRewards: () => { },
+    fmRewardsDistributed: {}, setFMRewardsDistributed: () => { }, // freightmaster rewards (uid: [rewards])
     userConfig: {}, setUserConfig: () => { }, // all users
 
     vtcLevel: 0, setVtcLevel: () => { }, // 0: regular / 1: premium / 3: special
@@ -71,6 +73,8 @@ export const AppContextProvider = ({ children }) => {
     const [specialUsers, setSpecialUsers] = useState({});
     const [patrons, setPatrons] = useState({});
     const [curUserPatreonID, setCurUserPatreonID] = useState(null);
+    const [fmRewards, setFMRewards] = useState([]);
+    const [fmRewardsDistributed, setFMRewardsDistributed] = useState({});
     const [userConfig, setUserConfig] = useState({});
 
     const [vtcLevel, setVtcLevel] = useState(0);
@@ -273,6 +277,8 @@ export const AppContextProvider = ({ children }) => {
         specialUsers, setSpecialUsers,
         patrons, setPatrons,
         curUserPatreonID, setCurUserPatreonID,
+        fmRewards, setFMRewards,
+        fmRewardsDistributed, setFMRewardsDistributed,
         userConfig, setUserConfig,
 
         userLevel, setUserLevel,

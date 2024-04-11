@@ -17,14 +17,15 @@ const A_LEVEL_POINT = 10000;
 
 const FreightMaster = () => {
     const { t: tr } = useTranslation();
-    const { webConfig, curUID, users, userSettings } = useContext(AppContext);
+    const { fmRewards, webConfig, curUID, users, userSettings, memberUIDs } = useContext(AppContext);
     const { cache, setCache } = useContext(CacheContext);
+
+    const positionLoaded = useRef(false);
+    const loadingBarPreserved = useRef(false);
 
     const [seasonName, setSeasonName] = useState(cache.freightmaster.seasonName);
     const [startTime, setStartTime] = useState(cache.freightmaster.startTime);
     const [endTime, setEndTime] = useState(cache.freightmaster.endTime);
-    // const [topRewards, setTopRewards] = useState(cache.freightmaster.topRewards);
-    // const [rewards, setRewards] = useState(cache.freightmaster.rewards);
 
     const [rankd, setRankd] = useState(cache.freightmaster.rankd);
     const [pointd, setPointd] = useState(cache.freightmaster.pointd);
@@ -51,20 +52,37 @@ const FreightMaster = () => {
     const doLoad = useCallback(async () => {
         window.loading += 1;
 
-        const [position, lb] = await makeRequestsWithAuth([
-            `https://config.chub.page/freightmaster/position?abbr=${webConfig.abbr}&uid=${curUID}`,
-            `https://config.chub.page/freightmaster/${fMode}?abbr=${webConfig.abbr}&page=${page}&page_size=${pageSize}`
-        ]);
+        let [position, lb] = [null, null];
+        if (!positionLoaded.current) {
+            [position, lb] = await makeRequestsWithAuth([
+                `https://config.chub.page/freightmaster/position?abbr=${webConfig.abbr}&uid=${curUID}`,
+                `https://config.chub.page/freightmaster/${fMode}?abbr=${webConfig.abbr}&page=${page}&page_size=${pageSize}`
+            ]);
+            setSeasonName(position.season_name);
+            setStartTime(getFormattedDate(userSettings.display_timezone, new Date(position.start_time * 1000)));
+            setEndTime(getFormattedDate(userSettings.display_timezone, new Date(position.end_time * 1000)));
+            setRankd(position.rankd ?? "Unranked");
+            setPointd(position.pointd ?? 0);
+            setRanka(position.ranka ?? "Unranked");
+            setPointa(position.pointa ?? 0);
+            positionLoaded.current = true;
+        } else {
+            [lb] = await makeRequestsWithAuth([
+                `https://config.chub.page/freightmaster/${fMode}?abbr=${webConfig.abbr}&page=${page}&page_size=${pageSize}`
+            ]);
+        }
 
-        setSeasonName(position.season_name);
-        setStartTime(getFormattedDate(userSettings.display_timezone, new Date(position.start_time * 1000)));
-        setEndTime(getFormattedDate(userSettings.display_timezone, new Date(position.end_time * 1000)));
-        setRankd(position.rankd ?? "Unranked");
-        setPointd(position.pointd ?? 0);
-        setRanka(position.ranka ?? "Unranked");
-        setPointa(position.pointa ?? 0);
+        if (memberUIDs.length === 0) {
+            loadingBarPreserved.current = true;
+            return; // preserve loading bar
+        }
 
-        if (pageRef.current === page) {
+        if (loadingBarPreserved.current) {
+            window.loading = 1;
+            loadingBarPreserved.current = false; // reduce loading counter
+        }
+
+        if (pageRef.current === page && memberUIDs.length > 0) {
             let newlb = [];
             for (let i = 0; i < lb.list.length; i++) {
                 newlb.push({
@@ -80,17 +98,7 @@ const FreightMaster = () => {
                         />
                         <span key={`user-${Math.random()}`} style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginLeft: "2px" }}>{lb.list[i].vtc}</span>
                     </>,
-                    user: (lb.list[i].abbr === webConfig.abbr || fMode === "a") && users[lb.list[i].user.uid] ? <UserCard user={users[lb.list[i].user.uid]} /> : <>
-                        <Avatar src={!userSettings.data_saver ? lb.list[i].user.avatar : ""}
-                            style={{
-                                width: `20px`,
-                                height: `20px`,
-                                verticalAlign: "middle",
-                                display: "inline-flex"
-                            }}
-                        />
-                        <span key={`user-${Math.random()}`} style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginLeft: "2px" }}>{lb.list[i].user.name}</span>
-                    </>,
+                    user: <UserCard user={(!lb.list[i].abbr || lb.list[i].abbr === webConfig.abbr) ? users[lb.list[i].user.uid] : { ...lb.list[i].user, uid: `${lb.list[i].abbr}-${lb.list[i].user.uid}` }} />,
                     points: TSep(lb.list[i].point), level: fMode === "d" ? parseInt(lb.list[i].point / D_LEVEL_POINT) + 1 : parseInt(lb.list[i].point / A_LEVEL_POINT + 1)
                 });
             }
@@ -99,11 +107,11 @@ const FreightMaster = () => {
         }
 
         window.loading -= 1;
-    }, [webConfig, userSettings, curUID, fMode, page, pageSize]);
+    }, [webConfig, userSettings, curUID, fMode, page, pageSize, memberUIDs]);
 
     useEffect(() => {
         doLoad();
-    }, [webConfig, userSettings, curUID, fMode, page, pageSize]);
+    }, [webConfig, userSettings, curUID, fMode, page, pageSize, memberUIDs]);
 
     return <Grid container spacing={2}>
         <Grid item xs={12} md={6} lg={4}>
@@ -140,21 +148,15 @@ const FreightMaster = () => {
                     <Typography variant="h5" fontWeight="bold" fontSize="30px">
                         Season Rewards
                     </Typography>
-                    <Typography variant="body2" fontSize="18px" color="textSecondary">
-                        To be determined
-                    </Typography>
-                    {/* <Typography variant="body2" fontSize="16px" color="textSecondary">
-                        When you finish the season at top x%, you get rewards for top finishers below and equal to x%.
-                    </Typography>
-                    <Typography variant="body2" fontSize="16px" color="textSecondary">
-                        When you reach a level, you get the correspoding rewards for the level if exists.
-                    </Typography>
-                    {topRewards.map((reward) => <Typography variant="body2" fontSize="18px">
-                        {reward.name} (Finishes top {reward.rank})
-                    </Typography>)}
-                    {rewards.map((reward) => <Typography variant="body2" fontSize="18px">
-                        {reward.name} (Level {reward.level})
-                    </Typography>)} */}
+                    <Typography variant="body2" fontSize="15px" color="grey" sx={{ mb: "5px" }}>(Only applies to cross-vtc ranking)</Typography>
+                    <Typography variant="body2" fontWeight="bold" fontSize="15px">Player Title</Typography>
+                    {fmRewards.filter((reward) => reward.reward_type === "title").map((reward) =>
+                        <Typography variant="body2" fontSize="15px">
+                            {reward.reward_value}
+                            {reward.qualify_type === "percentage" && <> (Finishes {reward.qualify_value.substring(0, 2) == "==" ? "at" : "top"} {parseFloat(reward.qualify_value.substring(2)) * 100}%)</>}
+                            {reward.qualify_type === "rank" && <> (Finishes {reward.qualify_value.substring(0, 2) == "==" ? "at" : "top"} {reward.qualify_value.substring(2)})</>}
+                            {/* we only care about == and <= */}
+                        </Typography>)}
                 </CardContent>
             </Card>
         </Grid>
