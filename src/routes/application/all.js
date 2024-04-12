@@ -253,11 +253,13 @@ const AllApplication = () => {
                         </>}
                         {tmpData.vtc.id === 0 && <>
                             <b>{tr("current_vtc")}</b>{tr("na")}</>}<br />
-                        {tmpData.vtcHistory.length !== 0 && <>
+                        {tmpData.vtcHistory !== null && tmpData.vtcHistory.length !== 0 && <>
                             <b>{tr("vtc_history")} ({tmpData.vtcHistory.length})</b>: <>{tmpData.vtcHistory.map((vtc, index) => <><a href={`https://truckersmp.com/vtc/${vtc.id}`} target="_blank" rel="noreferrer">{vtc.name}</a> ({tr("left")} <TimeAgo timestamp={+new Date(vtc.leftDate)} rough={true}></TimeAgo>)<>{index !== tmpData.vtcHistory.length - 1 && `, `}</></>)}</>
                         </>}
-                        {tmpData.vtcHistory.length === 0 && <>
+                        {tmpData.vtcHistory !== null && tmpData.vtcHistory.length === 0 && <>
                             <b>{tr("vtc_history_0")}</b>{tr("na")}</>}
+                        {tmpData.vtcHistory === null && <>
+                            <b>{tr("vtc_history")}</b>: <i>Not available</i></>}
                     </>}
                     {tmpData === null && <><br />
                         <b>{tr("current_vtc")}</b>{tr("na")}<br />
