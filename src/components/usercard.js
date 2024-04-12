@@ -171,7 +171,6 @@ const UserCard = (props) => {
     }
     // use the user in store | check if exist (could be non-existent when uid is NaN)
     const user = users[props.user.uid] !== undefined ? users[props.user.uid] : { ...props.user, ...props };
-    console.log(props.user.uid);
 
     const userPerm = useMemo(() => {
         if (!user.roles) return [];
@@ -581,7 +580,8 @@ const UserCard = (props) => {
 
     const updateRoles = useCallback(async () => {
         setDialogBtnDisabled(true);
-        let resp = await axios({ url: `${apiPath}/member/${user.userid}/roles`, method: "PATCH", data: { roles: newRoles.map((role) => (role.id)) }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/member/${user.userid}/roles`, method: "PATCH", data: { roles: newRoles.map((role) => (role.id ?? role)) }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        // RoleSelect sends back role objects, but API sends back role ids
         if (resp.status === 204) {
             setUsers(users => ({ ...users, [user.uid]: { ...user, roles: newRoles.map((role) => (role.id)) } }));
             setSnackbarContent(tr("roles_updated"));
