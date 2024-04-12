@@ -82,7 +82,7 @@ const DivisionsMemo = memo(({ doReload, loadComplete, setLoadComplete, listParam
             window.loading += 1;
 
             let processedParam = removeNUEValues(listParam);
-            
+
             let urls = [
                 `${apiPath}/divisions?${new URLSearchParams(processedParam).toString()}`,
             ];
@@ -215,6 +215,11 @@ const DivisionsPending = memo(({ doReload, loadComplete, setLoadComplete }) => {
             }
 
             const [dlogL] = await makeRequestsWithAuth([`${apiPath}/divisions/list/pending?page_size=${pageSize}&page=${page}`]);
+
+            if (dlogL.list === undefined) {
+                // no access
+                return;
+            }
 
             let newDlogList = [];
             for (let i = 0; i < dlogL.list.length; i++) {
