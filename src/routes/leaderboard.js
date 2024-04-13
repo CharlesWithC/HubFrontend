@@ -127,13 +127,13 @@ const Leaderboard = () => {
             <Box sx={{ justifyContent: 'center', display: { sm: 'none', md: 'block' } }}>
                 <Grid container spacing={2} sx={{ marginBottom: "15px" }}>
                     <Grid item xs={12} sm={12} md={4} lg={4}>
-                        <LargeUserCard user={monthly[2].user} color="#CD7F32" />
+                        <LargeUserCard user={monthly[1].user} color="#C0C0C0" />
                     </Grid>
                     <Grid item xs={12} sm={12} md={4} lg={4}>
                         <LargeUserCard user={monthly[0].user} color="#FFD700" />
                     </Grid>
                     <Grid item xs={12} sm={12} md={4} lg={4}>
-                        <LargeUserCard user={monthly[1].user} color="#C0C0C0" />
+                        <LargeUserCard user={monthly[2].user} color="#CD7F32" />
                     </Grid>
                 </Grid>
             </Box>
@@ -159,13 +159,13 @@ const Leaderboard = () => {
             <Box sx={{ justifyContent: 'center', display: { sm: 'none', md: 'block' } }}>
                 <Grid container spacing={2} sx={{ marginBottom: "15px" }}>
                     <Grid item xs={12} sm={12} md={4} lg={4}>
-                        <LargeUserCard user={allTime[2].user} color="#CD7F32" />
+                        <LargeUserCard user={allTime[1].user} color="#C0C0C0" />
                     </Grid>
                     <Grid item xs={12} sm={12} md={4} lg={4}>
                         <LargeUserCard user={allTime[0].user} color="#FFD700" />
                     </Grid>
                     <Grid item xs={12} sm={12} md={4} lg={4}>
-                        <LargeUserCard user={allTime[1].user} color="#C0C0C0" />
+                        <LargeUserCard user={allTime[2].user} color="#CD7F32" />
                     </Grid>
                 </Grid>
             </Box>
