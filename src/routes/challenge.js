@@ -307,7 +307,7 @@ const ChallengesMemo = memo(({ userDrivenDistance, challengeList, setChallengeLi
                 <ChallengeCard challenge={challenge} onShowDetails={onShowDetails} onUpdateDelivery={onUpdateDelivery} onEdit={onEdit} onDelete={onDelete} />
             </Grid>)}
         </Grid>
-        {challengeList.length !== 0 && <CustomTable page={page} columns={checkUserPerm(curUserPerm, ["administrator", "manage_challenges"]) ? staffColumns : columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} data={challengeList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage= {pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={onShowDetails} pstyle={{ marginRight: "60px" }} />}
+        {challengeList.length !== 0 && <CustomTable page={page} columns={checkUserPerm(curUserPerm, ["administrator", "manage_challenges"]) ? staffColumns : columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} data={challengeList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={onShowDetails} pstyle={{ marginRight: "60px" }} />}
     </>;
 });
 
@@ -474,22 +474,10 @@ const Challenges = () => {
         });
 
         let completed_users = "";
-        let completed_users_cnt = {};
-        let completed_user_info = {};
-        let completed_user_point = {};
-        for (let i = 0; i < challenge.completed.length; i++) {
-            if (completed_users_cnt[challenge.completed[i].user.userid] === undefined) completed_users_cnt[challenge.completed[i].user.userid] = 1;
-            else completed_users_cnt[challenge.completed[i].user.userid] += 1;
-            completed_user_info[challenge.completed[i].user.userid] = challenge.completed[i];
-            completed_user_point[challenge.completed[i].user.userid] = parseInt(challenge.completed[i].points);
-        }
-        let d = sortDictWithValue(completed_user_point);
-        for (let i = 0; i < d.length; i++) {
-            let extrainfo = "";
-            if (challenge.type === 2) extrainfo = ` ${completed_user_info[d[i][0]].points} Points`;
-            else if (challenge.type === 3) extrainfo = ` x${completed_users_cnt[d[i][0]]}`;
-            else if (challenge.type === 5) extrainfo = ` ${ConvertUnit(userSettings.unit, "km", completed_user_point[d[i][0]])}`;
-            completed_users = <>{completed_users} <UserCard user={completed_user_info[d[i][0]].user} inline={true} /> <Chip color="secondary" size="small" label={extrainfo}></Chip></>;
+        for (let i = 0; i < challenge.record.length; i++) {
+            let extrainfo = `${challenge.record[i].job_count} Jobs / ${ConvertUnit(userSettings.unit, "km", challenge.record[i].job_distance)}`;
+            if (challenge.record[i].is_completed) extrainfo += ` / ${challenge.record[i].points} Pts`;
+            completed_users = <>{completed_users} <UserCard user={challenge.record[i].user} inline={true} /> <Chip color="secondary" size="small" label={extrainfo}></Chip><br /></>;
         }
 
         const lmi = [

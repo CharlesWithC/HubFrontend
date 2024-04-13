@@ -11,12 +11,12 @@ const ListModal = ({ title, items, data, additionalContent, open, onClose }) => 
     const modalStyle = {
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'center'
     };
 
     const paperStyle = {
-        width: 400,
         padding: '16px',
+        width: "500px"
     };
 
     const handleClose = () => {
