@@ -1,5 +1,13 @@
 # Changelog
 
+## v3.4.3
+
+1. Added FreightMaster
+2. Improved challenge completed member info display
+3. Added URLs hint in config info tab
+4. Fixed application crash when user VTC history is hidden
+5. Prevented ID:0 role from being deleted and driver permission from being added to multiple roles
+
 ## v3.4.2
 
 1. Added TruckersMP user info in applications
