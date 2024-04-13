@@ -3380,6 +3380,33 @@ const Configuration = () => {
                 </Grid>
                 <br />
                 <Typography variant="body2" fontWeight="bold">
+                    URLs
+                </Typography>
+                <Grid container spacing={2} rowSpacing={-0.5}>
+                    <Grid item xs={12} md={4}>
+                        <Typography variant="body2">
+                            Trucky Webhook URL:<br />{apiPath}/trucky/webhook/update
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                        <Typography variant="body2">
+                            TrackSim Webhook URL:<br />{apiPath}/tracksim/webhook/update
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                        <Typography variant="body2">
+                            Custom Tracker Webhook URL:<br />{apiPath}/custom/webhook/update
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={12} md={12}>
+                        <Typography variant="body2">
+                            <br />
+                            Discord Application Redirect URI: https://{window.location.host}/auth/discord/callback
+                        </Typography>
+                    </Grid>
+                </Grid>
+                <br />
+                <Typography variant="body2" fontWeight="bold">
                     Plugins
                 </Typography>
                 <Grid container spacing={2} rowSpacing={-0.5}>
