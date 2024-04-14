@@ -232,7 +232,7 @@ const AllApplication = () => {
                     <CloseRounded />
                 </IconButton>
             </DialogTitle>
-            <DialogContent sx={{ minWidth: "400px" }}>
+            <DialogContent sx={{ minWidth: "550px" }}>
                 <Typography variant="body2" sx={{ marginBottom: "5px" }}>
                     <b><>{tr("applicant")}</>: </b><UserCard user={detailApp.creator} /> (<>UID</>: {detailApp.creator.uid} | <>{tr("user_id")}</>: {detailApp.creator.userid})
                 </Typography>

@@ -2,7 +2,8 @@ import { useRef, useState, useEffect, useCallback, useMemo, useContext, memo } f
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '../../context';
 
-import { Card, CardContent, Typography, Grid, Snackbar, Alert, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button, useTheme } from '@mui/material';
+import { Card, CardContent, Typography, Grid, Snackbar, Alert, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button, IconButton, Box, useTheme } from '@mui/material';
+import { CloseRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
 
 import CustomTable from '../../components/table';
@@ -116,7 +117,7 @@ const ApplicationTable = memo(({ showDetail }) => {
                 </Grid>
             }
         </Grid>}
-        {applications !== null && <CustomTable page={page} columns={columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} data={applications} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100]} defaultRowsPerPage= {pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />}
+        {applications !== null && <CustomTable page={page} columns={columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} data={applications} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />}
     </>;
 });
 
@@ -169,8 +170,13 @@ const MyApplication = () => {
     return <>
         <ApplicationTable showDetail={showDetail}></ApplicationTable>
         {detailApp !== null && <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} >
-            <DialogTitle>{tr("application")}</DialogTitle>
-            <DialogContent sx={{ minWidth: "400px" }}>
+            <DialogTitle>
+                {tr("application")}
+                <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogOpen(false)}>
+                    <CloseRounded />
+                </IconButton>
+            </DialogTitle>
+            <DialogContent sx={{ minWidth: "550px" }}>
                 {Object.entries(detailApp.application).map(([question, answer]) => (
                     <>
                         <Typography variant="body" sx={{ marginBottom: "5px" }}>
@@ -183,8 +189,8 @@ const MyApplication = () => {
                 ))}
                 <div style={{ display: detailApp.status !== 0 ? "none" : "block" }}>
                     <hr />
+                    <Typography variant="body2" fontWeight="bold" sx={{ mb: "5px" }}>{tr("message")}</Typography>
                     <TextField
-                        label={tr("add_message")}
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                         multiline
@@ -194,8 +200,9 @@ const MyApplication = () => {
                 </div>
             </DialogContent>
             <DialogActions>
-                <Button variant="primary" onClick={() => { setDialogOpen(false); }}>{tr("close")}</Button>
-                <Button variant="contained" color="info" onClick={() => { addMessage(); }} disabled={submitLoading || message.trim() === ""} sx={{ display: detailApp.status !== 0 ? "none" : "block" }}>{tr("respond")}</Button>
+                <Box sx={{ padding: "10px" }}>
+                    <Button variant="contained" color="info" onClick={() => { addMessage(); }} disabled={submitLoading || message.trim() === ""} sx={{ display: detailApp.status !== 0 ? "none" : "block" }}>{tr("respond")}</Button>
+                </Box>
             </DialogActions>
         </Dialog>}
         <Portal>
