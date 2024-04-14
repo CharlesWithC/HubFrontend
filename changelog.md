@@ -7,6 +7,8 @@
 3. Added URLs hint in config info tab
 4. Fixed application crash when user VTC history is hidden
 5. Prevented ID:0 role from being deleted and driver permission from being added to multiple roles
+6. Added resizable textbox for application response message and new application textbox
+7. Improved application detail dialog UI
 
 ## v3.4.2
 

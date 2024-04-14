@@ -257,6 +257,15 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
                                         sx={{ width: "100%", '& .MuiFormHelperText-root': { color: theme.palette.error.main } }}
                                         error={field.min_length !== undefined && formData[field.label] !== "" && formData[field.label].length <= field.min_length}
                                         helperText={field.min_length !== undefined && formData[field.label] !== "" && formData[field.label].length <= field.min_length ? "Input at least 150 characters" : ""}
+                                        InputProps={{
+                                            inputComponent: 'textarea',
+                                            inputProps: {
+                                                style: {
+                                                    resize: 'vertical',
+                                                    overflow: 'auto'
+                                                }
+                                            }
+                                        }}
                                     />
                                 </>
                             );

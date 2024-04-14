@@ -2,7 +2,8 @@ import { useRef, useState, useEffect, useCallback, useMemo, useContext, memo } f
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '../../context';
 
-import { Card, CardContent, Typography, Grid, Snackbar, Alert, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button, MenuItem, useTheme } from '@mui/material';
+import { Card, CardContent, Typography, Grid, Snackbar, Alert, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button, MenuItem, Box, IconButton, useTheme } from '@mui/material';
+import { CloseRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
 
 import CustomTable from '../../components/table';
@@ -225,7 +226,12 @@ const AllApplication = () => {
     return <>
         <ApplicationTable showDetail={showDetail} doReload={doReload}></ApplicationTable>
         {detailApp !== null && <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} >
-            <DialogTitle>{tr("application")}</DialogTitle>
+            <DialogTitle>
+                {tr("application")}
+                <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogOpen(false)}>
+                    <CloseRounded />
+                </IconButton>
+            </DialogTitle>
             <DialogContent sx={{ minWidth: "400px" }}>
                 <Typography variant="body2" sx={{ marginBottom: "5px" }}>
                     <b><>{tr("applicant")}</>: </b><UserCard user={detailApp.creator} /> (<>UID</>: {detailApp.creator.uid} | <>{tr("user_id")}</>: {detailApp.creator.userid})
@@ -278,25 +284,43 @@ const AllApplication = () => {
                     </>
                 ))}
                 <hr />
+                <Typography variant="body2" fontWeight="bold" sx={{ mb: "5px" }}>{tr("message")}</Typography>
                 <TextField
-                    label={tr("message")}
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     multiline
                     rows="5"
                     fullWidth
+                    InputProps={{
+                        inputComponent: 'textarea',
+                        inputProps: {
+                            style: {
+                                resize: 'vertical',
+                                overflow: 'auto'
+                            }
+                        }
+                    }}
                 />
             </DialogContent>
             <DialogActions>
-                <Button variant="primary" onClick={() => { setDialogOpen(false); }}>{tr("close")}</Button>
-                <Button variant="contained" color="error" onClick={() => { setDialogDelete(true); }}>{tr("delete")}</Button>
-                <TextField select label={tr("status")} value={newStatus} onChange={(e) => setNewStatus(e.target.value)} sx={{ marginLeft: "10px", height: "40px" }} size="small">
-                    <MenuItem key="0" value="0">{tr("pending")}</MenuItem>
-                    <MenuItem key="1" value="1">{tr("accepted")}</MenuItem>
-                    <MenuItem key="2" value="2">{tr("declined")}</MenuItem>
-                    <MenuItem key="3" value="3">{tr("accepted_as_driver")}</MenuItem>
-                </TextField>
-                <Button variant="contained" color="info" onClick={() => { updateStatus(); }} disabled={submitLoading || message.trim() === ""} >{tr("respond")}</Button>
+                <Grid container justifyContent="space-between" padding="10px">
+                    <Grid item>
+                        <Box sx={{ display: 'flex', gap: '10px' }}>
+                            <Button variant="contained" color="error" onClick={() => { setDialogDelete(true); }}>{tr("delete")}</Button>
+                        </Box>
+                    </Grid>
+                    <Grid item>
+                        <Box sx={{ display: 'flex', gap: '10px' }}>
+                            <TextField select label={tr("status")} value={newStatus} onChange={(e) => setNewStatus(e.target.value)} sx={{ marginLeft: "10px", height: "40px" }} size="small">
+                                <MenuItem key="0" value="0">{tr("pending")}</MenuItem>
+                                <MenuItem key="1" value="1">{tr("accepted")}</MenuItem>
+                                <MenuItem key="2" value="2">{tr("declined")}</MenuItem>
+                                <MenuItem key="3" value="3">{tr("accepted_as_driver")}</MenuItem>
+                            </TextField>
+                            <Button variant="contained" color="info" onClick={() => { updateStatus(); }} disabled={submitLoading || message.trim() === ""} >{tr("respond")}</Button>
+                        </Box>
+                    </Grid>
+                </Grid>
             </DialogActions>
         </Dialog>}
         <Dialog open={dialogDelete} onClose={() => setDialogDelete(false)}>
