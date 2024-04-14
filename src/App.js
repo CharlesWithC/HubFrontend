@@ -70,7 +70,7 @@ const drivershub = `    ____       _                         __  __      __
 
 function App() {
     const { t: tr } = useTranslation();
-    const { vtcBackground, customBackground, vtcLevel, userLevel, apiConfig, webConfig, userSettings, setUserSettings } = useContext(AppContext);
+    const { vtcBackground, customBackground, vtcLevel, userLevel, apiConfig, apiVersion, webConfig, userSettings, setUserSettings } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     useEffect(() => {
@@ -95,6 +95,16 @@ function App() {
     );
     const uTheme = useTheme();
     const isMd = useMediaQuery(uTheme.breakpoints.up('md'));
+
+    let buildhash = "dev";
+    const scripts = document.getElementsByTagName('script');
+    for (let i = 0; i < scripts.length; i++) {
+        const script = scripts[i];
+        if (script.src.includes('main.')) {
+            const hash = script.src.split('main.')[1].split('.js')[0];
+            buildhash = hash;
+        }
+    }
 
     const [showSurveyCard, setShowSurveyCard] = useState(+new Date() <= 1710806399000 && (localStorage.getItem("survey-202402") === null || parseInt(localStorage.getItem("survey-202402")) <= +new Date()));
 
@@ -364,6 +374,22 @@ function App() {
                                             <a href="https://discord.gg/trucksim" target="_blank" rel="noreferrer">/r/trucksim</a>&nbsp;&nbsp;
                                             <a href="https://ocsc-event.com/" target="_blank" rel="noreferrer">OCSC Event</a>&nbsp;&nbsp;
                                         </Typography>
+                                        <br />
+                                        <Typography variant="body2" fontWeight="bold">
+                                            Versions
+                                        </Typography>
+                                        <Grid container spacing={2} rowSpacing={-0.5}>
+                                            <Grid item xs={12} md={6}>
+                                                <Typography variant="body2">
+                                                    Client: 3.4.3 (build.{buildhash})
+                                                </Typography>
+                                            </Grid>
+                                            <Grid item xs={12} md={6}>
+                                                <Typography variant="body2">
+                                                    Server: {apiVersion}
+                                                </Typography>
+                                            </Grid>
+                                        </Grid>
                                         <br />
                                         <Typography variant="body2">
                                             Gratitude for embarking on this celestial exploration. As the modal curtain falls, let the harmonies of Drivers Hub serenade your digital travels!
