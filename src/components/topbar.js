@@ -138,9 +138,9 @@ const TopBar = (props) => {
                         setUserSettings(userSettings => ({ ...userSettings, radio_type: "tsr" }));
                     }
                     if (userSettings.radio_type === "tsr") {
-                        let resp = await axios({ url: `https://truckstopradio.co.uk/api/cache?url=/api/v1/song-history/now-playing` });
+                        let resp = await axios({ url: `https://api.truckstopradio.co.uk/song-database/public/current` });
                         setRadioSongName(resp.data.song.title);
-                        if (!userSettings.data_saver) setRadioImage(resp.data.song.graphic.medium);
+                        if (!userSettings.data_saver) setRadioImage(resp.data.song.graphic);
                         else setRadioImage(radioImages[userSettings.radio_type]);
                         setRadioSpotifyId(resp.data.song.extraInfo.track.external_urls.spotify.split("/").pop());
                         navigator.mediaSession.metadata = new MediaMetadata({
@@ -148,7 +148,7 @@ const TopBar = (props) => {
                             artist: resp.data.song.artist,
                             album: resp.data.song.album,
                             artwork: userSettings.data_saver ? [] : [
-                                { src: resp.data.song.graphic.medium, sizes: '300x300', type: 'image/jpeg' }
+                                { src: resp.data.song.graphic, sizes: '300x300', type: 'image/jpeg' }
                             ]
                         });
                     } else if (userSettings.radio_type === "tfm") {
