@@ -172,28 +172,39 @@ const AllApplication = () => {
 
     const updateStatus = useCallback(async () => {
         setSubmitLoading(true);
-        let resp = await axios({ url: `${apiPath}/applications/${detailApp.applicationid}/status`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "status": newStatus !== "3" ? newStatus : "1", "message": message } });
+        let resp = await axios({ url: `${apiPath}/applications/${detailApp.applicationid}/status`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "status": newStatus !== 3 ? newStatus : 1, "message": message } });
         if (resp.status === 204) {
             setSnackbarContent(tr("status_updated"));
             setSnackbarSeverity("success");
             setDoReload(+new Date());
             showDetail(detailApp);
-            if (newStatus === "3" && (detailApp.creator.userid === null || detailApp.creator.userid === -1)) {
-                let resp = await axios({ url: `${apiPath}/user/${detailApp.creator.uid}/accept`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
-                if (resp.status === 200) {
-                    let newUserID = resp.data.userid;
-                    setSnackbarContent(tr("user_accepted_as_member"));
-                    setSnackbarSeverity("success");
-
-                    let resp = await axios({ url: `${apiPath}/member/${newUserID}/roles`, method: "PATCH", data: { roles: [allPerms.driver[0]] }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
-                    if (resp.status === 204) {
-                        setSnackbarContent(tr("driver_role_assigned"));
+            if (newStatus === 3) {
+                let newRoles = [];
+                let newUserID = -1;
+                if ((detailApp.creator.userid === null || detailApp.creator.userid === -1)) {
+                    let resp = await axios({ url: `${apiPath}/user/${detailApp.creator.uid}/accept`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                    if (resp.status === 200) {
+                        newUserID = resp.data.userid;
+                        newRoles = [allPerms.driver[0]];
+                        setSnackbarContent(tr("user_accepted_as_member"));
                         setSnackbarSeverity("success");
                     } else {
                         setSnackbarContent(resp.data.error);
                         setSnackbarSeverity("error");
                         setDialogBtnDisabled(false);
+                        return;
                     }
+                } else {
+                    // already member / add driver role
+                    newRoles = detailApp.creator.roles;
+                    newRoles.push(allPerms.driver[0]); // backend would auto de-duplicate
+                    newUserID = detailApp.creator.userid;
+                }
+
+                let resp = await axios({ url: `${apiPath}/member/${newUserID}/roles`, method: "PATCH", data: { roles: newRoles }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                if (resp.status === 204) {
+                    setSnackbarContent(tr("driver_role_assigned"));
+                    setSnackbarSeverity("success");
                 } else {
                     setSnackbarContent(resp.data.error);
                     setSnackbarSeverity("error");
@@ -312,10 +323,10 @@ const AllApplication = () => {
                     <Grid item>
                         <Box sx={{ display: 'flex', gap: '10px' }}>
                             <TextField select label={tr("status")} value={newStatus} onChange={(e) => setNewStatus(e.target.value)} sx={{ marginLeft: "10px", height: "40px" }} size="small">
-                                <MenuItem key="0" value="0">{tr("pending")}</MenuItem>
-                                <MenuItem key="1" value="1">{tr("accepted")}</MenuItem>
-                                <MenuItem key="2" value="2">{tr("declined")}</MenuItem>
-                                <MenuItem key="3" value="3">{tr("accepted_as_driver")}</MenuItem>
+                                <MenuItem key={0} value={0}>{tr("pending")}</MenuItem>
+                                <MenuItem key={1} value={1}>{tr("accepted")}</MenuItem>
+                                <MenuItem key={2} value={2}>{tr("declined")}</MenuItem>
+                                <MenuItem key={3} value={3}>{tr("accepted_as_driver")}</MenuItem>
                             </TextField>
                             <Button variant="contained" color="info" onClick={() => { updateStatus(); }} disabled={submitLoading || message.trim() === ""} >{tr("respond")}</Button>
                         </Box>
