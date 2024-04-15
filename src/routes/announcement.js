@@ -530,23 +530,43 @@ const Announcement = () => {
                 </DialogActions>
             </Dialog>
             <Dialog open={dialogDelete} onClose={() => setDialogDelete(false)}>
-                <DialogTitle>{tr("delete_announcement")}</DialogTitle>
+                <DialogTitle>
+                    {tr("delete_announcement")}
+                    <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogDelete(false)}>
+                        <CloseRounded />
+                    </IconButton>
+                </DialogTitle>
                 <DialogContent>
                     <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>{tr("are_you_sure_you_want")}</Typography>
                     <AnnouncementCard announcement={toDelete !== null ? toDelete : {}} />
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogDelete(false); }}>{tr("cancel")}</Button>
-                    <Button variant="contained" color="error" onClick={() => { deleteAnnouncement({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>{tr("delete")}</Button>
+                    <Grid container justifyContent="space-between" padding="10px">
+                        <Grid item>
+                            <Box sx={{ display: 'flex', gap: '10px' }}>
+                                <Button variant="contained" onClick={() => { setDialogDelete(false); }}>{tr("cancel")}</Button>
+                            </Box>
+                        </Grid>
+                        <Grid item>
+                            <Box sx={{ display: 'flex', gap: '10px' }}>
+                                <Button variant="contained" color="error" onClick={() => { deleteAnnouncement({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>{tr("delete")}</Button>
+                            </Box>
+                        </Grid>
+                    </Grid>
                 </DialogActions>
             </Dialog>
             <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
-                <DialogTitle>{tr("announcement_managers")}</DialogTitle>
+                <DialogTitle>
+                    {tr("announcement_managers")}
+                    <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogOpen(false)}>
+                        <CloseRounded />
+                    </IconButton>
+                </DialogTitle>
                 <DialogContent>
                     <AnnouncementManagers />
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogManagers(false); }}>{tr("close")}</Button>
+                    <Button variant="contained" onClick={() => { setDialogManagers(false); }}>{tr("close")}</Button>
                 </DialogActions>
             </Dialog>
             <SpeedDial

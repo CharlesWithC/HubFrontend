@@ -2,8 +2,8 @@ import { useEffect, useState, useCallback, useContext, useRef, memo } from 'reac
 import { useTranslation } from 'react-i18next';
 import { AppContext, CacheContext } from '../context';
 
-import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, TextField, Snackbar, Alert, Pagination, IconButton, Checkbox } from '@mui/material';
-import { DownloadRounded, EditNoteRounded, RefreshRounded, EditRounded, DeleteRounded, PeopleAltRounded } from '@mui/icons-material';
+import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, TextField, Snackbar, Alert, Pagination, IconButton, Checkbox, Box } from '@mui/material';
+import { DownloadRounded, EditNoteRounded, RefreshRounded, EditRounded, DeleteRounded, PeopleAltRounded, CloseRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
 
 import UserCard from '../components/usercard';
@@ -435,7 +435,12 @@ const DownloadableItem = () => {
             {downloadableItems.length !== 0 && <Pagination count={totalPages} onChange={handlePagination}
                 sx={{ display: "flex", justifyContent: "flex-end", marginTop: "10px", marginRight: "10px" }} />}
             <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
-                <DialogTitle>{dialogTitle}</DialogTitle>
+                <DialogTitle>
+                    {dialogTitle}
+                    <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogOpen(false)}>
+                        <CloseRounded />
+                    </IconButton>
+                </DialogTitle>
                 <DialogContent>
                     <form onSubmit={handleSubmit} style={{ marginTop: "5px" }}>
                         <Grid container spacing={2}>
@@ -498,28 +503,57 @@ const DownloadableItem = () => {
                     </form>
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogOpen(false); clearModal(); }}>{tr("cancel")}</Button>
-                    <Button variant="contained" onClick={handleSubmit} disabled={submitLoading}>{dialogButton}</Button>
+                    <Grid container justifyContent="space-between" padding="10px">
+                        <Grid item>
+                            <Box sx={{ display: 'flex', gap: '10px' }}>
+                                <Button variant="contained" onClick={clearModal}>{tr("clear")}</Button>
+                            </Box>
+                        </Grid>
+                        <Grid item>
+                            <Box sx={{ display: 'flex', gap: '10px' }}>
+                                <Button variant="contained" color="info" onClick={handleSubmit} disabled={submitLoading}>{dialogButton}</Button>
+                            </Box>
+                        </Grid>
+                    </Grid>
                 </DialogActions>
             </Dialog>
             <Dialog open={dialogDelete} onClose={() => setDialogDelete(false)}>
-                <DialogTitle>Delete Downloadable Item</DialogTitle>
+                <DialogTitle>
+                    Delete Downloadable Item
+                    <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogDelete(false)}>
+                        <CloseRounded />
+                    </IconButton>
+                </DialogTitle>
                 <DialogContent>
                     <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>{tr("delete_downloads_confirm")}</Typography>
                     <DownloadableItemCard downloadableItem={toDelete !== null ? toDelete : {}} />
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogDelete(false); }}>{tr("cancel")}</Button>
-                    <Button variant="contained" color="error" onClick={() => { deleteDownloadableItem({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>{tr("delete")}</Button>
+                    <Grid container justifyContent="space-between" padding="10px">
+                        <Grid item>
+                            <Box sx={{ display: 'flex', gap: '10px' }}>
+                                <Button variant="contained" onClick={() => { setDialogDelete(false); }}>{tr("cancel")}</Button>
+                            </Box>
+                        </Grid>
+                        <Grid item>
+                            <Box sx={{ display: 'flex', gap: '10px' }}>
+                                <Button variant="contained" color="error" onClick={() => { deleteDownloadableItem({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>{tr("delete")}</Button>
+                            </Box>
+                        </Grid>
+                    </Grid>
                 </DialogActions>
             </Dialog>
             <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
-                <DialogTitle>{tr("downloads_managers")}</DialogTitle>
+                <DialogTitle>{tr("downloads_managers")}
+                    <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogOpen(false)}>
+                        <CloseRounded />
+                    </IconButton>
+                </DialogTitle>
                 <DialogContent>
                     <DownloadableItemManagers />
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogManagers(false); }}>{tr("close")}</Button>
+                    <Button variant="contained" onClick={() => { setDialogManagers(false); }}>{tr("close")}</Button>
                 </DialogActions>
             </Dialog>
             <SpeedDial

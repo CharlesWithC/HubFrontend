@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback, useContext, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppContext, CacheContext } from '../context';
 
-import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction, InputAdornment } from '@mui/material';
-import { LocalParkingRounded, TimeToLeaveRounded, FlightTakeoffRounded, FlightLandRounded, RouteRounded, HowToRegRounded, LocalShippingRounded, EmojiEventsRounded, EditRounded, DeleteRounded, CheckBoxRounded, CheckBoxOutlineBlankRounded, PeopleAltRounded, EditNoteRounded } from '@mui/icons-material';
+import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction, InputAdornment, Box } from '@mui/material';
+import { LocalParkingRounded, TimeToLeaveRounded, FlightTakeoffRounded, FlightLandRounded, RouteRounded, HowToRegRounded, LocalShippingRounded, EmojiEventsRounded, EditRounded, DeleteRounded, CheckBoxRounded, CheckBoxOutlineBlankRounded, PeopleAltRounded, EditNoteRounded, CloseRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
 
 import FullCalendar from '@fullcalendar/react';
@@ -719,7 +719,12 @@ const Events = () => {
         <EventsMemo upcomingEvents={upcomingEvents} setUpcomingEvents={setUpcomingEvents} calendarEvents={calendarEvents} setCalendarEvents={setCalendarEvents} allEvents={allEvents} setAllEvents={setAllEvents} openEventDetails={openEventDetails} setOpenEventDetals={setOpenEventDetals} modalEvent={modalEvent} setModalEvent={setModalEvent} setSnackbarContent={setSnackbarContent} setSnackbarSeverity={setSnackbarSeverity} onEdit={editEvent} onDelete={deleteEvent} doReload={doReload} onUpdateAttendees={editEventAttendees} />
 
         <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
-            <DialogTitle>{dialogTitle}</DialogTitle>
+            <DialogTitle>
+                {dialogTitle}
+                <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogOpen(false)}>
+                    <CloseRounded />
+                </IconButton>
+            </DialogTitle>
             <DialogContent>
                 <form onSubmit={handleSubmit} style={{ marginTop: "5px" }}>
                     <Grid container spacing={2}>
@@ -836,8 +841,18 @@ const Events = () => {
                 </form>
             </DialogContent>
             <DialogActions>
-                <Button variant="primary" onClick={() => { setDialogOpen(false); clearModal(); }}>{tr("cancel")}</Button>
-                <Button variant="contained" onClick={handleSubmit} disabled={submitLoading}>{dialogButton}</Button>
+                <Grid container justifyContent="space-between" padding="10px">
+                    <Grid item>
+                        <Box sx={{ display: 'flex', gap: '10px' }}>
+                            <Button variant="contained" onClick={clearModal}>{tr("clear")}</Button>
+                        </Box>
+                    </Grid>
+                    <Grid item>
+                        <Box sx={{ display: 'flex', gap: '10px' }}>
+                            <Button variant="contained" color="info" onClick={handleSubmit} disabled={submitLoading}>{dialogButton}</Button>
+                        </Box>
+                    </Grid>
+                </Grid>
             </DialogActions>
         </Dialog>
         <SpeedDial
@@ -882,8 +897,18 @@ const Events = () => {
                     />}
             </DialogContent>
             <DialogActions>
-                <Button variant="primary" onClick={() => { setDialogDelete(false); }}>{tr("cancel")}</Button>
-                <Button variant="contained" color="error" onClick={() => { deleteEvent({ ...toDelete.event, confirmed: true }); }} disabled={submitLoading}>{tr("delete")}</Button>
+                <Grid container justifyContent="space-between" padding="10px">
+                    <Grid item>
+                        <Box sx={{ display: 'flex', gap: '10px' }}>
+                            <Button variant="contained" onClick={() => { setDialogDelete(false); }}>{tr("cancel")}</Button>
+                        </Box>
+                    </Grid>
+                    <Grid item>
+                        <Box sx={{ display: 'flex', gap: '10px' }}>
+                            <Button variant="contained" color="error" onClick={() => { deleteEvent({ ...toDelete.event, confirmed: true }); }} disabled={submitLoading}>{tr("delete")}</Button>
+                        </Box>
+                    </Grid>
+                </Grid>
             </DialogActions>
         </Dialog>
         <Dialog open={openAttendeeEvent} onClose={() => setOpenAttendeeEvent(false)}>
@@ -906,8 +931,18 @@ const Events = () => {
                 </form>
             </DialogContent>
             <DialogActions>
-                <Button variant="primary" onClick={() => { setOpenAttendeeEvent(false); }}>{tr("close")}</Button>
-                <Button variant="contained" onClick={handleUpdateAttendees} disabled={submitLoading}>{tr("update")}</Button>
+                <Grid container justifyContent="space-between" padding="10px">
+                    <Grid item>
+                        <Box sx={{ display: 'flex', gap: '10px' }}>
+                            <Button variant="contained" onClick={() => { setOpenAttendeeEvent(false); }}>{tr("close")}</Button>
+                        </Box>
+                    </Grid>
+                    <Grid item>
+                        <Box sx={{ display: 'flex', gap: '10px' }}>
+                            <Button variant="contained" color="info" onClick={handleUpdateAttendees} disabled={submitLoading}>{tr("update")}</Button>
+                        </Box>
+                    </Grid>
+                </Grid>
             </DialogActions>
         </Dialog>
         <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
@@ -916,7 +951,7 @@ const Events = () => {
                 <EventManagers />
             </DialogContent>
             <DialogActions>
-                <Button variant="primary" onClick={() => { setDialogManagers(false); }}>{tr("close")}</Button>
+                <Button variant="contained" onClick={() => { setDialogManagers(false); }}>{tr("close")}</Button>
             </DialogActions>
         </Dialog>
         <Portal>
