@@ -10,6 +10,7 @@
 6. Added resizable textbox for application response message and new application textbox
 7. Improved announcement, application detail, downloads, event, poll dialog UI
 8. Added import announcement from TruckersMP news
+9. Added calendar event counter
 
 ## v3.4.2
 

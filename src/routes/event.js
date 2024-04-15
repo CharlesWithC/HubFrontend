@@ -174,6 +174,8 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
     const { t: tr } = useTranslation();
     const { apiPath, curUID, curUser } = useContext(AppContext);
 
+    const [curMonthCount, setCurMonthCount] = useState(-1);
+
     useEffect(() => {
         async function doLoad() {
             window.loading += 1;
@@ -346,6 +348,8 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
 
         window.loading += 1;
 
+        setCurMonthCount(-1);
+
         let urls = [
             `${apiPath}/events/list?page_size=250&page=1&meetup_after=${start}&meetup_before=${end}`
         ];
@@ -359,6 +363,14 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
 
         mergeEvents(ParseEventImage(monthEvents.list));
 
+        let count = 0;
+        for (let i = 0; i < monthEvents.list.length; i++) {
+            if (monthEvents.list[i].departure_timestamp * 1000 >= dateInfo.start && monthEvents.list[i].departure_timestamp * 1000 <= dateInfo.end) {
+                count += 1;
+            }
+        }
+        setCurMonthCount(count);
+
         window.loading -= 1;
     }, [apiPath]);
     useEffect(() => {
@@ -368,6 +380,17 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
             newCalendarEvents.push({ url: `/event/${event.eventid}`, title: event.title, start: toLocalISOString(new Date(event.departure_timestamp * 1000)).split('T')[0] });
         }
         setCalendarEvents(newCalendarEvents);
+
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        let count = 0;
+        for (let i = 0; i < allEvents.length; i++) {
+            if (allEvents[i].departure_timestamp * 1000 >= startOfMonth && allEvents[i].departure_timestamp * 1000 <= endOfMonth) {
+                count += 1;
+            }
+        }
+        setCurMonthCount(count);
     }, [allEvents, setCalendarEvents]);
 
     return (
@@ -381,6 +404,11 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
                     eventClick={handleEventClick}
                     datesSet={handleDateSet}
                 />
+                {curMonthCount !== -1 && <Box sx={{ textAlign: 'right' }}>
+                    <Typography variant="body2">
+                        {curMonthCount} events this month
+                    </Typography>
+                </Box>}
             </Card>
             <Dialog open={openEventDetails} onClose={() => setOpenEventDetals(false)}>
                 <DialogTitle>{tr("event")}</DialogTitle>
