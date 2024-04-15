@@ -2,14 +2,14 @@ import { useEffect, useState, useCallback, useContext, useRef, memo } from 'reac
 import { useTranslation } from 'react-i18next';
 import { AppContext, CacheContext } from '../context';
 
-import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, MenuItem, Snackbar, Alert, Pagination, IconButton, Checkbox } from '@mui/material';
-import { InfoRounded, EventNoteRounded, WarningRounded, ErrorOutlineRounded, CheckCircleOutlineRounded, EditNoteRounded, RefreshRounded, EditRounded, DeleteRounded, PeopleAltRounded } from '@mui/icons-material';
+import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, MenuItem, Snackbar, Alert, Pagination, IconButton, Checkbox, InputAdornment, Box } from '@mui/material';
+import { InfoRounded, EventNoteRounded, WarningRounded, ErrorOutlineRounded, CheckCircleOutlineRounded, EditNoteRounded, RefreshRounded, EditRounded, DeleteRounded, PeopleAltRounded, CloseRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
 
 import UserCard from '../components/usercard';
 import MarkdownRenderer from '../components/markdown';
 import TimeAgo from '../components/timeago';
-import { makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios, checkPerm, getAuthToken, makeRequestsAuto } from '../functions';
+import { makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios, checkPerm, getAuthToken } from '../functions';
 
 const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
     const { t: tr } = useTranslation();
@@ -308,7 +308,7 @@ const Announcement = () => {
             [anns] = await makeRequests([`${apiPath}/announcements/list?page_size=10&page=${page}`]);
         }
 
-        if(page === pageRef.current){
+        if (page === pageRef.current) {
             setAnnouncemnts(anns.list);
             setTotalPages(anns.total_pages);
             setLastUpdate(+new Date());
@@ -316,6 +316,28 @@ const Announcement = () => {
 
         window.loading -= 1;
     }, [apiPath, page, announcementTypes]);
+
+    const [importDisabled, setImportDisabled] = useState(false);
+    const importTMPNews = useCallback(async () => {
+        setImportDisabled(true);
+
+        const match = title.match(/https:\/\/truckersmp\.com\/vtc\/(.*)\/news\/(\d+)/);
+        const vtcID = match[1];
+        const newsID = match[2];
+        const resp = await axios({ url: `https://corsproxy.io/?https://api.truckersmp.com/v2/vtc/${vtcID}/news/${newsID}` });
+        if (resp.status !== 200) {
+            setImportDisabled(false);
+            setSnackbarContent("Invalid TruckersMP news link");
+            setSnackbarSeverity("error");
+            return;
+        }
+
+        const news = resp.data.response;
+
+        setTitle(news.title);
+        setContent(news.content);
+        setIsPinned(news.pinned);
+    }, [title]);
 
     const handleSubmit = useCallback(async (e) => {
         e.preventDefault();
@@ -401,15 +423,18 @@ const Announcement = () => {
         doLoad();
     }, [apiPath, page, announcementTypes]);
 
-
-
     return (
         <>{announcementTypes !== null && <>
             <AnnouncementGrid announcements={announcements} lastUpdate={lastUpdate} onEdit={editAnnouncement} onDelete={deleteAnnouncement} />
             {announcements.length !== 0 && <Pagination count={totalPages} onChange={handlePagination}
                 sx={{ display: "flex", justifyContent: "flex-end", marginTop: "10px", marginRight: "10px" }} />}
             <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
-                <DialogTitle>{dialogTitle}</DialogTitle>
+                <DialogTitle>
+                    {dialogTitle}
+                    <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogOpen(false)}>
+                        <CloseRounded />
+                    </IconButton>
+                </DialogTitle>
                 <DialogContent>
                     <form onSubmit={handleSubmit} style={{ marginTop: "5px" }}>
                         <Grid container spacing={2}>
@@ -419,6 +444,13 @@ const Announcement = () => {
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
                                     fullWidth
+                                    InputProps={{
+                                        endAdornment: (
+                                            <>{title.match(/https:\/\/truckersmp\.com\/vtc\/(.*)\/news\/(\d+)/) && <InputAdornment position="end">
+                                                <Button variant="contained" onClick={() => { importTMPNews(); }} disabled={importDisabled}>{tr("import")}</Button>
+                                            </InputAdornment>}</>
+                                        ),
+                                    }}
                                 />
                             </Grid>
                             <Grid item xs={12}>
@@ -483,8 +515,18 @@ const Announcement = () => {
                     </form>
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogOpen(false); clearModal(); }}>{tr("cancel")}</Button>
-                    <Button variant="contained" onClick={handleSubmit} disabled={submitLoading}>{dialogButton}</Button>
+                    <Grid container justifyContent="space-between" padding="10px">
+                        <Grid item>
+                            <Box sx={{ display: 'flex', gap: '10px' }}>
+                                <Button variant="contained" onClick={clearModal}>{tr("clear")}</Button>
+                            </Box>
+                        </Grid>
+                        <Grid item>
+                            <Box sx={{ display: 'flex', gap: '10px' }}>
+                                <Button variant="contained" color="info" onClick={handleSubmit} disabled={submitLoading}>{dialogButton}</Button>
+                            </Box>
+                        </Grid>
+                    </Grid>
                 </DialogActions>
             </Dialog>
             <Dialog open={dialogDelete} onClose={() => setDialogDelete(false)}>

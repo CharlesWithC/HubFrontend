@@ -9,6 +9,7 @@
 5. Prevented ID:0 role from being deleted and driver permission from being added to multiple roles
 6. Added resizable textbox for application response message and new application textbox
 7. Improved application detail dialog UI
+8. Added import announcement from TruckersMP news
 
 ## v3.4.2
 
