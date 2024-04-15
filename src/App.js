@@ -48,7 +48,7 @@ import Badges from './routes/badges';
 import NotFound from './routes/404';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
+import { faLink, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 
 import { getDesignTokens } from './designs';
 import './App.css';
@@ -67,10 +67,11 @@ const drivershub = `    ____       _                         __  __      __
  / /_/ / /  / /| |/ /  __/ /  (__  )  / __  / /_/ / /_/ /
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/
                                                       `;
+const CONNECTIONS = { "email": "email", "discord": "Discord", "steam": "Steam", "truckersmp": "TruckersMP" };
 
 function App() {
     const { t: tr } = useTranslation();
-    const { vtcBackground, customBackground, vtcLevel, userLevel, apiConfig, apiVersion, webConfig, userSettings, setUserSettings } = useContext(AppContext);
+    const { vtcBackground, customBackground, vtcLevel, userLevel, apiConfig, apiVersion, webConfig, userSettings, setUserSettings, curUser } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     useEffect(() => {
@@ -292,6 +293,20 @@ function App() {
                         </>}
                         <SimpleBar style={{ padding: "20px", height: "100%", backgroundColor: theme.palette.background.default }} >
                             <div style={{ display: "flex", flexDirection: "column", minHeight: "calc(100vh - 120px)" }}>
+                                {curUser.userid === null && [false, ...apiConfig.required_connections].reduce((res, conn) => (res || curUser[conn + (conn !== "email" ? "id" : "")] === null)) && <Grid container>
+                                    <Grid item xs={12} sx={{ mb: "15px" }}>
+                                        <Card>
+                                            <CardContent>
+                                                <Typography variant="h5">
+                                                    <FontAwesomeIcon icon={faLink} />&nbsp;Connect Accounts
+                                                </Typography>
+                                                <Typography variant="body2">
+                                                    You have to connect your {[[], ...apiConfig.required_connections].reduce((res, conn) => (curUser[conn + (conn !== "email" ? "id" : "")] === null ? [...res, conn] : res)).map(connection => CONNECTIONS[connection]).join(", ")} account to become a member. Simply complete this in settings.
+                                                </Typography>
+                                            </CardContent>
+                                        </Card>
+                                    </Grid>
+                                </Grid>}
                                 <Routes>
                                     <Route path="/" exact element={<Overview />}></Route>
                                     {window.isElectron && <Route path="/auth/complete" exact element={<BrowserAuth />}></Route>}
