@@ -81,6 +81,13 @@ const MemoGeneralForm = memo(({ theme, formConfig }) => {
     const { t: tr } = useTranslation();
     const { languages } = useContext(AppContext);
 
+    if (5 - formConfig.state.hook_audit_log.length > 0) {
+        for (let i = 0; i < 5 - formConfig.state.hook_audit_log.length; i++) {
+            formConfig.state.hook_audit_log.push({ category: "*", channel_id: "", webhook_url: "" });
+        }
+        formConfig.setState({ ...formConfig.state, hook_audit_log: formConfig.state.hook_audit_log });
+    }
+
     return <><Grid item xs={12} md={6}>
         <TextField
             style={{ marginBottom: '16px' }}
@@ -178,28 +185,57 @@ const MemoGeneralForm = memo(({ theme, formConfig }) => {
                 onChange={(e) => { formConfig.setState({ ...formConfig.state, hex_color: e.target.value }); }}
             />
         </Grid>
-        <Grid item xs={12} md={6}>
-            <TextField
-                style={{ marginBottom: '16px' }}
-                key="hook_audit_log_channel_id"
-                label={tr("audit_log_discord_channel_id")}
-                variant="outlined"
-                fullWidth
-                value={formConfig.state.hook_audit_log.channel_id}
-                onChange={(e) => { if (!isNaN(e.target.value)) formConfig.setState({ ...formConfig.state, hook_audit_log: { ...formConfig.state.hook_audit_log, channel_id: e.target.value } }); }}
-            />
-        </Grid>
-        <Grid item xs={12} md={6}>
-            <TextField
-                style={{ marginBottom: '16px' }}
-                key="hook_audit_log_webhook"
-                label={tr("audit_log_discord_webhook_alternative")}
-                variant="outlined"
-                fullWidth
-                value={formConfig.state.hook_audit_log.webhook_url}
-                onChange={(e) => { formConfig.setState({ ...formConfig.state, hook_audit_log: { ...formConfig.state.hook_audit_log, webhook_url: e.target.value } }); }}
-            />
-        </Grid>
+        {formConfig.state.hook_audit_log.map((hook, index) => (<>
+            <Grid item xs={12} md={4}>
+                <TextField
+                    style={{ marginBottom: '16px' }}
+                    key={`hook_audit_log_category_${index}`}
+                    label={"Audit Log Category" + " #" + (index + 1)}
+                    variant="outlined"
+                    fullWidth
+                    value={hook.category}
+                    onChange={(e) => {
+                        if (!isNaN(e.target.value)) {
+                            const newHooks = [...formConfig.state.hook_audit_log];
+                            newHooks[index] = { ...hook, category: e.target.value };
+                            formConfig.setState({ ...formConfig.state, hook_audit_log: newHooks });
+                        }
+                    }}
+                />
+            </Grid>
+            <Grid item xs={12} md={4}>
+                <TextField
+                    style={{ marginBottom: '16px' }}
+                    key={`hook_audit_log_channel_id_${index}`}
+                    label={tr("audit_log_discord_channel_id") + " #" + (index + 1)}
+                    variant="outlined"
+                    fullWidth
+                    value={hook.channel_id}
+                    onChange={(e) => {
+                        if (!isNaN(e.target.value)) {
+                            const newHooks = [...formConfig.state.hook_audit_log];
+                            newHooks[index] = { ...hook, channel_id: e.target.value };
+                            formConfig.setState({ ...formConfig.state, hook_audit_log: newHooks });
+                        }
+                    }}
+                />
+            </Grid>
+            <Grid item xs={12} md={4}>
+                <TextField
+                    style={{ marginBottom: '16px' }}
+                    key={`hook_audit_log_webhook_${index}`}
+                    label={tr("audit_log_discord_webhook_alternative") + " #" + (index + 1)}
+                    variant="outlined"
+                    fullWidth
+                    value={hook.webhook_url}
+                    onChange={(e) => {
+                        const newHooks = [...formConfig.state.hook_audit_log];
+                        newHooks[index] = { ...hook, webhook_url: e.target.value };
+                        formConfig.setState({ ...formConfig.state, hook_audit_log: newHooks });
+                    }}
+                />
+            </Grid>
+        </>))}
     </>;
 });
 
@@ -812,7 +848,7 @@ const MemoRoleForm = memo(({ theme, formConfig }) => {
                             formConfig.setState({ ...formConfig.state, roles: newRoles });
                             setOpenIndex(-1);
                         }}><FontAwesomeIcon icon={faMinus} /></IconButton>
-                    <IconButton variant="contained" color="info" disabled={index === 0}onClick={() => {
+                    <IconButton variant="contained" color="info" disabled={index === 0} onClick={() => {
                         if (index >= 1) {
                             let newRoles = [...formConfig.state.roles];
                             newRoles[index] = newRoles[index - 1];
@@ -820,7 +856,7 @@ const MemoRoleForm = memo(({ theme, formConfig }) => {
                             formConfig.setState({ ...formConfig.state, roles: newRoles });
                             if (openIndex === index) setOpenIndex(index - 1);
                         }
-                    }}><FontAwesomeIcon icon={faArrowUp}  /></IconButton>
+                    }}><FontAwesomeIcon icon={faArrowUp} /></IconButton>
                     <IconButton variant="contained" color="warning" onClick={() => {
                         if (index <= formConfig.state.roles.length - 2) {
                             let newRoles = [...formConfig.state.roles];
@@ -3177,6 +3213,9 @@ const Configuration = () => {
                 delete config["trackers"];
             }
         }
+        for (let i = 0; i < config["hook_audit_log"].length; i++) {
+            if (config["hook_audit_log"][i]["category"].includes("*")) config["hook_audit_log"][i]["category"] = "*";
+        }
 
         window.loading += 1;
         setApiConfigDisabled(true);
@@ -3442,6 +3481,7 @@ const Configuration = () => {
                                 </IconButton>
                             </Typography>
                             {formSectionRender[0] && <Collapse in={formSectionOpen[0]}>
+                                <Typography variant="body2" sx={{ mb: "15px" }}>NOTE: Audit Log Category could be either * (for all categories) or a list of categories separated with comma.<br />Supported categories: announcement, application, auth, challenge, division, dlog, downloads, economy, event, member, poll, system, tracker, user<br />Up to 5 categories is supported by Form Config. To add more categories, use JSON Config.</Typography>
                                 <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px" }}>
                                     <MemoGeneralForm theme={theme} formConfig={formConfig[0]} />
                                     <Grid item xs={12}>

@@ -166,6 +166,7 @@ const en = {
     "cargo_id": "Cargo ID",
     "cargo_market": "Cargo Market",
     "cargo_mass": "Cargo Mass",
+    "category": "Category",
     "challenge": "Challenge",
     "challenge_deleted": "Challenge deleted",
     "challenge_enter_delivery_log_id": "Please enter the ID of the delivery log to be added / removed from the challenge:",

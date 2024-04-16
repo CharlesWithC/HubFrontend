@@ -43,7 +43,7 @@ const AuditLog = () => {
             let newUserList = [];
             for (let i = 0; i < _auditList.list.length; i++) {
                 let row = _auditList.list[i];
-                newUserList.push({ uid: row.user.uid, userid: row.user.userid, user: <UserCard user={row.user} />, discordid: row.user.discordid, time: <TimeAgo key={`${+new Date()}`} timestamp={row.timestamp * 1000} />, operation: <MarkdownRenderer>{row.operation}</MarkdownRenderer> });
+                newUserList.push({ user: <UserCard user={row.user} />, time: <TimeAgo key={`${+new Date()}`} timestamp={row.timestamp * 1000} />, category: row.category.charAt(0).toUpperCase() + row.category.substr(1), operation: <MarkdownRenderer>{row.operation}</MarkdownRenderer> });
             }
 
             if (pageRef.current === page) {
@@ -59,13 +59,11 @@ const AuditLog = () => {
     return <>
         {auditList.length !== 0 &&
             <CustomTable columns={[
-                { id: 'uid', label: 'UID' },
-                { id: 'userid', label: tr("user_id") },
                 { id: 'user', label: tr("user") },
-                { id: 'discordid', label: tr("discord_id") },
-                { id: 'time', label: tr("time") },
+                { id: 'category', label: tr("category") },
                 { id: 'operation', label: tr("operation") },
-            ]} data={auditList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} />
+                { id: 'time', label: tr("time") },
+            ]} data={auditList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} page={page} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} />
         }
     </>;
 };
