@@ -32,7 +32,7 @@ import { RouteRounded, LocalGasStationRounded, EuroRounded, AttachMoneyRounded, 
 import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUserSlash, faTrashCan, faBan, faCircleCheck, faUserCheck, faTruck, faBarsStaggered, faHashtag, faComment, faNoteSticky, faPencil, faScrewdriverWrench, faCrown, faClover, faAt, faFingerprint, faEarthAmericas, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUserSlash, faTrashCan, faBan, faCircleCheck, faUserCheck, faTruck, faBarsStaggered, faHashtag, faComment, faNoteSticky, faPencil, faScrewdriverWrench, faCrown, faClover, faAt, faFingerprint, faEarthAmericas, faInfoCircle, faClockRotateLeft, faRoad } from '@fortawesome/free-solid-svg-icons';
 import { faDiscord, faSteam } from '@fortawesome/free-brands-svg-icons';
 
 import SimpleBar from 'simplebar-react';
@@ -164,10 +164,13 @@ const UserCard = (props) => {
         // if user is not yet cached, cache the user
         // fill undefined attributes
         let { uid, userid, name, bio, note, global_note, avatar, email, discordid, steamid, truckersmpid, roles, tracker, ban, role_history, ban_history, mfa } = { uid: -1, userid: -1, name: "", bio: "", note: "", global_note: "", avatar: "", email: "", discordid: null, steamid: null, truckersmpid: null, roles: [], tracker: availableTrackers.length !== 0 ? availableTrackers[0] : "unknown", ban: null, role_history: null, ban_history: null, mfa: null, ...props.user, ...props };
+
         if (!roles) roles = [];
         roles.sort((a, b) => orderedRoles.indexOf(a) - orderedRoles.indexOf(b));
 
-        setUsers(users => ({ ...users, [uid]: { ...{ uid, userid, discordid, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, tracker, ban, role_history, ban_history, mfa }, ...props.user, last_sync: +new Date() } }));
+        if (name === null) name = "Unknown";
+
+        setUsers(users => ({ ...users, [uid]: { ...{ ...props.user, uid, userid, discordid, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, tracker, ban, role_history, ban_history, mfa }, last_sync: +new Date() } }));
     }
     // use the user in store | check if exist (could be non-existent when uid is NaN)
     const user = users[props.user.uid] !== undefined ? users[props.user.uid] : { ...props.user, ...props };
@@ -606,6 +609,58 @@ const UserCard = (props) => {
         }
         setDialogBtnDisabled(false);
     }, [apiPath, user.userid, newPoints]);
+
+    const [distanceHistory, setDistanceHistory] = useState(undefined);
+    const loadDistanceHistory = useCallback(async () => {
+        setDialogBtnDisabled(true);
+        let resp = await axios({ url: `${apiPath}/dlog/list?userid=${user.userid}&page_size=250&manual=true`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 200) {
+            setDistanceHistory(resp.data.list);
+            let totalPages = resp.data.total_pages;
+            if (totalPages > 1) {
+                for (let i = 2; i <= totalPages; i++) {
+                    let resp = await axios({ url: `${apiPath}/dlog/list?userid=${user.userid}&page_size=250&manual=true&page=${i}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                    if (resp.status === 200) {
+                        setDistanceHistory(distanceHistory => [...distanceHistory, ...resp.data.list]);
+                    } else {
+                        setSnackbarContent(resp.data.error);
+                        setSnackbarSeverity("error");
+                        return;
+                    }
+                }
+            }
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogBtnDisabled(false);
+    }, [user.userid]);
+
+    const [bonusHistory, setBonusHistory] = useState(undefined);
+    const loadBonusHistory = useCallback(async () => {
+        setDialogBtnDisabled(true);
+        let resp = await axios({ url: `${apiPath}/member/bonus/history?userid=${user.userid}&type=all&page_size=250`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 200) {
+            setBonusHistory(resp.data.list);
+            let totalPages = resp.data.total_pages;
+            if (totalPages > 1) {
+                for (let i = 2; i <= totalPages; i++) {
+                    let resp = await axios({ url: `${apiPath}/member/bonus/history?userid=${user.userid}&type=all&page_size=250&page=${i}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                    if (resp.status === 200) {
+                        setBonusHistory(bonusHistory => [...bonusHistory, ...resp.data.list]);
+                    } else {
+                        setSnackbarContent(resp.data.error);
+                        setSnackbarSeverity("error");
+                        return;
+                    }
+                }
+            }
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogBtnDisabled(false);
+    }, [user.userid]);
 
     const switchTracker = useCallback(async () => {
         setDialogBtnDisabled(true);
@@ -1169,6 +1224,8 @@ const UserCard = (props) => {
             {user.userid !== null && user.userid >= 0 && checkUserPerm(curUserPerm, ["administrator", "manage_divisions", "update_roles"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-roles"); }}><ListItemIcon><FontAwesomeIcon icon={faPeopleGroup} /></ListItemIcon>{tr("update_roles")}</MenuItem>}
             {user.userid !== null && user.userid >= 0 && checkUserPerm(curUserPerm, ["administrator", "update_points"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-points"); }}><ListItemIcon><FontAwesomeIcon icon={faTrophy} /></ListItemIcon>{tr("update_points")}</MenuItem>}
             <MenuItem onClick={(e) => { updateUserInfo(); updateCtxAction(e, "role-ban-history"); }}><ListItemIcon><FontAwesomeIcon icon={faBarsStaggered} /></ListItemIcon>{tr("roleban_history")}</MenuItem>
+            {user.userid !== null && user.userid >= 0 && <MenuItem onClick={(e) => { loadDistanceHistory(); updateCtxAction(e, "distance-history"); }}><ListItemIcon><FontAwesomeIcon icon={faRoad} /></ListItemIcon>Distance History</MenuItem>}
+            {user.userid !== null && user.userid >= 0 && (checkUserPerm(curUserPerm, ["administrator", "update_points"]) || user.userid === curUser.userid) && <MenuItem onClick={(e) => { loadBonusHistory(); updateCtxAction(e, "bonus-history"); }}><ListItemIcon><FontAwesomeIcon icon={faClockRotateLeft} /></ListItemIcon>Bonus History</MenuItem>}
             {((user.userid === null || user.userid < 0) && user.ban === null && checkUserPerm(curUserPerm, ["administrator", "accept_members"]) || checkUserPerm(curUserPerm, ["administrator", "update_connections"]) || checkUserPerm(curUserPerm, ["administrator", "disable_mfa"])) && <Divider />}
             {(user.userid === null || user.userid < 0) && user.ban === null && checkUserPerm(curUserPerm, ["administrator", "accept_members"]) && <MenuItem sx={{ color: theme.palette.success.main }} onClick={(e) => { updateCtxAction(e, "accept-user"); }}><ListItemIcon><FontAwesomeIcon icon={faUserCheck} /></ListItemIcon>{tr("accept_as_member")}</MenuItem>}
             {checkUserPerm(curUserPerm, ["administrator", "update_connections"]) && <MenuItem sx={{ color: theme.palette.warning.main }} onClick={(e) => { updateCtxAction(e, "update-connections"); }} disabled={userSettings.streamer_mode}><ListItemIcon><FontAwesomeIcon icon={faLink} /></ListItemIcon>{tr("update_connections")}</MenuItem>}
@@ -1376,7 +1433,7 @@ const UserCard = (props) => {
                             <Typography variant="body2" style={{ fontSize: "0.8em", marginLeft: '8px', color: user.role_history === null ? theme.palette.error.main : (user.role_history !== undefined ? theme.palette.success.main : theme.palette.info.main) }}>{user.role_history === null ? `Invisible` : (user.role_history !== undefined ? tr("visible") : tr("loading"))}</Typography>
                         </Box>
                         {user.role_history !== undefined && user.role_history !== null && user.role_history.map((history, idx) => (<>
-                            {idx !== 0 && <Divider sx={{ mt: "5px" }} />}
+                            {idx !== 0 && <Divider sx={{ mt: "5px", mb: "5px" }} />}
                             {history.added_roles.map((role) => (<Typography key={`history-${idx}`} variant="body2" sx={{ color: theme.palette.info.main }}>+ {allRoles[role] !== undefined ? allRoles[role].name : `Unknown Role (${role})`}</Typography>))}
                             {history.removed_roles.map((role) => (<Typography key={`history-${idx}`} variant="body2" sx={{ color: theme.palette.warning.main }}>- {allRoles[role] !== undefined ? allRoles[role].name : `Unknown Role (${role})`}</Typography>))}
                             <Typography key={`history-${idx}-time`} variant="body2" sx={{ color: theme.palette.text.secondary }}><TimeAgo key={`${+new Date()}`} timestamp={history.timestamp * 1000} /></Typography>
@@ -1389,12 +1446,67 @@ const UserCard = (props) => {
                             <Typography variant="body2" style={{ fontSize: "0.8em", marginLeft: '8px', color: user.ban_history === null ? theme.palette.error.main : (user.ban_history !== undefined ? theme.palette.success.main : theme.palette.info.main) }}>{user.ban_history === null ? `Invisible` : (user.ban_history !== undefined ? tr("visible") : tr("loading"))}</Typography>
                         </Box>
                         {user.ban_history !== undefined && user.ban_history !== null && user.ban_history.map((history, idx) => (<>
-                            {idx !== 0 && <Divider sx={{ mt: "5px" }} />}
+                            {idx !== 0 && <Divider sx={{ mt: "5px", mb: "5px" }} />}
                             <Typography key={`history-${idx}`} variant="body2">{history.reason}</Typography>
                             <Typography key={`history-${idx}-time`} variant="body2" sx={{ color: theme.palette.text.secondary }}><>{tr("expiry")}</>: {getFormattedDate(userSettings.display_timezone, new Date(history.expire_timestamp * 1000))}</Typography>
                         </>
                         ))}
                         {user.ban_history !== undefined && user.ban_history !== null && user.ban_history.length === 0 && <Typography variant="body2" >{tr("no_data")}</Typography>}
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>{tr("close")}</Button>
+                    </DialogActions>
+                </Dialog>
+            }
+            {ctxAction === "distance-history" &&
+                <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
+                    <DialogTitle>{user.name} ({user.userid !== null ? tr("user_id") + ": " + user.userid + " / " : ""}<>UID</>: {user.uid})</DialogTitle>
+                    <DialogContent>
+                        <Box display="flex" alignItems="center">
+                            <Typography variant="h7" sx={{ fontWeight: 800 }}>Manually Added Distance History</Typography>
+                            {distanceHistory === undefined && <Typography variant="body2" style={{ fontSize: "0.8em", marginLeft: '8px', color: theme.palette.info.main }}>{tr("loading")}</Typography>}
+                        </Box>
+                        {distanceHistory !== undefined && distanceHistory !== null && distanceHistory.map((history, idx) => {
+                            return <>
+                                {idx !== 0 && <Divider sx={{ mt: "5px", mb: "5px" }} />}
+                                <Typography variant="body2" sx={{ color: history.distance >= 0 ? theme.palette.success.main : theme.palette.error.main }}>{history.distance > 0 ? `+` : ``}{ConvertUnit(userSettings.unit, "km", history.distance)} by <UserCard user={history.staff} /></Typography>
+                                <Typography variant="body2">Note: {history.note !== "" ? history.note : "N/A"}</Typography>
+                                <Typography key={`history-${idx}-time`} variant="body2" sx={{ color: theme.palette.text.secondary }}><TimeAgo key={`${+new Date()}`} timestamp={history.timestamp * 1000} /></Typography>
+                            </>;
+                        })}
+                        {distanceHistory !== undefined && distanceHistory !== null && distanceHistory.length === 0 && <Typography variant="body2" >{tr("no_data")}</Typography>}
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>{tr("close")}</Button>
+                    </DialogActions>
+                </Dialog>
+            }
+            {ctxAction === "bonus-history" &&
+                <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
+                    <DialogTitle>{user.name} ({user.userid !== null ? tr("user_id") + ": " + user.userid + " / " : ""}<>UID</>: {user.uid})</DialogTitle>
+                    <DialogContent>
+                        <Box display="flex" alignItems="center">
+                            <Typography variant="h7" sx={{ fontWeight: 800 }}>Bonus History</Typography>
+                            {bonusHistory === undefined && <Typography variant="body2" style={{ fontSize: "0.8em", marginLeft: '8px', color: theme.palette.info.main }}>{tr("loading")}</Typography>}
+                        </Box>
+                        {bonusHistory !== undefined && bonusHistory !== null && bonusHistory.map((history, idx) => {
+                            if (history.note.startsWith("auto:")) {
+                                let autonote = history.note.split("auto:")[1];
+                                let meta = history.note.split("/")[1];
+                                if (autonote.startsWith("daily-bonus")) {
+                                    history.note = "Daily Bonus";
+                                } else if (autonote.startsWith("distance-bonus")) {
+                                    history.note = "Distance Bonus for Delivery #" + meta;
+                                }
+                            }
+                            return <>
+                                {idx !== 0 && <Divider sx={{ mt: "5px", mb: "5px" }} />}
+                                <Typography variant="body2" sx={{ color: history.points >= 0 ? theme.palette.success.main : theme.palette.error.main }}>{history.points > 0 ? `+` : ``}{history.points} points by <UserCard user={history.staff} /></Typography>
+                                <Typography variant="body2">Note: {history.note !== "" ? history.note : "N/A"}</Typography>
+                                <Typography key={`history-${idx}-time`} variant="body2" sx={{ color: theme.palette.text.secondary }}><TimeAgo key={`${+new Date()}`} timestamp={history.timestamp * 1000} /></Typography>
+                            </>;
+                        })}
+                        {bonusHistory !== undefined && bonusHistory !== null && bonusHistory.length === 0 && <Typography variant="body2" >{tr("no_data")}</Typography>}
                     </DialogContent>
                     <DialogActions>
                         <Button variant="primary" onClick={() => { setCtxAction(""); }}>{tr("close")}</Button>

@@ -13,6 +13,7 @@
 9. Added calendar event counter
 10. Added non-member connect account reminder
 11. Added distance/bonus note when updating user points
+12. Added distance/bonus history display
 
 ## v3.4.2
 
