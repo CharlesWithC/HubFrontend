@@ -384,7 +384,7 @@ const UserCard = (props) => {
 
     // local pending updates
     const [newRoles, setNewRoles] = useState(user.roles);
-    const [newPoints, setNewPoints] = useState({ distance: 0, bonus: 0 });
+    const [newPoints, setNewPoints] = useState({ distance: 0, distance_note: "", bonus: 0, bonus_note: "" });
     const [newProfile, setNewProfile] = useState({ name: user.name, avatar: user.avatar });
     const [newAboutMe, setNewAboutMe] = useState(user.bio);
     const [newConnections, setNewConnections] = useState({ email: user.email, discordid: user.discordid, steamid: user.steamid, truckersmpid: user.truckersmpid });
@@ -596,7 +596,7 @@ const UserCard = (props) => {
     const updatePoints = useCallback(async () => {
         // no need to update user info since points are not included in user info
         setDialogBtnDisabled(true);
-        let resp = await axios({ url: `${apiPath}/member/${user.userid}/points`, method: "PATCH", data: { distance: parseInt(newPoints.distance) || 0, bonus: parseInt(newPoints.bonus) || 0 }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/member/${user.userid}/points`, method: "PATCH", data: { distance: parseInt(newPoints.distance) || 0, distance_note: newPoints.distance_note, bonus: parseInt(newPoints.bonus) || 0, bonus_note: newPoints.bonus_note }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("points_updated"));
             setSnackbarSeverity("success");
@@ -1282,7 +1282,7 @@ const UserCard = (props) => {
                         <Typography variant="body2">{tr("bonus_points_could_be_given")}</Typography>
                         <Typography variant="body2">{tr("use_negative_number_to_remove")}</Typography>
                         <Grid container spacing={2} sx={{ mt: "5px" }}>
-                            <Grid item xs={12}>
+                            <Grid item xs={12} md={4}>
                                 <TextField
                                     label={tr("distance_km")}
                                     value={newPoints.distance}
@@ -1290,11 +1290,27 @@ const UserCard = (props) => {
                                     fullWidth
                                 />
                             </Grid>
-                            <Grid item xs={12}>
+                            <Grid item xs={12} md={8}>
+                                <TextField
+                                    label="Distance Note"
+                                    value={newPoints.distance_note}
+                                    onChange={(e) => setNewPoints({ ...newPoints, distance_note: e.target.value })}
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid item xs={12} md={4}>
                                 <TextField
                                     label={tr("bonus_points")}
                                     value={newPoints.bonus}
                                     onChange={(e) => setNewPoints({ ...newPoints, bonus: e.target.value })}
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid item xs={12} md={8}>
+                                <TextField
+                                    label="Bonus Note"
+                                    value={newPoints.bonus_note}
+                                    onChange={(e) => setNewPoints({ ...newPoints, bonus_note: e.target.value })}
                                     fullWidth
                                 />
                             </Grid>

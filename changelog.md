@@ -12,6 +12,7 @@
 8. Added import announcement from TruckersMP news
 9. Added calendar event counter
 10. Added non-member connect account reminder
+11. Added distance/bonus note when updating user points
 
 ## v3.4.2
 
