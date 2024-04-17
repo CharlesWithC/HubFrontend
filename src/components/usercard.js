@@ -835,7 +835,7 @@ const UserCard = (props) => {
         ackCustomizeProfile(); setCtxAction(""); updateNote(); if (onProfileModalClose !== undefined) onProfileModalClose(); setTimeout(function () { if (window.history.length == 0) window.history.pushState("", "", "/"); }, 250);
     }} fullWidth >
         <Card sx={{ padding: "5px", backgroundImage: `linear-gradient(${profileBackground[0]}, ${profileBackground[1]})` }}>
-            {!userSettings.data_saver && <CardMedia
+            {!userSettings.data_saver && !isNaN(user.userid) && <CardMedia
                 ref={modalBannerRef}
                 component="img"
                 image={profileBannerURL}
@@ -1687,7 +1687,7 @@ const UserCard = (props) => {
             onClose={(e) => { ackCustomizeProfile(); updateNote(); e.preventDefault(); e.stopPropagation(); setShowPopover(false); }}
         >
             <Card sx={{ maxWidth: 340, minWidth: 340, padding: "5px", backgroundImage: `linear-gradient(${profileBackground[0]}, ${profileBackground[1]})` }}>
-                {!userSettings.data_saver && <CardMedia
+                {!userSettings.data_saver && !isNaN(user.userid) && <CardMedia
                     component="img"
                     ref={popoverBannerRef}
                     image={profileBannerURL}
