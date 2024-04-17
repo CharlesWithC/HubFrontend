@@ -49,7 +49,7 @@ const RoleSelect = ({ label, initialRoles, onUpdate, isMulti = true, style = {} 
         }
         loadDivisionRoles();
     }, [divisions]);
-    let divisionOnly = useMemo(() => (checkUserPerm(curUserPerm, ["division"]) && !checkUserPerm(curUserPerm, ["administrator", "update_roles"])), [curUserPerm]);
+    let divisionOnly = useMemo(() => (checkUserPerm(curUserPerm, ["manage_divisions"]) && !checkUserPerm(curUserPerm, ["administrator", "update_roles"])), [curUserPerm]);
 
     const formattedInit = useMemo(() => {
         let result = [];

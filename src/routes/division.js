@@ -295,7 +295,7 @@ const DivisionManagers = memo(() => {
 
 const Divisions = () => {
     const { t: tr } = useTranslation();
-    const { curUser } = useContext(AppContext);
+    const { curUser, curUserPerm } = useContext(AppContext);
     const { cache, setCache } = useContext(CacheContext);
 
     const [doReload, setDoReload] = useState(0);
@@ -311,7 +311,7 @@ const Divisions = () => {
         };
     }, [listParam]);
 
-    const [loadComplete, setLoadComplete] = useState(0); // increment
+    const [loadComplete, setLoadComplete] = useState(+!checkUserPerm(curUserPerm, ["administrator", "manage_divisions"])); // increment
 
     return <>
         <DivisionsMemo doReload={doReload} loadComplete={loadComplete} setLoadComplete={setLoadComplete} listParam={listParam} />
