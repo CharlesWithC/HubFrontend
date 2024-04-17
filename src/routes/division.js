@@ -168,7 +168,7 @@ const DivisionsDlog = memo(({ doReload, loadComplete, setLoadComplete }) => {
     }
 
     return <>
-        {loadComplete >= 3 && dlogList.length !== 0 && <CustomTable page={page} columns={columns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} style={{ marginTop: "15px" }} pstyle={checkUserPerm(curUserPerm, ["administrator", "manage_divisions"]) ? {} : { marginRight: "60px" }} name={<><FontAwesomeIcon icon={faWarehouse} />&nbsp;&nbsp;{tr("recent_validated_division_deliveries")}</>} sx={{ display: loadComplete >= 3 ? undefined : "hidden" }} />}
+        {loadComplete >= 3 && <CustomTable page={page} columns={columns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} style={{ marginTop: "15px" }} pstyle={checkUserPerm(curUserPerm, ["administrator", "manage_divisions"]) ? {} : { marginRight: "60px" }} name={<><FontAwesomeIcon icon={faWarehouse} />&nbsp;&nbsp;{tr("recent_validated_division_deliveries")}</>} sx={{ display: loadComplete >= 3 ? undefined : "hidden" }} />}
     </>;
 });
 
@@ -259,7 +259,7 @@ const DivisionsPending = memo(({ doReload, loadComplete, setLoadComplete }) => {
     }
 
     return <>
-        {loadComplete >= 3 && dlogList.length !== 0 && <CustomTable page={page} columns={pendingColumns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} style={{ marginTop: "15px" }} pstyle={{ marginRight: "60px" }} name={<><FontAwesomeIcon icon={faClock} />&nbsp;&nbsp;{tr("pending_division_validation_requests")}</>} sx={{ display: loadComplete >= 3 ? undefined : "hidden" }} />}
+        {loadComplete >= 3 && <CustomTable page={page} columns={pendingColumns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} style={{ marginTop: "15px" }} pstyle={{ marginRight: "60px" }} name={<><FontAwesomeIcon icon={faClock} />&nbsp;&nbsp;{tr("pending_division_validation_requests")}</>} sx={{ display: loadComplete >= 3 ? undefined : "hidden" }} />}
         <Portal>
             <Snackbar
                 open={!!snackbarContent}
@@ -316,7 +316,7 @@ const Divisions = () => {
     return <>
         <DivisionsMemo doReload={doReload} loadComplete={loadComplete} setLoadComplete={setLoadComplete} listParam={listParam} />
         <DivisionsDlog doReload={doReload} loadComplete={loadComplete} setLoadComplete={setLoadComplete} />
-        <DivisionsPending doReload={doReload} loadComplete={loadComplete} setLoadComplete={setLoadComplete} />
+        {checkUserPerm(curUserPerm, ["administrator", "manage_divisions"]) && <DivisionsPending doReload={doReload} loadComplete={loadComplete} setLoadComplete={setLoadComplete} />}
         <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
             <DialogTitle>{tr("division_managers")}</DialogTitle>
             <DialogContent>

@@ -12,7 +12,7 @@ const LargeUserCard = ({ user, color }) => {
         <Card sx={{ minWidth: 150 }}>
             <Avatar src={!userSettings.data_saver ? user.avatar : ""} sx={{ width: 100, height: 100, margin: 'auto', marginTop: 3, border: `solid ${color}` }} />
             <CardContent>
-                <Typography variant="h6" align="center">
+                <Typography variant="h6" align="center" sx={{ overflow: "hidden", textOverflow: "ellipsis" }}>
                     <UserCard user={user} textOnly={true} />
                 </Typography>
             </CardContent>

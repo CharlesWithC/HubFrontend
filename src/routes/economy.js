@@ -1059,7 +1059,7 @@ const Economy = () => {
             <Dialog open={dialogAction === "slot"} onClose={() => setDialogAction("garage")} fullWidth>
                 <DialogTitle><>{tr("slots")}</> - {modalGarage.name}</DialogTitle>
                 <DialogContent>
-                    <CustomTable columns={slotColumns} data={slotList} totalItems={slotTotal} rowsPerPageOptions={[10, 25, 50]} defaultRowsPerPage={slotPageSize} onPageChange={setSlotPage} onRowsPerPageChange={setSlotPageSize} />
+                    <CustomTable columns={slotColumns} data={slotList} totalItems={slotTotal} rowsPerPageOptions={[10, 25, 50]} page={slotPage} defaultRowsPerPage={slotPageSize} onPageChange={setSlotPage} onRowsPerPageChange={setSlotPageSize} />
                 </DialogContent>
                 <DialogActions>
                     <Button variant="primary" onClick={() => { setDialogAction("garage"); }}>{tr("close")}</Button>
@@ -1466,7 +1466,7 @@ const Economy = () => {
         </Dialog>
         <Grid container spacing={2} sx={{ mt: "10px" }}>
             <Grid item xs={12} sm={12} md={6} lg={6}>
-                <CustomTable name={<><FontAwesomeIcon icon={faRankingStar} />&nbsp;&nbsp;{tr("balance_leaderboard")}</>} columns={leaderboardColumns} data={leaderboard} totalItems={leaderboardTotal} rowsPerPageOptions={[5, 10, 25, 50]} defaultRowsPerPage={leaderboardPageSize} onPageChange={setLeaderboardPage} onRowsPerPageChange={setLeaderboardPageSize} onRowClick={checkUserPerm(curUserPerm, ["administrator", "manage_economy", "manage_balance"]) ? (row) => { setManageTransferFrom(row.data); setManageBalance(row.balance); setDialogAction("manage-balance"); } : undefined} />
+                <CustomTable name={<><FontAwesomeIcon icon={faRankingStar} />&nbsp;&nbsp;{tr("balance_leaderboard")}</>} columns={leaderboardColumns} data={leaderboard} totalItems={leaderboardTotal} rowsPerPageOptions={[5, 10, 25, 50]} page={leaderboardPage} defaultRowsPerPage={leaderboardPageSize} onPageChange={setLeaderboardPage} onRowsPerPageChange={setLeaderboardPageSize} onRowClick={checkUserPerm(curUserPerm, ["administrator", "manage_economy", "manage_balance"]) ? (row) => { setManageTransferFrom(row.data); setManageBalance(row.balance); setDialogAction("manage-balance"); } : undefined} />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={6}>
                 <Card>
@@ -1510,16 +1510,16 @@ const Economy = () => {
                 </Card>
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={6}>
-                <CustomTable name={<><FontAwesomeIcon icon={faWarehouse} />&nbsp;&nbsp;{tr("top_garages")}</>} columns={garageColumns} data={garageList} totalItems={garageTotal} rowsPerPageOptions={[5, 10, 25, 50]} defaultRowsPerPage={garagePageSize} onPageChange={setGaragePage} onRowsPerPageChange={setGaragePageSize} onRowClick={(row) => { if (economyCache.garagesMap[row.data.garageid] !== undefined) { setModalGarage(economyCache.garagesMap[row.data.garageid]); } setModalGarageDetails(row.data); setDialogAction("garage"); }} />
+                <CustomTable name={<><FontAwesomeIcon icon={faWarehouse} />&nbsp;&nbsp;{tr("top_garages")}</>} columns={garageColumns} data={garageList} totalItems={garageTotal} rowsPerPageOptions={[5, 10, 25, 50]} page={garagePage} defaultRowsPerPage={garagePageSize} onPageChange={setGaragePage} onRowsPerPageChange={setGaragePageSize} onRowClick={(row) => { if (economyCache.garagesMap[row.data.garageid] !== undefined) { setModalGarage(economyCache.garagesMap[row.data.garageid]); } setModalGarageDetails(row.data); setDialogAction("garage"); }} />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={6}>
-                <CustomTable name={<><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;{tr("top_trucks")}</>} columns={truckColumns} data={truckList} totalItems={truckTotal} rowsPerPageOptions={[5, 10, 25, 50]} defaultRowsPerPage={truckPageSize} onPageChange={setTruckPage} onRowsPerPageChange={setTruckPageSize} onRowClick={(row) => { setTruckReferer(""); setActiveTruck(row.data); loadTruck(row.data); setDialogAction("truck"); }} />
+                <CustomTable name={<><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;{tr("top_trucks")}</>} columns={truckColumns} data={truckList} totalItems={truckTotal} rowsPerPageOptions={[5, 10, 25, 50]} page={truckPage} defaultRowsPerPage={truckPageSize} onPageChange={setTruckPage} onRowsPerPageChange={setTruckPageSize} onRowClick={(row) => { setTruckReferer(""); setActiveTruck(row.data); loadTruck(row.data); setDialogAction("truck"); }} />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={6}>
-                <CustomTable name={<><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;{tr("my_trucks")}</>} nameRight={<IconButton onClick={() => { setTruckReferer(""); setDialogAction("purchase-truck"); }}><FontAwesomeIcon icon={faPlus} /></IconButton>} columns={myTruckColumns} data={myTruckList} totalItems={myTruckTotal} rowsPerPageOptions={[5, 10, 25, 50]} defaultRowsPerPage={myTruckPageSize} onPageChange={setMyTruckPage} onRowsPerPageChange={setMyTruckPageSize} onRowClick={(row) => { setTruckReferer(""); setActiveTruck(row.data); loadTruck(row.data); setDialogAction("truck"); }} />
+                <CustomTable name={<><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;{tr("my_trucks")}</>} nameRight={<IconButton onClick={() => { setTruckReferer(""); setDialogAction("purchase-truck"); }}><FontAwesomeIcon icon={faPlus} /></IconButton>} columns={myTruckColumns} data={myTruckList} totalItems={myTruckTotal} rowsPerPageOptions={[5, 10, 25, 50]} page={myTruckPage} defaultRowsPerPage={myTruckPageSize} onPageChange={setMyTruckPage} onRowsPerPageChange={setMyTruckPageSize} onRowClick={(row) => { setTruckReferer(""); setActiveTruck(row.data); loadTruck(row.data); setDialogAction("truck"); }} />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={6}>
-                <CustomTable name={<><FontAwesomeIcon icon={faShoppingCart} />&nbsp;&nbsp;{tr("owned_merchandise")}</>} nameRight={<IconButton onClick={() => { setDialogAction("purchase-merch"); }}><FontAwesomeIcon icon={faPlus} /></IconButton>} columns={merchColumns} data={merchList} totalItems={merchTotal} rowsPerPageOptions={[5, 10, 25, 50]} defaultRowsPerPage={merchPageSize} onPageChange={setMerchPage} onRowsPerPageChange={setMerchPageSize} />
+                <CustomTable name={<><FontAwesomeIcon icon={faShoppingCart} />&nbsp;&nbsp;{tr("owned_merchandise")}</>} nameRight={<IconButton onClick={() => { setDialogAction("purchase-merch"); }}><FontAwesomeIcon icon={faPlus} /></IconButton>} columns={merchColumns} data={merchList} totalItems={merchTotal} rowsPerPageOptions={[5, 10, 25, 50]} page={merchPage} defaultRowsPerPage={merchPageSize} onPageChange={setMerchPage} onRowsPerPageChange={setMerchPageSize} />
             </Grid>
         </Grid>
         <Portal>

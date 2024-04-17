@@ -44,6 +44,8 @@ const CustomTable = ({ page: initPage, columns, orderBy, order, onOrderingUpdate
         let newPage = event.target.value;
         if (isNaN(newPage) || newPage === "")
             newPage = 1;
+        if (newPage < 1) newPage = 1;
+        if (newPage > Math.ceil(totalItems / rowsPerPage)) newPage = Math.ceil(totalItems / rowsPerPage);
 
         setPage(newPage - 1);
         setInputPage(newPage);

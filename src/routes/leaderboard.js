@@ -29,7 +29,7 @@ const LargeUserCard = ({ user, color }) => {
         <Card sx={{ minWidth: 150 }}>
             <Avatar src={!userSettings.data_saver ? user.avatar : ""} sx={{ width: 100, height: 100, margin: 'auto', marginTop: 3, border: `solid ${color}` }} />
             <CardContent>
-                <Typography variant="h6" align="center">
+                <Typography variant="h6" align="center" sx={{ overflow: "hidden", textOverflow: "ellipsis" }}>
                     <UserCard user={user} textOnly={true} />
                 </Typography>
             </CardContent>
@@ -184,7 +184,7 @@ const Leaderboard = () => {
             </Box>
         </>
         }
-        {leaderboard.length > 0 && <CustomTable page={page} columns={columns} data={leaderboard} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage= {pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} style={{ marginTop: "30px" }} />}
+        {leaderboard.length > 0 && <CustomTable page={page} columns={columns} data={leaderboard} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} style={{ marginTop: "30px" }} />}
         <Dialog open={dialogOpen === "settings"} onClose={() => { setDialogOpen(""); }} fullWidth>
             <DialogTitle><FontAwesomeIcon icon={faGears} />&nbsp;&nbsp;{tr("settings")}</DialogTitle>
             <DialogContent>
