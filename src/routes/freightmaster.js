@@ -98,7 +98,7 @@ const FreightMaster = () => {
                         />
                         <span key={`user-${Math.random()}`} style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginLeft: "2px" }}>{lb.list[i].vtc}</span>
                     </>,
-                    user: <UserCard user={(!lb.list[i].abbr || lb.list[i].abbr === webConfig.abbr) ? users[lb.list[i].user.uid] : { ...lb.list[i].user, uid: `${lb.list[i].abbr}-${lb.list[i].user.uid}`, userid: `${lb.list[i].abbr}-${lb.list[i].user.userid}` }} />,
+                    user: <UserCard user={(!lb.list[i].abbr || lb.list[i].abbr === webConfig.abbr) && users[lb.list[i].user.uid] !== undefined ? users[lb.list[i].user.uid] : { ...lb.list[i].user, uid: `${lb.list[i].abbr}-${lb.list[i].user.uid}`, userid: `${lb.list[i].abbr}-${lb.list[i].user.userid}` }} />,
                     points: TSep(lb.list[i].point), level: fMode === "d" ? parseInt(lb.list[i].point / D_LEVEL_POINT) + 1 : parseInt(lb.list[i].point / A_LEVEL_POINT + 1)
                 });
             }
