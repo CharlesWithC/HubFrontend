@@ -15,6 +15,9 @@
 11. Added distance/bonus note when updating user points
 12. Added distance/bonus history display
 13. Added audit log category config and display
+14. Fixed division roles being grayed out for division staff
+15. Fixed freightmaster crash when a recorded user left VTC
+16. Fixed crash when viewing profile when not logged in
 
 ## v3.4.2
 

@@ -309,20 +309,20 @@ const UserCard = (props) => {
     const [detailStats, setDetailStats] = useState(cachedUserProfile ? cachedUserProfile.detailStats : null);
     const [pointStats, setPointStats] = useState(cachedUserProfile ? cachedUserProfile.pointStats : null);
     const [dlogList, setDlogList] = useState(cachedUserProfile ? convertDlogList(cachedUserProfile.dlogList) : null);
-    const [dlogTotalItems, setDlogTotalItems] = useState(cachedUserProfile ? cachedUserProfile.dlogTotalItems : 0);
-    const [dlogPage, setDlogPage] = useState(cachedUserProfile ? cachedUserProfile.dlogPage : 1);
-    const dlogPageRef = useRef(cachedUserProfile ? cachedUserProfile.dlogPage : 1);
+    const [dlogTotalItems, setDlogTotalItems] = useState(cachedUserProfile ? cachedUserProfile.dlogTotalItems : null);
+    const [dlogPage, setDlogPage] = useState(1);
+    const dlogPageRef = useRef(1);
     useEffect(() => { dlogPageRef.current = dlogPage; }, [dlogPage]); // maintain correct dlog page when user switch page fast
-    const [dlogPageSize, setDlogPageSize] = useState(cachedUserProfile ? cachedUserProfile.dlogPageSize : userSettings.default_row_per_page);
+    const [dlogPageSize, setDlogPageSize] = useState(userSettings.default_row_per_page);
     useEffect(() => {
         async function loadProfile() {
             window.loading += 1;
 
             const [_tmp, _chart, _overall, _details, _point, _dlogList] = await makeRequestsAuto([
                 { url: `https://config.chub.page/truckersmp?mpid=${user.truckersmpid}`, auth: false },
-                { url: `${apiPath}/dlog/statistics/chart?userid=${user.userid}&ranges=7&interval=86400&sum_up=false&before=` + getTodayUTC() / 1000, auth: true },
-                { url: `${apiPath}/dlog/statistics/summary?userid=${user.userid}`, auth: true },
-                { url: `${apiPath}/dlog/statistics/details?userid=${user.userid}`, auth: true },
+                { url: `${apiPath}/dlog/statistics/chart?userid=${user.userid}&ranges=7&interval=86400&sum_up=false&before=` + getTodayUTC() / 1000, auth: "prefer" },
+                { url: `${apiPath}/dlog/statistics/summary?userid=${user.userid}`, auth: "prefer" },
+                { url: `${apiPath}/dlog/statistics/details?userid=${user.userid}`, auth: "prefer" },
                 { url: `${apiPath}/dlog/leaderboard?userids=${user.userid}`, auth: true },
                 { url: `${apiPath}/dlog/list?userid=${user.userid}&page=${dlogPage}&page_size=${dlogPageSize}`, auth: "prefer" },
             ]);
@@ -351,7 +351,7 @@ const UserCard = (props) => {
                 setDetailStats(_details);
                 userProfile.detailStats = _details;
             }
-            if (_point.list.length !== 0) {
+            if (_point.list !== undefined && _point.list.length !== 0) {
                 setPointStats(_point.list[0].points);
                 userProfile.pointStats = _point.list[0].points;
             }
@@ -1059,7 +1059,7 @@ const UserCard = (props) => {
                                     <StatCard icon={<AttachMoneyRounded />} title={tr("profit_ats")} inputs={chartStats.profit_dollar} size="small" height="75px" />
                                 </Grid>
                             </Grid>}
-                            {overallStats && <Grid container spacing={2} sx={{ mt: "5px" }}>
+                            {overallStats && overallStats.job && <Grid container spacing={2} sx={{ mt: "5px" }}>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("total_jobs_submitted")}</Typography>
                                     <Typography variant="body2">{TSep(overallStats.job.all.sum.tot)}</Typography>
