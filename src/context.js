@@ -141,6 +141,9 @@ export const AppContextProvider = ({ children }) => {
                 }
             }
             setCurUserPerm(userPerm);
+            if (userPerm.length > 1) {
+                loadDivisions();
+            }
         } else {
             setCurUserPerm([]);
         }

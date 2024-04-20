@@ -32,22 +32,14 @@ const RoleSelect = ({ label, initialRoles, onUpdate, isMulti = true, style = {} 
         return highestRole;
     }, [curUser.roles]);
 
-    let [divisionRoles, setDivisionRoles] = useState([]);
-    useEffect(() => {
-        async function loadDivisionRoles() {
-            let localDivisions = divisions;
-            if (divisions === null) {
-                localDivisions = await loadDivisions();
-            }
-
-            const divisionRoles = [];
-            let divisionIds = Object.keys(localDivisions);
-            for (let i = 0; i < divisionIds.length; i++) {
-                divisionRoles.push(localDivisions[divisionIds[i]].role_id);
-            }
-            setDivisionRoles(divisionRoles);
+    let divisionRoles = useMemo(() => {
+        const result = [];
+        let divisionIds = Object.keys(divisions);
+        for (let i = 0; i < divisionIds.length; i++) {
+            result.push(divisions[divisionIds[i]].role_id);
         }
-        loadDivisionRoles();
+
+        return result;
     }, [divisions]);
     let divisionOnly = useMemo(() => (checkUserPerm(curUserPerm, ["manage_divisions"]) && !checkUserPerm(curUserPerm, ["administrator", "update_roles"])), [curUserPerm]);
 
@@ -55,10 +47,10 @@ const RoleSelect = ({ label, initialRoles, onUpdate, isMulti = true, style = {} 
         let result = [];
         for (let i = 0; i < initialRoles.length; i++) {
             result.push({
-                value: initialRoles[i],
+                value: parseInt(initialRoles[i]),
                 label: getRole(initialRoles[i]).name,
                 orderId: getRole(initialRoles[i]).order_id,
-                isFixed: !divisionOnly ? getRole(initialRoles[i]).order_id <= userHighestRole : !divisionRoles.includes(initialRoles[i])
+                isFixed: !divisionOnly ? getRole(initialRoles[i]).order_id <= userHighestRole : !divisionRoles.includes(parseInt(initialRoles[i]))
             });
         }
         return result;
@@ -90,8 +82,8 @@ const RoleSelect = ({ label, initialRoles, onUpdate, isMulti = true, style = {} 
                         value: parseInt(roleId),
                         label: getRole(roleId).name,
                         orderId: getRole(roleId).order_id,
-                        isFixed: !divisionOnly ? getRole(roleId).order_id <= userHighestRole : !divisionRoles.includes(roleId),
-                        isDisabled: !divisionOnly ? getRole(roleId).order_id <= userHighestRole : !divisionRoles.includes(roleId)
+                        isFixed: !divisionOnly ? getRole(roleId).order_id <= userHighestRole : !divisionRoles.includes(parseInt(roleId)),
+                        isDisabled: !divisionOnly ? getRole(roleId).order_id <= userHighestRole : !divisionRoles.includes(parseInt(roleId))
                     }))}
                 isClearable={selectedRoles.some((v) => !v.isFixed)}
                 className="basic-multi-select"
