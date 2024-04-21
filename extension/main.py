@@ -782,6 +782,7 @@ def get_freightmaster_d(request: Request, page: int, page_size: int):
             fmd[i]["vtc"] = allvtcs[fmd[i]["abbr"]]
             cache[i] = json.dumps(fmd[i])
         r.hset("freightmaster:fmd", mapping = cache)
+        r.expire("freightmaster:fmd", 600)
     
     # handle deleted rows
     fmd = []
@@ -842,6 +843,7 @@ def get_freightmaster_a(request: Request, abbr: str, page: int, page_size: int):
             last = fma[i]["point"]
             cache[i] = json.dumps(fma[i])
         r.hset(f"freightmaster:fma:{abbr}", mapping = cache)
+        r.expire(f"freightmaster:fma:{abbr}", 600)
     else:
         fma = []
         cache = [v for k, v in sorted(cache.items(), key=lambda item: int(item[0]))]

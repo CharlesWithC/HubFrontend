@@ -163,8 +163,8 @@ def take_snapshot(start_time, end_time):
             
             try:
                 d = json.loads(r.text)
-                fmd = {}
-                fma = {}
+                fmd = base_fmd
+                fma = base_fma
                 for dd in d["fmd"]:
                     if dd["user"]["uid"] in base_fmd.keys():
                         fmd[dd["user"]["uid"]] = {"user": dd["user"], "point": base_fmd[dd["user"]["uid"]]["point"] + dd["point"]}
@@ -232,8 +232,8 @@ def recalculate_latest():
                     base_fma[tt["user"]["uid"]] = tt
             
             d = json.loads(open(data_folder + "/" + snapshot + "/" + abbr + ".json", "r", encoding="utf-8").read())
-            fmd = {}
-            fma = {}
+            fmd = base_fmd
+            fma = base_fma
             for dd in d["fmd"]:
                 if dd["user"]["uid"] in base_fmd.keys():
                     fmd[dd["user"]["uid"]] = {"user": dd["user"], "point": base_fmd[dd["user"]["uid"]]["point"] + dd["point"]}
@@ -244,6 +244,8 @@ def recalculate_latest():
                     fma[dd["user"]["uid"]] = {"user": dd["user"], "point": base_fma[dd["user"]["uid"]]["point"] + dd["point"]}
                 else:
                     fma[dd["user"]["uid"]] = dd
+
+            # print(f"Parsed {abbr}'s snapshot {snapshot} - Original FMD/FMA: {len(base_fmd.keys())}/{len(base_fma.keys())} - New FMD/FMA: {len(fmd.keys())}/{len(fma.keys())}")
 
             fmd = dict(sorted(fmd.items(),key=lambda x: (-x[1]["point"], x[0])))
             fma = dict(sorted(fma.items(),key=lambda x: (-x[1]["point"], x[0])))
