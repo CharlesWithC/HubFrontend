@@ -10,12 +10,14 @@ import CustomTable from '../../components/table';
 import UserCard from '../../components/usercard';
 import TimeAgo from '../../components/timeago';
 import MarkdownRenderer from '../../components/markdown';
+import SponsorBadge from '../../components/sponsorBadge';
+import UserSelect from '../../components/userselect';
 
 import { makeRequestsAuto, customAxios as axios, getAuthToken, getMonthUTC, removeNUEValues } from '../../functions';
 
 const ApplicationTable = memo(({ showDetail, doReload }) => {
     const { t: tr } = useTranslation();
-    const { apiPath, curUser, userSettings, applicationTypes, loadApplicationTypes } = useContext(AppContext);
+    const { apiPath, vtcLevel, users, curUser, userSettings, applicationTypes, loadApplicationTypes } = useContext(AppContext);
 
     const columns = useMemo(() => ([
         { id: 'id', label: 'ID', orderKey: 'applicationid', defaultOrder: 'desc' },
@@ -75,7 +77,7 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
             let newApplications = [];
             for (let i = 0; i < _applications.list.length; i++) {
                 let app = _applications.list[i];
-                newApplications.push({ id: app.applicationid, type: localApplicationTypes ? (localApplicationTypes[app.type]?.name ?? tr("unknown")) : tr("unknown"), submit: <TimeAgo key={`${+new Date()}`} timestamp={app.submit_timestamp * 1000} />, update: <TimeAgo key={`${+new Date()}`} timestamp={app.respond_timestamp * 1000} />, user: <UserCard key={app.creator.uid} user={app.creator} />, staff: <UserCard key={app.last_respond_staff.uid} user={app.last_respond_staff} />, status: STATUS[app.status], application: app });
+                newApplications.push({ id: app.applicationid, type: localApplicationTypes ? (localApplicationTypes[app.type]?.name ?? tr("unknown")) : tr("unknown"), submit: <TimeAgo key={`${+new Date()}`} timestamp={app.submit_timestamp * 1000} />, update: <TimeAgo key={`${+new Date()}`} timestamp={app.respond_timestamp * 1000} />, user: <UserCard key={app.creator.uid} user={app.creator} />, staff: <UserCard key={app.last_respond_staff.uid} user={app.last_respond_staff} />, status: STATUS[app.status], application: app, statusInt: app.status });
             }
 
             if (pageRef.current === page) {
@@ -87,6 +89,57 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
         }
         doLoad();
     }, [apiPath, page, pageSize, STATUS, doReload, listParam]); // do not include applicationTypes to prevent rerender loop on network error
+
+    useEffect(() => {
+        async function loadAdvancedStatus() {
+            for (let i = 0; i < applications.length; i++) {
+                if (applications[i].statusInt === 0) {
+                    let resp = await axios({ url: `${apiPath}/applications/${applications[i].id}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                    if (resp.status === 200) {
+                        let advancedStatus = false, assignee = false;
+                        Object.entries(resp.data.application).map(([_, answer]) => {
+                            const matcha1 = answer.match(/\[AT-(\d+)\] .*: (.*)/);
+                            if (matcha1) {
+                                assignee = <>Assigned to {users[matcha1[1]] !== undefined && <UserCard user={users[matcha1[1]]} />}{users[matcha1[1]] === undefined && <>{matcha1[2]}</>}</>;
+                            } else {
+                                const matcha2 = answer.match(/\[AS\] .*: (.*)/);
+                                if (matcha2) {
+                                    advancedStatus = <>{matcha2[1]}</>;
+                                }
+                            }
+                        });
+                        let status = <>{STATUS[applications[i].statusInt]}</>;
+                        if (advancedStatus && assignee) {
+                            status = <span style={{ color: theme.palette.info.main }}>{advancedStatus} ({assignee})</span>;
+                        } else if (advancedStatus && !assignee) {
+                            status = <span style={{ color: theme.palette.info.main }}>{advancedStatus}</span>;
+                        } else if (!advancedStatus && assignee) {
+                            status = <span style={{ color: theme.palette.info.main }}>{status} ({assignee})</span>;
+                        }
+                        setApplications((prev) => {
+                            let newApps = [...prev];
+                            newApps[i].status = status;
+                            newApps[i].statusInt = -1;
+                            return newApps;
+                        });
+                        return;
+                        // we'll return here and this function would be run again since applications changed
+                        // if we don't return there'll be duplicate requests
+                    } else {
+                        setApplications((prev) => {
+                            let newApps = [...prev];
+                            newApps[i].statusInt = -1; // mark as -1 to not try again
+                            return newApps;
+                        });
+                        return;
+                    }
+                }
+            }
+        }
+        if (applications !== null && vtcLevel >= 1) {
+            loadAdvancedStatus();
+        }
+    }, [applications]);
 
     function handleClick(data) {
         showDetail(data.application);
@@ -125,7 +178,13 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
 
 const AllApplication = () => {
     const { t: tr } = useTranslation();
-    const { apiPath, allPerms } = useContext(AppContext);
+    const { apiPath, vtcLevel, allPerms, users, memberUIDs } = useContext(AppContext);
+    const membersMapping = useMemo(() => (
+        memberUIDs.reduce((acc, uid) => {
+            acc[users[uid].userid] = users[uid];
+            return acc;
+        }, {})
+    ), [memberUIDs, users]);
 
     const [detailApp, setDetailApp] = useState(null);
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -134,6 +193,10 @@ const AllApplication = () => {
     const [message, setMessage] = useState("");
     const [submitLoading, setSubmitLoading] = useState(false);
     const [doReload, setDoReload] = useState(0);
+
+    const [assignTo, setAssignTo] = useState({});
+    const [advancedStatus, setAdvancedStatus] = useState("");
+    const [messageDisabled, setMessageDisabled] = useState(false);
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -172,6 +235,11 @@ const AllApplication = () => {
     }, [apiPath]);
 
     const updateStatus = useCallback(async () => {
+        if (!messageDisabled && message.startsWith("[")) {
+            setSnackbarContent("Message may not start with character '['.");
+            setSnackbarSeverity("error");
+            return;
+        }
         setSubmitLoading(true);
         let resp = await axios({ url: `${apiPath}/applications/${detailApp.applicationid}/status`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "status": newStatus !== 3 ? newStatus : 1, "message": message } });
         if (resp.status === 204) {
@@ -217,7 +285,7 @@ const AllApplication = () => {
             setSnackbarSeverity("error");
         }
         setSubmitLoading(false);
-    }, [apiPath, detailApp, newStatus, message, allPerms]);
+    }, [apiPath, detailApp, newStatus, message, allPerms, messageDisabled]);
 
     const deleteApp = useCallback(async () => {
         setSubmitLoading(true);
@@ -285,21 +353,62 @@ const AllApplication = () => {
                     }
                 </Typography>
                 <br />
-                {Object.entries(detailApp.application).map(([question, answer]) => (
-                    <>
+                {Object.entries(detailApp.application).map(([question, answer]) => {
+                    const matchq = question.match(/\[Message\] (.*) \((\d+)\) #(\d+)/);
+                    if (matchq) {
+                        question = <>Message from {membersMapping[matchq[2]] !== undefined && <UserCard user={membersMapping[matchq[2]]} />}{membersMapping[matchq[2]] === undefined && <>{matchq[1]}</>}</>;
+                    }
+                    if (vtcLevel >= 1) {
+                        const matcha1 = answer.match(/\[AT-(\d+)\] .*: (.*)/);
+                        if (matcha1) {
+                            answer = <>Application assigned to {users[matcha1[1]] !== undefined && <UserCard user={users[matcha1[1]]} />}{users[matcha1[1]] === undefined && <>{matcha1[2]}</>}</>;
+                        } else {
+                            const matcha2 = answer.match(/\[AS\] .*: (.*)/);
+                            if (matcha2) {
+                                answer = <>Application status updated to: {matcha2[1]}</>;
+                            } else {
+                                answer = <MarkdownRenderer>{answer}</MarkdownRenderer>;
+                            }
+                        }
+                    } else {
+                        answer = <MarkdownRenderer>{answer}</MarkdownRenderer>;
+                    }
+                    return <>
                         <Typography variant="body" sx={{ marginBottom: "5px" }}>
                             <b>{question}</b>
                         </Typography>
                         <Typography variant="body2" sx={{ marginBottom: "15px", wordWrap: "break-word" }}>
-                            <MarkdownRenderer>{answer}</MarkdownRenderer>
+                            {answer}
                         </Typography>
-                    </>
-                ))}
+                    </>;
+                })}
+                <hr />
+                <Typography variant="body2" fontWeight="bold" sx={{ mt: "5px", mb: "5px" }}>Advanced Response <SponsorBadge vtclevel={1} /></Typography>
+                <Typography variant="body2" sx={{ mb: "5px" }}>
+                    The message will be automatically constructed when using advanced response. You still have to click "Respond" to make the update. To clear the message, click "Clear" in bottom-left.<br />
+                    Note that the "official status" would be locked to "Pending" when making advanced response.
+                </Typography>
+                <Grid container spacing={2}>
+                    <Grid item xs={12} md={6}>
+                        <Typography variant="body2">
+                            Assign to
+                            <UserSelect users={[assignTo]} isMulti={false} onUpdate={(e) => { setAssignTo(e); setMessage(`[AT-${e.uid}] Application assigned to: ${e.name}`); setNewStatus(0); setMessageDisabled(true); }} disabled={vtcLevel < 1} />
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                        <Typography variant="body2">
+                            Advanced status
+                            <TextField value={advancedStatus} onChange={(e) => { setAdvancedStatus(e.target.value); setMessage(`[AS] Application status updated to: ${e.target.value}`); setNewStatus(0); setMessageDisabled(true); }} size="small" disabled={vtcLevel < 1}
+                            />
+                        </Typography>
+                    </Grid>
+                </Grid>
                 <hr />
                 <Typography variant="body2" fontWeight="bold" sx={{ mb: "5px" }}>{tr("message")}</Typography>
                 <TextField
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
+                    disabled={messageDisabled}
                     multiline
                     rows="5"
                     fullWidth
@@ -319,11 +428,12 @@ const AllApplication = () => {
                     <Grid item>
                         <Box sx={{ display: 'flex', gap: '10px' }}>
                             <Button variant="contained" color="error" onClick={() => { setDialogDelete(true); }}>{tr("delete")}</Button>
+                            <Button variant="contained" color="secondary" onClick={() => { setMessage(""); setMessageDisabled(false); }}>{tr("clear")}</Button>
                         </Box>
                     </Grid>
                     <Grid item>
                         <Box sx={{ display: 'flex', gap: '10px' }}>
-                            <TextField select label={tr("status")} value={newStatus} onChange={(e) => setNewStatus(e.target.value)} sx={{ marginLeft: "10px", height: "40px" }} size="small">
+                            <TextField select label={tr("status")} value={newStatus} onChange={(e) => setNewStatus(e.target.value)} sx={{ marginLeft: "10px", height: "40px" }} size="small" disabled={messageDisabled}>
                                 <MenuItem key={0} value={0}>{tr("pending")}</MenuItem>
                                 <MenuItem key={1} value={1}>{tr("accepted")}</MenuItem>
                                 <MenuItem key={2} value={2}>{tr("declined")}</MenuItem>

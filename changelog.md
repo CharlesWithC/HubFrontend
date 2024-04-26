@@ -19,6 +19,7 @@
 15. Fixed freightmaster crash when a recorded user left VTC
 16. Fixed crash when viewing profile when not logged in
 17. Added initial roles to set when accepting driver
+18. Added advanced application response and better response display
 
 ## v3.4.2
 

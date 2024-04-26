@@ -9,12 +9,13 @@ import { Portal } from '@mui/base';
 import CustomTable from '../../components/table';
 import UserCard from '../../components/usercard';
 import TimeAgo from '../../components/timeago';
+import MarkdownRenderer from '../../components/markdown';
 
 import { makeRequestsAuto, customAxios as axios, getAuthToken, removeNUEValues } from '../../functions';
 
 const ApplicationTable = memo(({ showDetail }) => {
     const { t: tr } = useTranslation();
-    const { apiPath, userSettings, applicationTypes, loadApplicationTypes } = useContext(AppContext);
+    const { apiPath, vtcLevel, users, userSettings, applicationTypes, loadApplicationTypes } = useContext(AppContext);
 
     const columns = [
         { id: 'id', label: 'ID', orderKey: 'applicationid', defaultOrder: 'desc' },
@@ -69,7 +70,7 @@ const ApplicationTable = memo(({ showDetail }) => {
             let newApplications = [];
             for (let i = 0; i < _applications.list.length; i++) {
                 let app = _applications.list[i];
-                newApplications.push({ id: app.applicationid, type: localApplicationTypes ? (localApplicationTypes[app.type]?.name ?? tr("unknown")) : tr("unknown"), submit: <TimeAgo key={`${+new Date()}`} timestamp={app.submit_timestamp * 1000} />, update: <TimeAgo key={`${+new Date()}`} timestamp={app.respond_timestamp * 1000} />, staff: <UserCard user={app.last_respond_staff} />, status: STATUS[app.status], application: app });
+                newApplications.push({ id: app.applicationid, type: localApplicationTypes ? (localApplicationTypes[app.type]?.name ?? tr("unknown")) : tr("unknown"), submit: <TimeAgo key={`${+new Date()}`} timestamp={app.submit_timestamp * 1000} />, update: <TimeAgo key={`${+new Date()}`} timestamp={app.respond_timestamp * 1000} />, staff: <UserCard user={app.last_respond_staff} />, status: STATUS[app.status], application: app, statusInt: app.status });
             }
 
             if (pageRef.current === page) {
@@ -81,6 +82,57 @@ const ApplicationTable = memo(({ showDetail }) => {
         }
         doLoad();
     }, [apiPath, page, pageSize, STATUS, listParam]); // do not include applicationTypes to prevent rerender loop on network error
+
+    useEffect(() => {
+        async function loadAdvancedStatus() {
+            for (let i = 0; i < applications.length; i++) {
+                if (applications[i].statusInt === 0) {
+                    let resp = await axios({ url: `${apiPath}/applications/${applications[i].id}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                    if (resp.status === 200) {
+                        let advancedStatus = false, assignee = false;
+                        Object.entries(resp.data.application).map(([_, answer]) => {
+                            const matcha1 = answer.match(/\[AT-(\d+)\] .*: (.*)/);
+                            if (matcha1) {
+                                assignee = <>Assigned to {users[matcha1[1]] !== undefined && <UserCard user={users[matcha1[1]]} />}{users[matcha1[1]] === undefined && <>{matcha1[2]}</>}</>;
+                            } else {
+                                const matcha2 = answer.match(/\[AS\] .*: (.*)/);
+                                if (matcha2) {
+                                    advancedStatus = <>{matcha2[1]}</>;
+                                }
+                            }
+                        });
+                        let status = <>{STATUS[applications[i].statusInt]}</>;
+                        if (advancedStatus && assignee) {
+                            status = <span style={{ color: theme.palette.info.main }}>{advancedStatus} ({assignee})</span>;
+                        } else if (advancedStatus && !assignee) {
+                            status = <span style={{ color: theme.palette.info.main }}>{advancedStatus}</span>;
+                        } else if (!advancedStatus && assignee) {
+                            status = <span style={{ color: theme.palette.info.main }}>{status} ({assignee})</span>;
+                        }
+                        setApplications((prev) => {
+                            let newApps = [...prev];
+                            newApps[i].status = status;
+                            newApps[i].statusInt = -1;
+                            return newApps;
+                        });
+                        return;
+                        // we'll return here and this function would be run again since applications changed
+                        // if we don't return there'll be duplicate requests
+                    } else {
+                        setApplications((prev) => {
+                            let newApps = [...prev];
+                            newApps[i].statusInt = -1; // mark as -1 to not try again
+                            return newApps;
+                        });
+                        return;
+                    }
+                }
+            }
+        }
+        if (applications !== null && vtcLevel >= 1) {
+            loadAdvancedStatus();
+        }
+    }, [applications]);
 
     function handleClick(data) {
         showDetail(data.application);
@@ -123,7 +175,13 @@ const ApplicationTable = memo(({ showDetail }) => {
 
 const MyApplication = () => {
     const { t: tr } = useTranslation();
-    const { apiPath } = useContext(AppContext);
+    const { apiPath, vtcLevel, users, memberUIDs } = useContext(AppContext);
+    const membersMapping = useMemo(() => (
+        memberUIDs.reduce((acc, uid) => {
+            acc[users[uid].userid] = users[uid];
+            return acc;
+        }, {})
+    ), [memberUIDs, users]);
 
     const [detailApp, setDetailApp] = useState(null);
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -154,6 +212,11 @@ const MyApplication = () => {
     }, [apiPath]);
 
     const addMessage = useCallback(async () => {
+        if (message.startsWith("[")) {
+            setSnackbarContent("Message may not start with character '['.");
+            setSnackbarSeverity("error");
+            return;
+        }
         setSubmitLoading(true);
         let resp = await axios({ url: `${apiPath}/applications/${detailApp.applicationid}/message`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "message": message } });
         if (resp.status === 204) {
@@ -177,16 +240,35 @@ const MyApplication = () => {
                 </IconButton>
             </DialogTitle>
             <DialogContent sx={{ minWidth: "550px" }}>
-                {Object.entries(detailApp.application).map(([question, answer]) => (
-                    <>
+                {Object.entries(detailApp.application).map(([question, answer]) => {
+                    const matchq = question.match(/\[Message\] (.*) \((\d+)\) #(\d+)/);
+                    if (matchq) {
+                        question = <>Message from {membersMapping[matchq[2]] !== undefined && <UserCard user={membersMapping[matchq[2]]} />}{membersMapping[matchq[2]] === undefined && <>{matchq[1]}</>}</>;
+                    }
+                    if (vtcLevel >= 1) {
+                        const matcha1 = answer.match(/\[AT-(\d+)\] .*: (.*)/);
+                        if (matcha1) {
+                            answer = <>Application assigned to {users[matcha1[1]] !== undefined && <UserCard user={users[matcha1[1]]} />}{users[matcha1[1]] === undefined && <>{matcha1[2]}</>}</>;
+                        } else {
+                            const matcha2 = answer.match(/\[AS\] .*: (.*)/);
+                            if (matcha2) {
+                                answer = <>Application status updated to: {matcha2[1]}</>;
+                            } else {
+                                answer = <MarkdownRenderer>{answer}</MarkdownRenderer>;
+                            }
+                        }
+                    } else {
+                        answer = <MarkdownRenderer>{answer}</MarkdownRenderer>;
+                    }
+                    return <>
                         <Typography variant="body" sx={{ marginBottom: "5px" }}>
                             <b>{question}</b>
                         </Typography>
                         <Typography variant="body2" sx={{ marginBottom: "15px", wordWrap: "break-word" }}>
                             {answer}
                         </Typography>
-                    </>
-                ))}
+                    </>;
+                })}
                 <div style={{ display: detailApp.status !== 0 ? "none" : "block" }}>
                     <hr />
                     <Typography variant="body2" fontWeight="bold" sx={{ mb: "5px" }}>{tr("message")}</Typography>
