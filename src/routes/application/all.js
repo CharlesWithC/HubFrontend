@@ -9,6 +9,7 @@ import { Portal } from '@mui/base';
 import CustomTable from '../../components/table';
 import UserCard from '../../components/usercard';
 import TimeAgo from '../../components/timeago';
+import MarkdownRenderer from '../../components/markdown';
 
 import { makeRequestsAuto, customAxios as axios, getAuthToken, getMonthUTC, removeNUEValues } from '../../functions';
 
@@ -290,7 +291,7 @@ const AllApplication = () => {
                             <b>{question}</b>
                         </Typography>
                         <Typography variant="body2" sx={{ marginBottom: "15px", wordWrap: "break-word" }}>
-                            {answer}
+                            <MarkdownRenderer>{answer}</MarkdownRenderer>
                         </Typography>
                     </>
                 ))}
