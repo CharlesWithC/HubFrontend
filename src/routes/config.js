@@ -31,6 +31,10 @@ const CONFIG_SECTIONS = {
 
 const CONFIG_SECTIONS_INDEX = { "general": 0, "profile": 1, "tracker": 2, "dlog": 3, "discord-steam": 4, "role": 5, "rank": 7, "smtp": 6, "announcement": 8, "division": 9, "application": 10, "discord-member": 11, "discord-other": 12, "economy": 13 };
 
+const DEFAULT_ROLES = [{ 'id': 0, 'name': 'Owner', 'order_id': 0, 'discord_role_id': '' }, { 'id': 10, 'name': 'Leadership', 'order_id': 10, 'discord_role_id': '' }, { 'id': 20, 'name': 'Human Resources Manager', 'order_id': 20, 'discord_role_id': '' }, { 'id': 21, 'name': 'Human Resources Staff', 'order_id': 21, 'discord_role_id': '' }, { 'id': 30, 'name': 'Events Manager', 'order_id': 30, 'discord_role_id': '' }, { 'id': 31, 'name': 'Events Staff', 'order_id': 31, 'discord_role_id': '' }, { 'id': 40, 'name': 'Convoy Supervisor', 'order_id': 40, 'discord_role_id': '' }, { 'id': 41, 'name': 'Convoy Control', 'order_id': 41, 'discord_role_id': '' }, { 'id': 70, 'name': 'Division Manager', 'order_id': 70, 'discord_role_id': '' }, { 'id': 71, 'name': 'Division Supervisor', 'order_id': 71, 'discord_role_id': '' }, { 'id': 80, 'name': 'Community Manager', 'order_id': 80, 'discord_role_id': '' }, { 'id': 81, 'name': 'Community Team', 'order_id': 81, 'discord_role_id': '' }, { 'id': 99, 'name': 'Trial Staff', 'order_id': 99, 'discord_role_id': '' }, { 'id': 100, 'name': 'Driver', 'order_id': 100, 'discord_role_id': '' }, { 'id': 200, 'name': 'Staff of the Month', 'order_id': 200, 'discord_role_id': '', 'display_order_id': '-100' }, { 'id': 201, 'name': 'Driver of the Month', 'order_id': 201, 'discord_role_id': '', 'display_order_id': '-100' }, { 'id': 202, 'name': 'Leave of absence', 'order_id': 202, 'discord_role_id': '', 'display_order_id': '-1' }];
+
+const DEFAULT_PERMS = { 'administrator': [0, 10], 'update_config': [], 'reload_config': [], 'restart_service': [], 'accept_members': [20, 21], 'dismiss_members': [20, 21], 'update_roles': [20, 21], 'update_points': [20, 21], 'update_connections': [20, 21], 'disable_mfa': [20], 'delete_notifications': [20], 'manage_profiles': [20, 21], 'view_sensitive_profile': [20, 21], 'view_privacy_protected_data': [20, 21], 'view_global_note': [20, 21], 'update_global_note': [20, 21], 'view_external_user_list': [20, 21], 'ban_users': [20, 21], 'delete_users': [20, 21], 'import_dlogs': [20], 'delete_dlogs': [20], 'view_audit_log': [20, 21], 'manage_announcements': [20], 'manage_applications': [20, 21, 70, 71], 'delete_applications': [20], 'manage_challenges': [20, 80, 81], 'manage_divisions': [70, 71], 'manage_downloads': [], 'manage_economy': [], 'manage_economy_balance': [], 'manage_economy_truck': [], 'manage_economy_garage': [], 'manage_economy_merch': [], 'manage_events': [40, 41], 'manage_polls': [], 'driver': [100], 'staff_of_the_month': [200], 'driver_of_the_month': [201] };
+
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
     clipPath: 'inset(50%)',
@@ -3649,6 +3653,17 @@ const Configuration = () => {
                             </Typography>
                             {formSectionRender[5] && <Collapse in={formSectionOpen[5]}>
                                 <Typography variant="body2" sx={{ mb: "15px" }}>{tr("config_roles_note")}<br />{tr("config_roles_note_2")}<br />{tr("config_roles_note_3")}<br />HINT: With form config, you cannot edit the role ID, delete the role whose ID is 0, or add "driver" permission to multiple roles. These may be achieved with JSON config though.</Typography>
+                                <Typography variant="body2" sx={{ mb: "5px" }}>
+                                    For your convenience, we provide a list of default roles which may be used to start up your Drivers Hub. Clicking the below button would overwrite your current list of roles with the default one.
+                                </Typography>
+                                <Grid container>
+                                    <Grid item xs={0} sm={2} md={4} lg={8}></Grid>
+                                    <Grid item xs={12} sm={10} md={8} lg={4}>
+                                        <Button variant="outlined" color="error" sx={{ mb: "15px" }} fullWidth onClick={() => {
+                                            formConfig[5].setState({ ...formConfig[5].state, roles: DEFAULT_ROLES, perms: DEFAULT_PERMS });
+                                        }}>Overwrite current list of roles wite the default one</Button>
+                                    </Grid>
+                                </Grid>
                                 <MemoRoleForm theme={theme} formConfig={formConfig[5]} />
                                 <Grid item xs={12}>
                                     <Grid container>
@@ -3757,6 +3772,8 @@ const Configuration = () => {
                                 </IconButton>
                             </Typography>
                                 {formSectionRender[9] && <Collapse in={formSectionOpen[9]}>
+                                    <Typography variant="body2">NOTE: The method we determine whether a driver is in a division is to detect whether the driver has a relevant division role, so the "Driver Role" you set here should be given to drivers in the division.</Typography>
+                                    <Typography variant="body2" sx={{ mb: "15px" }}>NOTE: Division staff must have roles with both "Manage Division" permission and be added to "Staff Roles" of relevant divisions in the config. A global role may be used for all divisions.</Typography>
                                     <MemoDivisionForm theme={theme} formConfig={formConfig[9]} />
                                     <Grid item xs={12}>
                                         <Grid container>
