@@ -174,6 +174,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
     const { t: tr } = useTranslation();
     const { apiPath, curUID, curUser } = useContext(AppContext);
 
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
     const [curMonthCount, setCurMonthCount] = useState(-1);
 
     useEffect(() => {
@@ -342,6 +343,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
             }
         }
     }, [apiPath, allEvents, setModalEvent, setOpenEventDetals]);
+
     const handleDateSet = useCallback(async (dateInfo) => {
         const start = parseInt(dateInfo.start.getTime() / 1000 - 86400 * 14);
         const end = parseInt(dateInfo.end.getTime() / 1000 + 86400 * 14);
@@ -381,17 +383,20 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
         }
         setCalendarEvents(newCalendarEvents);
 
-        const now = new Date();
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-        let count = 0;
-        for (let i = 0; i < allEvents.length; i++) {
-            if (allEvents[i].departure_timestamp * 1000 >= startOfMonth && allEvents[i].departure_timestamp * 1000 <= endOfMonth) {
-                count += 1;
+        if (isInitialLoad) {
+            const now = new Date();
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            let count = 0;
+            for (let i = 0; i < allEvents.length; i++) {
+                if (allEvents[i].departure_timestamp * 1000 >= startOfMonth && allEvents[i].departure_timestamp * 1000 <= endOfMonth) {
+                    count += 1;
+                }
             }
+            setCurMonthCount(count);
+            setIsInitialLoad(false);
         }
-        setCurMonthCount(count);
-    }, [allEvents, setCalendarEvents]);
+    }, [allEvents, isInitialLoad]);
 
     return (
         <>
