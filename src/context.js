@@ -26,7 +26,7 @@ export const AppContext = createContext({
 
     apiConfig: null, setApiConfig: () => { },
     webConfig: null, setWebConfig: () => { },
-    languages: [], setLanguages: () => { },
+    languages: [], setLanguages: () => { }, loadLanguages: () => { },
     allRoles: {}, setAllRoles: () => { },
     allPerms: {}, setAllPerms: () => { },
     allRanks: {}, setAllRanks: () => { },

@@ -169,6 +169,7 @@ const UserCard = (props) => {
         roles.sort((a, b) => orderedRoles.indexOf(a) - orderedRoles.indexOf(b));
 
         if (name === null) name = "Unknown";
+        if (ban === undefined) ban = null;
 
         setUsers(users => ({ ...users, [uid]: { ...{ ...props.user, uid, userid, discordid, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, tracker, ban, role_history, ban_history, mfa }, last_sync: +new Date() } }));
     }
@@ -386,7 +387,11 @@ const UserCard = (props) => {
     }, [apiPath, dlogPage, dlogPageSize, ctxAction, showProfileModal]);
 
     // local pending updates
-    const [newRoles, setNewRoles] = useState(user.roles);
+    const [newRoles, setNewRoles] = useState(user.userid !== null ? user.roles : allPerms.driver);
+    useEffect(() => {
+        if (newRoles !== undefined && (newRoles.length > 0 || user.userid !== null)) return;
+        setNewRoles(allPerms.driver);
+    }, [newRoles, allPerms.driver]);
     const [newPoints, setNewPoints] = useState({ distance: 0, distance_note: "", bonus: 0, bonus_note: "" });
     const [newProfile, setNewProfile] = useState({ name: user.name, avatar: user.avatar });
     const [newAboutMe, setNewAboutMe] = useState(user.bio);
@@ -546,7 +551,7 @@ const UserCard = (props) => {
         setDialogBtnDisabled(true);
         let resp = await axios({ url: `${apiPath}/user/bio`, method: "PATCH", data: { "bio": newAboutMe }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            setUsers(users => ({ ...users, [user.uid]: { ...user, bio: newAboutMe } }));
+            setUsers(users => ({ ...users, [user.uid]: { ...users[user.uid], bio: newAboutMe } }));
             setSnackbarContent(tr("about_me_updated"));
             setSnackbarSeverity("success");
         } else {
@@ -560,7 +565,7 @@ const UserCard = (props) => {
         // this is handled specially as updating it doesn't disable "submit" button
         if (user.note === newNote) { return; }
         let oldNote = user.note;
-        setUsers(users => ({ ...users, [user.uid]: { ...user, note: newNote } })); // pre-update locally
+        setUsers(users => ({ ...users, [user.uid]: { ...users[user.uid], note: newNote } })); // pre-update locally
         let resp = await axios({ url: `${apiPath}/user/${user.uid}/note`, method: "PATCH", data: { "note": newNote }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status !== 204) {
             setUsers(users => ({ ...users, [user.uid]: { ...user, note: oldNote } })); // revert changes
@@ -571,7 +576,7 @@ const UserCard = (props) => {
         setDialogBtnDisabled(true);
         let resp = await axios({ url: `${apiPath}/user/${user.uid}/note/global`, method: "PATCH", data: { note: newGlobalNote }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            setUsers(users => ({ ...users, [user.uid]: { ...user, global_note: newGlobalNote } }));
+            setUsers(users => ({ ...users, [user.uid]: { ...users[user.uid], global_note: newGlobalNote } }));
             setSnackbarContent(tr("global_note_updated"));
             setSnackbarSeverity("success");
         } else {
@@ -586,7 +591,7 @@ const UserCard = (props) => {
         let resp = await axios({ url: `${apiPath}/member/${user.userid}/roles`, method: "PATCH", data: { roles: newRoles.map((role) => (role.id ?? role)) }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         // RoleSelect sends back role objects, but API sends back role ids
         if (resp.status === 204) {
-            setUsers(users => ({ ...users, [user.uid]: { ...user, roles: newRoles.map((role) => (role.id)) } }));
+            setUsers(users => ({ ...users, [user.uid]: { ...users[user.uid], roles: newRoles.map((role) => (role.id)) } }));
             setSnackbarContent(tr("roles_updated"));
             setSnackbarSeverity("success");
         } else {
@@ -666,7 +671,7 @@ const UserCard = (props) => {
         setDialogBtnDisabled(true);
         let resp = await axios({ url: `${apiPath}/user/tracker/switch?uid=${user.uid}`, data: { tracker: trackerInUse }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            setUsers(users => ({ ...users, [user.uid]: { ...user, tracker: trackerInUse } }));
+            setUsers(users => ({ ...users, [user.uid]: { ...users[user.uid], tracker: trackerInUse } }));
             setSnackbarContent(tr("tracker_updated"));
             setSnackbarSeverity("success");
         } else {
@@ -680,17 +685,28 @@ const UserCard = (props) => {
         setDialogBtnDisabled(true);
         let resp = await axios({ url: `${apiPath}/user/${user.uid}/accept`, data: { tracker: trackerInUse }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
-            setUsers(users => ({ ...users, [user.uid]: { ...user, userid: resp.data.userid, roles: [] } }));
+            setUsers(users => ({ ...users, [user.uid]: { ...users[user.uid], userid: resp.data.userid, roles: [] } }));
             setMemberUIDs(memberUIDs => [...memberUIDs, user.uid]);
 
             setSnackbarContent(tr("user_accepted_as_member"));
             setSnackbarSeverity("success");
+
+            resp = await axios({ url: `${apiPath}/member/${resp.data.userid}/roles`, method: "PATCH", data: { roles: newRoles.map((role) => (role.id ?? role)) }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            // RoleSelect sends back role objects, but API sends back role ids
+            if (resp.status === 204) {
+                setUsers(users => ({ ...users, [user.uid]: { ...users[user.uid], roles: newRoles.map((role) => (role.id)) } }));
+                setSnackbarContent(tr("roles_updated"));
+                setSnackbarSeverity("success");
+            } else {
+                setSnackbarContent(resp.data.error);
+                setSnackbarSeverity("error");
+            }
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
             setDialogBtnDisabled(false); // we only enable button if api call failed
         }
-    }, [apiPath, trackerInUse]);
+    }, [apiPath, trackerInUse, newRoles]);
 
     const updateConnections = useCallback(async (action = "update", connection = "") => {
         setDialogBtnDisabled(true);
@@ -706,10 +722,10 @@ const UserCard = (props) => {
             if (action === "update") {
                 setSnackbarContent(tr("connections_updated"));
                 let processedNC = removeNUEValues(newConnections);
-                setUsers(users => ({ ...users, [user.uid]: { ...user, ...processedNC } }));
+                setUsers(users => ({ ...users, [user.uid]: { ...users[user.uid], ...processedNC } }));
             } else if (action === "delete") {
                 setSnackbarContent(tr("connection_deleted"));
-                setUsers(users => ({ ...users, [user.uid]: { ...user, [connection]: null } }));
+                setUsers(users => ({ ...users, [user.uid]: { ...users[user.uid], [connection]: null } }));
             }
             setSnackbarSeverity("success");
         } else {
@@ -724,7 +740,7 @@ const UserCard = (props) => {
         setDialogBtnDisabled(true);
         let resp = await axios({ url: `${apiPath}/user/mfa/disable?uid=${user.uid}`, data: { otp: otp }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            setUsers(users => ({ ...users, [user.uid]: { ...user, mfa: false } }));
+            setUsers(users => ({ ...users, [user.uid]: { ...users[user.uid], mfa: false } }));
             setSnackbarContent(tr("mfa_disabled"));
             setSnackbarSeverity("success");
         } else {
@@ -738,7 +754,7 @@ const UserCard = (props) => {
         setDialogBtnDisabled(true);
         let resp = await axios({ url: `${apiPath}/member/${user.userid}/dismiss`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            setUsers(users => ({ ...users, [user.uid]: { ...user, userid: null, roles: [] } }));
+            setUsers(users => ({ ...users, [user.uid]: { ...users[user.uid], userid: null, roles: [] } }));
             setMemberUIDs(memberUIDs => memberUIDs.filter(uid => uid !== user.uid));
 
             setSnackbarContent(tr("user_dismissed"));
@@ -768,7 +784,7 @@ const UserCard = (props) => {
         let meta = { ...removeNUEValues({ uid: user.uid, email: user.email, discordid: user.discordid, steamid: user.steamid, truckersmpid: user.truckersmpid, expire: newBan.expire }), reason: newBan.reason };
         let resp = await axios({ url: `${apiPath}/user/ban`, method: "PUT", data: meta, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            setUsers(users => ({ ...users, [user.uid]: { ...user, ban: { expire: newBan.expire, reason: newBan.reason } } }));
+            setUsers(users => ({ ...users, [user.uid]: { ...users[user.uid], ban: { expire: newBan.expire, reason: newBan.reason } } }));
             updateUserInfo(); // we need to update data to know the ban history (historyid)
             setSnackbarContent(tr("user_banned"));
             setSnackbarSeverity("success");
@@ -784,7 +800,7 @@ const UserCard = (props) => {
         let meta = removeNUEValues({ uid: user.uid, email: user.email, discordid: user.discordid, steamid: user.steamid, truckersmpid: user.truckersmpid });
         let resp = await axios({ url: `${apiPath}/user/ban`, method: "DELETE", data: meta, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            setUsers(users => ({ ...users, [user.uid]: { ...user, ban: null } }));
+            setUsers(users => ({ ...users, [user.uid]: { ...users[user.uid], ban: null } }));
             updateUserInfo();
             setSnackbarContent(tr("user_unbanned"));
             setSnackbarSeverity("success");
@@ -1407,8 +1423,8 @@ const UserCard = (props) => {
                     <DialogContent>
                         <Typography variant="body2">{tr("the_user_will_be_accepted")}</Typography>
                         <Typography variant="body2">{tr("this_will_not_affect_the")}</Typography>
-                        <FormControl component="fieldset" sx={{ mt: "5px" }}>
-                            <FormLabel component="legend">{tr("select_the_tracker_the_user")}</FormLabel>
+                        <FormControl component="fieldset" sx={{ mt: "10px", width: "100%" }}>
+                            <Typography variant="body2">{tr("select_the_tracker_the_user")}</Typography>
                             <TextField select size="small" value={trackerInUse} onChange={(e) => setTrackerInUse(e.target.value)} sx={{ marginTop: "6px", height: "30px" }}>
                                 {availableTrackers.map((tracker) => (
                                     <MenuItem key={tracker} value={tracker}>
@@ -1416,6 +1432,11 @@ const UserCard = (props) => {
                                     </MenuItem>
                                 ))}
                             </TextField>
+                        </FormControl>
+                        <br />
+                        <FormControl component="fieldset" sx={{ mt: "15px", width: "100%" }}>
+                            <Typography variant="body2">Set the initial roles of the user:</Typography>
+                            <RoleSelect initialRoles={newRoles} onUpdate={setNewRoles} />
                         </FormControl>
                     </DialogContent>
                     <DialogActions>

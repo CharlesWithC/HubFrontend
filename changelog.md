@@ -18,6 +18,7 @@
 14. Fixed division roles being grayed out for division staff
 15. Fixed freightmaster crash when a recorded user left VTC
 16. Fixed crash when viewing profile when not logged in
+17. Added initial roles to set when accepting driver
 
 ## v3.4.2
 
