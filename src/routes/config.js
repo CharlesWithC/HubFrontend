@@ -21,7 +21,7 @@ import ColorInput from '../components/colorInput';
 import SponsorBadge from '../components/sponsorBadge';
 import RoleSelect from '../components/roleselect';
 
-import { getRolePerms, customAxios as axios, makeRequestsAuto, getAuthToken } from '../functions';
+import { getRolePerms, customAxios as axios, makeRequestsAuto, getAuthToken, DEFAULT_ROLES, DEFAULT_PERMS, DEFAULT_RANKS, DEFAULT_APPLICATIONS } from '../functions';
 
 const LANGUAGES = { 'ar': 'Arabic (العربية)', 'be': 'Belarusian (беларуская)', 'bg': 'Bulgarian (български)', 'cs': 'Czech (čeština)', 'cy': 'Welsh (Cymraeg)', 'da': 'Danish (dansk)', 'de': 'German (Deutsch)', 'el': 'Greek (Ελληνικά)', 'en': 'English', 'eo': 'Esperanto', 'es': 'Spanish (Español)', 'et': 'Estonian (eesti keel)', 'fi': 'Finnish (suomi)', 'fr': 'French (français)', 'ga': 'Irish (Gaeilge)', 'gd': 'Scottish (Gàidhlig)', 'hu': 'Hungarian (magyar)', 'hy': 'Armenian (Հայերեն)', 'id': 'Indonesian (Bahasa Indonesia)', 'is': 'Icelandic (íslenska)', 'it': 'Italian (italiano)', 'ja': 'Japanese (日本語)', 'ko': 'Korean (한국어)', 'lt': 'Lithuanian (lietuvių kalba)', 'lv': 'Latvian (latviešu valoda)', 'mk/sl': 'Macedonian/Slovenian (македонски/​slovenščina)', 'mn': 'Mongolian (Монгол)', 'mo': 'Moldavian (Moldova)', 'ne': 'Nepali (नेपाली)', 'nl': 'Dutch (Nederlands)', 'nn': 'Norwegian (norsk nynorsk)', 'pl': 'Polish (polski)', 'pt': 'Portuguese (Português)', 'ro': 'Romanian (română)', 'ru': 'Russian (русский)', 'sk': 'Slovak (slovenčina)', 'sl': 'Slovenian (slovenščina)', 'sq': 'Albanian (Shqip)', 'sr': 'Serbian (српски)', 'sv': 'Swedish (Svenska)', 'th': 'Thai (ไทย)', 'tr': 'Turkish (Türkçe)', 'uk': 'Ukrainian (українська)', 'vi': 'Vietnamese (Tiếng Việt)', 'yi': 'Yiddish (ייִדיש)', 'zh': 'Chinese (中文)' };
 
@@ -30,10 +30,6 @@ const CONFIG_SECTIONS = {
 };
 
 const CONFIG_SECTIONS_INDEX = { "general": 0, "profile": 1, "tracker": 2, "dlog": 3, "discord-steam": 4, "role": 5, "rank": 7, "smtp": 6, "announcement": 8, "division": 9, "application": 10, "discord-member": 11, "discord-other": 12, "economy": 13 };
-
-const DEFAULT_ROLES = [{ 'id': 0, 'name': 'Owner', 'order_id': 0, 'discord_role_id': '' }, { 'id': 10, 'name': 'Leadership', 'order_id': 10, 'discord_role_id': '' }, { 'id': 20, 'name': 'Human Resources Manager', 'order_id': 20, 'discord_role_id': '' }, { 'id': 21, 'name': 'Human Resources Staff', 'order_id': 21, 'discord_role_id': '' }, { 'id': 30, 'name': 'Events Manager', 'order_id': 30, 'discord_role_id': '' }, { 'id': 31, 'name': 'Events Staff', 'order_id': 31, 'discord_role_id': '' }, { 'id': 40, 'name': 'Convoy Supervisor', 'order_id': 40, 'discord_role_id': '' }, { 'id': 41, 'name': 'Convoy Control', 'order_id': 41, 'discord_role_id': '' }, { 'id': 70, 'name': 'Division Manager', 'order_id': 70, 'discord_role_id': '' }, { 'id': 71, 'name': 'Division Supervisor', 'order_id': 71, 'discord_role_id': '' }, { 'id': 80, 'name': 'Community Manager', 'order_id': 80, 'discord_role_id': '' }, { 'id': 81, 'name': 'Community Team', 'order_id': 81, 'discord_role_id': '' }, { 'id': 99, 'name': 'Trial Staff', 'order_id': 99, 'discord_role_id': '' }, { 'id': 100, 'name': 'Driver', 'order_id': 100, 'discord_role_id': '' }, { 'id': 200, 'name': 'Staff of the Month', 'order_id': 200, 'discord_role_id': '', 'display_order_id': '-100' }, { 'id': 201, 'name': 'Driver of the Month', 'order_id': 201, 'discord_role_id': '', 'display_order_id': '-100' }, { 'id': 202, 'name': 'Leave of absence', 'order_id': 202, 'discord_role_id': '', 'display_order_id': '-1' }];
-
-const DEFAULT_PERMS = { 'administrator': [0, 10], 'update_config': [], 'reload_config': [], 'restart_service': [], 'accept_members': [20, 21], 'dismiss_members': [20, 21], 'update_roles': [20, 21], 'update_points': [20, 21], 'update_connections': [20, 21], 'disable_mfa': [20], 'delete_notifications': [20], 'manage_profiles': [20, 21], 'view_sensitive_profile': [20, 21], 'view_privacy_protected_data': [20, 21], 'view_global_note': [20, 21], 'update_global_note': [20, 21], 'view_external_user_list': [20, 21], 'ban_users': [20, 21], 'delete_users': [20, 21], 'import_dlogs': [20], 'delete_dlogs': [20], 'view_audit_log': [20, 21], 'manage_announcements': [20], 'manage_applications': [20, 21, 70, 71], 'delete_applications': [20], 'manage_challenges': [20, 80, 81], 'manage_divisions': [70, 71], 'manage_downloads': [], 'manage_economy': [], 'manage_economy_balance': [], 'manage_economy_truck': [], 'manage_economy_garage': [], 'manage_economy_merch': [], 'manage_events': [40, 41], 'manage_polls': [], 'driver': [100], 'staff_of_the_month': [200], 'driver_of_the_month': [201] };
 
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -495,7 +491,7 @@ const MemoTrackerForm = memo(({ theme, formConfig }) => {
                             newTrackers[index + 1] = tracker;
                             formConfig.setState({ ...formConfig.state, trackers: newTrackers });
                         }
-                    }} disabled={index === formConfig.state.trackers.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                    }} disabled={index === formConfig.state.trackers.length - 1} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
                 </div>
             </div>
             <TrackerForm theme={theme} tracker={tracker} onUpdate={(newTracker) => {
@@ -869,7 +865,7 @@ const MemoRoleForm = memo(({ theme, formConfig }) => {
                             formConfig.setState({ ...formConfig.state, roles: newRoles });
                             if (openIndex === index) setOpenIndex(index + 1);
                         }
-                    }} disabled={index + 1 === formConfig.state.roles.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                    }} disabled={index === formConfig.state.roles.length - 1} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
                 </div>
             </div>
         </>;
@@ -933,7 +929,7 @@ const MemoRoleForm = memo(({ theme, formConfig }) => {
                             if (openIndex !== -1) setOpenIndex(index - 1);
                         }
                     }}><FontAwesomeIcon icon={faArrowUp} /></IconButton>
-                    <IconButton variant="contained" color="warning" disabled={formConfig.state.roles.length === index + 1} onClick={() => {
+                    <IconButton variant="contained" color="warning" disabled={index === formConfig.state.roles.length - 1} onClick={() => {
                         if (index <= formConfig.state.roles.length - 2) {
                             let newRoles = [...formConfig.state.roles];
                             newRoles[index] = newRoles[index + 1];
@@ -1364,7 +1360,7 @@ const MemoRankForm = memo(({ theme, formConfig }) => {
                             formConfig.setState({ ...formConfig.state, ranks: newRanks });
                             if (openIndex === index) setOpenIndex(index + 1);
                         }
-                    }} disabled={index === formConfig.state.ranks.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                    }} disabled={index === formConfig.state.ranks.length - 1} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
                 </div>
             </div>
         </>;
@@ -1434,7 +1430,7 @@ const MemoRankForm = memo(({ theme, formConfig }) => {
                             formConfig.setState({ ...formConfig.state, ranks: newRanks });
                             if (openIndex !== -1) setOpenIndex(index + 1);
                         }
-                    }} disabled={index === formConfig.state.ranks.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                    }} disabled={index === formConfig.state.ranks.length - 1} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
                 </div>
             </div>
             <RankForm key={`rank-input-div-${index}`} theme={theme} rank={rank} onUpdate={(item) => {
@@ -1603,7 +1599,7 @@ const DiscordEmbedForm = ({ embed, onUpdate }) => {
                                     newFields[index + 1] = tracker;
                                     onUpdate({ ...embed, fields: newFields });
                                 }
-                            }} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                            }} disabled={index === embeds.fields.length - 1}><FontAwesomeIcon icon={faArrowDown} /></IconButton>
                         </div>
                     </div>
                     <Grid container spacing={2}>
@@ -1749,14 +1745,14 @@ const DiscordMessageForm = memo(({ theme, item, onUpdate, roleChange = false, is
                                     onUpdate({ ...item, embeds: newEmbeds });
                                 }
                             }}><FontAwesomeIcon icon={faArrowUp} /></IconButton>
-                            <IconButton variant="contained" color="warning" onClick={() => {
+                            <IconButton variant="contained" color="warning" disabled={index === item.embeds.length - 1} onClick={() => {
                                 if (index <= item.embeds.length - 2) {
                                     let newEmbeds = [...item.embeds];
                                     newEmbeds[index] = newEmbeds[index + 1];
                                     newEmbeds[index + 1] = embed;
                                     onUpdate({ ...item, embeds: newEmbeds });
                                 }
-                            }} disabled={index === item.embeds.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                            }} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
                         </div>
                     </div>
                     <DiscordEmbedForm embed={embed} onUpdate={(newEmbed) => {
@@ -1847,7 +1843,7 @@ const MemoDiscordSingleForm = memo(({ theme, vars, formConfig, form_key, roleCha
                                 newItems[index + 1] = item;
                                 formConfig.setState({ ...formConfig.state, [form_key]: newItems });
                             }
-                        }} disabled={index === formConfig.state[form_key].length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                        }} disabled={index === formConfig.state[form_key].length - 1} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
                     </div>
                 </div>
                 <Grid container spacing={2}>
@@ -1996,7 +1992,7 @@ const MemoAnnouncementTypeForm = memo(({ theme, formConfig }) => {
                             newAnnouncementTypes[index + 1] = announcement_type;
                             formConfig.setState({ ...formConfig.state, announcement_types: newAnnouncementTypes });
                         }
-                    }} disabled={index === formConfig.state.announcement_types.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                    }} disabled={index === formConfig.state.announcement_types.length - 1} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
                 </div>
             </div>
             <AnnouncementTypeForm theme={theme} announcement_type={announcement_type} onUpdate={(newAnnouncementType) => {
@@ -2292,7 +2288,7 @@ const MemoApplicationFormForm = memo(({ theme, form, updateForm }) => {
                             updateForm(newForm);
                             if (openIndex === index) setOpenIndex(index + 1);
                         }
-                    }} disabled={index === form.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                    }} disabled={index === form.length - 1} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
                 </div>
             </div>
         </>;
@@ -2348,7 +2344,7 @@ const MemoApplicationFormForm = memo(({ theme, form, updateForm }) => {
                             updateForm(newForm);
                             if (openIndex === index) setOpenIndex(index + 1);
                         }
-                    }} disabled={index === form.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                    }} disabled={index === form.length - 1} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
                 </div>
             </div>
             <ApplicationFormForm key={`application-form-input-div-${index}`} theme={theme} form_item={form_item} allLabels={form.filter((form_item) => form_item.label !== undefined).map((form_item) => form_item.label)} onUpdate={(item) => {
@@ -2628,7 +2624,7 @@ const MemoApplicationTypeForm = memo(({ theme, formConfig }) => {
                             formConfig.setState({ ...formConfig.state, application_types: newApplicationTypes });
                             if (openIndex === index) setOpenIndex(index + 1);
                         }
-                    }} disabled={index === formConfig.state.application_types.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                    }} disabled={index === formConfig.state.application_types.length - 1} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
                 </div>
             </div>
         </>;
@@ -2702,7 +2698,7 @@ const MemoApplicationTypeForm = memo(({ theme, formConfig }) => {
                             formConfig.setState({ ...formConfig.state, application_types: newApplicationTypes });
                             if (openIndex !== -1) setOpenIndex(index + 1);
                         }
-                    }} disabled={index === formConfig.state.application_types.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                    }} disabled={index === formConfig.state.application_types.length - 1} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
                 </div>
             </div>
             <ApplicationTypeForm key={`application-type-input-div-${index}`} theme={theme} application_type={application_type} onUpdate={(item) => {
@@ -2851,7 +2847,7 @@ const MemoDivisionForm = memo(({ theme, formConfig }) => {
                                 newDivisions[index + 1] = division;
                                 formConfig.setState({ ...formConfig.state, divisions: newDivisions });
                             }
-                        }} disabled={index === formConfig.state.divisions.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                        }} disabled={index === formConfig.state.divisions.length - 1} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
                     </div>
                 </div>
                 <DivisionForm theme={theme} division={division} onUpdate={(newDivision) => {
@@ -2967,6 +2963,9 @@ const MemoEconomyForm = memo(({ theme, formConfig }) => {
     return (
         <>
             <Typography variant="body2">{tr("config_economy_note")}</Typography>
+            <Typography variant="body2" sx={{ mb: "5px" }}>
+                For your convenience, we provide a list of default trucks and garages that may be imported into config. Read the <a href="https://wiki.charlws.com/books/chub/page/economy-plugin" target="_blank" rel="noreferrer" style={{ color: theme.palette.info.main }}>wiki article</a> for more information.
+            </Typography>
             <ButtonGroup sx={{ margin: "5px", mb: "10px" }}>
                 <Button component="label" variant="contained" color="success" startIcon={<FontAwesomeIcon icon={faFileImport} />} onClick={async () => {
                     if (!window.isElectron) return;
@@ -3686,6 +3685,17 @@ const Configuration = () => {
                             </Typography>
                             {formSectionRender[7] && <Collapse in={formSectionOpen[7]}>
                                 <Typography variant="body2" sx={{ mb: "15px" }}>{tr("config_ranks_note")}</Typography>
+                                <Typography variant="body2" sx={{ mb: "5px" }}>
+                                    For your convenience, we provide a list of default ranks which may be used to start up your Drivers Hub. Clicking the below button would overwrite your current list of ranks with the default one.
+                                </Typography>
+                                <Grid container>
+                                    <Grid item xs={0} sm={2} md={4} lg={8}></Grid>
+                                    <Grid item xs={12} sm={10} md={8} lg={4}>
+                                        <Button variant="outlined" color="error" sx={{ mb: "15px" }} fullWidth onClick={() => {
+                                            formConfig[7].setState({ ...formConfig[7].state, ranks: DEFAULT_RANKS });
+                                        }}>Overwrite current list of ranks wite the default one</Button>
+                                    </Grid>
+                                </Grid>
                                 <MemoRankForm theme={theme} formConfig={formConfig[7]} />
                                 <Grid item xs={12}>
                                     <Grid container>
@@ -3700,7 +3710,7 @@ const Configuration = () => {
                                 </Grid>
                             </Collapse>}
 
-                            {!curWebConfig.plugins.includes("announcement") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(8)}>
+                            {!curWebConfig.plugins.includes("announcement") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
                                 <div style={{ flexGrow: 1 }}>{tr("announcement")}</div>
                                 <IconButton>
                                     <FontAwesomeIcon icon={faLock} />
@@ -3729,7 +3739,7 @@ const Configuration = () => {
                                 </Collapse>}
                             </>}
 
-                            {!curWebConfig.plugins.includes("application") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(8)}>
+                            {!curWebConfig.plugins.includes("application") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
                                 <div style={{ flexGrow: 1 }}>{tr("application")}</div>
                                 <IconButton>
                                     <FontAwesomeIcon icon={faLock} />
@@ -3743,6 +3753,17 @@ const Configuration = () => {
                                 </IconButton>
                             </Typography>
                                 {formSectionRender[10] && <Collapse in={formSectionOpen[10]}>
+                                    <Typography variant="body2" sx={{ mb: "5px" }}>
+                                        For your convenience, we provide a list of default applications which may be used to start up your Drivers Hub. Clicking the below button would overwrite your current list of applications with the default one.
+                                    </Typography>
+                                    <Grid container>
+                                        <Grid item xs={0} sm={2} md={3} lg={7}></Grid>
+                                        <Grid item xs={12} sm={10} md={9} lg={5}>
+                                            <Button variant="outlined" color="error" sx={{ mb: "15px" }} fullWidth onClick={() => {
+                                                formConfig[10].setState({ ...formConfig[10].state, application_types: DEFAULT_APPLICATIONS });
+                                            }}>Overwrite current list of applications wite the default one</Button>
+                                        </Grid>
+                                    </Grid>
                                     <MemoApplicationTypeForm theme={theme} formConfig={formConfig[10]} />
                                     <Grid item xs={12}>
                                         <Grid container>
@@ -3758,7 +3779,7 @@ const Configuration = () => {
                                 </Collapse>}
                             </>}
 
-                            {!curWebConfig.plugins.includes("division") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(8)}>
+                            {!curWebConfig.plugins.includes("division") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
                                 <div style={{ flexGrow: 1 }}>{tr("division")}</div>
                                 <IconButton>
                                     <FontAwesomeIcon icon={faLock} />
@@ -3789,7 +3810,7 @@ const Configuration = () => {
                                 </Collapse>}
                             </>}
 
-                            {!curWebConfig.plugins.includes("economy") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(8)}>
+                            {!curWebConfig.plugins.includes("economy") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
                                 <div style={{ flexGrow: 1 }}>{tr("economy")}</div>
                                 <IconButton>
                                     <FontAwesomeIcon icon={faLock} />

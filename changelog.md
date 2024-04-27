@@ -21,6 +21,7 @@
 17. Added initial roles to set when accepting driver
 18. Added advanced application response and better response display
 19. Fixed malfunctioning shared discord application that leads to `invalid redirect_uri` error on login
+20. Added default roles, perms, ranks, applications, economy trucks and garages for ease of configuration
 
 ## v3.4.2
 
