@@ -105,6 +105,11 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
                                 const matcha2 = answer.match(/\[AS\] .*: (.*)/);
                                 if (matcha2) {
                                     advancedStatus = <>{matcha2[1]}</>;
+                                } else {
+                                    const matcha3 = answer.match(/\[XAS\] .*: (.*)/);
+                                    if (matcha3) {
+                                        advancedStatus = undefined;
+                                    }
                                 }
                             }
                         });
@@ -114,7 +119,11 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
                         } else if (advancedStatus && !assignee) {
                             status = <span style={{ color: theme.palette.info.main }}>{advancedStatus}</span>;
                         } else if (!advancedStatus && assignee) {
-                            status = <span style={{ color: theme.palette.info.main }}>{status} ({assignee})</span>;
+                            if (advancedStatus === undefined) status = <span style={{ color: theme.palette.info.main }}>{assignee}</span>;
+                            else status = <span style={{ color: theme.palette.info.main }}>{status} ({assignee})</span>;
+                        } else {
+                            if (advancedStatus === undefined) status = <span style={{ color: theme.palette.info.main }}>N/A</span>;
+                            // else just status
                         }
                         setApplications((prev) => {
                             let newApps = [...prev];
@@ -185,6 +194,7 @@ const AllApplication = () => {
             return acc;
         }, {})
     ), [memberUIDs, users]);
+    const theme = useTheme();
 
     const [detailApp, setDetailApp] = useState(null);
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -367,7 +377,12 @@ const AllApplication = () => {
                             if (matcha2) {
                                 answer = <>Application status updated to: {matcha2[1]}</>;
                             } else {
-                                answer = <MarkdownRenderer>{answer}</MarkdownRenderer>;
+                                const matcha3 = answer.match(/\[XAS\] .*: (.*)/);
+                                if (matcha3) {
+                                    answer = <>Application status cleared.</>;
+                                } else {
+                                    answer = <MarkdownRenderer>{answer}</MarkdownRenderer>;
+                                }
                             }
                         }
                     } else {
@@ -385,8 +400,9 @@ const AllApplication = () => {
                 <hr />
                 <Typography variant="body2" fontWeight="bold" sx={{ mt: "5px", mb: "5px" }}>Advanced Response <SponsorBadge vtclevel={1} /></Typography>
                 <Typography variant="body2" sx={{ mb: "5px" }}>
-                    The message will be automatically constructed when using advanced response. You still have to click "Respond" to make the update. To clear the message, click "Clear" in bottom-left.<br />
-                    Note that the "official status" would be locked to "Pending" when making advanced response.
+                    - The message will be automatically constructed when using advanced response. You still have to <span style={{ color: theme.palette.info.main }}>click "Respond"</span> to make the update. To <span style={{ color: theme.palette.info.main }}>clear the message</span>, click "Clear" in bottom-left.<br />
+                    - To <span style={{ color: theme.palette.info.main }}>clear all status</span>, click "Clear" on the right of "Advanced status". The <span style={{ color: theme.palette.info.main }}>assignee</span>, if exists, otherwise <span style={{ color: theme.palette.info.main }}>N/A</span>, would show in status. To disable advanced status, set it to <span style={{ color: theme.palette.info.main }}>Pending</span>.<br />
+                    - The "official status" would be locked to "Pending" when making advanced response.
                 </Typography>
                 <Grid container spacing={2}>
                     <Grid item xs={12} md={6}>
@@ -397,8 +413,11 @@ const AllApplication = () => {
                     </Grid>
                     <Grid item xs={12} md={6}>
                         <Typography variant="body2">
-                            Advanced status
-                            <TextField value={advancedStatus} onChange={(e) => { setAdvancedStatus(e.target.value); setMessage(`[AS] Application status updated to: ${e.target.value}`); setNewStatus(0); setMessageDisabled(true); }} size="small" disabled={vtcLevel < 1}
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <div>Advanced status</div>
+                                <div><span style={{ cursor: "pointer" }} onClick={() => { setAdvancedStatus(""); setMessage(`[XAS] Application status updated to: N/A.`); setNewStatus(0); setMessageDisabled(true); }} disabled={vtcLevel < 1}>Clear</span></div>
+                            </div>
+                            <TextField value={advancedStatus} onChange={(e) => { setAdvancedStatus(e.target.value); setMessage(`[AS] Application status updated to: ${e.target.value}`); setNewStatus(0); setMessageDisabled(true); }} size="small" disabled={vtcLevel < 1} fullWidth
                             />
                         </Typography>
                     </Grid>

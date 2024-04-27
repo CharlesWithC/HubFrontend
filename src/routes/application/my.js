@@ -98,6 +98,11 @@ const ApplicationTable = memo(({ showDetail }) => {
                                 const matcha2 = answer.match(/\[AS\] .*: (.*)/);
                                 if (matcha2) {
                                     advancedStatus = <>{matcha2[1]}</>;
+                                } else {
+                                    const matcha3 = answer.match(/\[XAS\] .*: (.*)/);
+                                    if (matcha3) {
+                                        advancedStatus = undefined;
+                                    }
                                 }
                             }
                         });
@@ -107,7 +112,11 @@ const ApplicationTable = memo(({ showDetail }) => {
                         } else if (advancedStatus && !assignee) {
                             status = <span style={{ color: theme.palette.info.main }}>{advancedStatus}</span>;
                         } else if (!advancedStatus && assignee) {
-                            status = <span style={{ color: theme.palette.info.main }}>{status} ({assignee})</span>;
+                            if (advancedStatus === undefined) status = <span style={{ color: theme.palette.info.main }}>{assignee}</span>;
+                            else status = <span style={{ color: theme.palette.info.main }}>{status} ({assignee})</span>;
+                        } else {
+                            if (advancedStatus === undefined) status = <span style={{ color: theme.palette.info.main }}>N/A</span>;
+                            // else just status
                         }
                         setApplications((prev) => {
                             let newApps = [...prev];
@@ -254,7 +263,12 @@ const MyApplication = () => {
                             if (matcha2) {
                                 answer = <>Application status updated to: {matcha2[1]}</>;
                             } else {
-                                answer = <MarkdownRenderer>{answer}</MarkdownRenderer>;
+                                const matcha3 = answer.match(/\[XAS\] .*: (.*)/);
+                                if (matcha3) {
+                                    answer = <>Application status cleared.</>;
+                                } else {
+                                    answer = <MarkdownRenderer>{answer}</MarkdownRenderer>;
+                                }
                             }
                         }
                     } else {
