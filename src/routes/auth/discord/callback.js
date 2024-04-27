@@ -29,7 +29,7 @@ const DiscordAuth = () => {
 
     useEffect(() => {
         let callback_url = `https://${window.dhhost}/auth/discord/callback`;
-        if (appContext.apiConfig.discord_client_id === 1120997206938361877) {
+        if (appContext.apiConfig.discord_client_id === "1120997206938361877") {
             callback_url = `https://oauth.chub.page/discord-auth`;
         }
         async function validateDiscordAuth() {
