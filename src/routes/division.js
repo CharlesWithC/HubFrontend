@@ -176,6 +176,7 @@ const DivisionsPending = memo(({ doReload, loadComplete, setLoadComplete }) => {
     const { t: tr } = useTranslation();
     const { apiPath, userSettings, divisions, loadDivisions } = useContext(AppContext);
     const { cache, setCache } = useContext(CacheContext);
+    const [localDivisions, setLocalDivisions] = useState(divisions);
 
     const pendingColumns = [
         { id: 'display_logid', label: tr("log_id") },
@@ -209,9 +210,9 @@ const DivisionsPending = memo(({ doReload, loadComplete, setLoadComplete }) => {
         async function doLoad() {
             window.loading += 1;
 
-            let localDivisions = divisions;
-            if (divisions === null) {
-                localDivisions = await loadDivisions();
+            if (localDivisions === null) {
+                setLocalDivisions(await loadDivisions());
+                return; // dependency change would trigger reload
             }
 
             const [dlogL] = await makeRequestsWithAuth([`${apiPath}/divisions/list/pending?page_size=${pageSize}&page=${page}`]);
@@ -237,7 +238,7 @@ const DivisionsPending = memo(({ doReload, loadComplete, setLoadComplete }) => {
             window.loading -= 1;
         }
         doLoad();
-    }, [apiPath, page, pageSize, doReload]);
+    }, [apiPath, page, pageSize, doReload, localDivisions]);
     const handleDVUpdate = useCallback(async (logid, divisionid, status) => {
         window.loading += 1;
 

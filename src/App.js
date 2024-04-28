@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useCallback, useContext } from 'react';
-import { useLocation, Routes, Route, useNavigate } from 'react-router-dom';
+import { useLocation, Routes, Route, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import i18n from './i18n';
 import { AppContext, ThemeContext } from './context';
@@ -293,7 +293,7 @@ function App() {
                         </>}
                         <SimpleBar style={{ padding: "20px", height: "100%", backgroundColor: theme.palette.background.default }} >
                             <div style={{ display: "flex", flexDirection: "column", minHeight: "calc(100vh - 120px)" }}>
-                                {curUser.userid === null && [false, ...apiConfig.required_connections].reduce((res, conn) => (res || curUser[conn + (conn !== "email" ? "id" : "")] === null)) && <Grid container>
+                                {!sidebarForceHidden && curUser.userid === null && [false, ...apiConfig.required_connections].reduce((res, conn) => (res || curUser[conn + (conn !== "email" ? "id" : "")] === null)) && <Grid container>
                                     <Grid item xs={12} sx={{ mb: "15px" }}>
                                         <Card>
                                             <CardContent>
@@ -301,7 +301,7 @@ function App() {
                                                     <FontAwesomeIcon icon={faLink} />&nbsp;Connect Accounts
                                                 </Typography>
                                                 <Typography variant="body2">
-                                                    You have to connect your {[[], ...apiConfig.required_connections].reduce((res, conn) => (curUser[conn + (conn !== "email" ? "id" : "")] === null ? [...res, conn] : res)).map(connection => CONNECTIONS[connection]).join(", ")} account to become a member. Simply complete this in settings.
+                                                    You have to connect your {[[], ...apiConfig.required_connections].reduce((res, conn) => (curUser[conn + (conn !== "email" ? "id" : "")] === null ? [...res, conn] : res)).map(connection => CONNECTIONS[connection]).join(", ")} account to become a member. Simply complete this in <Link to="/settings">settings</Link>.
                                                 </Typography>
                                             </CardContent>
                                         </Card>

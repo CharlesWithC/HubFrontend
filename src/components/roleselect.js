@@ -8,7 +8,7 @@ import { customSelectStyles } from '../designs';
 import { checkUserPerm } from '../functions';
 
 const RoleSelect = ({ label, initialRoles, onUpdate, isMulti = true, style = {} }) => {
-    const { allRoles, curUser, curUserPerm, divisions, loadDivisions } = useContext(AppContext);
+    const { allRoles, curUser, curUserPerm, divisions } = useContext(AppContext);
     const theme = useTheme();
 
     const getRole = useCallback((roleId) => {

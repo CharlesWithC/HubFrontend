@@ -22,9 +22,9 @@ function bool2int(b) { return b ? 1 : 0; }
 
 const COUNTRY_FLAG = { "uk": "🇬🇧", "germany": "🇩🇪", "france": "🇫🇷", "netherlands": "🇳🇱", "poland": "🇵🇱", "norway": "🇳🇴", "italy": "🇮🇹", "lithuania": "🇱🇹", "switzerland": "🇨🇭", "sweden": "🇸🇪", "czech": "🇨🇿", "portugal": "🇵🇹", "austria": "🇦🇹", "denmark": "🇩🇰", "finland": "🇫🇮", "belgium": "🇧🇪", "romania": "🇷🇴", "russia": "🇷🇺", "slovakia": "🇸🇰", "turkey": "🇹🇷", "hungary": "🇭🇺", "bulgaria": "🇧🇬", "latvia": "🇱🇻", "estonia": "🇪🇪", "ireland": "🇮🇪", "croatia": "🇭🇷", "greece": "🇬🇷", "serbia": "🇷🇸", "ukraine": "🇺🇦", "slovenia": "🇸🇮", "malta": "🇲🇹", "andorra": "🇦🇩", "macedonia": "🇲🇰", "jordan": "🇯🇴", "egypt": "🇪🇬", "israel": "🇮🇱", "montenegro": "🇲🇪", "australia": "🇦🇺" };
 
-const DeliveryDetail = memo(({ userDivisionIDs, doReload, divisionMeta, setDoReload, setDivisionStatus, setNewDivisionStatus, setDivisionMeta, setSelectedDivision, handleDivision, setDeleteOpen }) => {
+const DeliveryDetail = memo(({ divisions, userDivisionIDs, doReload, divisionMeta, setDoReload, setDivisionStatus, setNewDivisionStatus, setDivisionMeta, setSelectedDivision, handleDivision, setDeleteOpen }) => {
     const { t: tr } = useTranslation();
-    const { apiPath, webConfig, curUID, curUser, curUserPerm, userSettings, divisions, loadDivisions } = useContext(AppContext);
+    const { apiPath, webConfig, curUID, curUser, curUserPerm, userSettings } = useContext(AppContext);
 
     const EVENT_ICON = { "job.started": <LocalShippingRounded />, "job.delivered": <FlagRounded />, "job.cancelled": <CloseRounded />, "fine": <GavelRounded />, "tollgate": <TollRounded />, "ferry": <DirectionsBoatRounded />, "train": <TrainRounded />, "collision": <CarCrashRounded />, "repair": <BuildRounded />, "refuel": <LocalGasStationRounded />, "teleport": <FlightTakeoffRounded />, "speeding": <SpeedRounded /> };
     const EVENT_COLOR = { "job.started": "lightgreen", "job.delivered": "lightgreen", "job.cancelled": "lightred", "fine": "orange", "tollgate": "lightblue", "ferry": "lightblue", "train": "lightblue", "collision": "orange", "repair": "lightblue", "refuel": "lightblue", "teleport": "lightblue", "speeding": "orange" };
@@ -120,9 +120,9 @@ const DeliveryDetail = memo(({ userDivisionIDs, doReload, divisionMeta, setDoRel
         async function doLoad() {
             window.loading += 1;
 
-            let localDivisions = divisions;
             if (divisions === null) {
-                localDivisions = await loadDivisions();
+                // divisions is passed from parent component, NOT context
+                return; // dependency change would trigger reload
             }
 
             let [dlogD, divisionM] = await makeRequestsAuto([
@@ -320,7 +320,7 @@ const DeliveryDetail = memo(({ userDivisionIDs, doReload, divisionMeta, setDoRel
                             <RefreshRounded />
                         </IconButton>}</Typography>
             },
-            { "name": tr("division"), "value": data.division !== null && localDivisions[data.division] !== undefined ? localDivisions[data.division].name : "/" },
+            { "name": tr("division"), "value": data.division !== null && divisions[data.division] !== undefined ? divisions[data.division].name : "/" },
             {},
             { "name": tr("driver"), "value": <UserCard user={data.user} inline={true} /> },
             { "name": tr("truck_model"), "value": <>{detail.truck.brand.name}&nbsp;{detail.truck.name} <span style={{ color: "grey" }}>({detail.truck.unique_id})</span></> },
@@ -378,7 +378,7 @@ const DeliveryDetail = memo(({ userDivisionIDs, doReload, divisionMeta, setDoRel
             }
         }
         doLoad();
-    }, [apiPath, logid, theme, doReload, setDivisionStatus, setNewDivisionStatus, setDivisionMeta, setSelectedDivision, divisions]);
+    }, [apiPath, logid, theme, doReload, divisions]);
 
     return (<>
         {dlog.logid === undefined &&
@@ -551,11 +551,17 @@ const Delivery = memo(() => {
 
     useEffect(() => {
         async function loadDivisionsCache() {
-            const data = await loadDivisions();
-            setDivisions(data);
+            if (cachedDivisions === null) {
+                const data = await loadDivisions();
+                setDivisions(data);
+            }
         }
         loadDivisionsCache();
-    }, []);
+    }, [cachedDivisions]);
+
+    const sleep = ms => new Promise(
+        resolve => setTimeout(resolve, ms)
+    );
 
     const STATUS = { 0: tr("pending"), 1: tr("accepted"), 2: tr("declined") };
 
@@ -614,8 +620,8 @@ const Delivery = memo(() => {
             setSnackbarSeverity("error");
         }
 
+        await sleep(1000);
         window.loading -= 1;
-
         setDoReload(+new Date());
     }, [apiPath, logid, selectedDivision, newDivisionStatus, newDivisionMessage]);
 
@@ -642,7 +648,7 @@ const Delivery = memo(() => {
     }, [apiPath, logid]);
 
     return (<>
-        <DeliveryDetail userDivisionIDs={userDivisionIDs} doReload={doReload} divisionMeta={divisionMeta} setDoReload={setDoReload} setDivisionStatus={setDivisionStatus} setNewDivisionStatus={setNewDivisionStatus} setDivisionMeta={setDivisionMeta} setSelectedDivision={setSelectedDivision} handleDivision={handleDivision} setDeleteOpen={setDeleteOpen} />
+        <DeliveryDetail divisions={divisions} userDivisionIDs={userDivisionIDs} doReload={doReload} divisionMeta={divisionMeta} setDoReload={setDoReload} setDivisionStatus={setDivisionStatus} setNewDivisionStatus={setNewDivisionStatus} setDivisionMeta={setDivisionMeta} setSelectedDivision={setSelectedDivision} handleDivision={handleDivision} setDeleteOpen={setDeleteOpen} />
         {divisionMeta !== null && <Dialog open={divisionModalOpen} onClose={handleCloseDivisionModal}>
             <DialogTitle>
                 <Typography variant="h6" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
