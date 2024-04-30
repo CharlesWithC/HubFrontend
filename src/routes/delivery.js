@@ -559,10 +559,6 @@ const Delivery = memo(() => {
         loadDivisionsCache();
     }, [cachedDivisions]);
 
-    const sleep = ms => new Promise(
-        resolve => setTimeout(resolve, ms)
-    );
-
     const STATUS = { 0: tr("pending"), 1: tr("accepted"), 2: tr("declined") };
 
     const [snackbarContent, setSnackbarContent] = useState("");
@@ -620,7 +616,6 @@ const Delivery = memo(() => {
             setSnackbarSeverity("error");
         }
 
-        await sleep(1000);
         window.loading -= 1;
         setDoReload(+new Date());
     }, [apiPath, logid, selectedDivision, newDivisionStatus, newDivisionMessage]);

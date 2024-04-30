@@ -1599,7 +1599,7 @@ const DiscordEmbedForm = ({ embed, onUpdate }) => {
                                     newFields[index + 1] = tracker;
                                     onUpdate({ ...embed, fields: newFields });
                                 }
-                            }} disabled={index === embeds.fields.length - 1}><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                            }} disabled={index === embed.fields.length - 1}><FontAwesomeIcon icon={faArrowDown} /></IconButton>
                         </div>
                     </div>
                     <Grid container spacing={2}>
