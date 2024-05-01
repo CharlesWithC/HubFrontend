@@ -137,7 +137,7 @@ const DeliveryDetail = memo(({ divisions, userDivisionIDs, doReload, divisionMet
             setDlog(dlogD);
             setDlogDetail(dlogD.detail.data.object);
 
-            let divisionM = {};
+            let divisionM = { error: "404" };
             if (dlogD.division !== null) {
                 [divisionM] = await makeRequestsAuto([
                     { url: `${apiPath}/dlog/${logid}/division`, auth: true },
@@ -404,7 +404,7 @@ const DeliveryDetail = memo(({ divisions, userDivisionIDs, doReload, divisionMet
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <VerifiedOutlined sx={{ color: divisionMeta.status === 1 ? theme.palette.info.main : theme.palette.grey[400], fontSize: "1.2em", mt: "3px" }} />
                     </Tooltip> : <></>}&nbsp;
-                    {dlog.challenge.length !== 0 ? <Tooltip placement="top" arrow title="Challenge Delivery"
+                    {dlog.challenge.length !== 0 ? <Tooltip placement="top" arrow title={`Challenge Delivery (${dlog.challenge.map((challenge) => (`#${challenge.challengeid} ${challenge.name}`)).join(", ")})`}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <FontAwesomeIcon icon={faStamp} style={{ color: theme.palette.warning.main, fontSize: "1em", marginTop: "3px" }} />
                     </Tooltip> : <></>}

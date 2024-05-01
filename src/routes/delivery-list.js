@@ -254,7 +254,7 @@ const Deliveries = () => {
                     </Tooltip></>;
                 }
                 if (dlogL.list[i].challenge.length !== 0) {
-                    checkmark = <>{checkmark}&nbsp;<Tooltip placement="top" arrow title={"Challenge Delivery"}
+                    checkmark = <>{checkmark}&nbsp;<Tooltip placement="top" arrow title={`Challenge Delivery (${dlogL.list[i].challenge.map((challenge) => (`#${challenge.challengeid} ${challenge.name}`)).join(", ")})`}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <FontAwesomeIcon icon={faStamp} style={{ color: theme.palette.warning.main, fontSize: "1em" }} />
                     </Tooltip></>;

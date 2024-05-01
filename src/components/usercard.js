@@ -129,7 +129,7 @@ const TabPanel = (props) => {
 };
 
 const UserCard = (props) => {
-    if (props.user.uid === undefined) return <></>;
+    if (props.user === undefined || props.user.uid === undefined) return <></>;
 
     const { t: tr } = useTranslation();
     const theme = useTheme();
@@ -291,7 +291,7 @@ const UserCard = (props) => {
                 </Tooltip></>;
             }
             if (_dlogList.list[i].challenge.length !== 0) {
-                checkmark = <>{checkmark}&nbsp;<Tooltip placement="top" arrow title={"Challenge Delivery"}
+                checkmark = <>{checkmark}&nbsp;<Tooltip placement="top" arrow title={`Challenge Delivery (${_dlogList.list[i].challenge.map((challenge) => (`#${challenge.challengeid} ${challenge.name}`)).join(", ")})`}
                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                     <FontAwesomeIcon icon={faStamp} style={{ color: theme.palette.warning.main, fontSize: "1em" }} />
                 </Tooltip></>;
@@ -1182,7 +1182,7 @@ const UserCard = (props) => {
                                     { id: 'cargo', label: tr("cargo") },
                                     { id: 'distance', label: tr("distance") },
                                     { id: 'profit', label: tr("profit") },
-                                ]} data={dlogList} totalItems={dlogTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={dlogPageSize} onPageChange={setDlogPage} onRowsPerPageChange={setDlogPageSize} onRowClick={(data) => { navigate(`/delivery/${data.logid}`); }} />}
+                                ]} data={dlogList} totalItems={dlogTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} page={dlogPage} defaultRowsPerPage={dlogPageSize} onPageChange={setDlogPage} onRowsPerPageChange={setDlogPageSize} onRowClick={(data) => { navigate(`/delivery/${data.logid}`); }} />}
                         </TabPanel>
                     </SimpleBar>
                 </CardContent>
