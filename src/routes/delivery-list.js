@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFileExport, faGears, faTowerObservation, faTruckFront } from '@fortawesome/free-solid-svg-icons';
+import { faFileExport, faGears, faStamp, faTowerObservation, faTruckFront } from '@fortawesome/free-solid-svg-icons';
 
 import DateTimeField from '../components/datetime';
 import Podium from "../components/podium";
@@ -246,14 +246,20 @@ const Deliveries = () => {
 
             let newDlogList = [];
             for (let i = 0; i < dlogL.list.length; i++) {
-                let divisionCheckmark = <></>;
+                let checkmark = <></>;
                 if (dlogL.list[i].division !== null && dlogL.list[i].division.status !== 2) {
-                    divisionCheckmark = <Tooltip placement="top" arrow title={dlogL.list[i].division.status === 1 ? tr("validated_division_delivery") : "Pending Division Delivery"}
+                    checkmark = <>{checkmark}&nbsp;<Tooltip placement="top" arrow title={dlogL.list[i].division.status === 1 ? tr("validated_division_delivery") : "Pending Division Delivery"}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <VerifiedOutlined sx={{ color: dlogL.list[i].division.status === 1 ? theme.palette.info.main : theme.palette.grey[400], fontSize: "1.2em" }} />
-                    </Tooltip>;
+                    </Tooltip></>;
                 }
-                newDlogList.push({ logid: dlogL.list[i].logid, display_logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{dlogL.list[i].logid}</span>{divisionCheckmark}</Typography>, driver: <UserCard user={dlogL.list[i].user} inline={true} />, source: `${dlogL.list[i].source_company}, ${dlogL.list[i].source_city}`, destination: `${dlogL.list[i].destination_company}, ${dlogL.list[i].destination_city}`, distance: ConvertUnit(userSettings.unit, "km", dlogL.list[i].distance), cargo: `${dlogL.list[i].cargo} (${ConvertUnit(userSettings.unit, "kg", dlogL.list[i].cargo_mass)})`, profit: `${CURRENTY_ICON[dlogL.list[i].unit]}${dlogL.list[i].profit}`, time: <TimeAgo key={`${+new Date()}`} timestamp={dlogL.list[i].timestamp * 1000} /> });
+                if (dlogL.list[i].challenge.length !== 0) {
+                    checkmark = <>{checkmark}&nbsp;<Tooltip placement="top" arrow title={"Challenge Delivery"}
+                        PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                        <FontAwesomeIcon icon={faStamp} style={{ color: theme.palette.warning.main, fontSize: "1em" }} />
+                    </Tooltip></>;
+                }
+                newDlogList.push({ logid: dlogL.list[i].logid, display_logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{dlogL.list[i].logid}</span>{checkmark}</Typography>, driver: <UserCard user={dlogL.list[i].user} inline={true} />, source: `${dlogL.list[i].source_company}, ${dlogL.list[i].source_city}`, destination: `${dlogL.list[i].destination_company}, ${dlogL.list[i].destination_city}`, distance: ConvertUnit(userSettings.unit, "km", dlogL.list[i].distance), cargo: `${dlogL.list[i].cargo} (${ConvertUnit(userSettings.unit, "kg", dlogL.list[i].cargo_mass)})`, profit: `${CURRENTY_ICON[dlogL.list[i].unit]}${dlogL.list[i].profit}`, time: <TimeAgo key={`${+new Date()}`} timestamp={dlogL.list[i].timestamp * 1000} /> });
             }
 
             if (pageRef.current === page) {

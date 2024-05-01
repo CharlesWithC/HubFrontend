@@ -32,7 +32,7 @@ import { RouteRounded, LocalGasStationRounded, EuroRounded, AttachMoneyRounded, 
 import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUserSlash, faTrashCan, faBan, faCircleCheck, faUserCheck, faTruck, faBarsStaggered, faHashtag, faComment, faNoteSticky, faPencil, faScrewdriverWrench, faCrown, faClover, faAt, faFingerprint, faEarthAmericas, faInfoCircle, faClockRotateLeft, faRoad } from '@fortawesome/free-solid-svg-icons';
+import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUserSlash, faTrashCan, faBan, faCircleCheck, faUserCheck, faTruck, faBarsStaggered, faHashtag, faComment, faNoteSticky, faPencil, faScrewdriverWrench, faCrown, faClover, faAt, faFingerprint, faEarthAmericas, faInfoCircle, faClockRotateLeft, faRoad, faStamp } from '@fortawesome/free-solid-svg-icons';
 import { faDiscord, faSteam } from '@fortawesome/free-brands-svg-icons';
 
 import SimpleBar from 'simplebar-react';
@@ -283,16 +283,22 @@ const UserCard = (props) => {
         if (!_dlogList || !_dlogList.list) return null;
         let newDlogList = [];
         for (let i = 0; i < _dlogList.list.length; i++) {
-            let divisionCheckmark = <></>;
-            if (_dlogList.list[i].division.divisionid !== undefined) {
-                divisionCheckmark = <Tooltip placement="top" arrow title={tr("validated_division_delivery")}
+            let checkmark = <></>;
+            if (_dlogList.list[i].division !== null && _dlogList.list[i].division.status !== 2) {
+                checkmark = <>{checkmark}&nbsp;<Tooltip placement="top" arrow title={_dlogList.list[i].division.status === 1 ? tr("validated_division_delivery") : "Pending Division Delivery"}
                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-                    <VerifiedOutlined sx={{ color: theme.palette.info.main, fontSize: "1.2em" }} />
-                </Tooltip>;
+                    <VerifiedOutlined sx={{ color: _dlogList.list[i].division.status === 1 ? theme.palette.info.main : theme.palette.grey[400], fontSize: "1.2em" }} />
+                </Tooltip></>;
+            }
+            if (_dlogList.list[i].challenge.length !== 0) {
+                checkmark = <>{checkmark}&nbsp;<Tooltip placement="top" arrow title={"Challenge Delivery"}
+                    PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                    <FontAwesomeIcon icon={faStamp} style={{ color: theme.palette.warning.main, fontSize: "1em" }} />
+                </Tooltip></>;
             }
             newDlogList.push({
                 logid: _dlogList.list[i].logid,
-                display_logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{_dlogList.list[i].logid}</span>{divisionCheckmark}</Typography>,
+                display_logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{_dlogList.list[i].logid}</span>{checkmark}</Typography>,
                 source: `${_dlogList.list[i].source_company}, ${_dlogList.list[i].source_city}`,
                 destination: `${_dlogList.list[i].destination_company}, ${_dlogList.list[i].destination_city}`,
                 distance: ConvertUnit(userSettings.unit, "km", _dlogList.list[i].distance),
@@ -856,7 +862,8 @@ const UserCard = (props) => {
                 component="img"
                 image={profileBannerURL}
                 onError={(event) => {
-                    event.target.src = `${apiPath}/member/banner?userid=${user.userid}`;
+                    if (event.target.src !== `${apiPath}/member/banner?userid=${user.userid}`)
+                        event.target.src = `${apiPath}/member/banner?userid=${user.userid}`;
                 }}
                 alt=""
                 sx={{ borderRadius: "5px 5px 0 0" }}
@@ -1713,7 +1720,8 @@ const UserCard = (props) => {
                     ref={popoverBannerRef}
                     image={profileBannerURL}
                     onError={(event) => {
-                        event.target.src = `${apiPath}/member/banner?userid=${user.userid}`;
+                        if (event.target.src !== `${apiPath}/member/banner?userid=${user.userid}`)
+                            event.target.src = `${apiPath}/member/banner?userid=${user.userid}`;
                     }}
                     alt=""
                     sx={{ borderRadius: "5px 5px 0 0" }}

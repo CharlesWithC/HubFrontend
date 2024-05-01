@@ -8,6 +8,9 @@ import { Timeline, TimelineItem, TimelineSeparator, TimelineConnector, TimelineC
 import { LocalShippingRounded, InfoRounded, ChecklistRounded, FlagRounded, CloseRounded, GavelRounded, TollRounded, DirectionsBoatRounded, TrainRounded, CarCrashRounded, BuildRounded, LocalGasStationRounded, FlightTakeoffRounded, SpeedRounded, RefreshRounded, WarehouseRounded, DeleteRounded, Verified, VerifiedOutlined } from '@mui/icons-material';
 import { Portal } from '@mui/base';
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faStamp } from '@fortawesome/free-solid-svg-icons';
+
 import SimpleBar from 'simplebar-react/dist';
 
 import UserCard from '../components/usercard';
@@ -125,15 +128,21 @@ const DeliveryDetail = memo(({ divisions, userDivisionIDs, doReload, divisionMet
                 return; // dependency change would trigger reload
             }
 
-            let [dlogD, divisionM] = await makeRequestsAuto([
+            let [dlogD] = await makeRequestsAuto([
                 { url: `${apiPath}/dlog/${logid}`, auth: "prefer" },
-                { url: `${apiPath}/dlog/${logid}/division`, auth: true },
             ]);
             if (dlogD.error !== undefined) {
                 navigate(`/delivery`);
             }
             setDlog(dlogD);
             setDlogDetail(dlogD.detail.data.object);
+
+            let divisionM = {};
+            if (dlogD.division !== null) {
+                [divisionM] = await makeRequestsAuto([
+                    { url: `${apiPath}/dlog/${logid}/division`, auth: true },
+                ]);
+            }
 
             if (divisionM.divisionid === null) divisionM.divisionid = -1;
             if (divisionM.status === null) divisionM.status = -1;
@@ -390,9 +399,14 @@ const DeliveryDetail = memo(({ divisions, userDivisionIDs, doReload, divisionMet
         {dlog.logid !== undefined && <div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="h5" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                    <LocalShippingRounded sx={{ mt: "3px" }} />&nbsp;&nbsp;<>{tr("delivery")}</> #{logid}&nbsp;{divisionMeta !== null && divisionMeta.status !== undefined && divisionMeta.status !== 2 ? <Tooltip placement="top" arrow title={divisionMeta.status === 1 ? tr("validated_division_delivery") : "Pending Division Delivery"}
+                    <LocalShippingRounded sx={{ mt: "3px" }} />&nbsp;&nbsp;<>{tr("delivery")}</> #{logid}&nbsp;
+                    {divisionMeta !== null && divisionMeta.status !== undefined && divisionMeta.status !== 2 ? <Tooltip placement="top" arrow title={divisionMeta.status === 1 ? tr("validated_division_delivery") : "Pending Division Delivery"}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <VerifiedOutlined sx={{ color: divisionMeta.status === 1 ? theme.palette.info.main : theme.palette.grey[400], fontSize: "1.2em", mt: "3px" }} />
+                    </Tooltip> : <></>}&nbsp;
+                    {dlog.challenge.length !== 0 ? <Tooltip placement="top" arrow title="Challenge Delivery"
+                        PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                        <FontAwesomeIcon icon={faStamp} style={{ color: theme.palette.warning.main, fontSize: "1em", marginTop: "3px" }} />
                     </Tooltip> : <></>}
                 </Typography>
                 <Typography variant="h5"><UserCard user={dlog.user} inline={true} /></Typography>
