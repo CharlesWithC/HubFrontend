@@ -84,7 +84,7 @@ const FreightMaster = () => {
 
         if (pageRef.current === page && memberUIDs.length > 0) {
             let newlb = [];
-            for (let i = 0; i < lb.list.length; i++) {
+            for (let i = 0; i < (lb.list ? lb.list.length : 0); i++) {
                 newlb.push({
                     rank: lb.list[i].rank,
                     vtc: <>
@@ -150,7 +150,7 @@ const FreightMaster = () => {
                     </Typography>
                     <Typography variant="body2" fontSize="15px" color="grey" sx={{ mb: "5px" }}>(Only applies to cross-vtc ranking)</Typography>
                     <Typography variant="body2" fontWeight="bold" fontSize="15px">Player Title</Typography>
-                    {fmRewards.filter((reward) => reward.reward_type === "title").map((reward) =>
+                    {fmRewards.filter((reward) => reward.reward_type === "title" && reward.active).map((reward) =>
                         <Typography variant="body2" fontSize="15px">
                             {reward.reward_value}
                             {reward.qualify_type === "percentage" && <> ({reward.finisher_reward ? `Finishes` : `Been`} {reward.qualify_value.substring(0, 2) == "==" ? "at" : "top"} {parseFloat(reward.qualify_value.substring(2)) * 100}%)</>}

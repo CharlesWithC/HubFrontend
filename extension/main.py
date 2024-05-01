@@ -955,7 +955,9 @@ def get_freightmaster_distributed_rewards(abbr: str, uid: Optional[int] = None):
     if os.path.exists(data_folder + "/latest/chub-fmd-rewards-history.json"):
         history_rewards = json.loads(open(data_folder + "/latest/chub-fmd-rewards-history.json", "r", encoding="utf-8").read())
 
-    current_rewards = json.loads(open(data_folder + "/latest/chub-fmd-rewards.json", "r", encoding="utf-8").read())
+    current_rewards = []
+    if os.path.exists(data_folder + "/latest/chub-fmd-rewards.json"):
+        current_rewards = json.loads(open(data_folder + "/latest/chub-fmd-rewards.json", "r", encoding="utf-8").read())
 
     all_rewards = history_rewards + current_rewards
 

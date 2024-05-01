@@ -1,45 +1,54 @@
 {
     "excluded_vtcs": [],
-    "data_folder": "freightmaster/fms0",
-    "season_name": "FreightMaster Beta",
-    "start_time": 1710633600,
-    "end_time": 1713657600,
+    "data_folder": "freightmaster/fms1",
+    "season_name": "FreightMaster Season 1",
+    "start_time": 1714521600,
+    "end_time": 1717200000,
     "rewards": [
         {
             "active": true,
-            "id": "fms0-first",
+            "id": "fms1-first",
             "qualify_type": "rank",
             "qualify_value": "==1",
             "reward_type": "title",
-            "reward_value": "FreightMaster Beta No.1 Finisher",
+            "reward_value": "FreightMaster S1 Champion",
             "finisher_reward": true
         },
         {
             "active": true,
-            "id": "fms0-top10",
-            "qualify_type": "rank",
-            "qualify_value": "<=10",
-            "reward_type": "title",
-            "reward_value": "FreightMaster Beta Top 10 Finisher",
-            "finisher_reward": true
-        },
-        {
-            "active": true,
-            "id": "fms0-top0.1",
+            "id": "fms1-top0.01",
             "qualify_type": "percentage",
             "qualify_value": "<=0.01",
             "reward_type": "title",
-            "reward_value": "FreightMaster Beta Top 1% Finisher",
+            "reward_value": "FreightMaster S1 Superstar",
             "finisher_reward": true
         },
         {
             "active": true,
-            "id": "fms0-top0.99",
+            "id": "fms1-top0.1",
+            "qualify_type": "percentage",
+            "qualify_value": "<=0.1",
+            "reward_type": "title",
+            "reward_value": "FreightMaster S1 Legend",
+            "finisher_reward": true
+        },
+        {
+            "active": true,
+            "id": "fms1-top0.99",
             "qualify_type": "percentage",
             "qualify_value": "<=0.99",
             "reward_type": "title",
-            "reward_value": "FreightMaster Beta Tester",
+            "reward_value": "FreightMaster S1 Trucker",
             "finisher_reward": false
+        },
+        {
+            "active": true,
+            "id": "fms1-rank77",
+            "qualify_type": "rank",
+            "qualify_value": "==77",
+            "reward_type": "title",
+            "reward_value": "FreightMaster S1 Lucky Devil",
+            "finisher_reward": true
         }
     ]
 }

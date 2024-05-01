@@ -18,6 +18,7 @@ import sys
 import time
 import traceback
 
+import redis
 import requests
 
 
@@ -325,18 +326,25 @@ if __name__ == "__main__":
         if os.path.exists(data_folder + "/latest/chub-fmd-rewards-history.json"):
             history_rewards = json.loads(open(data_folder + "/latest/chub-fmd-rewards-history.json", "r", encoding="utf-8"))
 
-        current_rewards = json.loads(open(data_folder + "/latest/chub-fmd-rewards.json", "r", encoding="utf-8"))
+        current_rewards = json.loads(open(data_folder + "/latest/chub-fmd-rewards.json", "r", encoding="utf-8").read())
 
         new_history_rewards = history_rewards + current_rewards
 
         os.system("mv freightmaster-config-next.json freightmaster-config.json")
         new_config = json.loads(open("./freightmaster-config.json", "r", encoding="utf-8").read())
         new_data_folder = new_config["data_folder"]
-        os.mkdir(new_data_folder)
-        os.mkdir(new_data_folder + "/latest")
-        open(new_data_folder + "/latest/chub-fmd-rewards-history.json", "w", encoding="utf-8").write(new_history_rewards)
-        new_config["rewards"] = new_config["rewards"] + [x for x in rewards if x["id"] not in new_config["rewards"]]
-        open(new_data_folder + "/freightmaster-config.json", "w", encoding="utf-8").write(json.dumps(new_config, indent=4))
+        if not os.path.exists(new_data_folder):
+            os.mkdir(new_data_folder)
+        if not os.path.exists(new_data_folder + "/latest"):
+            os.mkdir(new_data_folder + "/latest")
+        open(new_data_folder + "/latest/chub-fmd-rewards-history.json", "w", encoding="utf-8").write(json.dumps(new_history_rewards))
+        new_config_reward_ids = [x["id"] for x in new_config["rewards"]]
+        new_config["rewards"] = new_config["rewards"] + [x for x in rewards if x["id"] not in new_config_reward_ids]
+        open("./freightmaster-config.json", "w", encoding="utf-8").write(json.dumps(new_config, indent=4))
+
+        r = redis.Redis()
+        for key in r.scan_iter("freightmaster:*"):
+            r.delete(key)
 
         print("Next season started.")
     
