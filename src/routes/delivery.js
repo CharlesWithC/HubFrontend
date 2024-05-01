@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AppContext } from '../context';
 
-import { Grid, Chip, Card, CardContent, Typography, LinearProgress, IconButton, SpeedDial, SpeedDialAction, SpeedDialIcon, Button, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, TextareaAutosize, Radio, RadioGroup, FormControlLabel, MenuItem, TextField, Snackbar, Alert, useTheme } from '@mui/material';
+import { Grid, Chip, Card, CardContent, Typography, LinearProgress, IconButton, SpeedDial, SpeedDialAction, SpeedDialIcon, Button, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, TextareaAutosize, Radio, RadioGroup, FormControlLabel, MenuItem, TextField, Snackbar, Alert, useTheme, Tooltip } from '@mui/material';
 import { Timeline, TimelineItem, TimelineSeparator, TimelineConnector, TimelineContent, TimelineDot } from '@mui/lab';
-import { LocalShippingRounded, InfoRounded, ChecklistRounded, FlagRounded, CloseRounded, GavelRounded, TollRounded, DirectionsBoatRounded, TrainRounded, CarCrashRounded, BuildRounded, LocalGasStationRounded, FlightTakeoffRounded, SpeedRounded, RefreshRounded, WarehouseRounded, DeleteRounded } from '@mui/icons-material';
+import { LocalShippingRounded, InfoRounded, ChecklistRounded, FlagRounded, CloseRounded, GavelRounded, TollRounded, DirectionsBoatRounded, TrainRounded, CarCrashRounded, BuildRounded, LocalGasStationRounded, FlightTakeoffRounded, SpeedRounded, RefreshRounded, WarehouseRounded, DeleteRounded, Verified, VerifiedOutlined } from '@mui/icons-material';
 import { Portal } from '@mui/base';
 
 import SimpleBar from 'simplebar-react/dist';
@@ -384,13 +384,16 @@ const DeliveryDetail = memo(({ divisions, userDivisionIDs, doReload, divisionMet
         {dlog.logid === undefined &&
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="h5" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                    <LocalShippingRounded />&nbsp;&nbsp;<>{tr("delivery")}</> #{logid}
+                    <LocalShippingRounded sx={{ mt: "3px" }} />&nbsp;&nbsp;<>{tr("delivery")}</> #{logid}
                 </Typography>
             </div>}
         {dlog.logid !== undefined && <div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="h5" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                    <LocalShippingRounded />&nbsp;&nbsp;<>{tr("delivery")}</> #{logid}&nbsp;&nbsp;
+                    <LocalShippingRounded sx={{ mt: "3px" }} />&nbsp;&nbsp;<>{tr("delivery")}</> #{logid}&nbsp;{divisionMeta !== null && divisionMeta.status !== undefined && divisionMeta.status !== 2 ? <Tooltip placement="top" arrow title={divisionMeta.status === 1 ? tr("validated_division_delivery") : "Pending Division Delivery"}
+                        PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                        <VerifiedOutlined sx={{ color: divisionMeta.status === 1 ? theme.palette.info.main : theme.palette.grey[400], fontSize: "1.2em", mt: "3px" }} />
+                    </Tooltip> : <></>}
                 </Typography>
                 <Typography variant="h5"><UserCard user={dlog.user} inline={true} /></Typography>
             </div>

@@ -247,10 +247,10 @@ const Deliveries = () => {
             let newDlogList = [];
             for (let i = 0; i < dlogL.list.length; i++) {
                 let divisionCheckmark = <></>;
-                if (dlogL.list[i].division.divisionid !== undefined) {
-                    divisionCheckmark = <Tooltip placement="top" arrow title={tr("validated_division_delivery")}
+                if (dlogL.list[i].division !== null && dlogL.list[i].division.status !== 2) {
+                    divisionCheckmark = <Tooltip placement="top" arrow title={dlogL.list[i].division.status === 1 ? tr("validated_division_delivery") : "Pending Division Delivery"}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-                        <VerifiedOutlined sx={{ color: theme.palette.info.main, fontSize: "1.2em" }} />
+                        <VerifiedOutlined sx={{ color: dlogL.list[i].division.status === 1 ? theme.palette.info.main : theme.palette.grey[400], fontSize: "1.2em" }} />
                     </Tooltip>;
                 }
                 newDlogList.push({ logid: dlogL.list[i].logid, display_logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{dlogL.list[i].logid}</span>{divisionCheckmark}</Typography>, driver: <UserCard user={dlogL.list[i].user} inline={true} />, source: `${dlogL.list[i].source_company}, ${dlogL.list[i].source_city}`, destination: `${dlogL.list[i].destination_company}, ${dlogL.list[i].destination_city}`, distance: ConvertUnit(userSettings.unit, "km", dlogL.list[i].distance), cargo: `${dlogL.list[i].cargo} (${ConvertUnit(userSettings.unit, "kg", dlogL.list[i].cargo_mass)})`, profit: `${CURRENTY_ICON[dlogL.list[i].unit]}${dlogL.list[i].profit}`, time: <TimeAgo key={`${+new Date()}`} timestamp={dlogL.list[i].timestamp * 1000} /> });
@@ -300,11 +300,11 @@ const Deliveries = () => {
                     } first={{ name: replaceUnderscores(detailStats.fine[0].unique_id), stat: detailStats.fine[0].count }} second={{ name: replaceUnderscores(detailStats.fine[1].unique_id), stat: detailStats.fine[1].count }} third={{ name: replaceUnderscores(detailStats.fine[2].unique_id), stat: detailStats.fine[2].count }} fixWidth={true} />
                 </Grid>}
             </Grid>
-            <CustomTable page={page} columns={columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); setTempListParam({ ...tempListParam, order_by: order_by, order: order }); }} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage= {pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />
+            <CustomTable page={page} columns={columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); setTempListParam({ ...tempListParam, order_by: order_by, order: order }); }} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />
         </>
         }
         {detailStats.truck === undefined && detailStats !== "loading" &&
-            <CustomTable page={page} columns={columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); setTempListParam({ ...tempListParam, order_by: order_by, order: order }); }} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage= {pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />}
+            <CustomTable page={page} columns={columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); setTempListParam({ ...tempListParam, order_by: order_by, order: order }); }} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />}
         <Dialog open={dialogOpen === "export"} onClose={() => setDialogOpen("")}>
             <DialogTitle><FontAwesomeIcon icon={faFileExport} />&nbsp;&nbsp;{tr("export_delivery_logs")}</DialogTitle>
             <DialogContent>

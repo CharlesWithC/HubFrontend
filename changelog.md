@@ -22,6 +22,7 @@
 18. Added advanced application response and better response display
 19. Fixed malfunctioning shared discord application that leads to `invalid redirect_uri` error on login
 20. Added default roles, perms, ranks, applications, economy trucks and garages for ease of configuration
+21. Added grey division checkmark for pending division delivery
 
 ## v3.4.2
 
