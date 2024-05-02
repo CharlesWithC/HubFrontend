@@ -187,7 +187,7 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
 
 const AllApplication = () => {
     const { t: tr } = useTranslation();
-    const { apiPath, vtcLevel, allPerms, users, memberUIDs } = useContext(AppContext);
+    const { apiPath, apiConfig, vtcLevel, allPerms, users, memberUIDs } = useContext(AppContext);
     const membersMapping = useMemo(() => (
         memberUIDs.reduce((acc, uid) => {
             acc[users[uid].userid] = users[uid];
@@ -195,11 +195,24 @@ const AllApplication = () => {
         }, {})
     ), [memberUIDs, users]);
     const theme = useTheme();
+    const availableTrackers = useMemo(() => {
+        const result = [];
+        if (apiConfig !== null) {
+            for (let i = 0; i < apiConfig.trackers.length; i++) {
+                if (!result.includes(apiConfig.trackers[i].type)) {
+                    result.push(apiConfig.trackers[i].type);
+                }
+            }
+        }
+        return result;
+    }, [apiConfig.trackers]);
+    const trackerMapping = { "unknown": "Unknown", "tracksim": "TrackSim", "trucky": "Trucky", "custom": "Custom" };
 
     const [detailApp, setDetailApp] = useState(null);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [dialogDelete, setDialogDelete] = useState(false);
     const [newStatus, setNewStatus] = useState(0);
+    const [trackerInUse, setTrackerInUse] = useState(availableTrackers.length > 0 ? availableTrackers[0] : "unknown");
     const [message, setMessage] = useState("");
     const [submitLoading, setSubmitLoading] = useState(false);
     const [doReload, setDoReload] = useState(0);
@@ -261,7 +274,7 @@ const AllApplication = () => {
                 let newRoles = [];
                 let newUserID = -1;
                 if ((detailApp.creator.userid === null || detailApp.creator.userid === -1)) {
-                    let resp = await axios({ url: `${apiPath}/user/${detailApp.creator.uid}/accept`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                    let resp = await axios({ url: `${apiPath}/user/${detailApp.creator.uid}/accept`, method: "POST", data: { tracker: trackerInUse }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
                     if (resp.status === 200) {
                         newUserID = resp.data.userid;
                         newRoles = [allPerms.driver[0]];
@@ -295,7 +308,7 @@ const AllApplication = () => {
             setSnackbarSeverity("error");
         }
         setSubmitLoading(false);
-    }, [apiPath, detailApp, newStatus, message, allPerms, messageDisabled]);
+    }, [apiPath, detailApp, newStatus, trackerInUse, message, allPerms, messageDisabled]);
 
     const deleteApp = useCallback(async () => {
         setSubmitLoading(true);
@@ -458,6 +471,15 @@ const AllApplication = () => {
                                 <MenuItem key={2} value={2}>{tr("declined")}</MenuItem>
                                 <MenuItem key={3} value={3}>{tr("accepted_as_driver")}</MenuItem>
                             </TextField>
+                            {newStatus === 3 &&
+                                <TextField select label="Tracker" size="small" value={trackerInUse} onChange={(e) => setTrackerInUse(e.target.value)} sx={{ height: "40px" }}>
+                                    {availableTrackers.map((tracker) => (
+                                        <MenuItem key={tracker} value={tracker}>
+                                            {trackerMapping[tracker]}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
+                            }
                             <Button variant="contained" color="info" onClick={() => { updateStatus(); }} disabled={submitLoading || message.trim() === ""} >{tr("respond")}</Button>
                         </Box>
                     </Grid>
