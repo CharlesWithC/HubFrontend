@@ -1,4 +1,4 @@
-import { useState, useCallback, useContext, useEffect } from 'react';
+import { useState, useCallback, useContext, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../../context';
@@ -55,157 +55,197 @@ import { customAxios as axios, getAuthToken } from '../../functions';
 const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled }) => {
     const { t: tr } = useTranslation();
 
-    if (config === undefined) return <Typography>{tr("select_application_type")}</Typography>;
+    const fieldReq = useMemo(() => {
+        if (config === undefined) return undefined;
 
-    let fieldReq = {};
-    let defaultResp = {};
-    for (let i = 0; i < config.length; i++) {
-        if (config[i].type !== "info") {
-            defaultResp[config[i].label] = "";
-            if (config[i].x_must_be !== undefined && config[i].x_must_be.label !== undefined && config[i].x_must_be.value !== undefined && config[i].x_must_be.label !== "" && config[i].x_must_be.value !== "") {
-                fieldReq[config[i].label] = { ...fieldReq[config[i].label], x_must_be: config[i].x_must_be };
+        let ret = {};
+        for (let i = 0; i < config.length; i++) {
+            if (config[i].type !== "info") {
+                if (config[i].x_must_be !== undefined && config[i].x_must_be.label !== undefined && config[i].x_must_be.value !== undefined && config[i].x_must_be.label !== "" && config[i].x_must_be.value !== "") {
+                    ret[config[i].label] = { ...ret[config[i].label], x_must_be: config[i].x_must_be };
+                }
+                if (["text", "textarea"].includes(config[i].type)) {
+                    ret[config[i].label] = { ...ret[config[i].label], min_length: config[i].min_length };
+                }
+                if (["text", "textarea", "date", "datetime", "number", "dropdown", "radio", "checkbox"].includes(config[i].type)) {
+                    ret[config[i].label] = { ...ret[config[i].label], must_input: config[i].must_input };
+                }
+                if (["number"].includes(config[i].type)) {
+                    ret[config[i].label] = { ...ret[config[i].label], min_value: config[i].min_value, max_value: config[i].max_value };
+                }
             }
-            if (["text", "textarea"].includes(config[i].type)) {
-                fieldReq[config[i].label] = { ...fieldReq[config[i].label], min_length: config[i].min_length };
-            }
-            if (["text", "textarea", "date", "datetime", "number", "dropdown", "radio", "checkbox"].includes(config[i].type)) {
-                fieldReq[config[i].label] = { ...fieldReq[config[i].label], must_input: config[i].must_input };
-            }
-            if (["number"].includes(config[i].type)) {
-                fieldReq[config[i].label] = { ...fieldReq[config[i].label], min_value: config[i].min_value, max_value: config[i].max_value };
-            }
+        }
+        return ret;
+    }, [config]);
 
-            if (config[i].type === "date") {
-                defaultResp[config[i].label] = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    const defaultResp = useMemo(() => {
+        if (config === undefined) return undefined;
+
+        let ret = {};
+        for (let i = 0; i < config.length; i++) {
+            if (config[i].type !== "info") {
+                ret[config[i].label] = "";
+
+                if (config[i].type === "date") {
+                    ret[config[i].label] = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+                }
+                else if (config[i].type === "datetime") {
+                    ret[config[i].label] = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+                } else if (config[i].type === "checkbox") {
+                    if (config[i].choices !== undefined && config[i].choices.length !== 0) {
+                        ret[config[i].label] = [];
+                    } else {
+                        ret[config[i].label] = tr("no");
+                    }
+                }
             }
-            else if (config[i].type === "datetime") {
-                defaultResp[config[i].label] = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-            } else if (config[i].type === "checkbox") {
-                if (config[i].choices !== undefined && config[i].choices.length !== 0) {
-                    defaultResp[config[i].label] = [];
+        }
+        return ret;
+    }, [config]);
+
+    useEffect(() => {
+        if (formData === null) {
+            setFormData(defaultResp);
+        }
+    }, [formData, defaultResp]);
+
+    useEffect(() => {
+        if (config === undefined || formData === null) return;
+
+        // update form data to remove fields that are not shown
+        let modified = false;
+        let newFormData = JSON.parse(JSON.stringify(formData));
+        let allLabels = [];
+        let duplicateLabels = [];
+        for (let i = 0; i < config.length; i++) {
+            let field = config[i];
+            allLabels.push(field.label);
+        }
+        for (let i = 0; i < allLabels.length; i++) {
+            for (let j = i + 1; j < allLabels.length; j++) {
+                if (allLabels[i] === allLabels[j]) {
+                    duplicateLabels.push(allLabels[i]);
+                }
+            }
+        }
+        for (let i = 0; i < config.length; i++) {
+            let field = config[i];
+            if (duplicateLabels.includes(field.label)) {
+                continue;
+            }
+            if (field.x_must_be !== undefined) {
+                if (formData[field.x_must_be.label] !== field.x_must_be.value) {
+                    if (formData[field.label] !== undefined) {
+                        // set it to undefined for submit handler to filter the field out
+                        delete newFormData[field.label];
+                        modified = true;
+                    }
                 } else {
-                    defaultResp[config[i].label] = tr("no");
+                    if (formData[field.label] === undefined) {
+                        // set it to "" because it shouldn't be undefined
+                        newFormData[field.label] = "";
+                        modified = true;
+                    }
                 }
-            } else if (config[i].type === "position") {
-                config[i].type = "dropdown";
-                config[i].choices = [];
             }
         }
-    }
-    if (formData === null) {
-        setFormData(defaultResp);
-        formData = defaultResp;
-    }
+        if (modified) {
+            setSubmitDisabled(true);
+            setFormData(newFormData);
+        }
+    }, [formData, config]);
 
-    let modified = false;
-    let newFormData = JSON.parse(JSON.stringify(formData));
-    let allLabels = [];
-    let duplicateLabels = [];
-    for (let i = 0; i < config.length; i++) {
-        let field = config[i];
-        allLabels.push(field.label);
-    }
-    for (let i = 0; i < allLabels.length; i++) {
-        for (let j = i + 1; j < allLabels.length; j++) {
-            if (allLabels[i] === allLabels[j]) {
-                duplicateLabels.push(allLabels[i]);
-            }
-        }
-    }
-    for (let i = 0; i < config.length; i++) {
-        let field = config[i];
-        if (duplicateLabels.includes(field.label)) {
-            continue;
-        }
-        if (field.x_must_be !== undefined) {
-            if (formData[field.x_must_be.label] !== field.x_must_be.value) {
-                if (formData[field.label] !== undefined) {
-                    // set it to undefined for submit handler to filter the field out
-                    newFormData[field.label] = undefined;
-                    modified = true;
-                }
-            } else {
-                if (formData[field.label] === undefined) {
-                    newFormData[field.label] = "";
-                    modified = true;
-                }
-            }
-        }
-    }
-    if (modified) {
-        setSubmitDisabled(true);
-        setFormData(newFormData);
-        return <></>;
-    }
-
-    const handleChange = (e) => {
+    const handleChange = useCallback((e) => {
         const { name, value } = e.target;
-        setFormData(data => ({ ...data, [name]: value }));
-        const newFormData = { ...formData, [name]: value };
-        const formKeys = Object.keys(newFormData);
-        let allOk = true;
-        for (let i = 0; i < formKeys.length; i++) {
-            if (fieldReq[formKeys[i]] !== undefined && newFormData[formKeys[i]] !== undefined) {
-                if (fieldReq[formKeys[i]].min_length !== undefined) {
-                    if (newFormData[formKeys[i]].length < fieldReq[formKeys[i]].min_length) {
-                        setSubmitDisabled(true);
-                        allOk = false;
+        setFormData(data => {
+            // first calculate submit-disabled, then write data
+            const newFormData = { ...data, [name]: value };
+            const formKeys = Object.keys(newFormData);
+            let allOk = true;
+            for (let i = 0; i < formKeys.length; i++) {
+                // double check if field is shown (this should be handled by form composition though)
+                let field = fieldReq[formKeys[i]];
+                if (field !== undefined) {
+                    if (field.x_must_be !== undefined) {
+                        if (newFormData[field.x_must_be.label] !== field.x_must_be.value) {
+                            continue;
+                        }
                     }
-                }
-                if (fieldReq[formKeys[i]].must_input === true) {
-                    if (newFormData[formKeys[i]] === undefined || newFormData[formKeys[i]].replaceAll(" ", "") === "") {
-                        setSubmitDisabled(true);
-                        allOk = false;
+                    if (field.must_input === true) { // check input, so it may be undefined (though it shouldn't happen)
+                        if (newFormData[formKeys[i]] === undefined || newFormData[formKeys[i]].replaceAll(" ", "") === "") {
+                            setSubmitDisabled(true);
+                            allOk = false;
+                            break;
+                        }
                     }
-                }
-                if (fieldReq[formKeys[i]].min_value !== undefined) {
-                    if (newFormData[formKeys[i]] < fieldReq[formKeys[i]].min_value) {
-                        setSubmitDisabled(true);
-                        allOk = false;
-                    }
-                }
-                if (fieldReq[formKeys[i]].max_value !== undefined) {
-                    if (newFormData[formKeys[i]] > fieldReq[formKeys[i]].max_value) {
-                        setSubmitDisabled(true);
-                        allOk = false;
+                    if (newFormData[formKeys[i]] !== undefined) { // ensure it's not undefined for length/value check
+                        if (field.min_length !== undefined) {
+                            if (newFormData[formKeys[i]].length < field.min_length) {
+                                setSubmitDisabled(true);
+                                allOk = false;
+                                break;
+                            }
+                        }
+                        if (field.min_value !== undefined) {
+                            if (newFormData[formKeys[i]] < field.min_value) {
+                                setSubmitDisabled(true);
+                                allOk = false;
+                                break;
+                            }
+                        }
+                        if (field.max_value !== undefined) {
+                            if (newFormData[formKeys[i]] > field.max_value) {
+                                setSubmitDisabled(true);
+                                allOk = false;
+                                break;
+                            }
+                        }
                     }
                 }
             }
-        }
-        if (allOk) setSubmitDisabled(false);
-    };
+            if (allOk) setSubmitDisabled(false);
 
-    const handleCheckboxChange = (choice, fieldLabel) => {
-        let updated = formData[fieldLabel];
-        if (updated.includes(choice)) {
-            updated.splice(updated.indexOf(choice), 1);
-        } else {
-            updated.push(choice);
-        }
+            return { ...data, [name]: value };
+        });
+    }, [fieldReq]);
 
-        setFormData(prev => ({
-            ...prev,
-            [fieldLabel]: updated
-        }));
-    };
+    const handleCheckboxChange = useCallback((choice, fieldLabel) => {
+        setFormData(prev => {
+            let updated = [...prev[fieldLabel]];
+            if (updated.includes(choice)) {
+                updated.splice(updated.indexOf(choice), 1);
+            } else {
+                updated.push(choice);
+            }
 
-    const handleCheckboxYNChange = (fieldLabel) => {
-        let updated = formData[fieldLabel];
-        if (updated === tr("yes")) {
-            updated = tr("no");
-        } else {
-            updated = tr("yes");
-        }
+            return {
+                ...prev,
+                [fieldLabel]: updated
+            };
+        });
+    }, []);
 
-        setFormData(prev => ({
-            ...prev,
-            [fieldLabel]: updated
-        }));
-    };
+    const handleCheckboxYNChange = useCallback((fieldLabel) => {
+        setFormData(prev => {
+            let updated = prev[fieldLabel];
+            if (updated === tr("yes")) {
+                updated = tr("no");
+            } else {
+                updated = tr("yes");
+            }
+
+            return {
+                ...prev,
+                [fieldLabel]: updated
+            };
+        });
+    }, []);
+
+    if (config === undefined) return <Typography>{tr("select_application_type")}</Typography>;
 
     return (
         <form>
-            <Grid container spacing={2}>
+            {formData !== null && <Grid container spacing={2}>
                 {config.map(field => {
                     if (field.x_must_be !== undefined) {
                         if (formData[field.x_must_be.label] !== field.x_must_be.value) {
@@ -213,6 +253,7 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
                         }
                     }
                     let ret = <></>;
+                    if (formData[field.label] === undefined) formData[field.label] = "";
                     switch (field.type) {
                         case 'info':
                             ret = (
@@ -410,7 +451,7 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
                     }
                     return <Grid item xs={12} key={field.label}>{ret}</Grid>;
                 })}
-            </Grid>
+            </Grid>}
         </form>
     );
 };
@@ -432,6 +473,19 @@ const NewApplication = () => {
     const handleCloseSnackbar = useCallback(() => {
         setSnackbarContent("");
     }, []);
+
+    const modifiedConfig = useMemo(() => {
+        // just to fix the legacy "position" type
+        if (selectedType === null) return null;
+        let config = applicationTypes[selectedType].form;
+        for (let i = 0; i < config.length; i++) {
+            if (config[i].type === "position") {
+                config[i].type = "dropdown";
+                config[i].choices = [];
+            }
+        }
+        return config;
+    }, [selectedType, applicationTypes]);
 
     useEffect(() => {
         async function doLoad() {
@@ -494,7 +548,7 @@ const NewApplication = () => {
             </TextField>}
         </div>
         {applicationTypes !== null && <CardContent>
-            <CustomForm theme={theme} config={selectedType !== null ? applicationTypes[selectedType].form : undefined} formData={formData} setFormData={setFormData} setSubmitDisabled={setSubmitDisabled} />
+            <CustomForm theme={theme} config={selectedType !== null ? modifiedConfig : undefined} formData={formData} setFormData={setFormData} setSubmitDisabled={setSubmitDisabled} />
             {((selectedType !== null ? applicationTypes[selectedType].form : undefined) !== undefined) &&
                 <Box sx={{ display: 'grid', justifyItems: 'end' }}>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
