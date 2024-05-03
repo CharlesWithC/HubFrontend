@@ -142,6 +142,13 @@ const DeliveryDetail = memo(({ divisions, userDivisionIDs, doReload, divisionMet
                 [divisionM] = await makeRequestsAuto([
                     { url: `${apiPath}/dlog/${logid}/division`, auth: true },
                 ]);
+            } else {
+                // clear data
+                setDivisionStatus(-1);
+                setNewDivisionStatus(0);
+                setLocalDivisionStatus(-1);
+                setSelectedDivision("-1");
+                setDivisionMeta({});
             }
 
             if (divisionM.divisionid === null) divisionM.divisionid = -1;
