@@ -110,45 +110,43 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
     }, [formData, defaultResp]);
 
     useEffect(() => {
+        // this checks x_must_be and updates form data to make sure unnecessary fields get deleted in response
+        // (those unnecessary fields are not rendered and would likely to be in an empty state)
+
         if (config === undefined || formData === null) return;
 
         // update form data to remove fields that are not shown
         let modified = false;
         let newFormData = JSON.parse(JSON.stringify(formData));
-        let allLabels = [];
-        let duplicateLabels = [];
+
+        let toDelete = [], toAdd = [];
         for (let i = 0; i < config.length; i++) {
             let field = config[i];
-            allLabels.push(field.label);
-        }
-        for (let i = 0; i < allLabels.length; i++) {
-            for (let j = i + 1; j < allLabels.length; j++) {
-                if (allLabels[i] === allLabels[j]) {
-                    duplicateLabels.push(allLabels[i]);
-                }
-            }
-        }
-        for (let i = 0; i < config.length; i++) {
-            let field = config[i];
-            if (duplicateLabels.includes(field.label)) {
-                continue;
-            }
             if (field.x_must_be !== undefined) {
                 if (formData[field.x_must_be.label] !== field.x_must_be.value) {
-                    if (formData[field.label] !== undefined) {
-                        // set it to undefined for submit handler to filter the field out
-                        delete newFormData[field.label];
-                        modified = true;
-                    }
+                    toDelete.push(field.label);
                 } else {
-                    if (formData[field.label] === undefined) {
-                        // set it to "" because it shouldn't be undefined
-                        newFormData[field.label] = "";
-                        modified = true;
-                    }
+                    toAdd.push(field.label);
                 }
             }
         }
+
+        toDelete = toDelete.reduce((acc, cur) => { return (!toAdd.includes(cur) ? [...acc, cur] : acc); }, []);
+        
+        for (let i = 0; i < toDelete.length; i++) {
+            if (formData[toDelete[i]] !== undefined) {
+                
+                delete newFormData[toDelete[i]];
+                modified = true;
+            }
+        }
+        for (let i = 0; i < toAdd.length; i++) {
+            if (formData[toAdd[i]] === undefined) {
+                newFormData[toAdd[i]] = "";
+                modified = true;
+            }
+        }
+
         if (modified) {
             setSubmitDisabled(true);
             setFormData(newFormData);
@@ -156,6 +154,9 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
     }, [formData, config]);
 
     const handleChange = useCallback((e) => {
+        // this handles changes on user input, but this does not check condition of whether the response should be recorded
+        // aka this does not check x_must_be to filter response fields
+
         const { name, value } = e.target;
         setFormData(data => {
             // first calculate submit-disabled, then write data
@@ -166,11 +167,6 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
                 // double check if field is shown (this should be handled by form composition though)
                 let field = fieldReq[formKeys[i]];
                 if (field !== undefined) {
-                    if (field.x_must_be !== undefined) {
-                        if (newFormData[field.x_must_be.label] !== field.x_must_be.value) {
-                            continue;
-                        }
-                    }
                     if (field.must_input === true) { // check input, so it may be undefined (though it shouldn't happen)
                         if (newFormData[formKeys[i]] === undefined || newFormData[formKeys[i]].replaceAll(" ", "") === "") {
                             setSubmitDisabled(true);
