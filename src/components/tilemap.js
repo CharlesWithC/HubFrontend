@@ -33,19 +33,21 @@ function calculateCenterPoint(points) {
     return [centerX, centerY];
 }
 
-const TileMap = ({ tilesUrl, title, style, route, points, onPointClick, onBoundaryChange }) => {
+const TileMap = ({ tilesUrl, title, style, route, points, onPointClick, onBoundaryChange, showOrangeOnly }) => {
+    // showOrangeOnly => show vtc player only
     const mapContainerRef = useRef(null);
     const mapRef = useRef(null);
     const isMountedRef = useRef(true);
 
     const pointsRef = useRef([]);
+    const orangeOnlyRef = useRef(false);
     const pointsLayer = useRef(undefined);
     const heatmapLayer = useRef(undefined);
 
     useEffect(() => {
         isMountedRef.current = true;
 
-        async function doLoad({ tilesUrl, route, points }) {
+        async function doLoad({ tilesUrl, route, points, showOrangeOnly }) {
             if (!isMountedRef.current) {
                 return; // If the component has unmounted, return immediately
             }
@@ -94,7 +96,7 @@ const TileMap = ({ tilesUrl, title, style, route, points, onPointClick, onBounda
                     const center = view.getCenter();
                     const resolution = view.getResolution();
                     const size = map.getSize();
-                    if(!size) return;
+                    if (!size) return;
                     const width = size[0] * resolution;
                     const height = size[1] * resolution;
                     const extent = [
@@ -145,12 +147,13 @@ const TileMap = ({ tilesUrl, title, style, route, points, onPointClick, onBounda
                 map.addLayer(vectorLayer);
             }
 
-            if (points !== undefined && points !== null && points.length !== 0 && pointsRef.current !== points) {
+            if ((points !== undefined && points !== null && points.length !== 0 && pointsRef.current !== points) || orangeOnlyRef.current !== showOrangeOnly) {
                 const zoom = map.getView().getZoom();
 
                 pointsRef.current = points;
+                orangeOnlyRef.current = showOrangeOnly;
 
-                const pointFeatures = points.map(point => {
+                const pointFeatures = points.filter(point => (!showOrangeOnly || point.color === "#f39621")).map(point => {
                     const pointFeature = new Feature({ 'geometry': new Point([point.x, -point.y]), 'info': point });
                     pointFeature.setStyle(new Style({
                         image: new CircleStyle({
@@ -202,7 +205,7 @@ const TileMap = ({ tilesUrl, title, style, route, points, onPointClick, onBounda
                     }, 10);
                 }
             }
-            
+
             map.getView().on('change:resolution', () => {
                 const zoom = map.getView().getZoom();
 
@@ -282,8 +285,8 @@ const TileMap = ({ tilesUrl, title, style, route, points, onPointClick, onBounda
             };
         }
 
-        doLoad({ tilesUrl, route, points });
-    }, [tilesUrl, route, points]);
+        doLoad({ tilesUrl, route, points, showOrangeOnly });
+    }, [tilesUrl, route, points, showOrangeOnly]);
 
     return <div style={{ borderRadius: "10px", overflow: "hidden", height: '600px', ...style }}>
         <div ref={mapContainerRef} style={{ width: '100%', height: '100%', background: '#484E66' }}>

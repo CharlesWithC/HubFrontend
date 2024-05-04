@@ -47,6 +47,10 @@ const Map = () => {
     const [points, setPoints] = useState([]);
     const [boundary, setBoundary] = useState({});
     const [displayUser, setDisplayUser] = useState({});
+    const [orangeOnly, setOrangeOnly] = useState(false); // orange => vtc driver
+    const handleToggleVtcOnly = useCallback(() => {
+        setOrangeOnly(prev => (!prev));
+    }, []);
 
     const handleChange = (event, newValue) => {
         setTab(newValue);
@@ -164,22 +168,22 @@ const Map = () => {
             </Tabs>
         </Box>
         {tab === 0 && <TabPanel value={tab} index={0}>
-            <TileMap tilesUrl={"https://map.charlws.com/ets2/base/tiles"} title={<>Euro Truck Simulator 2 - Base Map<br />Live data feed: TruckersMP EU SIM 1</>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} />
+            <TileMap tilesUrl={"https://map.charlws.com/ets2/base/tiles"} title={<>Euro Truck Simulator 2 - Base Map<br />Live data feed: TruckersMP EU SIM 1<br /> <span style={{ cursor: "pointer" }} onClick={handleToggleVtcOnly}>{orangeOnly ? `Showing VTC drivers only` : `Showing all players`} (Click to toggle)</span></>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} showOrangeOnly={orangeOnly} />
         </TabPanel>}
         {tab === 1 && <TabPanel value={tab} index={1}>
-            <TileMap tilesUrl={"https://map.charlws.com/ets2/promods/tiles"} title={<>Euro Truck Simulator 2 - ProMods Map<br />Live data feed: TruckersMP EU PM</>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} />
+            <TileMap tilesUrl={"https://map.charlws.com/ets2/promods/tiles"} title={<>Euro Truck Simulator 2 - ProMods Map<br />Live data feed: TruckersMP EU PM <span style={{ cursor: "pointer" }} onClick={handleToggleVtcOnly}>{orangeOnly ? `Showing VTC drivers only` : `Showing all players`} (Click to toggle)</span></>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} showOrangeOnly={orangeOnly} />
         </TabPanel>}
         {tab === 2 && <TabPanel value={tab} index={2}>
-            <TileMap tilesUrl={"https://map.charlws.com/ets2/promods-classic/tiles"} title={<>Euro Truck Simulator 2 - ProMods Classic Map<br />Live data feed: NO DATA</>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} />
+            <TileMap tilesUrl={"https://map.charlws.com/ets2/promods-classic/tiles"} title={<>Euro Truck Simulator 2 - ProMods Classic Map<br />Live data feed: NO DATA</>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} showOrangeOnly={orangeOnly} />
         </TabPanel>}
         {tab === 3 && <TabPanel value={tab} index={3}>
-            <TileMap tilesUrl={"https://map.charlws.com/ats/base/tiles"} title={<>American Truck Simulator - Base Map<br />Live data feed: TruckersMP US SIM</>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} />
+            <TileMap tilesUrl={"https://map.charlws.com/ats/base/tiles"} title={<>American Truck Simulator - Base Map<br />Live data feed: TruckersMP US SIM <span style={{ cursor: "pointer" }} onClick={handleToggleVtcOnly}>{orangeOnly ? `Showing VTC drivers only` : `Showing all players`} (Click to toggle)</span></>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} showOrangeOnly={orangeOnly} />
         </TabPanel>}
         {tab === 4 && <TabPanel value={tab} index={4}>
-            <TileMap tilesUrl={"https://map.charlws.com/ats/promods/tiles"} title={<>American Truck Simulator - ProMods Map<br />Live data feed: NO DATA</>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} />
+            <TileMap tilesUrl={"https://map.charlws.com/ats/promods/tiles"} title={<>American Truck Simulator - ProMods Map<br />Live data feed: NO DATA</>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} showOrangeOnly={orangeOnly} />
         </TabPanel>}
         <Dialog open={displayUser.MpId !== undefined} onClose={() => setDisplayUser({})}>
-            <DialogTitle>{displayUser.userid === undefined ? <>{tr("truckersmp_player")}</> : <>{webConfig.name}{tr("driver")}</>}</DialogTitle>
+            <DialogTitle>{displayUser.userid === undefined ? <>{tr("truckersmp_player")}</> : <>{webConfig.name} {tr("driver")}</>}</DialogTitle>
             <DialogContent>
                 <Grid container spacing={2}>
                     <Grid item xs={4}>
