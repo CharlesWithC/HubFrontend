@@ -1,51 +1,62 @@
-import { useMemo, useState, useEffect, useCallback, useContext } from 'react';
-import { useLocation, Routes, Route, useNavigate, Link } from 'react-router-dom';
+import { useMemo, useState, useEffect, useCallback, useContext, Suspense, lazy } from 'react';
+import { useLocation, Routes, Route, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import i18n from './i18n';
 import { AppContext, ThemeContext } from './context';
 
 import { Card, CardContent, Typography, Button, Grid, Dialog, DialogActions, DialogTitle, DialogContent, useTheme, useMediaQuery, createTheme, ThemeProvider, CssBaseline } from '@mui/material';
 
-import BrowserAuth from './components/browserAuth';
-import AuthLogin from './routes/auth/login';
-import TokenAuth from './routes/auth/token';
-import DiscordAuth from './routes/auth/discord/callback';
-import SteamAuth from './routes/auth/steam/callback';
-import PatreonAuth from './routes/auth/patreon/callback';
-import MfaAuth from './routes/auth/mfa';
-import EmailAuth from './routes/auth/email';
 import Loader from './components/loader';
 import Redirect from './components/redirect';
-import UpgradeCard from './routes/sponsor';
+
 import Overview from './routes/overview';
 import Statistics from './routes/statistics';
-import Gallery from './routes/gallery';
-import Announcement from './routes/announcement';
-import Downloads from './routes/downloads';
-import Map from './routes/map';
 import Deliveries from './routes/delivery-list';
-import Delivery from './routes/delivery';
-import Events from './routes/event';
-import Challenges from './routes/challenge';
-import Divisions from './routes/division';
 import Members from './routes/member';
 import Leaderboard from './routes/leaderboard';
 import Ranking from './routes/ranking';
 import FreightMaster from './routes/freightmaster';
-import NewApplication from './routes/application/new';
-import MyApplication from './routes/application/my';
-import AllApplication from './routes/application/all';
-import MemberList from './routes/member-list';
-import ExternalUsers from './routes/external-user';
-import AuditLog from './routes/audit-log';
-import Configuration from './routes/config';
-import Settings from './routes/settings';
-import Notifications from './routes/notifications';
-import Poll from './routes/poll';
-import Economy from './routes/economy';
-import Supporters from './routes/supporters';
-import Badges from './routes/badges';
-import NotFound from './routes/404';
+
+// lazy load: auth (just accessed once on login)
+const BrowserAuth = lazy(() => import('./components/browserAuth'));
+const AuthLogin = lazy(() => import('./routes/auth/login'));
+const TokenAuth = lazy(() => import('./routes/auth/token'));
+const DiscordAuth = lazy(() => import('./routes/auth/discord/callback'));
+const SteamAuth = lazy(() => import('./routes/auth/steam/callback'));
+const PatreonAuth = lazy(() => import('./routes/auth/patreon/callback'));
+const MfaAuth = lazy(() => import('./routes/auth/mfa'));
+const EmailAuth = lazy(() => import('./routes/auth/email'));
+
+// lazy load: plugins
+const NewApplication = lazy(() => import('./routes/application/new'));
+const MyApplication = lazy(() => import('./routes/application/my'));
+const AllApplication = lazy(() => import('./routes/application/all'));
+const Announcement = lazy(() => import("./routes/announcement"));
+const Challenges = lazy(() => import("./routes/challenge"));
+const Divisions = lazy(() => import("./routes/division"));
+const Downloads = lazy(() => import("./routes/downloads"));
+const Economy = lazy(() => import("./routes/economy"));
+const Events = lazy(() => import("./routes/event"));
+const Poll = lazy(() => import("./routes/poll"));
+const Gallery = lazy(() => import("./routes/gallery"));
+
+// lazy load: large files
+const Delivery = lazy(() => import("./routes/delivery")); // tilemap => ol (very large lib)
+const Map = lazy(() => import("./routes/map")); // tilemap => ol (very large lib)
+const Configuration = lazy(() => import("./routes/config"));
+const Settings = lazy(() => import("./routes/settings"));
+
+// lazy load: limited access
+const MemberList = lazy(() => import('./routes/member-list'));
+const ExternalUsers = lazy(() => import('./routes/external-user'));
+const AuditLog = lazy(() => import("./routes/audit-log"));
+
+// lazy load: seldomly accessed
+const Notifications = lazy(() => import("./routes/notifications"));
+const NotFound = lazy(() => import("./routes/404"));
+const Badges = lazy(() => import("./routes/badges"));
+const Supporters = lazy(() => import("./routes/supporters"));
+const UpgradeCard = lazy(() => import("./routes/sponsor"));
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLink, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
@@ -59,7 +70,7 @@ import 'simplebar-react/dist/simplebar.min.css';
 import TopBar from './components/topbar';
 import SideBar from './components/sidebar';
 
-import { readLS, writeLS } from './functions.js';
+import { readLS } from './functions.js';
 
 const drivershub = `    ____       _                         __  __      __
    / __ \\_____(_)   _____  __________   / / / /_  __/ /_
@@ -68,6 +79,20 @@ const drivershub = `    ____       _                         __  __      __
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/
                                                       `;
 const CONNECTIONS = { "email": "email", "discord": "Discord", "steam": "Steam", "truckersmp": "TruckersMP" };
+
+const SuspenseLoadingTrigger = () => {
+    // used in Suspense fallback
+    // controls TopBar LinearProgress
+    useEffect(() => {
+        window.loading = (window.loading || 0) + 1;
+
+        return () => {
+            setTimeout(function () { window.loading -= 1; }, 200); // prevent flickering
+        };
+    }, []);
+
+    return null;
+};
 
 function App() {
     const { t: tr } = useTranslation();
@@ -141,6 +166,10 @@ function App() {
         }
         if (userSettings.language !== null) {
             i18n.changeLanguage(userSettings.language);
+        } else {
+            if (window.isElectron) {
+                i18n.changeLanguage("en");
+            }
         }
     }, []);
 
@@ -307,58 +336,60 @@ function App() {
                                         </Card>
                                     </Grid>
                                 </Grid>}
-                                <Routes>
-                                    <Route path="/" exact element={<Overview />}></Route>
-                                    {window.isElectron && <Route path="/auth/complete" exact element={<BrowserAuth />}></Route>}
-                                    <Route path="/auth/login" element={<AuthLogin />} />
-                                    <Route path="/auth" element={<TokenAuth />} />
-                                    <Route path="/auth/discord/callback" element={<DiscordAuth />} />
-                                    {apiConfig !== null && apiConfig.discord_client_id !== "1120997206938361877" && <Route path="/auth/discord/redirect" element={<Redirect to={`https://discord.com/oauth2/authorize?client_id=${apiConfig.discord_client_id}&redirect_uri=https%3A%2F%2F${window.dhhost}%2Fauth%2Fdiscord%2Fcallback&response_type=code&scope=identify email role_connections.write`} path="/auth/discord/redirect" />} />}
-                                    {apiConfig !== null && apiConfig.discord_client_id === "1120997206938361877" && <Route path="/auth/discord/redirect" element={<Redirect to={`https://oauth.chub.page/discord-auth?domain=${window.dhhost}`} path="/auth/discord/redirect" />} />}
-                                    <Route path="/auth/steam/callback" element={<SteamAuth />} />
-                                    <Route path="/auth/steam/redirect" element={<Redirect to={`https://steamcommunity.com/openid/loginform/?goto=%2Fopenid%2Flogin%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3Dhttps%253A%252F%252F${window.dhhost}%252Fauth%252Fsteam%252Fcallback%26openid.realm%3Dhttps%253A%252F%252F${window.dhhost}%252Fauth%252Fsteam%252Fcallback%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3Dhttps%253A%252F%252F${window.dhhost}%252Fauth%252Fsteam%252Fcallback%26openid.realm%3Dhttps%253A%252F%252F${window.dhhost}%252Fauth%252Fsteam%252Fcallback%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select`} path="/auth/steam/redirect" />} />
-                                    <Route path="/auth/patreon/redirect" element={<Redirect to={"https://oauth.chub.page/patreon-auth?domain=" + window.dhhost} path="/auth/patreon/redirect" />} />
-                                    <Route path="/auth/patreon/callback" element={<PatreonAuth />} />
-                                    <Route path="/auth/mfa" element={<MfaAuth />} />
-                                    <Route path="/auth/email" element={<EmailAuth />} />
-                                    <Route path="/settings" element={<Settings />}></Route>
-                                    <Route path="/settings/general" element={<Settings defaultTab={0} />}></Route>
-                                    <Route path="/settings/profile" element={<Settings defaultTab={1} />}></Route>
-                                    <Route path="/settings/appearance" element={<Settings defaultTab={2} />}></Route>
-                                    <Route path="/settings/security" element={<Settings defaultTab={3} />}></Route>
-                                    <Route path="/settings/sessions" element={<Settings defaultTab={4} />}></Route>
-                                    <Route path="/notifications" element={<Notifications />}></Route>
-                                    <Route path="/overview" element={<Overview />}></Route>
-                                    <Route path="/statistics" element={<Statistics />}></Route>
-                                    <Route path="/gallery" element={<Gallery />}></Route>
-                                    <Route path="/announcement" element={<Announcement />}></Route>
-                                    <Route path="/downloads" element={<Downloads />}></Route>
-                                    <Route path="/poll" element={<Poll />}></Route>
-                                    <Route path="/map" element={<Map />}></Route>
-                                    <Route path="/delivery" element={<Deliveries />}></Route>
-                                    <Route path="/delivery/:logid" element={<Delivery />} />
-                                    <Route path="/challenge" element={<Challenges />}></Route>
-                                    <Route path="/division" element={<Divisions />}></Route>
-                                    <Route path="/event" element={<Events />}></Route>
-                                    <Route path="/economy" element={<Economy />}></Route>
-                                    <Route path="/member" element={<Members />}></Route>
-                                    <Route path="/member/:userid" element={<Overview />} />
-                                    <Route path="/leaderboard" element={<Leaderboard />}></Route>
-                                    <Route path="/ranking" element={<Ranking />}></Route>
-                                    <Route path="/freightmaster" element={<FreightMaster />}></Route>
-                                    <Route path="/application/new" element={<NewApplication />}></Route>
-                                    <Route path="/apply" element={<NewApplication />}></Route>
-                                    <Route path="/application/my" element={<MyApplication />}></Route>
-                                    <Route path="/application/all" element={<AllApplication />}></Route>
-                                    <Route path="/member-list" element={<MemberList />}></Route>
-                                    <Route path="/external-user" element={<ExternalUsers />}></Route>
-                                    <Route path="/audit-log" element={<AuditLog />}></Route>
-                                    <Route path="/config" element={<Configuration />}></Route>
-                                    <Route path="/sponsor" element={<UpgradeCard />}></Route>
-                                    <Route path="/supporters" element={<Supporters />}></Route>
-                                    <Route path="/badges" element={<Badges />}></Route>
-                                    <Route path="*" element={<NotFound />}></Route>
-                                </Routes>
+                                <Suspense fallback={<SuspenseLoadingTrigger />}>
+                                    <Routes>
+                                        <Route path="/" exact element={<Overview />}></Route>
+                                        {window.isElectron && <Route path="/auth/complete" exact element={<BrowserAuth />}></Route>}
+                                        <Route path="/auth/login" element={<AuthLogin />} />
+                                        <Route path="/auth" element={<TokenAuth />} />
+                                        <Route path="/auth/discord/callback" element={<DiscordAuth />} />
+                                        {apiConfig !== null && apiConfig.discord_client_id !== "1120997206938361877" && <Route path="/auth/discord/redirect" element={<Redirect to={`https://discord.com/oauth2/authorize?client_id=${apiConfig.discord_client_id}&redirect_uri=https%3A%2F%2F${window.dhhost}%2Fauth%2Fdiscord%2Fcallback&response_type=code&scope=identify email role_connections.write`} path="/auth/discord/redirect" />} />}
+                                        {apiConfig !== null && apiConfig.discord_client_id === "1120997206938361877" && <Route path="/auth/discord/redirect" element={<Redirect to={`https://oauth.chub.page/discord-auth?domain=${window.dhhost}`} path="/auth/discord/redirect" />} />}
+                                        <Route path="/auth/steam/callback" element={<SteamAuth />} />
+                                        <Route path="/auth/steam/redirect" element={<Redirect to={`https://steamcommunity.com/openid/loginform/?goto=%2Fopenid%2Flogin%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3Dhttps%253A%252F%252F${window.dhhost}%252Fauth%252Fsteam%252Fcallback%26openid.realm%3Dhttps%253A%252F%252F${window.dhhost}%252Fauth%252Fsteam%252Fcallback%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3Dhttps%253A%252F%252F${window.dhhost}%252Fauth%252Fsteam%252Fcallback%26openid.realm%3Dhttps%253A%252F%252F${window.dhhost}%252Fauth%252Fsteam%252Fcallback%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select`} path="/auth/steam/redirect" />} />
+                                        <Route path="/auth/patreon/redirect" element={<Redirect to={"https://oauth.chub.page/patreon-auth?domain=" + window.dhhost} path="/auth/patreon/redirect" />} />
+                                        <Route path="/auth/patreon/callback" element={<PatreonAuth />} />
+                                        <Route path="/auth/mfa" element={<MfaAuth />} />
+                                        <Route path="/auth/email" element={<EmailAuth />} />
+                                        <Route path="/settings" element={<Settings />}></Route>
+                                        <Route path="/settings/general" element={<Settings defaultTab={0} />}></Route>
+                                        <Route path="/settings/profile" element={<Settings defaultTab={1} />}></Route>
+                                        <Route path="/settings/appearance" element={<Settings defaultTab={2} />}></Route>
+                                        <Route path="/settings/security" element={<Settings defaultTab={3} />}></Route>
+                                        <Route path="/settings/sessions" element={<Settings defaultTab={4} />}></Route>
+                                        <Route path="/notifications" element={<Notifications />}></Route>
+                                        <Route path="/overview" element={<Overview />}></Route>
+                                        <Route path="/statistics" element={<Statistics />}></Route>
+                                        <Route path="/gallery" element={<Gallery />}></Route>
+                                        <Route path="/announcement" element={<Announcement />}></Route>
+                                        <Route path="/downloads" element={<Downloads />}></Route>
+                                        <Route path="/poll" element={<Poll />}></Route>
+                                        <Route path="/map" element={<Map />}></Route>
+                                        <Route path="/delivery" element={<Deliveries />}></Route>
+                                        <Route path="/delivery/:logid" element={<Delivery />} />
+                                        <Route path="/challenge" element={<Challenges />}></Route>
+                                        <Route path="/division" element={<Divisions />}></Route>
+                                        <Route path="/event" element={<Events />}></Route>
+                                        <Route path="/economy" element={<Economy />}></Route>
+                                        <Route path="/member" element={<Members />}></Route>
+                                        <Route path="/member/:userid" element={<Overview />} />
+                                        <Route path="/leaderboard" element={<Leaderboard />}></Route>
+                                        <Route path="/ranking" element={<Ranking />}></Route>
+                                        <Route path="/freightmaster" element={<FreightMaster />}></Route>
+                                        <Route path="/application/new" element={<NewApplication />}></Route>
+                                        <Route path="/apply" element={<NewApplication />}></Route>
+                                        <Route path="/application/my" element={<MyApplication />}></Route>
+                                        <Route path="/application/all" element={<AllApplication />}></Route>
+                                        <Route path="/member-list" element={<MemberList />}></Route>
+                                        <Route path="/external-user" element={<ExternalUsers />}></Route>
+                                        <Route path="/audit-log" element={<AuditLog />}></Route>
+                                        <Route path="/config" element={<Configuration />}></Route>
+                                        <Route path="/sponsor" element={<UpgradeCard />}></Route>
+                                        <Route path="/supporters" element={<Supporters />}></Route>
+                                        <Route path="/badges" element={<Badges />}></Route>
+                                        <Route path="*" element={<NotFound />}></Route>
+                                    </Routes>
+                                </Suspense>
                                 <Dialog open={aboutCHubModal} onClose={() => setAboutCHubModal(false)}>
                                     <DialogTitle>About The Drivers Hub Project (CHub)</DialogTitle>
                                     <DialogContent>

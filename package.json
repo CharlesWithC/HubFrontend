@@ -60,13 +60,15 @@
     "react-select": "^5.8.0",
     "readline-sync": "^1.4.10",
     "simplebar-react": "^3.2.5",
+    "source-map-explorer": "^2.5.3",
     "web-vitals": "^3.5.2"
   },
   "scripts": {
+    "analyze": "source-map-explorer 'build/static/js/*.js'",
     "start": "react-scripts start",
-    "build": "react-scripts build && bash ./scripts/browser-build.sh && npm run sentry:sourcemaps && bash -c \"find ./build -type f -name '*.map' -exec rm {} \\;\"",
-    "build:dev": "react-scripts build && bash ./scripts/browser-build.sh",
-    "build:electron": "react-scripts build && bash ./scripts/electron-build.sh && npm run sentry:sourcemaps && bash -c \"find ./build -type f -name '*.map' -exec rm {} \\;\"",
+    "build": "cross-env PUBLIC_URL=https://cdn.chub.page/ react-scripts build && bash ./scripts/browser-build.sh && npm run sentry:sourcemaps && bash -c \"find ./build -type f -name '*.map' -exec rm {} \\;\"",
+    "build:dev": "cross-env PUBLIC_URL=https://cdn.chub.page/ react-scripts build && bash ./scripts/browser-build.sh",
+    "build:electron": "react-scripts build && bash ./scripts/electron-build.sh && bash -c \"find ./build -type f -name '*.map' -exec rm {} \\;\"",
     "build:electron:dev": "react-scripts build && bash ./scripts/electron-build.sh",
     "build:serve": "react-scripts build && serve -s build --port 3001",
     "test": "react-scripts test",
@@ -656,6 +658,7 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "cross-env": "^7.0.3",
     "electron": "^30.0.2",
     "electron-builder": "^24.13.3",
     "react-router-dom": "^6.23.0"
