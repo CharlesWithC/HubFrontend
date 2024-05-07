@@ -413,7 +413,15 @@ const UserCard = (props) => {
     const [profileBackground, setProfilebackground] = useState([darkenColor(PROFILE_COLOR[theme.mode].paper, 0.5), darkenColor(PROFILE_COLOR[theme.mode].paper, 0.5)]);
     const [profileBannerURL, setProfileBannerURL] = useState(`${apiPath}/member/banner?userid=${user.userid}`);
     useEffect(() => {
+        // reset those stuff, which would be corrected in the code below
+        // this is needed in case the old component is reused unexpectedly
+        setSpecialColor(null);
+        setBadges([]);
+        setProfilebackground([darkenColor(PROFILE_COLOR[theme.mode].paper, 0.5), darkenColor(PROFILE_COLOR[theme.mode].paper, 0.5)]);
+        setProfileBannerURL(`${apiPath}/member/banner?userid=${user.userid}`);
+
         if (user.discordid === undefined) return;
+
         let newSpecialColor = ""; // set it to <empty string> to let "highest role color" know name color is not customized
         let newBadges = [];
         let badgeNames = [];
@@ -510,7 +518,7 @@ const UserCard = (props) => {
         }
         if (newSpecialColor === "/") newSpecialColor = "";
         setSpecialColor(newSpecialColor);
-    }, [user.discordid, userConfig]);
+    }, [user.userid, user.uid, user.discordid, userConfig]);
     useEffect(() => {
         if (!user.roles) return;
         // specialColor === "" => not customized
