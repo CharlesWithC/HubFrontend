@@ -191,7 +191,7 @@ def take_snapshot(start_time, end_time):
             rlerror.append(vtc)
             print(f"Failed to snapshot {abbr}")
             print(r.text)
-        else:
+        elif r.status_code != 404: # ignore 404 (suspended hubs)
             failed_vtcs.append(vtc)
             print(f"Failed to snapshot {abbr}")
             print(r.text)
