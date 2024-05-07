@@ -87,7 +87,7 @@ const DeliveryDetail = memo(({ divisions, userDivisionIDs, doReload, divisionMet
             instance: false,
             buttons: [
                 { label: 'Visit Drivers Hub', url: `https://${window.dhhost}${window.location.pathname}` },
-                { label: 'Powered by CHub', url: "https://drivershub.charlws.com/" }
+                { label: tr("powered_by_chub"), url: "https://drivershub.charlws.com/" }
             ]
         });
     }
@@ -169,7 +169,7 @@ const DeliveryDetail = memo(({ divisions, userDivisionIDs, doReload, divisionMet
 
             const data = dlogD;
             const detail = dlogD.detail.data.object;
-            const TRACKER = { "navio": "Navio", "tracksim": "TrackSim", "trucky": "Trucky", "custom": "Custom" };
+            const TRACKER = { "navio": "Navio", "tracksim": "TrackSim", "trucky": "Trucky", "custom": tr("custom") };
 
             let fine = 0;
             let autoLoad = false;
@@ -388,7 +388,7 @@ const DeliveryDetail = memo(({ divisions, userDivisionIDs, doReload, divisionMet
                     instance: false,
                     buttons: [
                         { label: 'Visit Drivers Hub', url: `https://${window.dhhost}${window.location.pathname}` },
-                        { label: 'Powered by CHub', url: "https://drivershub.charlws.com/" }
+                        { label: tr("powered_by_chub"), url: "https://drivershub.charlws.com/" }
                     ]
                 });
             }
@@ -407,7 +407,7 @@ const DeliveryDetail = memo(({ divisions, userDivisionIDs, doReload, divisionMet
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="h5" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
                     <LocalShippingRounded sx={{ mt: "3px" }} />&nbsp;&nbsp;<>{tr("delivery")}</> #{logid}&nbsp;
-                    {divisionMeta !== null && divisionMeta.status !== undefined && divisionMeta.status !== 2 ? <Tooltip placement="top" arrow title={divisionMeta.status === 1 ? tr("validated_division_delivery") : "Pending Division Delivery"}
+                    {divisionMeta !== null && divisionMeta.status !== undefined && divisionMeta.status !== 2 ? <Tooltip placement="top" arrow title={divisionMeta.status === 1 ? tr("validated_division_delivery") : tr("pending_division_delivery")}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <VerifiedOutlined sx={{ color: divisionMeta.status === 1 ? theme.palette.info.main : theme.palette.grey[400], fontSize: "1.2em", mt: "3px" }} />
                     </Tooltip> : <></>}&nbsp;

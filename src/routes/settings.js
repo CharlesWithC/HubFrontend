@@ -31,7 +31,6 @@ import { makeRequestsWithAuth, customAxios as axios, getAuthToken, getFormattedD
 const LANGUAGES = { 'ar': 'Arabic (العربية)', 'be': 'Belarusian (беларуская)', 'bg': 'Bulgarian (български)', 'cs': 'Czech (čeština)', 'cy': 'Welsh (Cymraeg)', 'da': 'Danish (dansk)', 'de': 'German (Deutsch)', 'el': 'Greek (Ελληνικά)', 'en': 'English', 'eo': 'Esperanto', 'es': 'Spanish (Español)', 'et': 'Estonian (eesti keel)', 'fi': 'Finnish (suomi)', 'fr': 'French (français)', 'ga': 'Irish (Gaeilge)', 'gd': 'Scottish (Gàidhlig)', 'hu': 'Hungarian (magyar)', 'hy': 'Armenian (Հայերեն)', 'id': 'Indonesian (Bahasa Indonesia)', 'is': 'Icelandic (íslenska)', 'it': 'Italian (italiano)', 'ja': 'Japanese (日本語)', 'ko': 'Korean (한국어)', 'lt': 'Lithuanian (lietuvių kalba)', 'lv': 'Latvian (latviešu valoda)', 'mk/sl': 'Macedonian/Slovenian (македонски/​slovenščina)', 'mn': 'Mongolian (Монгол)', 'mo': 'Moldavian (Moldova)', 'ne': 'Nepali (नेपाली)', 'nl': 'Dutch (Nederlands)', 'nn': 'Norwegian (norsk nynorsk)', 'pl': 'Polish (polski)', 'pt': 'Portuguese (Português)', 'ro': 'Romanian (română)', 'ru': 'Russian (русский)', 'sk': 'Slovak (slovenčina)', 'sl': 'Slovenian (slovenščina)', 'sq': 'Albanian (Shqip)', 'sr': 'Serbian (српски)', 'sv': 'Swedish (Svenska)', 'th': 'Thai (ไทย)', 'tr': 'Turkish (Türkçe)', 'uk': 'Ukrainian (українська)', 'vi': 'Vietnamese (Tiếng Việt)', 'yi': 'Yiddish (ייִדיש)', 'zh': 'Chinese (中文)' };
 const RADIO_TYPES = { "tsr": "TruckStopRadio", "tfm": "TruckersFM", "simhit": "SimulatorHits", "custom-pean": "[Custom] Pean FM" };
 const CUSTOM_RADIO_URL = { "custom-pean": "https://radio.plvtc.com/listen/peanfm/radio.mp3" };
-const trackerMapping = { "unknown": "Unknown", "tracksim": "TrackSim", "trucky": "Trucky", "custom": "Custom" };
 const settingsRoutes = ["/general", "/profile", "/appearance", "/security", "/sessions"];
 
 const DEFAULT_BGCOLOR = {
@@ -123,14 +122,15 @@ const Settings = ({ defaultTab = 0 }) => {
     }), []);
     const NOTIFICATION_TYPES = useMemo(() => Object.keys(NOTIFICATION_NAMES), []);
     const PRIVACY_ATTRIBUTES = useMemo(() => ({
-        "role_history": "Hide role history",
-        "ban_history": "Hide ban history",
-        "email": "Hide email",
-        "account_connections": "Hide account connections",
-        "activity": "Hide activity",
-        "public_profile": "Hide profile from external users"
+        "role_history": tr("hide_role_history"),
+        "ban_history": tr("hide_ban_history"),
+        "email": tr("hide_email"),
+        "account_connections": tr("hide_account_connections"),
+        "activity": tr("hide_activity"),
+        "public_profile": tr("hide_profile_from_external_users")
     }), []);
     const PRIVACY_TYPES = useMemo(() => Object.keys(PRIVACY_ATTRIBUTES), []);
+    const trackerMapping = { "unknown": tr("unknown"), "tracksim": "TrackSim", "trucky": "Trucky", "custom": tr("custom") };
 
     const [tab, setTab] = useState(defaultTab);
     const handleChange = useCallback((event, newValue) => {
@@ -442,7 +442,7 @@ const Settings = ({ defaultTab = 0 }) => {
 
         let resp = await axios({ url: `${apiPath}/user/privacy`, method: "PATCH", data: { ...objSettings }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            setSnackbarContent("Updated privacy settings");
+            setSnackbarContent(tr("updated_privacy_settings"));
             setSnackbarSeverity("success");
         } else {
             setSnackbarContent(resp.data.error);
@@ -1135,7 +1135,7 @@ const Settings = ({ defaultTab = 0 }) => {
                     <ButtonGroup fullWidth>
                         {trackers.includes("trucky") && <Button variant="contained" color={tracker === "trucky" ? "info" : "secondary"} onClick={() => { updateTracker("trucky"); }}>Trucky</Button>}
                         {trackers.includes("tracksim") && <Button variant="contained" color={tracker === "tracksim" ? "info" : "secondary"} onClick={() => { updateTracker("tracksim"); }}>TrackSim</Button>}
-                        {trackers.includes("custom") && <Button variant="contained" color={tracker === "custom" ? "info" : "secondary"} onClick={() => { updateTracker("custom"); }}>Custom</Button>}
+                        {trackers.includes("custom") && <Button variant="contained" color={tracker === "custom" ? "info" : "secondary"} onClick={() => { updateTracker("custom"); }}>{tr("custom")}</Button>}
                     </ButtonGroup>
                 </Grid>
 
@@ -1189,11 +1189,11 @@ const Settings = ({ defaultTab = 0 }) => {
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={3} lg={3}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Streamer Mode</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("streamer_mode")}</Typography>
                     <br />
                     <ButtonGroup fullWidth>
-                        <Button variant="contained" color={userSettings.streamer_mode === true ? "info" : "secondary"} onClick={() => { updateStreamerMode(true); }}>On</Button>
-                        <Button variant="contained" color={userSettings.streamer_mode === false ? "info" : "secondary"} onClick={() => { updateStreamerMode(false); }}>Off</Button>
+                        <Button variant="contained" color={userSettings.streamer_mode === true ? "info" : "secondary"} onClick={() => { updateStreamerMode(true); }}>{tr("on")}</Button>
+                        <Button variant="contained" color={userSettings.streamer_mode === false ? "info" : "secondary"} onClick={() => { updateStreamerMode(false); }}>{tr("off")}</Button>
                     </ButtonGroup>
                 </Grid>
 
@@ -1665,9 +1665,9 @@ const Settings = ({ defaultTab = 0 }) => {
         <TabPanel value={tab} index={3}>
             <Grid container spacing={2}>
                 <Grid item xs={12} sm={12} md={12} lg={12}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Privacy Settings<IconButton size="small" aria-label={tr("edit")} onClick={(e) => { reloadPrivacySettings(); }}><FontAwesomeIcon icon={faRefresh} /></IconButton ></Typography>
-                    <Typography variant="body2">- Control what information about you internal members and external users may see.</Typography>
-                    <Typography variant="body2">- Team members with certain permissions may still see relevant information regardless of your settings.</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("privacy_settings")}<IconButton size="small" aria-label={tr("edit")} onClick={(e) => { reloadPrivacySettings(); }}><FontAwesomeIcon icon={faRefresh} /></IconButton ></Typography>
+                    <Typography variant="body2">{tr("privacy_settings_note_1")}</Typography>
+                    <Typography variant="body2">{tr("privacy_settings_note_2")}</Typography>
                     <div style={{ display: "relative", width: "100%", height: "6.5px" }}></div>
                     {privacySettings !== null && <Select
                         defaultValue={privacySettings}

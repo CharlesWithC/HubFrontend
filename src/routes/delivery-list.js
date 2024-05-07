@@ -248,7 +248,7 @@ const Deliveries = () => {
             for (let i = 0; i < dlogL.list.length; i++) {
                 let checkmark = <></>;
                 if (dlogL.list[i].division !== null && dlogL.list[i].division.status !== 2) {
-                    checkmark = <>{checkmark}&nbsp;<Tooltip placement="top" arrow title={dlogL.list[i].division.status === 1 ? tr("validated_division_delivery") : "Pending Division Delivery"}
+                    checkmark = <>{checkmark}&nbsp;<Tooltip placement="top" arrow title={dlogL.list[i].division.status === 1 ? tr("validated_division_delivery") : tr("pending_division_delivery")}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <VerifiedOutlined sx={{ color: dlogL.list[i].division.status === 1 ? theme.palette.info.main : theme.palette.grey[400], fontSize: "1.2em" }} />
                     </Tooltip></>;

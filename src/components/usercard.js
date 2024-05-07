@@ -158,7 +158,7 @@ const UserCard = (props) => {
         }
         return result;
     }, [apiConfig.trackers]);
-    const trackerMapping = { "unknown": "Unknown", "tracksim": "TrackSim", "trucky": "Trucky", "custom": "Custom" };
+    const trackerMapping = { "unknown": tr("unknown"), "tracksim": "TrackSim", "trucky": "Trucky", "custom": tr("custom") };
 
     if (users[props.user.uid] === undefined) {
         // if user is not yet cached, cache the user
@@ -168,7 +168,7 @@ const UserCard = (props) => {
         if (!roles) roles = [];
         roles.sort((a, b) => orderedRoles.indexOf(a) - orderedRoles.indexOf(b));
 
-        if (name === null) name = "Unknown";
+        if (name === null) name = tr("unknown");
         if (ban === undefined) ban = null;
 
         setUsers(users => ({ ...users, [uid]: { ...{ ...props.user, uid, userid, discordid, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, tracker, ban, role_history, ban_history, mfa }, last_sync: +new Date() } }));
@@ -285,7 +285,7 @@ const UserCard = (props) => {
         for (let i = 0; i < _dlogList.list.length; i++) {
             let checkmark = <></>;
             if (_dlogList.list[i].division !== null && _dlogList.list[i].division.status !== 2) {
-                checkmark = <>{checkmark}&nbsp;<Tooltip placement="top" arrow title={_dlogList.list[i].division.status === 1 ? tr("validated_division_delivery") : "Pending Division Delivery"}
+                checkmark = <>{checkmark}&nbsp;<Tooltip placement="top" arrow title={_dlogList.list[i].division.status === 1 ? tr("validated_division_delivery") : tr("pending_division_delivery")}
                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                     <VerifiedOutlined sx={{ color: _dlogList.list[i].division.status === 1 ? theme.palette.info.main : theme.palette.grey[400], fontSize: "1.2em" }} />
                 </Tooltip></>;
@@ -852,7 +852,7 @@ const UserCard = (props) => {
                     instance: false,
                     buttons: [
                         { label: 'Visit Drivers Hub', url: `https://${window.dhhost}${window.location.pathname}` },
-                        { label: 'Powered by CHub', url: "https://drivershub.charlws.com/" }
+                        { label: tr("powered_by_chub"), url: "https://drivershub.charlws.com/" }
                     ]
                 });
             } else {
@@ -928,8 +928,7 @@ const UserCard = (props) => {
                                 </Grid>
                             </Grid>
                             {fmRewardsDistributed[user.uid] !== undefined && fmRewardsDistributed[user.uid].length !== 0 && <Box sx={{ mt: "10px" }}>
-                                <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                    FREIGHTMASTER TITLE{fmRewardsDistributed[user.uid].length > 1 ? `S` : ``}
+                                <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("freightmaster_title")}{fmRewardsDistributed[user.uid].length > 1 ? `S` : ``}
                                 </Typography>
                                 <SimpleBar style={{ width: "calc(100% + 15px)", maxHeight: "50px" }}>
                                     {fmRewardsDistributed[user.uid].map((reward) => (
@@ -966,7 +965,7 @@ const UserCard = (props) => {
                                     onChange={(e) => setNewNote(e.target.value)}
                                     fullWidth multiline
                                     size="small" variant="standard"
-                                    placeholder="Click to add a note"
+                                    placeholder={tr("click_to_add_a_note")}
                                     sx={{
                                         paddingLeft: "3px", paddingRight: "3px",
                                         '& input': {
@@ -1255,8 +1254,8 @@ const UserCard = (props) => {
             {user.userid !== null && user.userid >= 0 && checkUserPerm(curUserPerm, ["administrator", "manage_divisions", "update_roles"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-roles"); }}><ListItemIcon><FontAwesomeIcon icon={faPeopleGroup} /></ListItemIcon>{tr("update_roles")}</MenuItem>}
             {user.userid !== null && user.userid >= 0 && checkUserPerm(curUserPerm, ["administrator", "update_points"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-points"); }}><ListItemIcon><FontAwesomeIcon icon={faTrophy} /></ListItemIcon>{tr("update_points")}</MenuItem>}
             <MenuItem onClick={(e) => { updateUserInfo(); updateCtxAction(e, "role-ban-history"); }}><ListItemIcon><FontAwesomeIcon icon={faBarsStaggered} /></ListItemIcon>{tr("roleban_history")}</MenuItem>
-            {user.userid !== null && user.userid >= 0 && <MenuItem onClick={(e) => { loadDistanceHistory(); updateCtxAction(e, "distance-history"); }}><ListItemIcon><FontAwesomeIcon icon={faRoad} /></ListItemIcon>Distance History</MenuItem>}
-            {user.userid !== null && user.userid >= 0 && (checkUserPerm(curUserPerm, ["administrator", "update_points"]) || user.userid === curUser.userid) && <MenuItem onClick={(e) => { loadBonusHistory(); updateCtxAction(e, "bonus-history"); }}><ListItemIcon><FontAwesomeIcon icon={faClockRotateLeft} /></ListItemIcon>Bonus History</MenuItem>}
+            {user.userid !== null && user.userid >= 0 && <MenuItem onClick={(e) => { loadDistanceHistory(); updateCtxAction(e, "distance-history"); }}><ListItemIcon><FontAwesomeIcon icon={faRoad} /></ListItemIcon>{tr("distance_history")}</MenuItem>}
+            {user.userid !== null && user.userid >= 0 && (checkUserPerm(curUserPerm, ["administrator", "update_points"]) || user.userid === curUser.userid) && <MenuItem onClick={(e) => { loadBonusHistory(); updateCtxAction(e, "bonus-history"); }}><ListItemIcon><FontAwesomeIcon icon={faClockRotateLeft} /></ListItemIcon>{tr("bonus_history")}</MenuItem>}
             {((user.userid === null || user.userid < 0) && user.ban === null && checkUserPerm(curUserPerm, ["administrator", "accept_members"]) || checkUserPerm(curUserPerm, ["administrator", "update_connections"]) || checkUserPerm(curUserPerm, ["administrator", "disable_mfa"])) && <Divider />}
             {(user.userid === null || user.userid < 0) && user.ban === null && checkUserPerm(curUserPerm, ["administrator", "accept_members"]) && <MenuItem sx={{ color: theme.palette.success.main }} onClick={(e) => { updateCtxAction(e, "accept-user"); }}><ListItemIcon><FontAwesomeIcon icon={faUserCheck} /></ListItemIcon>{tr("accept_as_member")}</MenuItem>}
             {checkUserPerm(curUserPerm, ["administrator", "update_connections"]) && <MenuItem sx={{ color: theme.palette.warning.main }} onClick={(e) => { updateCtxAction(e, "update-connections"); }} disabled={userSettings.streamer_mode}><ListItemIcon><FontAwesomeIcon icon={faLink} /></ListItemIcon>{tr("update_connections")}</MenuItem>}
@@ -1380,7 +1379,7 @@ const UserCard = (props) => {
                             </Grid>
                             <Grid item xs={12} md={8}>
                                 <TextField
-                                    label="Distance Note"
+                                    label={tr("distance_note")}
                                     value={newPoints.distance_note}
                                     onChange={(e) => setNewPoints({ ...newPoints, distance_note: e.target.value })}
                                     fullWidth
@@ -1396,7 +1395,7 @@ const UserCard = (props) => {
                             </Grid>
                             <Grid item xs={12} md={8}>
                                 <TextField
-                                    label="Bonus Note"
+                                    label={tr("bonus_note")}
                                     value={newPoints.bonus_note}
                                     onChange={(e) => setNewPoints({ ...newPoints, bonus_note: e.target.value })}
                                     fullWidth
@@ -1450,7 +1449,7 @@ const UserCard = (props) => {
                         </FormControl>
                         <br />
                         <FormControl component="fieldset" sx={{ mt: "15px", width: "100%" }}>
-                            <Typography variant="body2">Set the initial roles of the user:</Typography>
+                            <Typography variant="body2">{tr("set_the_initial_roles_of_the_user")}</Typography>
                             <RoleSelect initialRoles={newRoles} onUpdate={setNewRoles} />
                         </FormControl>
                     </DialogContent>
@@ -1499,14 +1498,14 @@ const UserCard = (props) => {
                     <DialogTitle>{user.name} ({user.userid !== null ? tr("user_id") + ": " + user.userid + " / " : ""}<>UID</>: {user.uid})</DialogTitle>
                     <DialogContent>
                         <Box display="flex" alignItems="center">
-                            <Typography variant="h7" sx={{ fontWeight: 800 }}>Manually Added Distance History</Typography>
+                            <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("manually_added_distance_history")}</Typography>
                             {distanceHistory === undefined && <Typography variant="body2" style={{ fontSize: "0.8em", marginLeft: '8px', color: theme.palette.info.main }}>{tr("loading")}</Typography>}
                         </Box>
                         {distanceHistory !== undefined && distanceHistory !== null && distanceHistory.map((history, idx) => {
                             return <>
                                 {idx !== 0 && <Divider sx={{ mt: "5px", mb: "5px" }} />}
                                 <Typography variant="body2" sx={{ color: history.distance >= 0 ? theme.palette.success.main : theme.palette.error.main }}>{history.distance > 0 ? `+` : ``}{ConvertUnit(userSettings.unit, "km", history.distance)} by <UserCard user={history.staff} /></Typography>
-                                <Typography variant="body2">Note: {history.note !== "" ? history.note : "N/A"}</Typography>
+                                <Typography variant="body2">{tr("note")}{history.note !== "" ? history.note : "N/A"}</Typography>
                                 <Typography key={`history-${idx}-time`} variant="body2" sx={{ color: theme.palette.text.secondary }}><TimeAgo key={`${+new Date()}`} timestamp={history.timestamp * 1000} /></Typography>
                             </>;
                         })}
@@ -1522,7 +1521,7 @@ const UserCard = (props) => {
                     <DialogTitle>{user.name} ({user.userid !== null ? tr("user_id") + ": " + user.userid + " / " : ""}<>UID</>: {user.uid})</DialogTitle>
                     <DialogContent>
                         <Box display="flex" alignItems="center">
-                            <Typography variant="h7" sx={{ fontWeight: 800 }}>Bonus History</Typography>
+                            <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("bonus_history")}</Typography>
                             {bonusHistory === undefined && <Typography variant="body2" style={{ fontSize: "0.8em", marginLeft: '8px', color: theme.palette.info.main }}>{tr("loading")}</Typography>}
                         </Box>
                         {bonusHistory !== undefined && bonusHistory !== null && bonusHistory.map((history, idx) => {
@@ -1530,15 +1529,15 @@ const UserCard = (props) => {
                                 let autonote = history.note.split("auto:")[1];
                                 let meta = history.note.split("/")[1];
                                 if (autonote.startsWith("daily-bonus")) {
-                                    history.note = "Daily Bonus";
+                                    history.note = tr("daily_bonus");
                                 } else if (autonote.startsWith("distance-bonus")) {
-                                    history.note = "Distance Bonus for Delivery #" + meta;
+                                    history.note = tr("distance_bonus_for_delivery") + meta;
                                 }
                             }
                             return <>
                                 {idx !== 0 && <Divider sx={{ mt: "5px", mb: "5px" }} />}
-                                <Typography variant="body2" sx={{ color: history.points >= 0 ? theme.palette.success.main : theme.palette.error.main }}>{history.points > 0 ? `+` : ``}{history.points} points by <UserCard user={history.staff} /></Typography>
-                                <Typography variant="body2">Note: {history.note !== "" ? history.note : "N/A"}</Typography>
+                                <Typography variant="body2" sx={{ color: history.points >= 0 ? theme.palette.success.main : theme.palette.error.main }}>{history.points > 0 ? `+` : ``}{history.points}{tr("points_by")}<UserCard user={history.staff} /></Typography>
+                                <Typography variant="body2">{tr("note")}{history.note !== "" ? history.note : "N/A"}</Typography>
                                 <Typography key={`history-${idx}-time`} variant="body2" sx={{ color: theme.palette.text.secondary }}><TimeAgo key={`${+new Date()}`} timestamp={history.timestamp * 1000} /></Typography>
                             </>;
                         })}
@@ -1778,8 +1777,7 @@ const UserCard = (props) => {
                                 </Grid>
                             </Grid>
                             {fmRewardsDistributed[user.uid] !== undefined && fmRewardsDistributed[user.uid].length !== 0 && <Box sx={{ mt: "10px" }}>
-                                <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                    FREIGHTMASTER TITLE{fmRewardsDistributed[user.uid].length > 1 ? `S` : ``}
+                                <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("freightmaster_title")}{fmRewardsDistributed[user.uid].length > 1 ? `S` : ``}
                                 </Typography>
                                 <SimpleBar style={{ width: "calc(100% + 15px)", maxHeight: "50px" }}>
                                     {fmRewardsDistributed[user.uid].map((reward) => (
@@ -1813,7 +1811,7 @@ const UserCard = (props) => {
                                     onChange={(e) => setNewNote(e.target.value)}
                                     fullWidth multiline
                                     size="small" variant="standard"
-                                    placeholder="Click to add a note"
+                                    placeholder={tr("click_to_add_a_note")}
                                     sx={{
                                         paddingLeft: "3px", paddingRight: "3px",
                                         '& input': {
@@ -1836,24 +1834,15 @@ const UserCard = (props) => {
                         {isNaN(user.uid) && <>
                             {/* fm title for users of other vtcs */}
                             {fmRDsingle === undefined && <Box sx={{ mt: "10px" }}>
-                                <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                    FREIGHTMASTER TITLE
-                                </Typography>
-                                <Typography variant="body2">
-                                    Loading...
-                                </Typography>
+                                <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("freightmaster_title")}</Typography>
+                                <Typography variant="body2">{tr("loading")}</Typography>
                             </Box>}
                             {fmRDsingle !== undefined && fmRDsingle.length === 0 && <Box sx={{ mt: "10px" }}>
-                                <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                    FREIGHTMASTER TITLE
-                                </Typography>
-                                <Typography variant="body2">
-                                    No data
-                                </Typography>
+                                <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("freightmaster_title")}</Typography>
+                                <Typography variant="body2">{tr("no_data")}</Typography>
                             </Box>}
                             {fmRDsingle !== undefined && fmRDsingle.length !== 0 && <Box sx={{ mt: "10px" }}>
-                                <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                    FREIGHTMASTER TITLE{fmRDsingle.length > 1 ? `S` : ``}
+                                <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("freightmaster_title")}{fmRDsingle.length > 1 ? `S` : ``}
                                 </Typography>
                                 {fmRDsingle.map((reward) => (
                                     <Typography variant="body2">
