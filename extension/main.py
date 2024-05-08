@@ -905,7 +905,7 @@ def get_frieghtmaster_position(abbr: str, uid: int):
     ranka = None
     pointa = None
     try:
-        fma = json.loads(requests.get(f"http://127.0.0.1:8299/freightmaster/d?abbr={abbr}&page=1&page_size=100000").text)["list"]
+        fma = json.loads(requests.get(f"http://127.0.0.1:8299/freightmaster/a?abbr={abbr}&page=1&page_size=100000").text)["list"]
         for i in range(0, len(fma)):
             if fma[i]["user"]["uid"] == uid:
                 ranka = i + 1
