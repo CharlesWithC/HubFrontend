@@ -14,7 +14,7 @@ import { makeRequestsWithAuth, TSep, customAxios as axios, getAuthToken, isSameD
 
 const Ranking = () => {
     const { t: tr } = useTranslation();
-    const { apiPath, allRanks, curUser } = useContext(AppContext);
+    const { apiConfig, apiPath, allRanks, curUser } = useContext(AppContext);
     const { cache, setCache } = useContext(CacheContext);
 
     const [snackbarContent, setSnackbarContent] = useState("");
@@ -85,7 +85,11 @@ const Ranking = () => {
     useEffect(() => {
         let points = 0;
         for (let i = 0; i < curRankPointTypes.length; i++) {
-            points += detailedPoints[curRankPointTypes[i]];
+            if (curRankPointTypes[i] === "distance" && apiConfig.distance_unit === "imperial") {
+                points += parseInt(detailedPoints[curRankPointTypes[i]] * 0.621371);
+            } else {
+                points += detailedPoints[curRankPointTypes[i]];
+            }
         }
         setUserPoints(points);
 
@@ -98,7 +102,7 @@ const Ranking = () => {
             }
             if (points > curRankRoles[curRankRoles.length - 1].points) setRankIdx(curRankRoles.length - 1);
         }
-    }, [detailedPoints, curRankRoles, curRankPointTypes]);
+    }, [apiConfig, detailedPoints, curRankRoles, curRankPointTypes]);
 
     const doLoad = useCallback(async () => {
         window.loading += 1;
