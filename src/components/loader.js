@@ -228,12 +228,22 @@ const Loader = ({ onLoaderLoaded }) => {
             }
             if (config) {
                 if (config.config === undefined) {
-                    setLoaderAnimation(false);
-                    setTitle(tr("drivers_hub"));
-                    setVtcLogo(await loadImageAsBase64(`./logo.png`));
-                    setUnknownDomain(true);
-                    setLoadMessage(<>{tr("drivers_hub_not_found")}<br />{tr("no_drivers_hub_under_domain")}<br /><br /><a href="https://drivershub.charlws.com/">The Drivers Hub Project (CHub)</a></>);
-                    return;
+                    if (config.error !== undefined) {
+                        setLoaderAnimation(false);
+                        if (config.error === "Client validation failed") {
+                            setLoadMessage(<>Your client cannot be validated by server.<br />Please make sure the clock of your device is synchronized.</>);
+                        } else {
+                            setLoadMessage(<>An error has occurred while loading: <br />{config.error}<br />Please try again later and report the issue if it persists.</>);
+                        }
+                        return;
+                    } else {
+                        setLoaderAnimation(false);
+                        setTitle(tr("drivers_hub"));
+                        setVtcLogo(await loadImageAsBase64(`./logo.png`));
+                        setUnknownDomain(true);
+                        setLoadMessage(<>{tr("drivers_hub_not_found")}<br />{tr("no_drivers_hub_under_domain")}<br /><br /><a href="https://drivershub.charlws.com/">The Drivers Hub Project (CHub)</a></>);
+                        return;
+                    }
                 }
                 setApiConfig(config.config);
             }
