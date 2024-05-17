@@ -178,6 +178,8 @@ export async function FetchProfile({ apiPath, specialUsers, patrons, setUserLeve
             setUsers(users => ({ ...users, [curUser.uid]: curUser }));
             setCurUID(curUser.uid);
 
+            writeLS("cache-user", curUser, window.dhhost + bearerToken);
+
             let sync_to = undefined;
             if (curUser.avatar.startsWith("https://cdn.discordapp.com/")) {
                 sync_to = "discord";
@@ -233,11 +235,13 @@ export async function FetchProfile({ apiPath, specialUsers, patrons, setUserLeve
             }
             setUserLevel(userLevel);
 
-            resp = await customAxios({ url: `${apiPath}/user/language`, headers: { "Authorization": `Bearer ${bearerToken}` } });
-            if (resp.status === 200) {
-                setUserSettings(userSettings => ({ ...userSettings, language: resp.data.language }));
-                i18n.changeLanguage(resp.data.language);
-            }
+            customAxios({ url: `${apiPath}/user/language`, headers: { "Authorization": `Bearer ${bearerToken}` } })
+                .then(resp => {
+                    if (resp.status === 200) {
+                        setUserSettings(userSettings => ({ ...userSettings, language: resp.data.language }));
+                        i18n.changeLanguage(resp.data.language);
+                    }
+                });
 
             if (curUser.userid !== -1) {
                 if (isLogin) {

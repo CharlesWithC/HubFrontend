@@ -154,7 +154,7 @@ const Settings = ({ defaultTab = 0 }) => {
     const theme = useTheme();
     const navigate = useNavigate();
 
-    const [allowClearCache, setAllowClearCache] = useState(localStorage.getItem("cache") !== null);
+    const [allowClearCache, setAllowClearCache] = useState(localStorage.getItem("cache-preload") !== null);
 
     const [otp, setOtp] = useState("");
     const [otpAction, setOtpAction] = useState("");
@@ -1201,7 +1201,7 @@ const Settings = ({ defaultTab = 0 }) => {
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("data_cache")}</Typography>
                     <br />
                     <ButtonGroup fullWidth>
-                        <Button variant="contained" color="primary" onClick={() => { localStorage.removeItem("cache"); localStorage.removeItem("cache-logo"); localStorage.removeItem("cache-background"); localStorage.removeItem("cache-banner"); setAllowClearCache(false); }} disabled={!allowClearCache}>{tr("clear")}</Button>
+                        <Button variant="contained" color="primary" onClick={() => { localStorage.removeItem("cache"); localStorage.removeItem("cache-logo"); localStorage.removeItem("cache-background"); localStorage.removeItem("cache-banner"); localStorage.removeItem("cache-web-config"); localStorage.removeItem("cache-preload"); localStorage.removeItem("cache-user"); localStorage.removeItem("cache-list-param"); setAllowClearCache(false); }} disabled={!allowClearCache}>{tr("clear")}</Button>
                     </ButtonGroup>
                 </Grid>
 

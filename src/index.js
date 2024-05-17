@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, createRoutesFromChildren, matchRoutes, useLocation, useNavigationType } from 'react-router-dom';
 
 import './index.css';
 import './fonts/opensans/opensans.css';
@@ -51,14 +51,19 @@ if (window.isElectron || window.location.hostname !== "localhost") {
     Sentry.init({
         dsn: "https://0a444a46a3cc99853e971ac04d7f8b3a@o4504067357409280.ingest.sentry.io/4505984184745984",
         integrations: [
-            new Sentry.BrowserTracing({}),
-            new Sentry.Replay(),
+            Sentry.reactRouterV6BrowserTracingIntegration({
+                useEffect: React.useEffect,
+                useLocation,
+                useNavigationType,
+                createRoutesFromChildren,
+                matchRoutes
+            }),
+            Sentry.replayIntegration()
         ],
-        // Performance Monitoring
-        tracesSampleRate: 1.0, // Capture 100% of the transactions, reduce in production!
-        // Session Replay
-        replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
-        replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
+        tracePropagationTargets: ["localhost", /https:\/\/drivershub\.charlws\.com/, /https:\/\/drivershub05\.charlws\.com/, /https:\/\/drivershub10\.charlws\.com/],
+        tracesSampleRate: 0.2,
+        replaysSessionSampleRate: 0.001,
+        replaysOnErrorSampleRate: 1.0,
     });
 }
 

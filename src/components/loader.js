@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback, useContext } from 'react';
+import { useState, useEffect, useCallback, useContext, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppContext, ThemeContext } from '../context';
 
 import { HelmetProvider, Helmet } from 'react-helmet-async';
 import { Typography, TextField, Button, useTheme } from '@mui/material';
 
-import { FetchProfile, loadImageAsBase64, customAxios as axios, makeRequestsAuto, compareVersions, writeLS, readLS } from '../functions';
+import { FetchProfile, loadImageAsBase64, customAxios as axios, makeRequestsAuto, writeLS, readLS, getAuthToken } from '../functions';
 
 const TIPS = [
     "The pre-login avatar belongs to CharlesWithC. He's a Night Fury.",
@@ -19,6 +19,8 @@ const TIPS = [
     "All statistics and points are traceable, allowing data fetching of any time range."
 ];
 
+const VTC_LEVEL_MAPPING = { "https://drivershub.charlws.com": 3, "https://drivershub05.charlws.com": 1, "https://drivershub10.charlws.com": 0 };
+
 const tip = TIPS[Math.floor(Math.random() * TIPS.length)];
 
 function sleep(ms) {
@@ -30,7 +32,7 @@ const Loader = ({ onLoaderLoaded }) => {
 
     const { t: tr } = useTranslation();
     const appContext = useContext(AppContext);
-    const { apiPath, setApiPath, setApiVersion, vtcLogo, setVtcLogo, vtcBanner, setVtcBanner, vtcBackground, setVtcBackground, setSpecialRoles, setSpecialUsers, setPatrons, setFMRewards, setFMRewardsDistributed, setVtcLevel, setUserConfig, setApiConfig, webConfig, setWebConfig, loadLanguages, setAllRoles, setAllPerms, setAllRanks, loadMemberUIDs, loadDlogDetails } = useContext(AppContext);
+    const { apiPath, setApiPath, setApiVersion, vtcLogo, setVtcLogo, vtcBanner, setVtcBanner, vtcBackground, setVtcBackground, setSpecialRoles, setSpecialUsers, setPatrons, setFMRewards, setFMRewardsDistributed, setVtcLevel, setUserConfig, setApiConfig, webConfig, setWebConfig, setUsers, setCurUID, loadLanguages, setAllRoles, setAllPerms, setAllRanks, loadMemberUIDs, loadDlogDetails } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     const [isMember, setIsMember] = useState(false);
@@ -40,6 +42,21 @@ const Loader = ({ onLoaderLoaded }) => {
     const [title, setTitle] = useState(domain !== null && domain !== "" ? (localStorage.getItem("cache-title") !== null ? localStorage.getItem("cache-title") : tr("drivers_hub")) : null);
     const [loadMessage, setLoadMessage] = useState((!window.isElectron || vtcLogo !== null) ? tr("loading") : "");
     const [unknownDomain, setUnknownDomain] = useState(false);
+
+    const errorBlock = useRef(null);
+    const loadingStart = useRef(null); // a timestamp
+    const [showLoadingPage, setShowLoadingPage] = useState(localStorage.getItem("cache-web-config") === null || localStorage.getItem("cache-preload") === null);
+    // we'll show loading page after 1 second if cache is on
+    // since cache is used, showing it immediately may lead to flickering
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            if (loadingStart.current !== null && +new Date() - loadingStart.current > 1000) {
+                setShowLoadingPage(true);
+                clearInterval(intervalId);
+            }
+        }, 100);
+        return () => clearInterval(intervalId);
+    }, []);
 
     const doLoad = useCallback(async () => {
         if (webConfig !== null) return;
@@ -53,46 +70,68 @@ const Loader = ({ onLoaderLoaded }) => {
                 setLoadMessage(<>{tr("drivers_hub_not_found")}<br />{tr("no_drivers_hub_under_domain")}<br /><br /><a href="https://drivershub.charlws.com/">The Drivers Hub Project (CHub)</a></>);
                 return;
             }
-            // fetch config
-            let resp = await axios({ url: `https://config.chub.page/config?domain=${domain}`, method: "GET" });
-            if (resp.status !== 200) {
-                setLoaderAnimation(false);
-                setTitle(tr("drivers_hub"));
-                setVtcLogo(await loadImageAsBase64(`./logo.png`));
-                if (resp.data.error === tr("service_suspended")) {
-                    setLoadMessage(<>{tr("drivers_hub_suspended")}<br />{tr("ask_for_payment")}<br /><br /><a href="https://drivershub.charlws.com/">The Drivers Hub Project (CHub)</a></>);
-                } else if (resp.data.error === tr("not_found")) {
-                    setUnknownDomain(true);
-                    setLoadMessage(<>{tr("drivers_hub_not_found")}<br />{tr("no_drivers_hub_under_domain")}<br /><br /><a href="https://drivershub.charlws.com/">The Drivers Hub Project (CHub)</a></>);
+
+            loadingStart.current = +new Date();
+
+            // load web config, return webConfig or throw error
+            async function loadWebConfig(domain) {
+                let resp = await axios({ url: `https://config.chub.page/config?domain=${domain}`, method: "GET" });
+                if (resp.status !== 200) {
+                    setLoaderAnimation(false);
+                    setTitle(tr("drivers_hub"));
+                    if (resp.data.error === "Service Suspended") {
+                        setLoadMessage(<>{tr("drivers_hub_suspended")}<br />{tr("ask_for_payment")}<br /><br /><a href="https://drivershub.charlws.com/">The Drivers Hub Project (CHub)</a></>);
+                    } else if (resp.data.error === "Not Found") {
+                        setUnknownDomain(true);
+                        setVtcLogo(await loadImageAsBase64(`./logo.png`));
+                        setLoadMessage(<>{tr("drivers_hub_not_found")}<br />{tr("no_drivers_hub_under_domain")}<br /><br /><a href="https://drivershub.charlws.com/">The Drivers Hub Project (CHub)</a></>);
+                    }
+                    throw new Error("Drivers Hub is not active");
                 }
-                return;
-            }
-            let loadedConfig = resp.data;
-            const webConfig = loadedConfig.config; // local webConfig for this function only
-            const apiPath = `${webConfig.api_host}/${webConfig.abbr}`; // local apiPath for this function only
-            setWebConfig(loadedConfig.config);
-            setApiPath(`${webConfig.api_host}/${webConfig.abbr}`);
 
-            let vtcLevel = 0;
-            if (webConfig.api_host === "https://drivershub.charlws.com") {
-                vtcLevel = 3;
-                setVtcLevel(3);
-            } else if (webConfig.api_host === "https://drivershub05.charlws.com") {
-                vtcLevel = 1;
-                setVtcLevel(1);
-            } else if (webConfig.api_host === "https://drivershub.charlws.com") {
-                vtcLevel = 0;
-                setVtcLevel(0);
+                let loadedConfig = resp.data;
+                const webConfig = loadedConfig.config; // local webConfig for this function only
+                setWebConfig(loadedConfig.config);
+                setTitle(webConfig.name);
+                setVtcLevel(VTC_LEVEL_MAPPING[webConfig.api_host]);
+                setApiPath(`${webConfig.api_host}/${webConfig.abbr}`);
+
+                setLoadMessage(tr("loading"));
+                localStorage.setItem("cache-title", webConfig.name);
+
+                return webConfig;
+            }
+            let cachedWebConfig = readLS("cache-web-config", window.dhhost);
+            let webConfig = {}, apiPath = "", vtcLevel = 0;
+            if (cachedWebConfig === null) {
+                try {
+                    webConfig = await loadWebConfig(domain);
+                    apiPath = `${webConfig.api_host}/${webConfig.abbr}`; // local api path
+                    vtcLevel = VTC_LEVEL_MAPPING[webConfig.api_host];
+                } catch {
+                    return;
+                }
+            } else {
+                webConfig = cachedWebConfig;
+                apiPath = `${webConfig.api_host}/${webConfig.abbr}`; // local api path
+                vtcLevel = VTC_LEVEL_MAPPING[webConfig.api_host];
+                setWebConfig(webConfig);
+                setTitle(webConfig.name);
+                setVtcLevel(vtcLevel);
+                setApiPath(apiPath);
+                setLoadMessage(tr("loading"));
+                loadWebConfig(domain).catch(() => {
+                    // something went wrong, let's clear cache and reload (rarely happens so it's fine to reload)
+                    // if everything went smooth, updated data would just be written
+                    localStorage.removeItem("cache-web-config");
+                    window.location.reload();
+                });
             }
 
-            setLoadMessage(tr("loading"));
-            setTitle(webConfig.name);
-            localStorage.setItem("cache-title", webConfig.name);
-            let imageLoaded = (vtcLogo !== null) + (vtcBackground !== null) + (vtcBanner !== null);
+            // load images
             Promise.all([
                 loadImageAsBase64(`https://cdn.chub.page/assets/${webConfig.abbr}/logo.png?${webConfig.logo_key !== undefined ? webConfig.logo_key : ""}`, "./logo.png")
                     .then((image) => {
-                        if (vtcLogo === null) imageLoaded += 1;
                         setVtcLogo(image);
                         try {
                             if (window.electron) {
@@ -101,12 +140,10 @@ const Loader = ({ onLoaderLoaded }) => {
                         } catch { }
                     })
                     .catch(() => {
-                        if (vtcLogo === null) imageLoaded += 1;
                         setVtcLogo("");
                     }),
                 loadImageAsBase64(`https://cdn.chub.page/assets/${webConfig.abbr}/banner.png?${webConfig.banner_key !== undefined ? webConfig.banner_key : ""}`)
                     .then((image) => {
-                        if (vtcBanner === null) imageLoaded += 1;
                         setVtcBanner(image);
                         try {
                             if (window.electron) {
@@ -115,12 +152,10 @@ const Loader = ({ onLoaderLoaded }) => {
                         } catch { }
                     })
                     .catch(() => {
-                        if (vtcBanner === null) imageLoaded += 1;
                         setVtcBanner("");
                     }),
                 loadImageAsBase64(`https://cdn.chub.page/assets/${webConfig.abbr}/bgimage.png?${webConfig.bgimage_key !== undefined ? webConfig.bgimage_key : ""}`)
                     .then((image) => {
-                        if (vtcBackground === null) imageLoaded += 1;
                         if (vtcLevel >= 1) {
                             setVtcBackground(image);
                             try {
@@ -134,141 +169,239 @@ const Loader = ({ onLoaderLoaded }) => {
                         }
                     })
                     .catch(() => {
-                        if (vtcBackground === null) imageLoaded += 1;
                         setVtcBackground("");
                     })
-            ]).then(() => { imageLoaded = 3; });
+            ]);
 
-            const [index, apiStatus] = await makeRequestsAuto([{ url: `https://corsproxy.io/?${apiPath}/`, auth: false },
-            { url: `${apiPath}/status`, auth: false }]);
+            // load api version and status in background
+            async function loadApi(apiPath) {
+                // we use corsproxy just in case it's bad gateway and nginx fails to handle cors headers
+                const [index, apiStatus] = await makeRequestsAuto([{ url: `https://corsproxy.io/?${apiPath}/`, auth: false }, { url: `${apiPath}/status`, auth: false }]);
 
-            if (index) {
-                if (String(index).toLowerCase().indexOf(`bad gateway`) !== -1) {
-                    setLoaderAnimation(false);
-                    setLoadMessage(<>{tr("drivers_hub_is_experiencing_a_temporary_outage")}<br />{tr("please_refresh_the_page_later_and_report_the_incident_if")}</>);
+                if (index) {
+                    if (String(index).toLowerCase().indexOf(`bad gateway`) !== -1) {
+                        setLoaderAnimation(false);
+                        setLoadMessage(<>{tr("drivers_hub_is_experiencing_a_temporary_outage")}<br />{tr("please_refresh_the_page_later_and_report_the_incident_if")}</>);
+                        throw new Error("Drivers Hub API Temporary Outage");
+                    }
+                    setApiVersion(index.version);
+                }
+                if (apiStatus) {
+                    if (apiStatus.database === "unavailable") {
+                        errorBlock.current = true; // retrying, don't quite loading page
+                        setLoadMessage(<>{tr("drivers_hub_is_experiencing_a_database_outage")}<br />{tr("an_attempt_has_been_made_to_restart_the_database")}</>);
+                        await axios({ url: `${apiPath}/status/database/restart`, method: "POST" });
+                        await sleep(1000);
+
+                        let ok = false;
+                        for (let i = 0; i < 5; i++) {
+                            let resp = await axios({ url: `${apiPath}/status`, method: "GET" });
+                            if (resp.data.database === "unavailable") {
+                                setLoadMessage(<>{tr("drivers_hub_is_experiencing_a_database_outage")}<br />{tr("an_attempt_has_been_made_to_restart_the_database")}</>);
+                                await axios({ url: `${apiPath}/status/database/restart`, method: "POST" });
+                                await sleep(i * 1000 + 2000);
+                            } else {
+                                setLoadMessage(<>{tr("drivers_hub_database_is_back_online")}<br />{tr("loading_has_resumed")}</>);
+                                ok = true;
+                                await sleep(1000);
+                                errorBlock.current = false; // retry succeed, quit loading if it's still loadinhg
+                                break;
+                            }
+                        }
+                        if (!ok) {
+                            setLoaderAnimation(false);
+                            setLoadMessage(<>{tr("drivers_hub_is_experiencing_a_database_outage")}<br />{tr("the_attempt_to_restart_the_database_has_failed")}<br />{tr("please_refresh_the_page_later_and_report_the_incident_if")}</>);
+                            throw new Error("Drivers Hub Database Outage");
+                        }
+                    }
+                }
+            }
+            let apiFlag = localStorage.getItem("load-api-flag");
+            if (apiFlag !== null) {
+                // an error was flagged, let's just load it with block
+                try {
+                    await loadApi(apiPath);
+                    localStorage.removeItem("load-api-flag"); // things are back to normal
+                } catch {
                     return;
                 }
-                setApiVersion(index.version);
+            } else {
+                // another regular load, would errors occur?
+                // NOTE: for database errors, errorBlock would be updated to prevent
+                // doLoad from finishing to wait for a catch here
+                loadApi(apiPath).catch(() => {
+                    // something went wrong, let's flag it and reload (rarely happens so it's fine to reload)
+                    // if everything went smooth, nothing would be sensed by the user
+                    localStorage.setItem("load-api-flag", 1);
+                    window.location.reload();
+                });
             }
-            if (apiStatus) {
-                if (apiStatus.database === "unavailable") {
-                    setLoadMessage(<>{tr("drivers_hub_is_experiencing_a_database_outage")}<br />{tr("an_attempt_has_been_made_to_restart_the_database")}</>);
-                    await axios({ url: `${apiPath}/status/database/restart`, method: "POST" });
-                    await sleep(1000);
 
-                    let ok = false;
-                    for (let i = 0; i < 5; i++) {
-                        let resp = await axios({ url: `${apiPath}/status`, method: "GET" });
-                        if (resp.data.database === "unavailable") {
-                            setLoadMessage(<>{tr("drivers_hub_is_experiencing_a_database_outage")}<br />{tr("an_attempt_has_been_made_to_restart_the_database")}</>);
-                            await axios({ url: `${apiPath}/status/database/restart`, method: "POST" });
-                            await sleep(i * 1000 + 2000);
-                        } else {
-                            setLoadMessage(<>{tr("drivers_hub_database_is_back_online")}<br />{tr("loading_has_resumed")}</>);
-                            ok = true;
-                            await sleep(1000);
-                            break;
+            // load drivers hub data
+            async function preloadData(wait = 0) {
+                await sleep(wait);
+
+                // chub data
+                const urlsBatch1 = [
+                    { url: "https://config.chub.page/roles", auth: false },
+                    { url: "https://config.chub.page/patrons", auth: false },
+                    { url: `https://config.chub.page/config/user?abbr=${webConfig.abbr}`, auth: false },
+                ];
+
+                const [specialRoles, patrons, userConfig] = await makeRequestsAuto(urlsBatch1);
+
+                const specialUsers = {};
+                if (specialRoles) {
+                    setSpecialRoles(specialRoles);
+                    let roleNames = Object.keys(specialRoles);
+                    for (let i = 0; i < roleNames.length; i++) {
+                        let roleName = roleNames[i];
+                        for (let j = 0; j < specialRoles[roleName].length; j++) {
+                            let user = specialRoles[roleName][j];
+                            if (!Object.keys(specialUsers).includes(user.id))
+                                specialUsers[user.id] = [];
+                            specialUsers[user.id].push({ "role": roleName, "color": user.color });
                         }
                     }
-                    if (!ok) {
-                        setLoaderAnimation(false);
-                        setLoadMessage(<>{tr("drivers_hub_is_experiencing_a_database_outage")}<br />{tr("the_attempt_to_restart_the_database_has_failed")}<br />{tr("please_refresh_the_page_later_and_report_the_incident_if")}</>);
-                        return;
-                    }
+                    setSpecialUsers(specialUsers);
                 }
-            }
-
-            const urlsBatch = [
-                { url: "https://config.chub.page/roles", auth: false },
-                { url: "https://config.chub.page/patrons", auth: false },
-                { url: "https://config.chub.page/freightmaster/rewards", auth: false },
-                { url: `https://config.chub.page/freightmaster/rewards/distributed?abbr=${webConfig.abbr}`, auth: false },
-                { url: `https://config.chub.page/config/user?abbr=${webConfig.abbr}`, auth: false },
-                { url: `${apiPath}/config`, auth: false },
-                { url: `${apiPath}/member/roles`, auth: false },
-                { url: `${apiPath}/member/perms`, auth: false },
-                { url: `${apiPath}/member/ranks`, auth: false },
-            ];
-
-            const [specialRoles, patrons, fmRewards, fmRewardsDistributed, userConfig, config, memberRoles, memberPerms, memberRanks] = await makeRequestsAuto(urlsBatch);
-
-            const specialUsers = {};
-            if (specialRoles) {
-                setSpecialRoles(specialRoles);
-                let roleNames = Object.keys(specialRoles);
-                for (let i = 0; i < roleNames.length; i++) {
-                    let roleName = roleNames[i];
-                    for (let j = 0; j < specialRoles[roleName].length; j++) {
-                        let user = specialRoles[roleName][j];
-                        if (!Object.keys(specialUsers).includes(user.id))
-                            specialUsers[user.id] = [];
-                        specialUsers[user.id].push({ "role": roleName, "color": user.color });
-                    }
+                if (patrons) {
+                    setPatrons(patrons);
                 }
-                setSpecialUsers(specialUsers);
-            }
-            if (patrons) {
-                setPatrons(patrons);
-            }
-            if (fmRewards) {
-                setFMRewards(fmRewards);
-            }
-            if (fmRewardsDistributed) {
+                if (userConfig) {
+                    setUserConfig(userConfig);
+                }
+
+                // drivers hub data
+                // NOTE: /config may lead to error being detected
+                const urlsBatch2 = [
+                    { url: `${apiPath}/config`, auth: false },
+                    { url: `${apiPath}/member/roles`, auth: false },
+                    { url: `${apiPath}/member/perms`, auth: false },
+                    { url: `${apiPath}/member/ranks`, auth: false },
+                ];
+
+                const [config, memberRoles, memberPerms, memberRanks] = await makeRequestsAuto(urlsBatch2);
+
+                if (config) {
+                    if (config.config === undefined) {
+                        if (config.error !== undefined) {
+                            setLoaderAnimation(false);
+                            if (config.error === "Client validation failed") {
+                                setLoadMessage(<>Your client cannot be validated by server.<br />Please make sure the clock of your device is synchronized.</>);
+                            } else {
+                                setLoadMessage(<>An error has occurred while loading: <br />{config.error}<br />Please try again later and report the issue if it persists.</>);
+                            }
+                            throw new Error("Client validation failed");
+                        } else {
+                            setLoaderAnimation(false);
+                            setTitle(tr("drivers_hub"));
+                            setVtcLogo(await loadImageAsBase64(`./logo.png`));
+                            setUnknownDomain(true);
+                            setLoadMessage(<>{tr("drivers_hub_not_found")}<br />{tr("no_drivers_hub_under_domain")}<br /><br /><a href="https://drivershub.charlws.com/">The Drivers Hub Project (CHub)</a></>);
+                            throw new Error("Drivers Hub is not active");
+                        }
+                    }
+                    setApiConfig(config.config);
+                }
+                let allRoles = {};
+                if (memberRoles) {
+                    for (let i = 0; i < memberRoles.length; i++)
+                        allRoles[memberRoles[i].id] = memberRoles[i];
+                    setAllRoles(allRoles);
+                }
+                if (memberPerms) {
+                    setAllPerms(memberPerms);
+                }
+                if (memberRanks) {
+                    setAllRanks(memberRanks);
+                }
+
+                // freightmaster data
+                const urlsBatch3 = [
+                    { url: "https://config.chub.page/freightmaster/rewards", auth: false },
+                    { url: `https://config.chub.page/freightmaster/rewards/distributed?abbr=${webConfig.abbr}`, auth: false },
+                ];
+
+                const [fmRewards, fmRewardsDistributed] = await makeRequestsAuto(urlsBatch3);
+                if (fmRewards) {
+                    setFMRewards(fmRewards);
+                }
                 let fmrd = {};
-                for (let i = 0; i < fmRewardsDistributed.length; i++) {
-                    let ureward = fmRewardsDistributed[i];
-                    let uruid = ureward.uid;
-                    if (fmrd[uruid] === undefined) fmrd[uruid] = [ureward];
-                    else fmrd[uruid].push(ureward);
-                }
-                setFMRewardsDistributed(fmrd);
-            }
-            if (userConfig) {
-                setUserConfig(userConfig);
-            }
-            if (config) {
-                if (config.config === undefined) {
-                    if (config.error !== undefined) {
-                        setLoaderAnimation(false);
-                        if (config.error === "Client validation failed") {
-                            setLoadMessage(<>Your client cannot be validated by server.<br />Please make sure the clock of your device is synchronized.</>);
-                        } else {
-                            setLoadMessage(<>An error has occurred while loading: <br />{config.error}<br />Please try again later and report the issue if it persists.</>);
-                        }
-                        return;
-                    } else {
-                        setLoaderAnimation(false);
-                        setTitle(tr("drivers_hub"));
-                        setVtcLogo(await loadImageAsBase64(`./logo.png`));
-                        setUnknownDomain(true);
-                        setLoadMessage(<>{tr("drivers_hub_not_found")}<br />{tr("no_drivers_hub_under_domain")}<br /><br /><a href="https://drivershub.charlws.com/">The Drivers Hub Project (CHub)</a></>);
-                        return;
+                if (fmRewardsDistributed) {
+                    for (let i = 0; i < fmRewardsDistributed.length; i++) {
+                        let ureward = fmRewardsDistributed[i];
+                        let uruid = ureward.uid;
+                        if (fmrd[uruid] === undefined) fmrd[uruid] = [ureward];
+                        else fmrd[uruid].push(ureward);
                     }
+                    setFMRewardsDistributed(fmrd);
                 }
-                setApiConfig(config.config);
-            }
-            let allRoles = {}; // to be used by FetchProfile
-            if (memberRoles) {
-                for (let i = 0; i < memberRoles.length; i++)
-                    allRoles[memberRoles[i].id] = memberRoles[i];
-                setAllRoles(allRoles);
-            }
-            if (memberPerms) {
-                setAllPerms(memberPerms);
-            }
-            if (memberRanks) {
-                setAllRanks(memberRanks);
+
+                const preloadCache = { specialRoles, specialUsers, patrons, userConfig, apiConfig: config.config, allRoles, allPerms: memberPerms, allRanks: memberRanks, fmRewards, fmRewardsDistributed: fmrd };
+                writeLS("cache-preload", preloadCache, window.dhhost);
+
+                return preloadCache;
             }
 
-            let auth = await FetchProfile({ ...appContext, apiPath: apiPath, webConfig: webConfig, specialUsers: specialUsers, patrons: patrons });
-            setIsMember(auth.member);
+            let { specialRoles, specialUsers, patrons, userConfig, apiConfig, allRoles, allPerms, allRanks, fmRewards, fmRewardsDistributed } = {};
+
+            const cachePreload = readLS("cache-preload", window.dhhost);
+            let dataFlag = localStorage.getItem("load-data-flag");
+
+            if (cachePreload !== null && dataFlag === null) {
+                ({ specialRoles, specialUsers, patrons, userConfig, apiConfig, allRoles, allPerms, allRanks, fmRewards, fmRewardsDistributed } = cachePreload);
+                setSpecialRoles(specialRoles);
+                setSpecialUsers(specialUsers);
+                setPatrons(patrons);
+                setUserConfig(userConfig);
+                setApiConfig(apiConfig);
+                setAllRoles(allRoles);
+                setAllPerms(allPerms);
+                setAllRanks(allRanks);
+                setFMRewards(fmRewards);
+                setFMRewardsDistributed(fmRewardsDistributed);
+
+                preloadData(500).catch(() => {
+                    // something went wrong, let's flag it and reload (rarely happens so it's fine to reload)
+                    // if everything went smooth, nothing would be sensed by the user
+                    localStorage.setItem("load-data-flag", 1);
+                    window.location.reload();
+                });
+            } else {
+                try {
+                    ({ specialRoles, specialUsers, patrons, userConfig, apiConfig, allRoles, allPerms, allRanks, fmRewards, fmRewardsDistributed } = await preloadData());
+                    localStorage.removeItem("load-data-flag"); // things are back to normal
+                } catch {
+                    return;
+                }
+            }
+
+            // we'll use cached user first and then check authentication in background
+            // not everything about the user will be loaded from cache, but it's enough for now
+            const bearerToken = getAuthToken();
+            if (bearerToken !== null && localStorage.getItem("cache-user") !== null) {
+                const curUser = readLS("cache-user", window.dhhost + bearerToken);
+                setUsers(users => ({ ...users, [curUser.uid]: curUser }));
+                setCurUID(curUser.uid);
+                setIsMember(curUser.userid !== -1);
+
+                FetchProfile({ ...appContext, apiPath: apiPath, webConfig: webConfig, specialUsers: specialUsers, patrons: patrons }).then((auth) => {
+                    setIsMember(auth.member);
+                });
+            } else {
+                let auth = await FetchProfile({ ...appContext, apiPath: apiPath, webConfig: webConfig, specialUsers: specialUsers, patrons: patrons });
+                setIsMember(auth.member);
+            }
+
+            while (errorBlock.current === true) { // wait for updates from automatic error resolution
+                await sleep(100);
+            }
+
+            loadingStart.current = null; // clear it so loading page will not be shown if 1 sec is not reached
 
             setThemeSettings(prevSettings => ({ ...prevSettings })); // refresh theme settings
-
-            while (imageLoaded < 3) {
-                await sleep(10);
-            }
-            onLoaderLoaded();
+            onLoaderLoaded(); // finish loading
         } catch (error) {
             setLoaderAnimation(false);
             console.error(tr("an_error_occurred_when_initializing"));
@@ -316,7 +449,7 @@ const Loader = ({ onLoaderLoaded }) => {
 
     return (
         <div style={{
-            backgroundImage: `url(${vtcBackground})`,
+            backgroundImage: showLoadingPage ? `url(${vtcBackground})` : "",
             backgroundPosition: 'center',
             backgroundSize: 'cover',
             backgroundRepeat: 'no-repeat',
@@ -334,9 +467,11 @@ const Loader = ({ onLoaderLoaded }) => {
                         {vtcLogo !== null && vtcLogo !== "" && <link rel="apple-touch-icon" href={vtcLogo} />}
                     </Helmet>
                 </HelmetProvider>
-                {vtcLogo !== null && vtcLogo !== "" && <img src={vtcLogo} className={`loader ${animateLoader ? "loader-animated" : ""}`} alt="" style={{ marginBottom: "10px" }} />}
-                {(!window.isElectron || !unknownDomain) && <Typography variant="body1" sx={{ fontSize: "25px" }}>{loadMessage}</Typography>}
-                {(!window.isElectron || !unknownDomain) && animateLoader && <Typography variant="body2" sx={{ fontSize: "15px", opacity: 0.8 }}>{tip}</Typography>}
+                {showLoadingPage && <>
+                    {vtcLogo !== null && vtcLogo !== "" && <img src={vtcLogo} className={`loader ${animateLoader ? "loader-animated" : ""}`} alt="" style={{ marginBottom: "10px" }} />}
+                    {(!window.isElectron || !unknownDomain) && <Typography variant="body1" sx={{ fontSize: "25px" }}>{loadMessage}</Typography>}
+                    {(!window.isElectron || !unknownDomain) && animateLoader && <Typography variant="body2" sx={{ fontSize: "15px", opacity: 0.8 }}>{tip}</Typography>}
+                </>}
                 {(window.isElectron && unknownDomain) && <>
                     <Typography variant="body1" sx={{ mb: "10px" }}>{tr("enter_the_drivers_hub_domain_to_start_your_app_experience")}</Typography>
                     <TextField
