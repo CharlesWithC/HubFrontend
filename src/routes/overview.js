@@ -51,34 +51,49 @@ const Overview = () => {
         async function doLoad() {
             window.loading += 1;
 
-            const [_, chartNSU, chartSU, lboard, rvisitors, nmember, ldelivery] = await makeRequestsAuto([
+            const [_, chartNSU, chartSU] = await makeRequestsAuto([
                 { url: `${apiPath}`, auth: true }, // access the index url to update user status
                 { url: `${apiPath}/dlog/statistics/chart?ranges=7&interval=86400&sum_up=false&before=` + getTodayUTC() / 1000, auth: false },
-                { url: `${apiPath}/dlog/statistics/chart?ranges=7&interval=86400&sum_up=true`, auth: false },
-                { url: `${apiPath}/dlog/leaderboard?page=1&page_size=5&after=` + getMonthUTC() / 1000, auth: true },
-                { url: `${apiPath}/member/list?page=1&page_size=5&order_by=last_seen&order=desc`, auth: true },
+                { url: `${apiPath}/dlog/statistics/chart?ranges=7&interval=86400&sum_up=true`, auth: false }
+            ]);
+
+            if (chartSU) {
+                let newLatest = { driver: chartSU[chartSU.length - 1].driver, job: chartSU[chartSU.length - 1].job.sum, distance: chartSU[chartSU.length - 1].distance.sum, fuel: chartSU[chartSU.length - 1].fuel.sum, profit_euro: chartSU[chartSU.length - 1].profit.euro, profit_dollar: chartSU[chartSU.length - 1].profit.dollar };
+                setLatest(newLatest);
+            }
+
+            if (chartNSU) {
+                let newCharts = { driver: [], job: [], distance: [], fuel: [], profit_euro: [], profit_dollar: [] };
+                for (let i = 0; i < chartNSU.length; i++) {
+                    if (i === 0) {
+                        newCharts.driver.push(chartNSU[i].driver);
+                    } else {
+                        newCharts.driver.push(newCharts.driver[i - 1] + chartNSU[i].driver);
+                    }
+                    newCharts.job.push(chartNSU[i].job.sum);
+                    newCharts.distance.push(chartNSU[i].distance.sum);
+                    newCharts.fuel.push(chartNSU[i].fuel.sum);
+                    newCharts.profit_euro.push(chartNSU[i].profit.euro);
+                    newCharts.profit_dollar.push(chartNSU[i].profit.dollar);
+                }
+                setCharts(newCharts);
+            }
+
+            const [nmember, ldelivery] = await makeRequestsAuto([
                 { url: `${apiPath}/member/list?page=1&page_size=1&order_by=join_timestamp&order=desc`, auth: true },
                 { url: `${apiPath}/dlog/list?page=1&page_size=1&order=desc`, auth: true }
             ]);
-
-            let newLatest = { driver: chartSU[chartSU.length - 1].driver, job: chartSU[chartSU.length - 1].job.sum, distance: chartSU[chartSU.length - 1].distance.sum, fuel: chartSU[chartSU.length - 1].fuel.sum, profit_euro: chartSU[chartSU.length - 1].profit.euro, profit_dollar: chartSU[chartSU.length - 1].profit.dollar };
-            setLatest(newLatest);
-
-            let newCharts = { driver: [], job: [], distance: [], fuel: [], profit_euro: [], profit_dollar: [] };
-            for (let i = 0; i < chartNSU.length; i++) {
-                if (i === 0) {
-                    newCharts.driver.push(chartNSU[i].driver);
-                } else {
-                    newCharts.driver.push(newCharts.driver[i - 1] + chartNSU[i].driver);
-                }
-                newCharts.job.push(chartNSU[i].job.sum);
-                newCharts.distance.push(chartNSU[i].distance.sum);
-                newCharts.fuel.push(chartNSU[i].fuel.sum);
-                newCharts.profit_euro.push(chartNSU[i].profit.euro);
-                newCharts.profit_dollar.push(chartNSU[i].profit.dollar);
+            if (nmember.list !== undefined) {
+                setNewestMember(nmember.list[0]);
             }
-            setCharts(newCharts);
+            if (ldelivery.list !== undefined) {
+                setLatestDelivery(ldelivery.list[0]);
+            }
 
+            const [lboard, rvisitors] = await makeRequestsAuto([
+                { url: `${apiPath}/dlog/leaderboard?page=1&page_size=5&after=` + getMonthUTC() / 1000, auth: true },
+                { url: `${apiPath}/member/list?page=1&page_size=5&order_by=last_seen&order=desc`, auth: true }
+            ]);
             if (lboard.list !== undefined) {
                 let newLeaderboard = [];
                 for (let i = 0; i < lboard.list.length; i++) {
@@ -95,13 +110,6 @@ const Overview = () => {
                     newRecentVisitors.push({ "user": <UserCard user={row} />, "timestamp": row.activity.last_seen });
                 }
                 setRecentVisitors(newRecentVisitors);
-            }
-
-            if (nmember.list !== undefined) {
-                setNewestMember(nmember.list[0]);
-            }
-            if (ldelivery.list !== undefined) {
-                setLatestDelivery(ldelivery.list[0]);
             }
 
             window.loading -= 1;

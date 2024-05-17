@@ -88,43 +88,47 @@ const Statistics = () => {
                     { url: `${apiPath}/dlog/statistics/details?after=${startTime}&before=${endTime}${selectedUser.userid !== -1000 ? `&userid=${selectedUser.userid}` : ``}`, auth: true },
                 ]);
 
-                let newLatest = { driver: chartSU[chartSU.length - 1].driver, job: chartSU[chartSU.length - 1].job.sum, distance: chartSU[chartSU.length - 1].distance.sum, fuel: chartSU[chartSU.length - 1].fuel.sum, profit_euro: chartSU[chartSU.length - 1].profit.euro, profit_dollar: chartSU[chartSU.length - 1].profit.dollar };
-                setLatest(newLatest);
+                if (chartSU) {
+                    let newLatest = { driver: chartSU[chartSU.length - 1].driver, job: chartSU[chartSU.length - 1].job.sum, distance: chartSU[chartSU.length - 1].distance.sum, fuel: chartSU[chartSU.length - 1].fuel.sum, profit_euro: chartSU[chartSU.length - 1].profit.euro, profit_dollar: chartSU[chartSU.length - 1].profit.dollar };
+                    setLatest(newLatest);
 
-                let newBase = { driver: (newLatest.driver - chartSU[0].driver) / 10, job: (newLatest.job - chartSU[0].job.sum) / 10, distance: (newLatest.distance - chartSU[0].distance.sum) / 10, fuel: (newLatest.fuel - chartSU[0].fuel.sum) / 10, profit_euro: (newLatest.profit_euro - chartSU[0].profit.euro) / 10, profit_dollar: (newLatest.profit_dollar - chartSU[0].profit.dollar) / 10 };
+                    let newBase = { driver: (newLatest.driver - chartSU[0].driver) / 10, job: (newLatest.job - chartSU[0].job.sum) / 10, distance: (newLatest.distance - chartSU[0].distance.sum) / 10, fuel: (newLatest.fuel - chartSU[0].fuel.sum) / 10, profit_euro: (newLatest.profit_euro - chartSU[0].profit.euro) / 10, profit_dollar: (newLatest.profit_dollar - chartSU[0].profit.dollar) / 10 };
 
-                let newCharts = { driver: [], job: [], distance: [], fuel: [], profit_euro: [], profit_dollar: [] };
-                let newOriginalChart = { driver: [], job: [], distance: [], fuel: [], profit_euro: [], profit_dollar: [] };
-                let newXAxis = [];
-                for (let i = 0; i < chartSU.length; i++) {
-                    newXAxis.push({ startTime: chartSU[i].start_time, endTime: chartSU[i].end_time });
-                    newOriginalChart.driver.push(chartSU[i].driver);
-                    newOriginalChart.job.push(chartSU[i].job.sum);
-                    newOriginalChart.distance.push(chartSU[i].distance.sum);
-                    newOriginalChart.fuel.push(chartSU[i].fuel.sum);
-                    newOriginalChart.profit_euro.push(chartSU[i].profit.euro);
-                    newOriginalChart.profit_dollar.push(chartSU[i].profit.dollar);
-                    if (i === 0) {
-                        newCharts.driver.push(newBase.driver);
-                        newCharts.job.push(newBase.job);
-                        newCharts.distance.push(newBase.distance);
-                        newCharts.fuel.push(newBase.fuel);
-                        newCharts.profit_euro.push(newBase.profit_euro);
-                        newCharts.profit_dollar.push(newBase.profit_dollar);
-                    } else {
-                        newCharts.driver.push(newBase.driver + chartSU[i].driver - chartSU[0].driver);
-                        newCharts.job.push(newBase.job + chartSU[i].job.sum - chartSU[0].job.sum);
-                        newCharts.distance.push(newBase.distance + chartSU[i].distance.sum - chartSU[0].distance.sum);
-                        newCharts.fuel.push(newBase.fuel + chartSU[i].fuel.sum - chartSU[0].fuel.sum);
-                        newCharts.profit_euro.push(newBase.profit_euro + chartSU[i].profit.euro - chartSU[0].profit.euro);
-                        newCharts.profit_dollar.push(newBase.profit_dollar + chartSU[i].profit.dollar - chartSU[0].profit.dollar);
+                    let newCharts = { driver: [], job: [], distance: [], fuel: [], profit_euro: [], profit_dollar: [] };
+                    let newOriginalChart = { driver: [], job: [], distance: [], fuel: [], profit_euro: [], profit_dollar: [] };
+                    let newXAxis = [];
+                    for (let i = 0; i < chartSU.length; i++) {
+                        newXAxis.push({ startTime: chartSU[i].start_time, endTime: chartSU[i].end_time });
+                        newOriginalChart.driver.push(chartSU[i].driver);
+                        newOriginalChart.job.push(chartSU[i].job.sum);
+                        newOriginalChart.distance.push(chartSU[i].distance.sum);
+                        newOriginalChart.fuel.push(chartSU[i].fuel.sum);
+                        newOriginalChart.profit_euro.push(chartSU[i].profit.euro);
+                        newOriginalChart.profit_dollar.push(chartSU[i].profit.dollar);
+                        if (i === 0) {
+                            newCharts.driver.push(newBase.driver);
+                            newCharts.job.push(newBase.job);
+                            newCharts.distance.push(newBase.distance);
+                            newCharts.fuel.push(newBase.fuel);
+                            newCharts.profit_euro.push(newBase.profit_euro);
+                            newCharts.profit_dollar.push(newBase.profit_dollar);
+                        } else {
+                            newCharts.driver.push(newBase.driver + chartSU[i].driver - chartSU[0].driver);
+                            newCharts.job.push(newBase.job + chartSU[i].job.sum - chartSU[0].job.sum);
+                            newCharts.distance.push(newBase.distance + chartSU[i].distance.sum - chartSU[0].distance.sum);
+                            newCharts.fuel.push(newBase.fuel + chartSU[i].fuel.sum - chartSU[0].fuel.sum);
+                            newCharts.profit_euro.push(newBase.profit_euro + chartSU[i].profit.euro - chartSU[0].profit.euro);
+                            newCharts.profit_dollar.push(newBase.profit_dollar + chartSU[i].profit.dollar - chartSU[0].profit.dollar);
+                        }
                     }
+                    setCharts(newCharts);
+                    setOriginalChart(newOriginalChart);
+                    setXAxis(newXAxis);
                 }
-                setCharts(newCharts);
-                setOriginalChart(newOriginalChart);
-                setXAxis(newXAxis);
 
-                setDetailStats(detailS);
+                if (detailS) {
+                    setDetailStats(detailS);
+                }
             } catch {
                 setSnackbarContent(tr("an_error_occurred_while_loading_data"));
                 setSnackbarSeverity("error");
