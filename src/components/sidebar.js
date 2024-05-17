@@ -66,7 +66,7 @@ const SideBar = (props) => {
             menu = [["overview", "statistics", "announcement", "downloads", "poll", "gallery"], ["live_map", "delivery", "challenge", "division", "event", "economy"], ["member", "leaderboard", "ranking", "freightmaster"], ["new_application", "my_application", "all_application"], ["member_list", "external_user", "audit_log", "configuration"]];
             if (!curUserPerm.includes("administrator")) {
                 if (!curUserPerm.includes("driver") || curUser.userid === -1) {
-                    toRemove = ["downloads", "challenge", "division", "economy", "member", "leaderboard", "ranking", "external_user", "audit_log", "configuration"];
+                    toRemove = ["downloads", "challenge", "division", "economy", "poll", "member", "leaderboard", "ranking", "freightmaster", "external_user", "audit_log", "configuration"];
                 }
                 if (!curUserPerm.includes("update_config") && !curUserPerm.includes("reload_config")) {
                     toRemove.push("configuration");
