@@ -147,7 +147,7 @@ const TileMap = ({ tilesUrl, title, style, route, points, onPointClick, onBounda
                 map.addLayer(vectorLayer);
             }
 
-            if ((points !== undefined && points !== null && points.length !== 0 && pointsRef.current !== points) || orangeOnlyRef.current !== showOrangeOnly) {
+            if (points !== undefined && points !== null && points.length !== 0 && (pointsRef.current !== points || orangeOnlyRef.current !== showOrangeOnly)) {
                 const zoom = map.getView().getZoom();
 
                 pointsRef.current = points;
