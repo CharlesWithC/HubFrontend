@@ -3431,17 +3431,17 @@ const Configuration = () => {
                 <Grid container spacing={2} rowSpacing={-0.5}>
                     <Grid item xs={12} md={4}>
                         <Typography variant="body2">
-                            Trucky Webhook URL:<br />{apiPath}/trucky/webhook/update
+                            Trucky Webhook URL:<br />{apiPath}/trucky/update
                         </Typography>
                     </Grid>
                     <Grid item xs={12} md={4}>
                         <Typography variant="body2">
-                            TrackSim Webhook URL:<br />{apiPath}/tracksim/webhook/update
+                            TrackSim Webhook URL:<br />{apiPath}/tracksim/update
                         </Typography>
                     </Grid>
                     <Grid item xs={12} md={4}>
                         <Typography variant="body2">
-                            Custom Tracker Webhook URL:<br />{apiPath}/custom/webhook/update
+                            Custom Tracker Webhook URL:<br />{apiPath}/custom/update
                         </Typography>
                     </Grid>
                     <Grid item xs={12} md={12}>
