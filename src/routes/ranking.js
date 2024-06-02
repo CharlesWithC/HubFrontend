@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useState, useEffect, useCallback, useContext } from 'react';
+import { useState, useEffect, useCallback, useContext, useMemo } from 'react';
 import { AppContext, CacheContext } from '../context';
 
 import { Grid, Card, CardContent, Typography, Snackbar, Alert, SpeedDial, SpeedDialIcon, SpeedDialAction, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, Button, TextField } from '@mui/material';
@@ -7,7 +7,7 @@ import { RefreshRounded, AltRouteRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCoins } from '@fortawesome/free-solid-svg-icons';
+import { faAnglesDown, faAnglesUp, faCoins } from '@fortawesome/free-solid-svg-icons';
 import { faDiscord } from '@fortawesome/free-brands-svg-icons';
 
 import { makeRequestsWithAuth, TSep, customAxios as axios, getAuthToken, isSameDay } from '../functions';
@@ -33,9 +33,11 @@ const Ranking = () => {
     const [curRankRoles, setCurRankRoles] = useState([]);
     const [curRankPointTypes, setCurRankPointTypes] = useState([]);
 
+    const previousPoints = useMemo(() => (cache.ranking.userPoints), []);
     const [userPoints, setUserPoints] = useState(cache.ranking.userPoints);
     const [detailedPoints, setDetailedPoints] = useState(cache.ranking.detailedPoints);
     const [bonusStreak, setBonusStreak] = useState(cache.ranking.bonusStreak);
+    const [rankChange, setRankChange] = useState(0); // 0: no change, 1: up, -1: down
 
     useEffect(() => {
         return () => {
@@ -93,14 +95,30 @@ const Ranking = () => {
         }
         setUserPoints(points);
 
+        let currentRank = -1;
+        let previousRank = -1;
         if (curRankRoles.length === 0 || points < curRankRoles[0].points) setRankIdx(-1);
         else {
             for (let i = 0; i < curRankRoles.length - 1; i++) {
                 if (points > curRankRoles[i].points && points < curRankRoles[i + 1].points) {
+                    currentRank = i;
                     setRankIdx(i);
                 }
             }
             if (points > curRankRoles[curRankRoles.length - 1].points) setRankIdx(curRankRoles.length - 1);
+        }
+        if (curRankRoles.length === 0 || previousPoints < curRankRoles[0].points) previousRank = -1;
+        else {
+            for (let i = 0; i < curRankRoles.length - 1; i++) {
+                if (previousPoints > curRankRoles[i].points && previousPoints < curRankRoles[i + 1].points) {
+                    previousRank = i;
+                }
+            }
+            if (previousPoints > curRankRoles[curRankRoles.length - 1].points) previousRank = curRankRoles.length - 1;
+        }
+        if (previousRank !== currentRank) {
+            setRankChange(previousRank < currentRank ? 1 : -1);
+            getDiscordRole();
         }
     }, [apiConfig, detailedPoints, curRankRoles, curRankPointTypes]);
 
@@ -225,7 +243,7 @@ const Ranking = () => {
                         <Typography variant="subtitle2" align="center" gutterBottom>{tr("current_rank")}</Typography>
                         {rankIdx >= 0 && <>
                             <Typography variant="h5" align="center" component="div" sx={{ color: curRankRoles[rankIdx]?.color, cursor: "pointer" }} onClick={getDiscordRole}>
-                                {curRankRoles[rankIdx].name}
+                            {rankChange > 0 ? <FontAwesomeIcon icon={faAnglesUp} /> : (rankChange < 0 ? <FontAwesomeIcon icon={faAnglesDown} /> : <></>)} {curRankRoles[rankIdx].name} {rankChange > 0 ? <FontAwesomeIcon icon={faAnglesUp} /> : (rankChange < 0 ? <FontAwesomeIcon icon={faAnglesDown} /> : <></>)}
                             </Typography>
                             <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
                                 {TSep(userPoints)} {tr("pts")}
