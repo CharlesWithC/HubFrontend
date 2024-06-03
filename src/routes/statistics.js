@@ -84,7 +84,7 @@ const Statistics = () => {
 
             try {
                 const [chartSU, detailS] = await makeRequestsAuto([
-                    { url: `${apiPath}/dlog/statistics/chart?ranges=${ranges}&interval=${interval}&sum_up=true&before=${endTime}${selectedUser.userid !== -1000 ? `&userid=${selectedUser.userid}` : ``}`, auth: false },
+                    { url: `${apiPath}/dlog/statistics/chart?ranges=${ranges}&interval=${interval}&sum_up=true&before=${endTime}${selectedUser.userid !== -1000 ? `&userid=${selectedUser.userid}` : ``}`, auth: "prefer" },
                     { url: `${apiPath}/dlog/statistics/details?after=${startTime}&before=${endTime}${selectedUser.userid !== -1000 ? `&userid=${selectedUser.userid}` : ``}`, auth: true },
                 ]);
 

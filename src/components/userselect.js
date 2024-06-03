@@ -15,7 +15,7 @@ const UserSelect = ({ label, users, onUpdate, isMulti = true, includeCompany = f
     const { webConfig, users: cachedUsers, memberUIDs } = useContext(AppContext);
     const theme = useTheme();
     
-    const userList = useMemo(() => (inputUserList !== undefined ? inputUserList : memberUIDs.map((uid) => cachedUsers[uid])), [inputUserList]);
+    const userList = useMemo(() => (inputUserList !== undefined ? inputUserList : memberUIDs.map((uid) => cachedUsers[uid])), [inputUserList, cachedUsers, memberUIDs]);
 
     const memberMap = useMemo(() => {
         const result = {};
