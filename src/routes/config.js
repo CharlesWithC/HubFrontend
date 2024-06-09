@@ -3447,7 +3447,7 @@ const Configuration = () => {
                     <Grid item xs={12} md={12}>
                         <Typography variant="body2">
                             <br />
-                            Discord Application Redirect URI: https://{window.location.host}/auth/discord/callback
+                            Discord Application Redirect URI: https://{webConfig.domain}/auth/discord/callback
                         </Typography>
                     </Grid>
                 </Grid>
