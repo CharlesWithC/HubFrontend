@@ -2,7 +2,7 @@ import { useRef, useState, useEffect, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppContext, CacheContext } from '../context';
 
-import { Card, CardContent, Typography, Avatar, Grid, Box, SpeedDial, SpeedDialAction, Dialog, DialogContent, DialogTitle, DialogActions, Button, TextField, MenuItem, SpeedDialIcon, useTheme } from '@mui/material';
+import { Card, CardContent, Typography, Avatar, Grid, Box, SpeedDial, SpeedDialAction, Dialog, DialogContent, DialogTitle, DialogActions, Button, TextField, MenuItem, SpeedDialIcon, ButtonGroup, useTheme } from '@mui/material';
 import { customSelectStyles } from '../designs';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -15,7 +15,7 @@ import UserCard from '../components/usercard';
 import CustomTable from '../components/table';
 import UserSelect from '../components/userselect';
 
-import { getRankName, makeRequestsAuto, getMonthUTC, TSep, getCurrentMonthName, removeNUEValues } from '../functions';
+import { getRankName, makeRequestsAuto, getMonthUTC, TSep, getCurrentMonthName, removeNUEValues, getTimezoneOffset } from '../functions';
 
 function replaceUnderscores(str) {
     return str.split('_')
@@ -39,9 +39,15 @@ const LargeUserCard = ({ user, color }) => {
 
 const Leaderboard = () => {
     const { t: tr } = useTranslation();
-    const { apiPath, allRanks, userSettings } = useContext(AppContext);
+    const { apiPath, allRanks, userSettings, userLevel } = useContext(AppContext);
     const { cache, setCache } = useContext(CacheContext);
     const theme = useTheme();
+
+    let displayTimezone = userSettings.display_timezone;
+    if (userLevel < 3) {
+        displayTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    }
+    let timezoneDelta = getTimezoneOffset(displayTimezone, Intl.DateTimeFormat().resolvedOptions().timeZone) * 60;
 
     const columns = [
         { id: 'rankorder', label: '#' },
@@ -188,24 +194,7 @@ const Leaderboard = () => {
         <Dialog open={dialogOpen === "settings"} onClose={() => { setDialogOpen(""); }} fullWidth>
             <DialogTitle><FontAwesomeIcon icon={faGears} />&nbsp;&nbsp;{tr("settings")}</DialogTitle>
             <DialogContent>
-                <Typography variant="body2">{tr("change_what_data_to_show_and_how_to_order_them")}</Typography>
                 <Grid container spacing={2} sx={{ mt: "5px" }}>
-                    <Grid item xs={6}>
-                        <TextField
-                            label={tr("minimum_points")}
-                            value={tempListParam.min_point}
-                            onChange={(e) => { if (!isNaN(e.target.value)) setTempListParam({ ...tempListParam, min_point: e.target.value }); }}
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={6}>
-                        <TextField
-                            label={tr("maximum_points")}
-                            value={tempListParam.max_point}
-                            onChange={(e) => { if (!isNaN(e.target.value)) setTempListParam({ ...tempListParam, max_point: e.target.value }); }}
-                            fullWidth
-                        />
-                    </Grid>
                     <Grid item xs={6}>
                         <DateTimeField
                             label={tr("after")}
@@ -219,6 +208,58 @@ const Leaderboard = () => {
                             label={tr("before")}
                             defaultValue={tempListParam.before}
                             onChange={(timestamp) => { setTempListParam({ ...tempListParam, before: timestamp }); }}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <ButtonGroup fullWidth>
+                            <Button variant="contained" color="success" onClick={() => {
+                                let now = new Date();
+                                let lastDayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+                                let lastDayEnd = new Date(lastDayStart);
+                                lastDayEnd.setDate(lastDayEnd.getDate() + 1);
+                                setTempListParam({ ...tempListParam, after: undefined, before: undefined });
+                                setTimeout(function () {
+                                    setTempListParam({ ...tempListParam, after: lastDayStart.getTime() / 1000 + timezoneDelta, before: lastDayEnd.getTime() / 1000 + timezoneDelta });
+                                }, 50);
+                            }}>Last day</Button>
+                            <Button variant="contained" color="info" onClick={() => {
+                                let before = new Date();
+                                let locale = navigator.language;
+                                let format = new Intl.DateTimeFormat(locale, { weekday: 'long' });
+                                while (format.format(before) !== format.format(new Date(before.getFullYear(), before.getMonth(), before.getDate() - 7))) {
+                                    before.setDate(before.getDate() - 1);
+                                }
+                                before = new Date(before.getFullYear(), before.getMonth(), before.getDate());
+                                setTempListParam({ ...tempListParam, after: undefined, before: undefined });
+                                setTimeout(function () {
+                                    setTempListParam({ ...tempListParam, after: before.getTime() / 1000 - 86400 * 7 + timezoneDelta, before: before.getTime() / 1000 + timezoneDelta });
+                                }, 50);
+                            }}>Last week</Button>
+                            <Button variant="contained" color="warning" onClick={() => {
+                                let now = new Date();
+                                let lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                                let lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+                                setTempListParam({ ...tempListParam, after: undefined, before: undefined });
+                                setTimeout(function () {
+                                    setTempListParam({ ...tempListParam, after: lastMonthStart.getTime() / 1000 + timezoneDelta, before: lastMonthEnd.getTime() / 1000 + timezoneDelta });
+                                }, 50);
+                            }}>Last month</Button>
+                        </ButtonGroup>
+                    </Grid>
+                    <Grid item xs={6}>
+                        <TextField
+                            label={tr("minimum_points")}
+                            value={tempListParam.min_point}
+                            onChange={(e) => { if (!isNaN(e.target.value)) setTempListParam({ ...tempListParam, min_point: e.target.value }); }}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <TextField
+                            label={tr("maximum_points")}
+                            value={tempListParam.max_point}
+                            onChange={(e) => { if (!isNaN(e.target.value)) setTempListParam({ ...tempListParam, max_point: e.target.value }); }}
                             fullWidth
                         />
                     </Grid>

@@ -413,7 +413,6 @@ const Deliveries = () => {
         <Dialog open={dialogOpen === "settings"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }} fullWidth>
             <DialogTitle><FontAwesomeIcon icon={faGears} />&nbsp;&nbsp;{tr("settings")}</DialogTitle>
             <DialogContent>
-                <Typography variant="body2">{tr("change_what_data_to_show_and_how_to_order_them")}</Typography>
                 <Grid container spacing={2} sx={{ mt: "5px" }}>
                     <Grid item xs={6}>
                         <TextField select
