@@ -1,15 +1,17 @@
 import { useEffect, useRef, useContext } from 'react';
 import { AppContext } from '../context';
 
-import { Card, CardContent, Typography, Chip } from '@mui/material';
+import { Card, CardContent, Typography, Chip, Tooltip } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
 import Chart from 'chart.js/auto';
 
 import { getTimezoneOffset } from '../functions';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowTrendDown, faArrowTrendUp } from '@fortawesome/free-solid-svg-icons';
 
 const StatCard = (props) => {
-    let { icon, title, latest, inputs, originalInputs, xAxis, size, height } = props;
+    let { icon, title, latest, delta, inputs, originalInputs, xAxis, size, height } = props;
 
     const theme = useTheme();
     const { userSettings } = useContext(AppContext);
@@ -123,7 +125,14 @@ const StatCard = (props) => {
                     <Typography variant={size === "small" ? "body" : "h5"} component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
                         {icon}&nbsp;&nbsp;{title}
                     </Typography>
-                    {latest !== undefined && <Chip label={latest} sx={{ fontFamily: "Orbitron", borderRadius: "5px" }}></Chip>}
+                    {delta !== undefined && latest !== undefined && <Tooltip placement="top" arrow title={
+                        <span style={{ fontFamily: "Orbitron", borderRadius: "5px", color: delta.replace(/\D/g, '') >= 0 ? theme.palette.success.main : theme.palette.error.main }}>
+                            {delta.replace(/\D/g, '') >= 0 ? <FontAwesomeIcon icon={faArrowTrendUp} /> : <FontAwesomeIcon icon={faArrowTrendDown} />} {delta}
+                        </span>
+                    } PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                        <Chip label={latest} sx={{ fontFamily: "Orbitron", borderRadius: "5px" }}></Chip>
+                    </Tooltip>}
+                    {delta === undefined && latest !== undefined && <Chip label={latest} sx={{ fontFamily: "Orbitron", borderRadius: "5px" }}></Chip>}
                 </div>
             </CardContent>
             <div style={{ height: height }}>

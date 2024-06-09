@@ -38,6 +38,7 @@ const Statistics = () => {
     const [endTime, setEndTime] = useState(cache.statistics.endTime);
     const [selectedUser, setSelectedUser] = useState(cache.statistics.selectedUser);
     const [latest, setLatest] = useState(cache.statistics.latest);
+    const [delta, setDelta] = useState(cache.statistics.delta);
     const [charts, setCharts] = useState(cache.statistics.charts);
     const [originalChart, setOriginalChart] = useState(cache.statistics.originalChart);
     const [xAxis, setXAxis] = useState(cache.statistics.xAxis);
@@ -52,6 +53,7 @@ const Statistics = () => {
                     endTime,
                     selectedUser,
                     latest,
+                    delta,
                     charts,
                     originalChart,
                     xAxis,
@@ -59,7 +61,7 @@ const Statistics = () => {
                 }
             }));
         };
-    }, [startTime, endTime, selectedUser, latest, charts, originalChart, xAxis, detailStats]);
+    }, [startTime, endTime, selectedUser, latest, delta, charts, originalChart, xAxis, detailStats]);
 
     useEffect(() => {
         const doLoad = debounce(async () => {
@@ -91,6 +93,9 @@ const Statistics = () => {
                 if (chartSU) {
                     let newLatest = { driver: chartSU[chartSU.length - 1].driver, job: chartSU[chartSU.length - 1].job.sum, distance: chartSU[chartSU.length - 1].distance.sum, fuel: chartSU[chartSU.length - 1].fuel.sum, profit_euro: chartSU[chartSU.length - 1].profit.euro, profit_dollar: chartSU[chartSU.length - 1].profit.dollar };
                     setLatest(newLatest);
+                    
+                    let newDelta = { driver: newLatest.driver - chartSU[0].driver, job: newLatest.job - chartSU[0].job.sum, distance: newLatest.distance - chartSU[0].distance.sum, fuel: newLatest.fuel - chartSU[0].fuel.sum, profit_euro: newLatest.profit_euro - chartSU[0].profit.euro, profit_dollar: newLatest.profit_dollar - chartSU[0].profit.dollar };
+                    setDelta(newDelta);
 
                     let newBase = { driver: (newLatest.driver - chartSU[0].driver) / 10, job: (newLatest.job - chartSU[0].job.sum) / 10, distance: (newLatest.distance - chartSU[0].distance.sum) / 10, fuel: (newLatest.fuel - chartSU[0].fuel.sum) / 10, profit_euro: (newLatest.profit_euro - chartSU[0].profit.euro) / 10, profit_dollar: (newLatest.profit_dollar - chartSU[0].profit.dollar) / 10 };
 
@@ -163,22 +168,22 @@ const Statistics = () => {
                 <UserSelect users={[selectedUser]} isMulti={false} includeCompany={true} onUpdate={setSelectedUser} />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={4}>
-                <StatCard icon={<PermContactCalendarRounded />} title={tr("drivers")} latest={TSep(latest.driver).replaceAll(",", " ")} inputs={charts.driver} originalInputs={originalChart.driver} xAxis={xAxis} />
+                <StatCard icon={<PermContactCalendarRounded />} title={tr("drivers")} latest={TSep(latest.driver).replaceAll(",", " ")} delta={TSep(delta.driver).replaceAll(",", " ")} inputs={charts.driver} originalInputs={originalChart.driver} xAxis={xAxis} />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={4}>
-                <StatCard icon={<LocalShippingRounded />} title={tr("jobs")} latest={TSep(latest.job).replaceAll(",", " ")} inputs={charts.job} originalInputs={originalChart.job} xAxis={xAxis} />
+                <StatCard icon={<LocalShippingRounded />} title={tr("jobs")} latest={TSep(latest.job).replaceAll(",", " ")} delta={TSep(delta.job).replaceAll(",", " ")} inputs={charts.job} originalInputs={originalChart.job} xAxis={xAxis} />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={4}>
-                <StatCard icon={<RouteRounded />} title={tr("distance")} latest={ConvertUnit(userSettings.unit, "km", latest.distance).replaceAll(",", " ")} inputs={charts.distance} originalInputs={originalChart.distance} xAxis={xAxis} />
+                <StatCard icon={<RouteRounded />} title={tr("distance")} latest={ConvertUnit(userSettings.unit, "km", latest.distance).replaceAll(",", " ")} delta={ConvertUnit(userSettings.unit, "km", delta.distance).replaceAll(",", " ")} inputs={charts.distance} originalInputs={originalChart.distance} xAxis={xAxis} />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={4}>
-                <StatCard icon={<EuroRounded />} title={tr("profit_ets2")} latest={"€" + TSep(latest.profit_euro).replaceAll(",", " ")} inputs={charts.profit_euro} originalInputs={originalChart.profit_euro} xAxis={xAxis} />
+                <StatCard icon={<EuroRounded />} title={tr("profit_ets2")} latest={"€" + TSep(latest.profit_euro).replaceAll(",", " ")} delta={"€" + TSep(delta.profit_euro).replaceAll(",", " ")} inputs={charts.profit_euro} originalInputs={originalChart.profit_euro} xAxis={xAxis} />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={4}>
-                <StatCard icon={<AttachMoneyRounded />} title={tr("profit_ats")} latest={"$" + TSep(latest.profit_dollar).replaceAll(",", " ")} inputs={charts.profit_dollar} originalInputs={originalChart.profit_dollar} xAxis={xAxis} />
+                <StatCard icon={<AttachMoneyRounded />} title={tr("profit_ats")} latest={"$" + TSep(latest.profit_dollar).replaceAll(",", " ")} delta={"$" + TSep(delta.profit_dollar).replaceAll(",", " ")} inputs={charts.profit_dollar} originalInputs={originalChart.profit_dollar} xAxis={xAxis} />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={4}>
-                <StatCard icon={<LocalGasStationRounded />} title={tr("fuel")} latest={ConvertUnit(userSettings.unit, "l", latest.fuel).replaceAll(",", " ")} inputs={charts.fuel} originalInputs={originalChart.fuel} xAxis={xAxis} />
+                <StatCard icon={<LocalGasStationRounded />} title={tr("fuel")} latest={ConvertUnit(userSettings.unit, "l", latest.fuel).replaceAll(",", " ")} delta={ConvertUnit(userSettings.unit, "l", delta.fuel).replaceAll(",", " ")} inputs={charts.fuel} originalInputs={originalChart.fuel} xAxis={xAxis} />
             </Grid>
             {detailStats.truck !== undefined && detailStats.truck.length >= 3 && <Grid item xs={12} sm={12} md={6} lg={4}>
                 <Podium title={
