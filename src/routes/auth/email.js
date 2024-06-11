@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ThemeContext } from '../../context';
+import { AppContext, ThemeContext } from '../../context';
 
 import { Button, Card, CardActions, CardContent, Typography, TextField, useTheme } from '@mui/material';
 
@@ -13,7 +13,8 @@ import { customAxios as axios } from '../../functions';
 
 const EmailAuth = () => {
     const { t: tr } = useTranslation();
-    const { apiPath, themeSettings } = useContext(ThemeContext);
+    const { apiPath } = useContext(AppContext);
+    const { themeSettings } = useContext(ThemeContext);
 
     const theme = useTheme();
     const navigate = useNavigate();
