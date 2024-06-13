@@ -40,6 +40,29 @@ axiosRetry(customAxios, {
     },
 });
 customAxios.interceptors.request.use(async (config) => {
+    if (config.fetchOnly) {
+        config.adapter = async () => {
+            const response = await fetch(config.url, {
+                method: config.method,
+                body: config.data,
+            });
+
+            const headers = {};
+            response.headers.forEach((value, name) => {
+                headers[name] = value;
+            });
+
+            return {
+                data: await response.text(),
+                status: response.status,
+                statusText: response.statusText,
+                headers: headers,
+                config: config,
+                request: null,
+            };
+        };
+    }
+
     if (config.headers['Authorization']) {
         if (cacheAExp > +new Date()) {
             config.headers['Client-Key'] = cacheA;
@@ -107,7 +130,13 @@ export const makeRequestsWithAuth = async (urls) => {
 
 export const makeRequestsAuto = async (urls) => {
     const responses = await Promise.all(
-        urls.map(async ({ url, auth }) => {
+        urls.map(async ({ url, auth, fetchOnly }) => {
+            if (fetchOnly) {
+                return await customAxios({
+                    url,
+                    fetchOnly: true,
+                });
+            }
             if (auth === false || (auth === true && getAuthToken() !== null) || auth === "prefer") {
                 return await customAxios({
                     url,
