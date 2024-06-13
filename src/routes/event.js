@@ -620,7 +620,7 @@ const Events = () => {
         setImportDisabled(true);
 
         const eventId = link.replace("https://truckersmp.com/events/", "");
-        const resp = await axios({ url: `https://api.truckersmp.com/v2/events/${eventId}`, fetchOnly: true });
+        const resp = await axios({ url: `https://corsproxy.io/?https://api.truckersmp.com/v2/events/${eventId}`, fetchOnly: true });
         if (resp.status !== 200) {
             setImportDisabled(false);
             setSnackbarContent("Invalid TruckersMP event link");

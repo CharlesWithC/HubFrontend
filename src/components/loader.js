@@ -176,7 +176,7 @@ const Loader = ({ onLoaderLoaded }) => {
             // load api version and status in background
             async function loadApi(apiPath) {
                 // we use corsproxy just in case it's bad gateway and nginx fails to handle cors headers
-                const [index, apiStatus] = await makeRequestsAuto([{ url: `${apiPath}`, fetchOnly: true }, { url: `${apiPath}/status`, auth: false }]);
+                const [index, apiStatus] = await makeRequestsAuto([{ url: `https://corsproxy.io/?${apiPath}/`, fetchOnly: true }, { url: `${apiPath}/status`, auth: false }]);
 
                 if (index) {
                     if (String(index).toLowerCase().indexOf(`bad gateway`) !== -1) {
