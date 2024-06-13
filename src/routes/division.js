@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState, useCallback, useContext, memo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AppContext, CacheContext } from '../context';
 
@@ -32,37 +32,37 @@ const DivisionCard = ({ division }) => {
                 </Typography>
             </div>
             <Grid container spacing={2}>
-                <Grid item xs={12} sm={12} md={6} lg={6}>
+                <Grid item xs={6} sm={6} md={6} lg={6}>
                     <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
                         <PermContactCalendarRounded />&nbsp;{TSep(division.drivers)}
                     </Typography>
                 </Grid>
-                <Grid item xs={12} sm={12} md={6} lg={6}>
+                <Grid item xs={6} sm={6} md={6} lg={6}>
                     <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
                         <LocalShippingRounded />&nbsp;{TSep(division.jobs)}
                     </Typography>
                 </Grid>
-                <Grid item xs={12} sm={12} md={6} lg={6}>
+                <Grid item xs={6} sm={6} md={6} lg={6}>
                     <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
                         <RouteRounded />&nbsp;{ConvertUnit(userSettings.unit, "km", division.distance)}
                     </Typography>
                 </Grid>
-                <Grid item xs={12} sm={12} md={6} lg={6}>
+                <Grid item xs={6} sm={6} md={6} lg={6}>
                     <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
                         <LocalGasStationRounded />&nbsp;{ConvertUnit(userSettings.unit, "l", division.fuel)}
                     </Typography>
                 </Grid>
-                <Grid item xs={12} sm={12} md={6} lg={6}>
+                <Grid item xs={6} sm={6} md={6} lg={6}>
                     <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
                         <EuroRounded />&nbsp;{TSep(division.profit.euro)}
                     </Typography>
                 </Grid>
-                <Grid item xs={12} sm={12} md={6} lg={6}>
+                <Grid item xs={6} sm={6} md={6} lg={6}>
                     <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
                         <AttachMoneyRounded />&nbsp;{TSep(division.profit.dollar)}
                     </Typography>
                 </Grid>
-                <Grid item xs={12} sm={12} md={6} lg={6}>
+                <Grid item xs={6} sm={6} md={6} lg={6}>
                     <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
                         <EmojiEventsRounded />&nbsp;{TSep(division.points)}
                     </Typography>
@@ -96,9 +96,9 @@ const DivisionsMemo = memo(({ doReload, loadComplete, setLoadComplete, listParam
         doLoad();
     }, [apiPath, doReload, listParam]);
 
-    return <>{loadComplete >= 3 && <Grid container spacing={2}>
+    return <>{loadComplete >= 2 && <Grid container spacing={2}>
         {divisions.map((division, index) => (
-            <Grid key={`grid-${index}`} item xs={12} sm={12} md={divisions.length % 2 === 0 ? 6 : index === divisions.length - 1 ? 12 : 6} lg={divisions.length % 2 === 0 ? 6 : index === divisions.length - 1 ? 12 : 6}>
+            <Grid key={`grid-${index}`} item xs={12} sm={12} md={6} lg={4}>
                 <DivisionCard division={division} />
             </Grid>
         ))}
@@ -181,7 +181,7 @@ const DivisionsDlog = memo(({ doReload, loadComplete, setLoadComplete }) => {
     }
 
     return <>
-        {loadComplete >= 3 && <CustomTable page={page} columns={columns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} style={{ marginTop: "15px" }} pstyle={checkUserPerm(curUserPerm, ["administrator", "manage_divisions"]) ? {} : { marginRight: "60px" }} name={<><FontAwesomeIcon icon={faWarehouse} />&nbsp;&nbsp;{tr("recent_validated_division_deliveries")}</>} sx={{ display: loadComplete >= 3 ? undefined : "hidden" }} />}
+        {loadComplete >= 2 && <CustomTable page={page} columns={columns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} style={{ marginTop: "15px" }} pstyle={checkUserPerm(curUserPerm, ["administrator", "manage_divisions"]) ? {} : { marginRight: "60px" }} name={<><FontAwesomeIcon icon={faWarehouse} />&nbsp;&nbsp;{tr("recent_validated_division_deliveries")}</>} sx={{ display: loadComplete >= 2 ? undefined : "hidden" }} />}
     </>;
 });
 
@@ -273,7 +273,7 @@ const DivisionsPending = memo(({ doReload, loadComplete, setLoadComplete }) => {
     }
 
     return <>
-        {loadComplete >= 3 && <CustomTable page={page} columns={pendingColumns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} style={{ marginTop: "15px" }} pstyle={{ marginRight: "60px" }} name={<><FontAwesomeIcon icon={faClock} />&nbsp;&nbsp;{tr("pending_division_validation_requests")}</>} sx={{ display: loadComplete >= 3 ? undefined : "hidden" }} />}
+        {loadComplete >= 1 && <CustomTable page={page} columns={pendingColumns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} style={{ marginTop: "15px" }} pstyle={{ marginRight: "60px" }} name={<><FontAwesomeIcon icon={faClock} />&nbsp;&nbsp;{tr("pending_division_validation_requests")}</>} sx={{ display: loadComplete >= 1 ? undefined : "hidden" }} />}
         <Portal>
             <Snackbar
                 open={!!snackbarContent}
@@ -311,6 +311,7 @@ const Divisions = () => {
     const { t: tr } = useTranslation();
     const { curUser, curUserPerm } = useContext(AppContext);
     const { cache, setCache } = useContext(CacheContext);
+    const location = useLocation();
 
     const [doReload, setDoReload] = useState(0);
     const [dialogManagers, setDialogManagers] = useState(false);
@@ -325,12 +326,12 @@ const Divisions = () => {
         };
     }, [listParam]);
 
-    const [loadComplete, setLoadComplete] = useState(+!checkUserPerm(curUserPerm, ["administrator", "manage_divisions"])); // increment
+    const [loadComplete, setLoadComplete] = useState(0);
 
     return <>
-        <DivisionsMemo doReload={doReload} loadComplete={loadComplete} setLoadComplete={setLoadComplete} listParam={listParam} />
-        <DivisionsDlog doReload={doReload} loadComplete={loadComplete} setLoadComplete={setLoadComplete} />
-        {checkUserPerm(curUserPerm, ["administrator", "manage_divisions"]) && <DivisionsPending doReload={doReload} loadComplete={loadComplete} setLoadComplete={setLoadComplete} />}
+        {location.pathname === "/division" && <DivisionsMemo doReload={doReload} loadComplete={loadComplete} setLoadComplete={setLoadComplete} listParam={listParam} />}
+        {location.pathname === "/division" && <DivisionsDlog doReload={doReload} loadComplete={loadComplete} setLoadComplete={setLoadComplete} />}
+        {location.pathname === "/division/pending" && checkUserPerm(curUserPerm, ["administrator", "manage_divisions"]) && <DivisionsPending doReload={doReload} loadComplete={loadComplete} setLoadComplete={setLoadComplete} />}
         <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
             <DialogTitle>{tr("division_managers")}</DialogTitle>
             <DialogContent>
@@ -366,7 +367,7 @@ const Divisions = () => {
                 <Button variant="contained" onClick={() => { setListParam(tempListParam); }}>{tr("update")}</Button>
             </DialogActions>
         </Dialog>
-        <SpeedDial
+        {location.pathname === "/division" && <SpeedDial
             ariaLabel={tr("controls")}
             sx={{ position: 'fixed', bottom: 20, right: 20 }}
             icon={<SpeedDialIcon />}
@@ -388,7 +389,7 @@ const Divisions = () => {
                 tooltipTitle={tr("refresh")}
                 onClick={() => setDoReload(+new Date())}
             />
-        </SpeedDial>
+        </SpeedDial>}
     </>;
 };
 
