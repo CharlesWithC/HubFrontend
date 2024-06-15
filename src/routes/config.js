@@ -1938,7 +1938,7 @@ const AnnouncementTypeForm = ({ theme, announcement_type, onUpdate }) => {
             />
         </Grid>
         <Grid item xs={12} md={6}>
-            <RoleSelect initialRoles={announcement_type.staff_role_ids} onUpdate={(newRoles) => onUpdate({ ...announcement_type, staff_role_ids: newRoles.map((role) => (role.id)) })} label={tr("staff_roles")} style={{ marginBottom: '16px' }} />
+            <RoleSelect initialRoles={announcement_type.staff_role_ids} onUpdate={(newRoles) => onUpdate({ ...announcement_type, staff_role_ids: newRoles.map((role) => (role.id)) })} label={tr("staff_roles")} style={{ marginBottom: '16px' }} showAllRoles={true} />
         </Grid>
     </Grid>;
 };
@@ -2384,7 +2384,7 @@ const ApplicationTypeForm = ({ theme, application_type, onUpdate }) => {
             />
         </Grid>
         <Grid item xs={12} md={6}>
-            <RoleSelect initialRoles={application_type.staff_role_ids} onUpdate={(newRoles) => onUpdate({ ...application_type, staff_role_ids: newRoles.map((role) => (role.id)) })} label={tr("staff_roles")} style={{ marginBottom: '16px' }} />
+            <RoleSelect initialRoles={application_type.staff_role_ids} onUpdate={(newRoles) => onUpdate({ ...application_type, staff_role_ids: newRoles.map((role) => (role.id)) })} label={tr("staff_roles")} style={{ marginBottom: '16px' }} showAllRoles={true} />
         </Grid>
         <Grid item xs={12} md={6}>
             <Typography variant="body2">{tr("required_connections")}</Typography>
@@ -2468,16 +2468,16 @@ const ApplicationTypeForm = ({ theme, application_type, onUpdate }) => {
             />
         </Grid>
         <Grid item xs={12} md={6}>
-            <RoleSelect initialRoles={application_type.required_either_user_role_ids} onUpdate={(newRoles) => onUpdate({ ...application_type, required_either_user_role_ids: newRoles.map((role) => (role.id)) })} label={tr("required_user_roles_any")} style={{ marginBottom: '16px' }} />
+            <RoleSelect initialRoles={application_type.required_either_user_role_ids} onUpdate={(newRoles) => onUpdate({ ...application_type, required_either_user_role_ids: newRoles.map((role) => (role.id)) })} label={tr("required_user_roles_any")} style={{ marginBottom: '16px' }} showAllRoles={true} />
         </Grid>
         <Grid item xs={12} md={6}>
-            <RoleSelect initialRoles={application_type.required_all_user_role_ids} onUpdate={(newRoles) => onUpdate({ ...application_type, required_all_user_role_ids: newRoles.map((role) => (role.id)) })} label={tr("required_user_roles_all")} style={{ marginBottom: '16px' }} />
+            <RoleSelect initialRoles={application_type.required_all_user_role_ids} onUpdate={(newRoles) => onUpdate({ ...application_type, required_all_user_role_ids: newRoles.map((role) => (role.id)) })} label={tr("required_user_roles_all")} style={{ marginBottom: '16px' }} showAllRoles={true} />
         </Grid>
         <Grid item xs={12} md={6}>
-            <RoleSelect initialRoles={application_type.prohibited_either_user_role_ids} onUpdate={(newRoles) => onUpdate({ ...application_type, prohibited_either_user_role_ids: newRoles.map((role) => (role.id)) })} label={tr("prohibited_user_roles_any")} style={{ marginBottom: '16px' }} />
+            <RoleSelect initialRoles={application_type.prohibited_either_user_role_ids} onUpdate={(newRoles) => onUpdate({ ...application_type, prohibited_either_user_role_ids: newRoles.map((role) => (role.id)) })} label={tr("prohibited_user_roles_any")} style={{ marginBottom: '16px' }} showAllRoles={true} />
         </Grid>
         <Grid item xs={12} md={6}>
-            <RoleSelect initialRoles={application_type.prohibited_all_user_role_ids} onUpdate={(newRoles) => onUpdate({ ...application_type, prohibited_all_user_role_ids: newRoles.map((role) => (role.id)) })} label={tr("prohibited_user_roles_all")} style={{ marginBottom: '16px' }} />
+            <RoleSelect initialRoles={application_type.prohibited_all_user_role_ids} onUpdate={(newRoles) => onUpdate({ ...application_type, prohibited_all_user_role_ids: newRoles.map((role) => (role.id)) })} label={tr("prohibited_user_roles_all")} style={{ marginBottom: '16px' }} showAllRoles={true} />
         </Grid>
         <Grid item xs={6} md={4}>
             <TextField
@@ -2735,7 +2735,7 @@ const DivisionForm = ({ theme, division, onUpdate }) => {
             />
         </Grid>
         <Grid item xs={12} md={6}>
-            <RoleSelect isMulti={false} initialRoles={[division.role_id]} onUpdate={(newRole) => onUpdate({ ...division, role_id: newRole })} label={tr("driver_role")} style={{ marginBottom: '16px' }} />
+            <RoleSelect isMulti={false} initialRoles={[division.role_id]} onUpdate={(newRole) => onUpdate({ ...division, role_id: newRole })} label={tr("driver_role")} style={{ marginBottom: '16px' }} showAllRoles={true} />
         </Grid>
         <Grid item xs={6} md={3}>
             <TextField select
@@ -2761,7 +2761,7 @@ const DivisionForm = ({ theme, division, onUpdate }) => {
             />
         </Grid>
         <Grid item xs={12} md={6}>
-            <RoleSelect initialRoles={division.staff_role_ids} onUpdate={(newRoles) => onUpdate({ ...division, staff_role_ids: newRoles.map((role) => (role.id)) })} label={tr("staff_roles")} style={{ marginBottom: '16px' }} />
+            <RoleSelect initialRoles={division.staff_role_ids} onUpdate={(newRoles) => onUpdate({ ...division, staff_role_ids: newRoles.map((role) => (role.id)) })} label={tr("staff_roles")} style={{ marginBottom: '16px' }} showAllRoles={true} />
         </Grid>
         <Grid item xs={12} md={4}>
             <TextField

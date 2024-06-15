@@ -7,7 +7,7 @@ import { customSelectStyles } from '../designs';
 
 import { checkUserPerm } from '../functions';
 
-const RoleSelect = ({ label, initialRoles, onUpdate, isMulti = true, style = {} }) => {
+const RoleSelect = ({ label, initialRoles, onUpdate, showAllRoles = false, isMulti = true, style = {} }) => {
     const { allRoles, curUser, curUserPerm, divisions } = useContext(AppContext);
     const theme = useTheme();
 
@@ -82,8 +82,8 @@ const RoleSelect = ({ label, initialRoles, onUpdate, isMulti = true, style = {} 
                         value: parseInt(roleId),
                         label: getRole(roleId).name,
                         orderId: getRole(roleId).order_id,
-                        isFixed: !divisionOnly ? getRole(roleId).order_id <= userHighestRole : !divisionRoles.includes(parseInt(roleId)),
-                        isDisabled: !divisionOnly ? getRole(roleId).order_id <= userHighestRole : !divisionRoles.includes(parseInt(roleId))
+                        isFixed: !showAllRoles && (!divisionOnly ? getRole(roleId).order_id <= userHighestRole : !divisionRoles.includes(parseInt(roleId))),
+                        isDisabled: !showAllRoles && (!divisionOnly ? getRole(roleId).order_id <= userHighestRole : !divisionRoles.includes(parseInt(roleId)))
                     }))}
                 isClearable={selectedRoles.some((v) => !v.isFixed)}
                 className="basic-multi-select"

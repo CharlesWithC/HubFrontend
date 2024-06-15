@@ -20,7 +20,7 @@ import TimeDelta from '../components/timedelta';
 
 import { makeRequestsWithAuth, customAxios as axios, checkPerm, checkUserPerm, checkUserRole, getAuthToken, ConvertUnit, removeNUEValues } from '../functions';
 
-const DEFAULT_JOB_REQUIREMENTS = { game: "", market: "", source_city_id: "", source_company_id: "", destination_city_id: "", destination_company_id: "", minimum_distance: "-1", maximum_distance: "-1", maximum_detour_percentage: "-1", minimum_detour_percentage: "-1", minimum_seconds_spent: "-1", maximum_seconds_spent: "-1", truck_id: "", truck_plate_country_id: "", minimum_truck_wheel: "-1", maximum_truck_wheel: "-1", minimum_fuel: "-1", maximum_fuel: "-1", minimum_average_fuel: "-1", maximum_average_fuel: "-1", minimum_adblue: "-1", maximum_adblue: "-1", minimum_average_speed: "-1", maximum_average_speed: "-1", maximum_speed: "-1", cargo_id: "", minimum_cargo_mass: "-1", maximum_cargo_mass: "-1", minimum_cargo_damage: "-1", maximum_cargo_damage: "-1", minimum_profit: "-1", maximum_profit: "-1", minimum_offence: "-1", maximum_offence: "-1", minimum_xp: "-1", maximum_xp: "-1", minimum_train: "-1", maximum_train: "-1", minimum_ferry: "-1", maximum_ferry: "-1", minimum_teleport: "-1", maximum_teleport: "-1", minimum_tollgate: "-1", maximum_tollgate: "-1", minimum_toll_paid: "-1", maximum_toll_paid: "-1", minimum_collision: "-1", maximum_collision: "-1", allow_overspeed: "1", allow_auto_park: "1", allow_auto_load: "1", must_not_be_late: "0", must_be_special: "0", minimum_warp: "-1", maximum_warp: "-1", enabled_realistic_settings: "" };
+const DEFAULT_JOB_REQUIREMENTS = { game: "", market: "", source_city_id: "", source_company_id: "", destination_city_id: "", destination_company_id: "", minimum_distance: "-1", maximum_distance: "-1", maximum_detour_percentage: "-1", minimum_detour_percentage: "-1", minimum_seconds_spent: "-1", maximum_seconds_spent: "-1", truck_id: "", truck_plate_country_id: "", minimum_truck_wheel: "-1", maximum_truck_wheel: "-1", minimum_fuel: "-1", maximum_fuel: "-1", minimum_average_fuel: "-1", maximum_average_fuel: "-1", minimum_adblue: "-1", maximum_adblue: "-1", minimum_average_speed: "-1", maximum_average_speed: "-1", maximum_speed: "-1", cargo_id: "", minimum_cargo_mass: "-1", maximum_cargo_mass: "-1", minimum_cargo_damage: "-1", maximum_cargo_damage: "-1", minimum_profit: "-1", maximum_profit: "-1", minimum_offence: "-1", maximum_offence: "-1", minimum_xp: "-1", maximum_xp: "-1", minimum_train: "-1", maximum_train: "-1", minimum_ferry: "-1", maximum_ferry: "-1", minimum_teleport: "-1", maximum_teleport: "-1", minimum_tollgate: "-1", maximum_tollgate: "-1", minimum_toll_paid: "-1", maximum_toll_paid: "-1", minimum_collision: "-1", maximum_collision: "-1", allow_overspeed: true, allow_auto_park: true, allow_auto_load: true, must_not_be_late: false, must_be_special: false, minimum_warp: "-1", maximum_warp: "-1", enabled_realistic_settings: "" };
 
 const jobReqGroups = { "job": ["game", "market", "source_city_id", "source_company_id", "destination_city_id", "destination_company_id", "minimum_distance", "maximum_distance", "maximum_detour_percentage", "minimum_detour_percentage", "minimum_seconds_spent", "maximum_seconds_spent", "minimum_xp", "maximum_xp", "minimum_profit", "maximum_profit", "minimum_offence", "maximum_offence"], "truck": ["truck_id", "truck_plate_country_id", "minimum_truck_wheel", "maximum_truck_wheel", "minimum_fuel", "maximum_fuel", "minimum_average_fuel", "maximum_average_fuel", "minimum_adblue", "maximum_adblue", "minimum_average_speed", "maximum_average_speed", "maximum_speed"], "cargo": ["cargo_id", "minimum_cargo_mass", "maximum_cargo_mass", "minimum_cargo_damage", "maximum_cargo_damage"], "route": ["minimum_train", "maximum_train", "minimum_ferry", "maximum_ferry", "minimum_teleport", "maximum_teleport", "minimum_tollgate", "maximum_tollgate", "minimum_toll_paid", "maximum_toll_paid", "minimum_collision", "maximum_collision"], "misc": ["minimum_warp", "maximum_warp", "enabled_realistic_settings", "allow_overspeed", "allow_auto_park", "allow_auto_load", "must_not_be_late", "must_be_special"] };
 
@@ -789,11 +789,11 @@ const Challenges = () => {
                             />
                         </Grid>
                         <Grid item xs={6} style={{ paddingTop: 0 }}>
-                            <RoleSelect initialRoles={modalChallenge.required_roles} onUpdate={(newRoles) => setModalChallenge({ ...modalChallenge, required_roles: newRoles.map((role) => (role.id)) })} label={tr("required_roles")} />
+                            <RoleSelect initialRoles={modalChallenge.required_roles} onUpdate={(newRoles) => setModalChallenge({ ...modalChallenge, required_roles: newRoles.map((role) => (role.id)) })} label={tr("required_roles")} showAllRoles={true} />
                         </Grid>
                         <Grid item xs={6}>
                             <TextField
-                                label={tr("required_distance")}
+                                label={tr("required_distance_driven")}
                                 type="text"
                                 value={modalChallenge.required_distance}
                                 onChange={(e) => setModalChallenge({ ...modalChallenge, required_distance: e.target.value })}
@@ -1022,8 +1022,8 @@ const Challenges = () => {
                                                     }
                                                     fullWidth
                                                 >
-                                                    <MenuItem key={1} value={1}>Yes</MenuItem>
-                                                    <MenuItem key={0} value={0}>No</MenuItem>
+                                                    <MenuItem key={true} value={true}>Yes</MenuItem>
+                                                    <MenuItem key={false} value={false}>No</MenuItem>
                                                 </TextField>
                                             </Grid>
                                         }
@@ -1054,7 +1054,7 @@ const Challenges = () => {
                                                     onChange={(e) =>
                                                         setModalChallenge({
                                                             ...modalChallenge,
-                                                            job_requirements: { ...modalChallenge.job_requirements, [key]: e.target.value },
+                                                            job_requirements: { ...modalChallenge.job_requirements, [key]: e.target.value !== "" ? e.target.value : DEFAULT_JOB_REQUIREMENTS[key] },
                                                         })
                                                     }
                                                     fullWidth
