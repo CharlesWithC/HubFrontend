@@ -389,6 +389,11 @@ export const MONTH_NAMES = [
     'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
+export const MONTH_NAMES_SHORT = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+];
+
 export function OrdinalSuffix(i) {
     var j = i % 10,
         k = i % 100;
@@ -461,7 +466,7 @@ export function getTimezoneOffset(timezone, compareWith = 'UTC') {
     return (baseDate - tzDate) / (1000 * 60);
 }
 
-export function getFormattedDate(display_timezone, date, prefomattedDate = false, hideYear = false) {
+export function getFormattedDate(display_timezone, date, prefomattedDate = false, hideYear = false, shortenedMonth = false) {
     if (date === undefined || date === null) return "";
     if (typeof date === "number") {
         if (date < 2000000000) date = date * 1000;
@@ -476,7 +481,7 @@ export function getFormattedDate(display_timezone, date, prefomattedDate = false
     }
 
     const day = date.getDate();
-    const month = MONTH_NAMES[date.getMonth()];
+    const month = !shortenedMonth ? MONTH_NAMES[date.getMonth()] + " " : MONTH_NAMES_SHORT[date.getMonth()] + ".";
     const year = date.getFullYear();
     let hours = date.getHours();
     let minutes = date.getMinutes();
@@ -497,12 +502,12 @@ export function getFormattedDate(display_timezone, date, prefomattedDate = false
     }
 
     if (hideYear) {
-        // January 10. at 10:20
-        return `${month} ${OrdinalSuffix(day)} at ${hours}:${minutes}`;
+        // January 10. at 10:20 // we have " " or "." after month itself
+        return `${month}${OrdinalSuffix(day)} at ${hours}:${minutes}`;
     }
 
-    // January 10. 2017. at 10:20
-    return `${month} ${OrdinalSuffix(day)} ${year} at ${hours}:${minutes}`;
+    // January 10. 2017. at 10:20 // we have " " or "." after month itself
+    return `${month}${OrdinalSuffix(day)} ${year} at ${hours}:${minutes}`;
 }
 
 export function getTodayUTC() {

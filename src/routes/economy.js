@@ -25,7 +25,7 @@ import Select from 'react-select';
 import DateTimeField from '../components/datetime';
 import UserCard from '../components/usercard';
 import UserSelect from '../components/userselect';
-import TimeAgo from '../components/timeago';
+import TimeDelta from '../components/timedelta';
 import CustomTable from '../components/table';
 import { customSelectStyles } from '../designs';
 
@@ -887,7 +887,7 @@ const Economy = () => {
             for (let i = 0; i < resp.data.list.length; i++) {
                 let merch = resp.data.list[i];
                 let ctxMenu = <><MenuItem onClick={() => { setActiveMerch(merch); setMerchOwner(merch.owner); setDialogAction("transfer-merch"); }} sx={{ color: theme.palette.warning.main }}>{tr("transfer_merch")}</MenuItem><MenuItem onClick={() => { setActiveMerch(merch); setMerchOwner(merch.owner); setDialogAction("sell-merch"); }} sx={{ color: theme.palette.error.main }}>{tr("sell_merch")}</MenuItem></>;
-                newMerchList.push({ name: economyCache.merchMap[merch.merchid] !== undefined ? economyCache.merchMap[merch.merchid].name : merch.merchid, value: TSep(merch.price), purchased: <TimeAgo timestamp={merch.purchase_timestamp * 1000} />, data: merch, contextMenu: ctxMenu });
+                newMerchList.push({ name: economyCache.merchMap[merch.merchid] !== undefined ? economyCache.merchMap[merch.merchid].name : merch.merchid, value: TSep(merch.price), purchased: <TimeDelta timestamp={merch.purchase_timestamp * 1000} />, data: merch, contextMenu: ctxMenu });
             }
             if (merchPageRef.current === merchPage) {
                 setMerchList(newMerchList);
@@ -966,7 +966,7 @@ const Economy = () => {
                         </Grid>
                         <Grid item xs={4}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("purchased")}</Typography>
-                            <Typography variant="body2"><TimeAgo timestamp={modalGarageDetails.purchase_timestamp * 1000} /></Typography>
+                            <Typography variant="body2"><TimeDelta timestamp={modalGarageDetails.purchase_timestamp * 1000} /></Typography>
                         </Grid>
                         <Grid item xs={4}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("income")}</Typography>
@@ -1136,7 +1136,7 @@ const Economy = () => {
                         </Grid>
                         <Grid item xs={4}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("purchased")}</Typography>
-                            <Typography variant="body2"><TimeAgo timestamp={activeTruck.purchase_timestamp * 1000} /></Typography>
+                            <Typography variant="body2"><TimeDelta timestamp={activeTruck.purchase_timestamp * 1000} /></Typography>
                         </Grid>
                         <Grid item xs={4}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("odometer")}</Typography>

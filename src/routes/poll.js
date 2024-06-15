@@ -13,7 +13,7 @@ import { faCircle, faCircleCheck } from '@fortawesome/free-regular-svg-icons';
 import DateTimeField from '../components/datetime';
 import UserCard from '../components/usercard';
 import MarkdownRenderer from '../components/markdown';
-import TimeAgo from '../components/timeago';
+import TimeDelta from '../components/timedelta';
 
 import { makeRequestsWithAuth, checkUserPerm, customAxios as axios, checkPerm, getAuthToken } from '../functions';
 
@@ -208,7 +208,7 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete, onPollVoters }) => {
     );
 
     let caption = <><UserCard user={poll.creator} inline={true} />
-        | <TimeAgo key={`${+new Date()}`} timestamp={poll.timestamp * 1000} />
+        | <TimeDelta key={`${+new Date()}`} timestamp={poll.timestamp * 1000} />
         | {poll.config.max_choice === 1 ?
             <Tooltip key={`single-choice`} placement="top" arrow title={tr("single_choice")}
                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>

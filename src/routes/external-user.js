@@ -8,9 +8,9 @@ import { Portal } from '@mui/base';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserPlus, faBan, faUsersSlash } from '@fortawesome/free-solid-svg-icons';
 
-import TimeAgo from '../components/timeago';
+import TimeDelta from '../components/timedelta';
 import CustomTable from "../components/table";
-import { makeRequestsAuto, getFormattedDate, removeNullValues, customAxios as axios, getAuthToken, removeNUEValues } from '../functions';
+import { makeRequestsAuto, removeNullValues, customAxios as axios, getAuthToken, removeNUEValues } from '../functions';
 import UserCard from '../components/usercard';
 import UserSelect from '../components/userselect';
 import DateTimeField from '../components/datetime';
@@ -123,7 +123,7 @@ const ExternalUsers = () => {
     useEffect(() => {
         return () => {
             setCache(cache => ({
-                ...cache, 
+                ...cache,
                 external_user: {
                     ...cache.external_user,
                     userList,
@@ -180,7 +180,7 @@ const ExternalUsers = () => {
                     let user = _userList.list[i];
                     let banMark = <></>;
                     if (user.ban !== null) banMark = <FontAwesomeIcon icon={faBan} style={{ color: theme.palette.error.main }} />;
-                    newUserList.push({ uid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{user.uid}</span>&nbsp;{banMark}</Typography>, user: <UserCard key={user.uid} user={user} />, email: user.email, discordid: user.discordid, steamid: <a href={`https://steamcommunity.com/profiles/${user.steamid}`} target="_blank" rel="noreferrer" >{user.steamid}</a>, truckersmpid: <a href={`https://truckersmp.com/user/${user.truckersmpid}`} target="_blank" rel="noreferrer" >{user.truckersmpid}</a>, joined: <TimeAgo key={`${+new Date()}`} timestamp={user.join_timestamp * 1000} /> });
+                    newUserList.push({ uid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{user.uid}</span>&nbsp;{banMark}</Typography>, user: <UserCard key={user.uid} user={user} />, email: user.email, discordid: user.discordid, steamid: <a href={`https://steamcommunity.com/profiles/${user.steamid}`} target="_blank" rel="noreferrer" >{user.steamid}</a>, truckersmpid: <a href={`https://truckersmp.com/user/${user.truckersmpid}`} target="_blank" rel="noreferrer" >{user.truckersmpid}</a>, joined: <TimeDelta key={`${+new Date()}`} timestamp={user.join_timestamp * 1000} rough={true} shortenedMonth={true} /> });
                 }
                 if (userPageRef.current === userPage && userSearchRef.current === userSearch) {
                     setUserList(newUserList);
@@ -228,7 +228,7 @@ const ExternalUsers = () => {
                 let newBanList = [];
                 for (let i = 0; i < _banList.list.length; i++) {
                     let ban = _banList.list[i];
-                    let expireDT = getFormattedDate(userSettings.display_timezone, new Date(ban.ban.expire * 1000));
+                    let expireDT = <TimeDelta key={`${+new Date()}`} timestamp={ban.ban.expire * 1000} rough={true} shortenedMonth={true} />;
                     if (ban.ban.expire >= 4102444800 || ban.ban.expire === null) expireDT = "/";
                     newBanList.push({ uid: ban.meta.uid, user: ban.user === null ? undefined : <UserCard key={ban.user.uid} user={ban.user} />, email: ban.meta.email, discordid: ban.meta.discordid, steamid: <a href={`https://steamcommunity.com/profiles/${ban.meta.steamid}`} target="_blank" rel="noreferrer" >{ban.meta.steamid}</a>, truckersmpid: <a href={`https://truckersmp.com/user/${ban.meta.truckersmpid}`} target="_blank" rel="noreferrer" >{ban.meta.truckersmpid}</a>, reason: ban.ban.reason, expire: expireDT, contextMenu: <MenuItem onClick={() => { unbanUser(ban.meta); doLoadBan(); }}>{tr("unban")}</MenuItem> });
                 }

@@ -16,7 +16,7 @@ import { saveAs } from 'file-saver';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faServer, faClockRotateLeft, faFingerprint, faDesktop, faPlus, faMinus, faArrowUp, faArrowDown, faWrench, faFileImport, faFileExport, faLock, faCircleInfo, faLockOpen, faCircleQuestion } from '@fortawesome/free-solid-svg-icons';
 
-import TimeAgo from '../components/timeago';
+import TimeDelta from '../components/timedelta';
 import ColorInput from '../components/colorInput';
 import SponsorBadge from '../components/sponsorBadge';
 import RoleSelect from '../components/roleselect';
@@ -3868,7 +3868,7 @@ const Configuration = () => {
             <TabPanel value={tab} index={2}>
                 <Typography variant="body2" component="div" sx={{ mt: "5px" }}>{tr("config_note_7")}<br />{tr("config_note_2")}<br />{tr("config_note_8")}<br />{tr("config_note_4")}<br />
                     <br />
-                    <FontAwesomeIcon icon={faClockRotateLeft} /> <>{tr("last_modified")}</>: <TimeAgo key={apiLastModify} timestamp={apiLastModify * 1000} />
+                    <FontAwesomeIcon icon={faClockRotateLeft} /> <>{tr("last_modified")}</>: <TimeDelta key={apiLastModify} timestamp={apiLastModify * 1000} />
                 </Typography>
                 {apiConfig !== null && <div sx={{ position: "relative" }}>
                     <TextField

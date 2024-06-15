@@ -8,7 +8,7 @@ import { Portal } from '@mui/base';
 
 import CustomTable from '../../components/table';
 import UserCard from '../../components/usercard';
-import TimeAgo from '../../components/timeago';
+import TimeDelta from '../../components/timedelta';
 import MarkdownRenderer from '../../components/markdown';
 
 import { makeRequestsAuto, customAxios as axios, getAuthToken, removeNUEValues } from '../../functions';
@@ -70,7 +70,7 @@ const ApplicationTable = memo(({ showDetail }) => {
             let newApplications = [];
             for (let i = 0; i < _applications.list.length; i++) {
                 let app = _applications.list[i];
-                newApplications.push({ id: app.applicationid, type: localApplicationTypes ? (localApplicationTypes[app.type]?.name ?? tr("unknown")) : tr("unknown"), submit: <TimeAgo key={`${+new Date()}`} timestamp={app.submit_timestamp * 1000} />, update: <TimeAgo key={`${+new Date()}`} timestamp={app.respond_timestamp * 1000} />, staff: <UserCard user={app.last_respond_staff} />, status: STATUS[app.status], application: app, statusInt: app.status });
+                newApplications.push({ id: app.applicationid, type: localApplicationTypes ? (localApplicationTypes[app.type]?.name ?? tr("unknown")) : tr("unknown"), submit: <TimeDelta key={`${+new Date()}`} timestamp={app.submit_timestamp * 1000} />, update: <TimeDelta key={`${+new Date()}`} timestamp={app.respond_timestamp * 1000} />, staff: <UserCard user={app.last_respond_staff} />, status: STATUS[app.status], application: app, statusInt: app.status });
             }
 
             if (pageRef.current === page) {
@@ -157,7 +157,7 @@ const ApplicationTable = memo(({ showDetail }) => {
                             {STATUS[recent[0].status]}
                         </Typography>
                         <Typography variant="subtitle2" sx={{ mt: 1 }}>
-                            <>{tr("last_responded")}</>: <TimeAgo key={`${+new Date()}`} timestamp={recent[0].respond_timestamp * 1000} />
+                            <>{tr("last_responded")}</>: <TimeDelta key={`${+new Date()}`} timestamp={recent[0].respond_timestamp * 1000} />
                         </Typography>
                     </CardContent>
                 </Card>
@@ -171,7 +171,7 @@ const ApplicationTable = memo(({ showDetail }) => {
                                 {STATUS[recent[1].status]}
                             </Typography>
                             <Typography variant="subtitle2" sx={{ mt: 1 }}>
-                                <>{tr("last_responded")}</>: <TimeAgo key={`${+new Date()}`} timestamp={recent[1].respond_timestamp * 1000} />
+                                <>{tr("last_responded")}</>: <TimeDelta key={`${+new Date()}`} timestamp={recent[1].respond_timestamp * 1000} />
                             </Typography>
                         </CardContent>
                     </Card>

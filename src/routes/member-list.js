@@ -8,7 +8,7 @@ import { Portal } from '@mui/base';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowsRotate, faCodeCompare, faFileExport, faIdCard, faTruck, faUserGroup, faUsersSlash } from '@fortawesome/free-solid-svg-icons';
 
-import TimeAgo from '../components/timeago';
+import TimeDelta from '../components/timedelta';
 import CustomTable from "../components/table";
 import UserCard from '../components/usercard';
 import UserSelect from '../components/userselect';
@@ -371,7 +371,7 @@ const MemberList = () => {
                 let newUserList = [];
                 for (let i = 0; i < _userList.list.length; i++) {
                     let user = _userList.list[i];
-                    newUserList.push({ userid: `${user.userid}`, user: <UserCard key={user.uid} user={user} />, discordid: user.discordid, steamid: <a href={`https://steamcommunity.com/profiles/${user.steamid}`} target="_blank" rel="noreferrer" >{user.steamid}</a>, truckersmpid: <a href={`https://truckersmp.com/user/${user.truckersmpid}`} target="_blank" rel="noreferrer" >{user.truckersmpid}</a>, joined: <TimeAgo key={`${+new Date()}`} timestamp={user.join_timestamp * 1000} />, last_seen: user.activity !== null && user.activity.last_seen !== undefined ? <TimeAgo key={`${+new Date()}`} timestamp={user.activity.last_seen * 1000} /> : "/" });
+                    newUserList.push({ userid: `${user.userid}`, user: <UserCard key={user.uid} user={user} />, discordid: user.discordid, steamid: <a href={`https://steamcommunity.com/profiles/${user.steamid}`} target="_blank" rel="noreferrer" >{user.steamid}</a>, truckersmpid: <a href={`https://truckersmp.com/user/${user.truckersmpid}`} target="_blank" rel="noreferrer" >{user.truckersmpid}</a>, joined: <TimeDelta key={`${+new Date()}`} timestamp={user.join_timestamp * 1000} />, last_seen: user.activity !== null && user.activity.last_seen !== undefined ? <TimeDelta key={`${+new Date()}`} timestamp={user.activity.last_seen * 1000} /> : "/" });
                 }
                 if (pageRef.current === page && searchRef.current === search) {
                     setUserList(newUserList);

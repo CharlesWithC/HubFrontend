@@ -8,7 +8,7 @@ import { Portal } from '@mui/base';
 
 import CustomTable from '../../components/table';
 import UserCard from '../../components/usercard';
-import TimeAgo from '../../components/timeago';
+import TimeDelta from '../../components/timedelta';
 import MarkdownRenderer from '../../components/markdown';
 import SponsorBadge from '../../components/sponsorBadge';
 import UserSelect from '../../components/userselect';
@@ -77,7 +77,7 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
             let newApplications = [];
             for (let i = 0; i < _applications.list.length; i++) {
                 let app = _applications.list[i];
-                newApplications.push({ id: app.applicationid, type: localApplicationTypes ? (localApplicationTypes[app.type]?.name ?? tr("unknown")) : tr("unknown"), submit: <TimeAgo key={`${+new Date()}`} timestamp={app.submit_timestamp * 1000} />, update: <TimeAgo key={`${+new Date()}`} timestamp={app.respond_timestamp * 1000} />, user: <UserCard key={app.creator.uid} user={app.creator} />, staff: <UserCard key={app.last_respond_staff.uid} user={app.last_respond_staff} />, status: STATUS[app.status], application: app, statusInt: app.status });
+                newApplications.push({ id: app.applicationid, type: localApplicationTypes ? (localApplicationTypes[app.type]?.name ?? tr("unknown")) : tr("unknown"), submit: <TimeDelta key={`${+new Date()}`} timestamp={app.submit_timestamp * 1000} />, update: <TimeDelta key={`${+new Date()}`} timestamp={app.respond_timestamp * 1000} />, user: <UserCard key={app.creator.uid} user={app.creator} />, staff: <UserCard key={app.last_respond_staff.uid} user={app.last_respond_staff} />, status: STATUS[app.status], application: app, statusInt: app.status });
             }
 
             if (pageRef.current === page) {
@@ -363,7 +363,8 @@ const AllApplication = () => {
                         {tmpData.vtc.id === 0 && <>
                             <b>{tr("current_vtc")}</b>{tr("na")}</>}<br />
                         {tmpData.vtcHistory !== null && tmpData.vtcHistory.length !== 0 && <>
-                            <b>{tr("vtc_history")} ({tmpData.vtcHistory.length})</b>: <>{tmpData.vtcHistory.map((vtc, index) => <><a href={`https://truckersmp.com/vtc/${vtc.id}`} target="_blank" rel="noreferrer">{vtc.name}</a> ({tr("left")} <TimeAgo timestamp={+new Date(vtc.leftDate)} rough={true}></TimeAgo>)<>{index !== tmpData.vtcHistory.length - 1 && `, `}</></>)}</>
+                            <b>{tr("vtc_history")} ({tmpData.vtcHistory.length})</b>: <>{tmpData.vtcHistory.map((vtc, index) => <><a href={`https://truckersmp.com/vtc/${vtc.id}`} target="_blank" rel="noreferrer">{vtc.name}</a> ({tr("left")} <TimeDelta timestamp={+new Date(vtc.leftDate)} rough={true}
+                            />)<>{index !== tmpData.vtcHistory.length - 1 && `, `}</></>)}</>
                         </>}
                         {tmpData.vtcHistory !== null && tmpData.vtcHistory.length === 0 && <>
                             <b>{tr("vtc_history_0")}</b>{tr("na")}</>}

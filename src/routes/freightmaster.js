@@ -9,8 +9,9 @@ import { faCrown } from "@fortawesome/free-solid-svg-icons";
 
 import UserCard from "../components/usercard";
 import CustomTable from '../components/table';
+import TimeDelta from "../components/timedelta";
 
-import { getFormattedDate, makeRequestsWithAuth, TSep } from "../functions";
+import { makeRequestsWithAuth, TSep } from "../functions";
 
 const D_LEVEL_POINT = 1000;
 const A_LEVEL_POINT = 10000;
@@ -59,8 +60,8 @@ const FreightMaster = () => {
                 `https://config.chub.page/freightmaster/${fMode}?abbr=${webConfig.abbr}&page=${page}&page_size=${pageSize}`
             ]);
             setSeasonName(position.season_name);
-            setStartTime(getFormattedDate(userSettings.display_timezone, new Date(position.start_time * 1000)));
-            setEndTime(getFormattedDate(userSettings.display_timezone, new Date(position.end_time * 1000)));
+            setStartTime(<TimeDelta timestamp={position.start_time * 1000} rough={true} />);
+            setEndTime(<TimeDelta timestamp={position.end_time * 1000} rough={true} />);
             setRankd(position.rankd ?? "Unranked");
             setPointd(position.pointd ?? 0);
             setRanka(position.ranka ?? "Unranked");

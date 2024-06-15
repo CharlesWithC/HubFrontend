@@ -8,7 +8,7 @@ import { Portal } from '@mui/base';
 
 import UserCard from '../components/usercard';
 import MarkdownRenderer from '../components/markdown';
-import TimeAgo from '../components/timeago';
+import TimeDelta from '../components/timedelta';
 
 import { makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios, checkPerm, downloadFile, getAuthToken } from '../functions';
 
@@ -87,7 +87,7 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
                         <Typography variant="body2"><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
                     </CardContent>
                     <CardContent>
-                        <Typography variant="caption"><UserCard user={downloadableItem.creator} inline={true} />{downloadableItem.timestamp !== 0 && <> | <TimeAgo key={`${+new Date()}`} timestamp={downloadableItem.timestamp * 1000} /></>}</Typography>
+                        <Typography variant="caption"><UserCard user={downloadableItem.creator} inline={true} />{downloadableItem.timestamp !== 0 && <> | <TimeDelta key={`${+new Date()}`} timestamp={downloadableItem.timestamp * 1000} /></>}</Typography>
                     </CardContent>
                 </Card>
             </Grid>
@@ -114,7 +114,7 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
                         <Typography variant="body2"><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
                     </CardContent>
                     <CardContent>
-                        <Typography variant="caption"><UserCard user={downloadableItem.creator} inline={true} />{downloadableItem.timestamp !== 0 && <> | <TimeAgo key={`${+new Date()}`} timestamp={downloadableItem.timestamp * 1000} /></>}</Typography>
+                        <Typography variant="caption"><UserCard user={downloadableItem.creator} inline={true} />{downloadableItem.timestamp !== 0 && <> | <TimeDelta key={`${+new Date()}`} timestamp={downloadableItem.timestamp * 1000} /></>}</Typography>
                     </CardContent>
                 </Card>
             </Grid>
@@ -146,7 +146,7 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
                                 <Typography variant="body2"><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
                             </CardContent>
                             <CardContent>
-                                <Typography variant="caption"><UserCard user={downloadableItem.creator} inline={true} />{downloadableItem.timestamp !== 0 && <> | <TimeAgo key={`${+new Date()}`} timestamp={downloadableItem.timestamp * 1000} /></>}</Typography>
+                                <Typography variant="caption"><UserCard user={downloadableItem.creator} inline={true} />{downloadableItem.timestamp !== 0 && <> | <TimeDelta key={`${+new Date()}`} timestamp={downloadableItem.timestamp * 1000} /></>}</Typography>
                             </CardContent>
                         </Card>
                     </Grid>
@@ -177,7 +177,7 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
                                 <Typography variant="body2"><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
                             </CardContent>
                             <CardContent>
-                                <Typography variant="caption"><UserCard user={downloadableItem.creator} inline={true} />{downloadableItem.timestamp !== 0 && <> | <TimeAgo key={`${+new Date()}`} timestamp={downloadableItem.timestamp * 1000} /></>}</Typography>
+                                <Typography variant="caption"><UserCard user={downloadableItem.creator} inline={true} />{downloadableItem.timestamp !== 0 && <> | <TimeDelta key={`${+new Date()}`} timestamp={downloadableItem.timestamp * 1000} /></>}</Typography>
                             </CardContent>
                         </Card>
                     </Grid>

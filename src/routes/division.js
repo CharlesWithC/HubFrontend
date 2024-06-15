@@ -11,7 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faWarehouse, faClock, faGears, faStamp } from '@fortawesome/free-solid-svg-icons';
 
 import UserCard from '../components/usercard';
-import TimeAgo from '../components/timeago';
+import TimeDelta from '../components/timedelta';
 import CustomTable from '../components/table';
 import DateTimeField from '../components/datetime';
 
@@ -160,7 +160,7 @@ const DivisionsDlog = memo(({ doReload, loadComplete, setLoadComplete }) => {
                     </Tooltip></>;
                 }
                 let row = dlogL.list[i];
-                newDlogList.push({ logid: row.logid, display_logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{row.logid}</span>{checkmark}</Typography>, driver: <UserCard user={row.user} inline={true} />, source: `${row.source_company}, ${row.source_city}`, destination: `${row.destination_company}, ${row.destination_city}`, distance: ConvertUnit(userSettings.unit, "km", row.distance), cargo: `${row.cargo} (${ConvertUnit(userSettings.unit, "kg", row.cargo_mass)})`, profit: `${CURRENTY_ICON[row.unit]}${row.profit}`, time: <TimeAgo key={`${+new Date()}`} timestamp={row.timestamp * 1000} /> });
+                newDlogList.push({ logid: row.logid, display_logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{row.logid}</span>{checkmark}</Typography>, driver: <UserCard user={row.user} inline={true} />, source: `${row.source_company}, ${row.source_city}`, destination: `${row.destination_company}, ${row.destination_city}`, distance: ConvertUnit(userSettings.unit, "km", row.distance), cargo: `${row.cargo} (${ConvertUnit(userSettings.unit, "kg", row.cargo_mass)})`, profit: `${CURRENTY_ICON[row.unit]}${row.profit}`, time: <TimeDelta key={`${+new Date()}`} timestamp={row.timestamp * 1000} /> });
             }
 
             if (pageRef.current === page) {

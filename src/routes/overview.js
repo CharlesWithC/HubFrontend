@@ -8,7 +8,7 @@ import { PermContactCalendarRounded, LocalShippingRounded, RouteRounded, EuroRou
 
 import SimpleBar from 'simplebar-react';
 
-import TimeAgo from '../components/timeago';
+import TimeDelta from '../components/timedelta';
 import StatCard from '../components/statcard';
 import UserCard from '../components/usercard';
 
@@ -231,7 +231,7 @@ const Overview = () => {
                                                 {recentVisitors.map((row, idx) => {
                                                     return (<TableRow key={`recent-visitors-${idx}`}>
                                                         <TableCell>{row.user}</TableCell>
-                                                        <TableCell align="right"><TimeAgo key={`${+new Date()}`} timestamp={row.timestamp * 1000} /></TableCell>
+                                                        <TableCell align="right"><TimeDelta key={`${+new Date()}`} timestamp={row.timestamp * 1000} /></TableCell>
                                                     </TableRow>);
                                                 })}
                                             </TableBody>

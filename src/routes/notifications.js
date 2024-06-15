@@ -7,7 +7,7 @@ import { useTheme } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
 
-import TimeAgo from '../components/timeago';
+import TimeDelta from '../components/timedelta';
 import CustomTable from "../components/table";
 import { makeRequestsAuto } from '../functions';
 import MarkdownRenderer from '../components/markdown';
@@ -42,7 +42,7 @@ const Notifications = () => {
             let newNotiList = [];
             for (let i = 0; i < _notiList.list.length; i++) {
                 let row = _notiList.list[i];
-                newNotiList.push({ id: row.notificationid, content: <MarkdownRenderer>{row.content}</MarkdownRenderer>, time: <TimeAgo key={row.notificationid} timestamp={row.timestamp * 1000} /> });
+                newNotiList.push({ id: row.notificationid, content: <MarkdownRenderer>{row.content}</MarkdownRenderer>, time: <TimeDelta key={row.notificationid} timestamp={row.timestamp * 1000} /> });
             }
 
             if (pageRef.current === page) {

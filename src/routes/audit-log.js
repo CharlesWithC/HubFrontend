@@ -4,7 +4,7 @@ import { AppContext, CacheContext } from '../context';
 
 import { useTheme } from '@mui/material';
 
-import TimeAgo from '../components/timeago';
+import TimeDelta from '../components/timedelta';
 import CustomTable from "../components/table";
 import { makeRequestsAuto } from '../functions';
 import MarkdownRenderer from '../components/markdown';
@@ -43,7 +43,7 @@ const AuditLog = () => {
             let newUserList = [];
             for (let i = 0; i < _auditList.list.length; i++) {
                 let row = _auditList.list[i];
-                newUserList.push({ user: <UserCard user={row.user} />, time: <TimeAgo key={`${+new Date()}`} timestamp={row.timestamp * 1000} />, category: row.category.charAt(0).toUpperCase() + row.category.substr(1), operation: <MarkdownRenderer>{row.operation}</MarkdownRenderer> });
+                newUserList.push({ user: <UserCard user={row.user} />, time: <TimeDelta key={`${+new Date()}`} timestamp={row.timestamp * 1000} />, category: row.category.charAt(0).toUpperCase() + row.category.substr(1), operation: <MarkdownRenderer>{row.operation}</MarkdownRenderer> });
             }
 
             if (pageRef.current === page) {

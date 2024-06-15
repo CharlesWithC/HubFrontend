@@ -40,13 +40,13 @@ import SimpleBar from 'simplebar-react';
 import DateTimeField from './datetime';
 import useLongPress from './useLongPress';
 import RoleSelect from './roleselect';
-import TimeAgo from './timeago';
+import TimeDelta from './timedelta';
 import MarkdownRenderer from './markdown';
 import StatCard from './statcard';
 import CustomTable from './table';
 import { darkenColor } from '../designs';
 
-import { customAxios as axios, getAuthToken, checkUserPerm, removeNUEValues, getFormattedDate, getTodayUTC, makeRequestsAuto, ConvertUnit, TSep } from '../functions';
+import { customAxios as axios, getAuthToken, checkUserPerm, removeNUEValues, getTodayUTC, makeRequestsAuto, ConvertUnit, TSep } from '../functions';
 
 const PROFILE_COLOR = {
     light: {
@@ -64,7 +64,7 @@ const CURRENTY_ICON = { 1: "€", 2: "$" };
 const GetActivity = (tr, activity) => {
     if (activity.status === "offline") {
         if (activity.last_seen !== -1)
-            return <>{tr("offline_last_seen")} <TimeAgo key={`${+new Date()}`} timestamp={activity.last_seen * 1000} lower={true} /></>;
+            return <>{tr("offline_last_seen")} <TimeDelta key={`${+new Date()}`} timestamp={activity.last_seen * 1000} lower={true} /></>;
         else
             return <>{tr("offline")}</>;
     } else if (activity.status === "online") {
@@ -304,7 +304,7 @@ const UserCard = (props) => {
                 distance: ConvertUnit(userSettings.unit, "km", _dlogList.list[i].distance),
                 cargo: `${_dlogList.list[i].cargo} (${ConvertUnit(userSettings.unit, "kg", _dlogList.list[i].cargo_mass)})`,
                 profit: `${CURRENTY_ICON[_dlogList.list[i].unit]}${_dlogList.list[i].profit}`,
-                time: <TimeAgo key={`${+new Date()}`} timestamp={_dlogList.list[i].timestamp * 1000} />
+                time: <TimeDelta key={`${+new Date()}`} timestamp={_dlogList.list[i].timestamp * 1000} />
             });
         }
         return newDlogList;
@@ -915,7 +915,7 @@ const UserCard = (props) => {
                                         {user.userid !== null && user.userid !== -1 ? `MEMBER` : `USER`} {tr("since").toUpperCase()}
                                     </Typography>
                                     {users[user.uid] !== undefined && <Typography variant="body2" sx={{ display: "inline-block" }}>
-                                        {getFormattedDate(userSettings.display_timezone, new Date(users[user.uid].join_timestamp * 1000)).split(" at ")[0]}
+                                        <TimeDelta timestamp={users[user.uid].join_timestamp * 1000} rough={true} />
                                     </Typography>}
                                 </Grid>
                                 <Grid item xs={6}>
@@ -1052,7 +1052,7 @@ const UserCard = (props) => {
                                             avatar={<Tooltip placement="top" arrow title="TruckersMP"
                                                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><img src="data:image/webp;base64,UklGRugCAABXRUJQVlA4TNwCAAAvH8AHEK/CMADQJIDd/f9XXtG6zQJ5g5UkSaZ6Fs/m6d7x36+tGYdtJClSbx/zPeWf1WfB/wvSDTittm1Znt8VJzvJvXliABpTMAwD0J1GdEkOAxDdXQMAAPAnIpDCn38xAEACwCh8rewUqmCXX+/KrgNAVHGDOh52b6q6J/lxDborLlOBZtX1+z1kxpg08Iizm8v5YzFaikk8QF66zAFYmO/vZJFdsDfeyX/AvWn5yaH+2c4miHpe5LXzl12uB9gV/Nohq8BKgnkj7BehcDAdP/mNEFYwCXF9EVU3o4sv6Nrzd6hun8Y9cezrq0yXPRL1sd8NAtPaUKCMwh6haeqh05pir6+RYlqsacjlL7raXJ7MCd82m1h1IXJZIU2np+t86LQpT/GehuOVFPux24tA6Pimzoz9PQAIsm2nbb6sMJNSxjDJDGFmpv2vxRQ5O4joPwO3bRtJ3bfvfJ+AZyVPrpCnqnNb9rlRJPP1/8TIn/kpN6jseRR5KTRFWaTUYw28lEVJoJTyvLeaKYi0nG+IlPcCgdBbQym/hJJVyRMEAp986zMC4MJD/ZYbL1nIumHW4KfcSAEh3nlp8W/2IcQTJAuxilIIAIFHDSsDP3LzFbIAj5qH+QiGU1WlErb7YCCScr9350rAykClSeVCPPP69VMs/FV4h2CNspGUnQFJEqnQrDZbVFSq738idQCRc3fzpyiKLEuU8qIkOj64LLmaWA8bBaH09/v7V7EH1HG7lFIXe854L9yHuqYZ84+aQpnCspP7bWNky2n3kiJKDCGdW6icNjmZTlQOb0rNOkNIjDDS09vuoLu+aQjPF3OGgQHCanrcux1ug8kBYcQ0pmPUvfRuOtJu3YOBMMfSAm/Hqy7CyNhN1ggzDRtYjfd3hoV+6KdU9hT2vVF0OjparGbj8NDosAQSDEGkt7pNjrteFAJ+lz6XhAAQuA6Hs1HvCsTrb0rAt1/uHYFlSgA=" /></Tooltip>}
                                             label={<>{tmpLastOnline === null ? `${!userSettings.streamer_mode ? user.truckersmpid : String(user.truckersmpid)[0] + "..."}` : <Tooltip placement="top" arrow
-                                                title={<><>{tr("last_seen")}</>: <TimeAgo key={`${+new Date()}`} timestamp={tmpLastOnline * 1000} /></>}
+                                                title={<><>{tr("last_seen")}</>: <TimeDelta key={`${+new Date()}`} timestamp={tmpLastOnline * 1000} /></>}
                                                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                                                 {!userSettings.streamer_mode ? user.truckersmpid : String(user.truckersmpid)[0] + "..."}
                                             </Tooltip>}</>}
@@ -1471,7 +1471,7 @@ const UserCard = (props) => {
                             {idx !== 0 && <Divider sx={{ mt: "5px", mb: "5px" }} />}
                             {history.added_roles.map((role) => (<Typography key={`history-${idx}`} variant="body2" sx={{ color: theme.palette.info.main }}>+ {allRoles[role] !== undefined ? allRoles[role].name : `Unknown Role (${role})`}</Typography>))}
                             {history.removed_roles.map((role) => (<Typography key={`history-${idx}`} variant="body2" sx={{ color: theme.palette.warning.main }}>- {allRoles[role] !== undefined ? allRoles[role].name : `Unknown Role (${role})`}</Typography>))}
-                            <Typography key={`history-${idx}-time`} variant="body2" sx={{ color: theme.palette.text.secondary }}><TimeAgo key={`${+new Date()}`} timestamp={history.timestamp * 1000} /></Typography>
+                            <Typography key={`history-${idx}-time`} variant="body2" sx={{ color: theme.palette.text.secondary }}><TimeDelta key={`${+new Date()}`} timestamp={history.timestamp * 1000} /></Typography>
                         </>
                         ))}
                         {user.role_history !== undefined && user.role_history !== null && user.role_history.length === 0 && <Typography variant="body2" >{tr("no_data")}</Typography>}
@@ -1483,7 +1483,7 @@ const UserCard = (props) => {
                         {user.ban_history !== undefined && user.ban_history !== null && user.ban_history.map((history, idx) => (<>
                             {idx !== 0 && <Divider sx={{ mt: "5px", mb: "5px" }} />}
                             <Typography key={`history-${idx}`} variant="body2">{history.reason}</Typography>
-                            <Typography key={`history-${idx}-time`} variant="body2" sx={{ color: theme.palette.text.secondary }}><>{tr("expiry")}</>: {getFormattedDate(userSettings.display_timezone, new Date(history.expire_timestamp * 1000))}</Typography>
+                            <Typography key={`history-${idx}-time`} variant="body2" sx={{ color: theme.palette.text.secondary }}><>{tr("expiry")}</>: <TimeDelta timestamp={history.expire_timestamp * 1000} /></Typography>
                         </>
                         ))}
                         {user.ban_history !== undefined && user.ban_history !== null && user.ban_history.length === 0 && <Typography variant="body2" >{tr("no_data")}</Typography>}
@@ -1506,7 +1506,7 @@ const UserCard = (props) => {
                                 {idx !== 0 && <Divider sx={{ mt: "5px", mb: "5px" }} />}
                                 <Typography variant="body2" sx={{ color: history.distance >= 0 ? theme.palette.success.main : theme.palette.error.main }}>{history.distance > 0 ? `+` : ``}{ConvertUnit(userSettings.unit, "km", history.distance)} by <UserCard user={history.staff} /></Typography>
                                 <Typography variant="body2">{tr("note")}{history.note !== "" ? history.note : "N/A"}</Typography>
-                                <Typography key={`history-${idx}-time`} variant="body2" sx={{ color: theme.palette.text.secondary }}><TimeAgo key={`${+new Date()}`} timestamp={history.timestamp * 1000} /></Typography>
+                                <Typography key={`history-${idx}-time`} variant="body2" sx={{ color: theme.palette.text.secondary }}><TimeDelta key={`${+new Date()}`} timestamp={history.timestamp * 1000} /></Typography>
                             </>;
                         })}
                         {distanceHistory !== undefined && distanceHistory !== null && distanceHistory.length === 0 && <Typography variant="body2" >{tr("no_data")}</Typography>}
@@ -1538,7 +1538,7 @@ const UserCard = (props) => {
                                 {idx !== 0 && <Divider sx={{ mt: "5px", mb: "5px" }} />}
                                 <Typography variant="body2" sx={{ color: history.points >= 0 ? theme.palette.success.main : theme.palette.error.main }}>{history.points > 0 ? `+` : ``}{history.points}{tr("points_by")}<UserCard user={history.staff} /></Typography>
                                 <Typography variant="body2">{tr("note")}{history.note !== "" ? history.note : "N/A"}</Typography>
-                                <Typography key={`history-${idx}-time`} variant="body2" sx={{ color: theme.palette.text.secondary }}><TimeAgo key={`${+new Date()}`} timestamp={history.timestamp * 1000} /></Typography>
+                                <Typography key={`history-${idx}-time`} variant="body2" sx={{ color: theme.palette.text.secondary }}><TimeDelta key={`${+new Date()}`} timestamp={history.timestamp * 1000} /></Typography>
                             </>;
                         })}
                         {bonusHistory !== undefined && bonusHistory !== null && bonusHistory.length === 0 && <Typography variant="body2" >{tr("no_data")}</Typography>}
@@ -1764,7 +1764,7 @@ const UserCard = (props) => {
                                         {user.userid !== null && user.userid !== -1 ? `MEMBER` : `USER`} {tr("since").toUpperCase()}
                                     </Typography>
                                     {users[user.uid] !== undefined && <Typography variant="body2" sx={{ display: "inline-block" }}>
-                                        {getFormattedDate(userSettings.display_timezone, new Date(users[user.uid].join_timestamp * 1000)).split(" at ")[0]}
+                                        <TimeDelta timestamp={users[user.uid].join_timestamp * 1000} rough={true} />
                                     </Typography>}
                                 </Grid>
                                 <Grid item xs={6}>

@@ -15,7 +15,7 @@ import SimpleBar from 'simplebar-react/dist';
 
 import UserCard from '../components/usercard';
 import ListModal from '../components/listmodal';
-import TimeAgo from '../components/timeago';
+import TimeDelta from '../components/timedelta';
 import TileMap from '../components/tilemap';
 
 import { makeRequestsAuto, ConvertUnit, CalcInterval, b62decode, customAxios as axios, checkUserPerm, getAuthToken } from '../functions';
@@ -325,7 +325,7 @@ const DeliveryDetail = memo(({ divisions, userDivisionIDs, doReload, divisionMet
             const lmi = [{ "name": tr("log_id"), "value": logid },
             { "name": `Tracker`, "value": TRACKER[data.tracker] },
             { "name": `Tracker Job ID`, "key": "id" },
-            { "name": tr("time_submitted"), "value": <TimeAgo key={`${+new Date()}`} timestamp={data.timestamp * 1000} /> },
+            { "name": tr("time_submitted"), "value": <TimeDelta key={`${+new Date()}`} timestamp={data.timestamp * 1000} /> },
             { "name": tr("time_spent"), "value": CalcInterval(new Date(detail.start_time), new Date(detail.stop_time)) },
             { "name": tr("status"), "value": data.detail.type === "job.delivered" ? <span style={{ color: theme.palette.success.main }}>{tr("delivered")}</span> : <span style={{ color: theme.palette.error.main }}>{tr("cancelled")}</span> },
             {
@@ -688,11 +688,11 @@ const Delivery = memo(() => {
                     </TextField>
                 </>}
                 {(divisionStatus !== -1) && <>
-                    <Typography variant="body">{tr("division_validation_request_submitted")}<b> <TimeAgo key={`${+new Date()}`} timestamp={divisionMeta.request_timestamp * 1000} lower={true} /></b>.</Typography><br />
+                    <Typography variant="body">{tr("division_validation_request_submitted")}<b> <TimeDelta key={`${+new Date()}`} timestamp={divisionMeta.request_timestamp * 1000} lower={true} /></b>.</Typography><br />
                     <Typography variant="body"><>{tr("division")}</>: <b>{divisions[divisionMeta.divisionid] !== undefined ? divisions[divisionMeta.divisionid].name : "/"}</b></Typography><br />
                     <Typography variant="body"><>{tr("current_status")}</>: <b>{STATUS[divisionStatus]}</b></Typography>
                     {divisionMeta.update_timestamp !== -1 && <>
-                        <br /><Typography variant="body"><>{tr("updated")}</><b> <TimeAgo key={`${+new Date()}`} timestamp={divisionMeta.update_timestamp * 1000} lower={true} /></b></Typography>
+                        <br /><Typography variant="body"><>{tr("updated")}</><b> <TimeDelta key={`${+new Date()}`} timestamp={divisionMeta.update_timestamp * 1000} lower={true} /></b></Typography>
                         <br /><Typography variant="body"><>{tr("updated_by")}</>: <b><UserCard user={divisionMeta.update_staff} inline={true} /></b></Typography>
                         {divisionMeta.update_message !== "" && <><br /><Typography variant="body"><>{tr("message")}</>: {divisionMeta.update_message}</Typography></>}
                     </>}

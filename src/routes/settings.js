@@ -21,12 +21,12 @@ import { faRefresh, faFingerprint, faHashtag, faScrewdriverWrench, faEarthAmeric
 import { faChrome, faFirefox, faEdge, faInternetExplorer, faOpera, faSafari, faPatreon } from '@fortawesome/free-brands-svg-icons';
 
 import ColorInput from '../components/colorInput';
-import TimeAgo from '../components/timeago';
+import TimeDelta from '../components/timedelta';
 import CustomTable from '../components/table';
 import MarkdownRenderer from '../components/markdown';
 import SponsorBadge from '../components/sponsorBadge';
 
-import { makeRequestsWithAuth, customAxios as axios, getAuthToken, getFormattedDate, writeLS, setAuthMode } from '../functions';
+import { makeRequestsWithAuth, customAxios as axios, getAuthToken, writeLS, setAuthMode } from '../functions';
 
 const LANGUAGES = { 'ar': 'Arabic (العربية)', 'be': 'Belarusian (беларуская)', 'bg': 'Bulgarian (български)', 'cs': 'Czech (čeština)', 'cy': 'Welsh (Cymraeg)', 'da': 'Danish (dansk)', 'de': 'German (Deutsch)', 'el': 'Greek (Ελληνικά)', 'en': 'English', 'eo': 'Esperanto', 'es': 'Spanish (Español)', 'et': 'Estonian (eesti keel)', 'fi': 'Finnish (suomi)', 'fr': 'French (français)', 'ga': 'Irish (Gaeilge)', 'gd': 'Scottish (Gàidhlig)', 'hu': 'Hungarian (magyar)', 'hy': 'Armenian (Հայերեն)', 'id': 'Indonesian (Bahasa Indonesia)', 'is': 'Icelandic (íslenska)', 'it': 'Italian (italiano)', 'ja': 'Japanese (日本語)', 'ko': 'Korean (한국어)', 'lt': 'Lithuanian (lietuvių kalba)', 'lv': 'Latvian (latviešu valoda)', 'mk/sl': 'Macedonian/Slovenian (македонски/​slovenščina)', 'mn': 'Mongolian (Монгол)', 'mo': 'Moldavian (Moldova)', 'ne': 'Nepali (नेपाली)', 'nl': 'Dutch (Nederlands)', 'nn': 'Norwegian (norsk nynorsk)', 'pl': 'Polish (polski)', 'pt': 'Portuguese (Português)', 'ro': 'Romanian (română)', 'ru': 'Russian (русский)', 'sk': 'Slovak (slovenčina)', 'sl': 'Slovenian (slovenščina)', 'sq': 'Albanian (Shqip)', 'sr': 'Serbian (српски)', 'sv': 'Swedish (Svenska)', 'th': 'Thai (ไทย)', 'tr': 'Turkish (Türkçe)', 'uk': 'Ukrainian (українська)', 'vi': 'Vietnamese (Tiếng Việt)', 'yi': 'Yiddish (ייִדיש)', 'zh': 'Chinese (中文)' };
 const RADIO_TYPES = { "tsr": "TruckStopRadio", "tfm": "TruckersFM", "simhit": "SimulatorHits", "custom-pean": "[Custom] Pean FM" };
@@ -936,7 +936,7 @@ const Settings = ({ defaultTab = 0 }) => {
         let newSessions = [];
         for (let i = 0; i < _sessions.list.length; i++) {
             newSessions.push({
-                ..._sessions.list[i], "device": getDeviceIcon(_sessions.list[i].user_agent), "create_time": <TimeAgo key={`${+new Date()}`} timestamp={_sessions.list[i].create_timestamp * 1000} />, "last_used_time": <TimeAgo key={`${+new Date()}`} timestamp={_sessions.list[i].last_used_timestamp * 1000} />, contextMenu: (tokenHash !== _sessions.list[i].hash) ? (<MenuItem onClick={() => { revokeSession(_sessions.list[i].hash); loadSessions(); }}>{tr("revoke")}</MenuItem>) : (<MenuItem disabled >{tr("current_session")}</MenuItem >)
+                ..._sessions.list[i], "device": getDeviceIcon(_sessions.list[i].user_agent), "create_time": <TimeDelta key={`${+new Date()}`} timestamp={_sessions.list[i].create_timestamp * 1000} />, "last_used_time": <TimeDelta key={`${+new Date()}`} timestamp={_sessions.list[i].last_used_timestamp * 1000} />, contextMenu: (tokenHash !== _sessions.list[i].hash) ? (<MenuItem onClick={() => { revokeSession(_sessions.list[i].hash); loadSessions(); }}>{tr("revoke")}</MenuItem>) : (<MenuItem disabled >{tr("current_session")}</MenuItem >)
             });
         };
         if (sessionsPageRef.current === sessionsPage) {
@@ -945,7 +945,7 @@ const Settings = ({ defaultTab = 0 }) => {
         }
         let newAppSessions = [];
         for (let i = 0; i < _appSessions.list.length; i++) {
-            newAppSessions.push({ ..._appSessions.list[i], "create_time": <TimeAgo key={`${+new Date()}`} timestamp={_appSessions.list[i].create_timestamp * 1000} />, "last_used_time": <TimeAgo key={`${+new Date()}`} timestamp={_appSessions.list[i].last_used_timestamp * 1000} />, contextMenu: <MenuItem onClick={() => { revokeAppSession(_appSessions.list[i].hash); }}>{tr("revoke")}</MenuItem> });
+            newAppSessions.push({ ..._appSessions.list[i], "create_time": <TimeDelta key={`${+new Date()}`} timestamp={_appSessions.list[i].create_timestamp * 1000} />, "last_used_time": <TimeDelta key={`${+new Date()}`} timestamp={_appSessions.list[i].last_used_timestamp * 1000} />, contextMenu: <MenuItem onClick={() => { revokeAppSession(_appSessions.list[i].hash); }}>{tr("revoke")}</MenuItem> });
         }
         if (appSessionsPageRef.current === appSessionsPage) {
             setAppSessions(newAppSessions);
@@ -1560,7 +1560,7 @@ const Settings = ({ defaultTab = 0 }) => {
                                             {tr("since").toUpperCase()}
                                         </Typography>
                                         <Typography variant="body2" sx={{ display: "inline-block" }}>
-                                            {getFormattedDate(userSettings.display_timezone, new Date(curUser.join_timestamp * 1000)).split(" at ")[0]}
+                                            <TimeDelta timestamp={curUser.join_timestamp * 1000} rough={true} />
                                         </Typography>
                                     </Grid>
                                     <Grid item xs={6}>

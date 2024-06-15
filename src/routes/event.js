@@ -13,8 +13,9 @@ import DateTimeField from '../components/datetime';
 import MarkdownRenderer from '../components/markdown';
 import UserCard from '../components/usercard';
 import UserSelect from '../components/userselect';
+import TimeDelta from '../components/timedelta';
 
-import { makeRequestsWithAuth, makeRequests, getFormattedDate, customAxios as axios, checkPerm, checkUserPerm, getAuthToken, toLocalISOString } from '../functions';
+import { makeRequestsWithAuth, makeRequests, customAxios as axios, checkPerm, checkUserPerm, getAuthToken, toLocalISOString } from '../functions';
 
 function ParseEventImage(events) {
     for (let i = 0; i < events.length; i++) {
@@ -101,12 +102,12 @@ const EventCard = ({ event, eventid, imageUrl, title, description, link, meetupT
                 <Grid container>
                     <Grid item xs={12} sm={6} md={6} lg={6}>
                         <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
-                            <LocalParkingRounded />&nbsp;&nbsp;{getFormattedDate(userSettings.display_timezone, meetupTime * 1000)}
+                            <LocalParkingRounded />&nbsp;&nbsp;<TimeDelta timestamp={meetupTime * 1000} />
                         </Typography>
                     </Grid>
                     <Grid item xs={12} sm={6} md={6} lg={6}>
                         <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
-                            <TimeToLeaveRounded />&nbsp;&nbsp;{getFormattedDate(userSettings.display_timezone, departureTime * 1000)}
+                            <TimeToLeaveRounded />&nbsp;&nbsp;<TimeDelta timestamp={departureTime * 1000} />
                         </Typography>
                     </Grid>
                     <Grid item xs={12} sm={6} md={6} lg={6}>

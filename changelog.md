@@ -3,6 +3,10 @@
 ## v3.4.4
 
 1. Added delta statistics in overview and statistics tab
+2. Improved timedelta display
+   - Renamed TimeAgo to TimeDelta
+   - Added support to future time (tomorrow / in X minutes or seconds)
+   - Added tooltip on hover showing full datetime
 
 ## v3.4.3
 
