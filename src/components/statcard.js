@@ -11,7 +11,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowTrendDown, faArrowTrendUp } from '@fortawesome/free-solid-svg-icons';
 
 const StatCard = (props) => {
-    let { icon, title, latest, delta, inputs, originalInputs, xAxis, size, height } = props;
+    let { icon, title, latest, delta, deltaLabel, inputs, originalInputs, xAxis, size, height } = props;
+
+    deltaLabel = (deltaLabel === undefined ? "" : deltaLabel + " ");
 
     const theme = useTheme();
     const { userSettings } = useContext(AppContext);
@@ -127,7 +129,7 @@ const StatCard = (props) => {
                     </Typography>
                     {delta !== undefined && latest !== undefined && <Tooltip placement="top" arrow title={
                         <span style={{ fontFamily: "Orbitron", borderRadius: "5px", color: delta.replace(/\D/g, '') >= 0 ? theme.palette.success.main : theme.palette.error.main }}>
-                            {delta.replace(/\D/g, '') >= 0 ? <FontAwesomeIcon icon={faArrowTrendUp} /> : <FontAwesomeIcon icon={faArrowTrendDown} />} {delta}
+                            {deltaLabel}{delta.replace(/\D/g, '') >= 0 ? <FontAwesomeIcon icon={faArrowTrendUp} /> : <FontAwesomeIcon icon={faArrowTrendDown} />} {delta}
                         </span>
                     } PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <Chip label={latest} sx={{ fontFamily: "Orbitron", borderRadius: "5px" }}></Chip>

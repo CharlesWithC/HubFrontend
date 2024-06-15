@@ -441,6 +441,7 @@ const DEFAULT_CACHE = {
     },
     overview: {
         latest: { driver: 0, job: 0, distance: 0, fuel: 0, profit_euro: 0, profit_dollar: 0 },
+        delta: { driver: 0, job: 0, distance: 0, fuel: 0, profit_euro: 0, profit_dollar: 0 },
         charts: { driver: [], job: [], distance: [], fuel: [], profit_euro: [], profit_dollar: [] },
         leaderboard: [],
         recentVisitors: [],

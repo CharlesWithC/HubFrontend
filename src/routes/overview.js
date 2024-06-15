@@ -25,6 +25,7 @@ const Overview = () => {
     const [showProfileModal, setShowProfileModal] = useState(memberIdx !== -1 ? 2 : 0);
 
     const [latest, setLatest] = useState(cache.overview.latest);
+    const [delta, setDelta] = useState(cache.overview.delta);
     const [charts, setCharts] = useState(cache.overview.charts);
     const [leaderboard, setLeaderboard] = useState(cache.overview.leaderboard);
     const [recentVisitors, setRecentVisitors] = useState(cache.overview.recentVisitors);
@@ -37,6 +38,7 @@ const Overview = () => {
                 ...cache,
                 overview: {
                     latest,
+                    delta,
                     charts,
                     leaderboard,
                     recentVisitors,
@@ -45,7 +47,7 @@ const Overview = () => {
                 }
             }));
         };
-    }, [latest, charts, leaderboard, recentVisitors, newestMember, latestDelivery]);
+    }, [latest, delta, charts, leaderboard, recentVisitors, newestMember, latestDelivery]);
 
     useEffect(() => {
         async function doLoad() {
@@ -60,6 +62,8 @@ const Overview = () => {
             if (chartSU) {
                 let newLatest = { driver: chartSU[chartSU.length - 1].driver, job: chartSU[chartSU.length - 1].job.sum, distance: chartSU[chartSU.length - 1].distance.sum, fuel: chartSU[chartSU.length - 1].fuel.sum, profit_euro: chartSU[chartSU.length - 1].profit.euro, profit_dollar: chartSU[chartSU.length - 1].profit.dollar };
                 setLatest(newLatest);
+                let newDelta = { driver: newLatest.driver - chartSU[0].driver, job: newLatest.job - chartSU[0].job.sum, distance: newLatest.distance - chartSU[0].distance.sum, fuel: newLatest.fuel - chartSU[0].fuel.sum, profit_euro: newLatest.profit_euro - chartSU[0].profit.euro, profit_dollar: newLatest.profit_dollar - chartSU[0].profit.dollar };
+                setDelta(newDelta);
             }
 
             if (chartNSU) {
@@ -121,22 +125,22 @@ const Overview = () => {
         {showProfileModal !== 0 && allMembers[memberIdx] !== undefined && <UserCard user={allMembers[memberIdx]} showProfileModal={showProfileModal} onProfileModalClose={() => { setShowProfileModal(0); }} />}
         <Grid container spacing={2}>
             <Grid item xs={12} sm={12} md={6} lg={4}>
-                <StatCard icon={<PermContactCalendarRounded />} title={tr("drivers")} latest={TSep(latest.driver).replaceAll(",", " ")} inputs={charts.driver} />
+                <StatCard icon={<PermContactCalendarRounded />} title={tr("drivers")} latest={TSep(latest.driver).replaceAll(",", " ")} delta={TSep(delta.driver).replaceAll(",", " ")} deltaLabel="Last 7 days" inputs={charts.driver} />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={4}>
-                <StatCard icon={<LocalShippingRounded />} title={tr("jobs")} latest={TSep(latest.job).replaceAll(",", " ")} inputs={charts.job} />
+                <StatCard icon={<LocalShippingRounded />} title={tr("jobs")} latest={TSep(latest.job).replaceAll(",", " ")} delta={TSep(delta.job).replaceAll(",", " ")} deltaLabel="Last 7 days" inputs={charts.job} />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={4}>
-                <StatCard icon={<RouteRounded />} title={tr("distance")} latest={ConvertUnit(userSettings.unit, "km", latest.distance).replaceAll(",", " ")} inputs={charts.distance} />
+                <StatCard icon={<RouteRounded />} title={tr("distance")} latest={ConvertUnit(userSettings.unit, "km", latest.distance).replaceAll(",", " ")} delta={ConvertUnit(userSettings.unit, "km", delta.distance).replaceAll(",", " ")} deltaLabel="Last 7 days" inputs={charts.distance} />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={4}>
-                <StatCard icon={<EuroRounded />} title={tr("profit_ets2")} latest={"€" + TSep(latest.profit_euro).replaceAll(",", " ")} inputs={charts.profit_euro} />
+                <StatCard icon={<EuroRounded />} title={tr("profit_ets2")} latest={"€" + TSep(latest.profit_euro).replaceAll(",", " ")} delta={"€" + TSep(delta.profit_euro).replaceAll(",", " ")} deltaLabel="Last 7 days" inputs={charts.profit_euro} />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={4}>
-                <StatCard icon={<AttachMoneyRounded />} title={tr("profit_ats")} latest={"$" + TSep(latest.profit_dollar).replaceAll(",", " ")} inputs={charts.profit_dollar} />
+                <StatCard icon={<AttachMoneyRounded />} title={tr("profit_ats")} latest={"$" + TSep(latest.profit_dollar).replaceAll(",", " ")} delta={"$" + TSep(delta.profit_dollar).replaceAll(",", " ")} deltaLabel="Last 7 days" inputs={charts.profit_dollar} />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={4}>
-                <StatCard icon={<LocalGasStationRounded />} title={tr("fuel")} latest={ConvertUnit(userSettings.unit, "l", latest.fuel).replaceAll(",", " ")} inputs={charts.fuel} />
+                <StatCard icon={<LocalGasStationRounded />} title={tr("fuel")} latest={ConvertUnit(userSettings.unit, "l", latest.fuel).replaceAll(",", " ")} delta={ConvertUnit(userSettings.unit, "l", delta.fuel).replaceAll(",", " ")} deltaLabel="Last 7 days" inputs={charts.fuel} />
             </Grid>
             {curUID !== null && newestMember !== null && newestMember !== undefined && latestDelivery !== undefined && latestDelivery !== null &&
                 <><Grid item xs={12} sm={12} md={6} lg={4}>
