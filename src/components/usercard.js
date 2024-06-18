@@ -1133,7 +1133,7 @@ const UserCard = (props) => {
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("ats")}</Typography>
-                                    <Typography variant="body2">{ConvertUnit(userSettings.unit, "l", overallStats.distance.all.ats.tot)}</Typography>
+                                    <Typography variant="body2">{ConvertUnit(userSettings.unit, "l", overallStats.fuel.all.ats.tot)}</Typography>
                                 </Grid>
                                 <Grid item xs={6} sm={6} md={6} lg={6}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("ets2_profit")}</Typography>
