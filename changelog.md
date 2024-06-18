@@ -7,6 +7,7 @@
    - Renamed TimeAgo to TimeDelta
    - Added support to future time (tomorrow / in X minutes or seconds)
    - Added tooltip on hover showing full datetime
+3. Added operation and user search in audit log
 
 ## v3.4.3
 

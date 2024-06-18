@@ -1,8 +1,9 @@
-import { useRef, useEffect, useState, useContext, useMemo } from 'react';
+import { useRef, useEffect, useState, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppContext, CacheContext } from '../context';
 
 import { useTheme } from '@mui/material';
+import { VerifiedUserRounded } from '@mui/icons-material';
 
 import TimeDelta from '../components/timedelta';
 import CustomTable from "../components/table";
@@ -18,6 +19,7 @@ const AuditLog = () => {
 
     const [auditList, setAuditList] = useState(cache.audit_log.auditList);
     const [totalItems, setTotalItems] = useState(cache.audit_log.totalItems);
+    const [searchOp, setSearchOp] = useState("");
     const [page, setPage] = useState(cache.audit_log.page);
     const pageRef = useRef(cache.audit_log.page);
     const [pageSize, setPageSize] = useState(cache.audit_log.pageSize === null ? userSettings.default_row_per_page : cache.audit_log.pageSize);
@@ -30,14 +32,25 @@ const AuditLog = () => {
             setCache({ ...cache, audit_log: { auditList, totalItems, page, pageSize } });
         };
     }, [auditList, totalItems, page, pageSize]);
-
-
     useEffect(() => {
         async function doLoad() {
             window.loading += 1;
 
+            let uid = -1;
+            let localSearchOp = searchOp;
+            if (localSearchOp.indexOf("uid:") !== -1) {
+                let params = localSearchOp.split(" ");
+                for (let i = 0; i < params.length; i++) {
+                    if (params[i].indexOf("uid:") !== -1) {
+                        uid = params[i].split(":")[1];
+                        localSearchOp = localSearchOp.replace(params[i], "").trim();
+                        break;
+                    }
+                }
+            }
+
             const [_auditList] = await makeRequestsAuto([
-                { url: `${apiPath}/audit/list?order=desc&order_by=uid&page=${page}&page_size=${pageSize}`, auth: true },
+                { url: `${apiPath}/audit/list?order=desc&order_by=uid&page=${page}&page_size=${pageSize}&operation=${localSearchOp}${uid !== -1 ? `&uid=${uid}` : ``}`, auth: true },
             ]);
 
             let newUserList = [];
@@ -54,17 +67,17 @@ const AuditLog = () => {
             window.loading -= 1;
         }
         doLoad();
-    }, [apiPath, page, pageSize, theme]);
+    }, [apiPath, page, pageSize, searchOp, theme]);
 
     return <>
-        {auditList.length !== 0 &&
-            <CustomTable columns={[
+        <CustomTable name={<><VerifiedUserRounded />&nbsp;&nbsp;{tr("audit_log")}</>}
+            onSearch={(content) => { setPage(1); setSearchOp(content); }} searchHint="Search by operation"
+            columns={[
                 { id: 'user', label: tr("user") },
                 { id: 'category', label: tr("category") },
                 { id: 'operation', label: tr("operation") },
                 { id: 'time', label: tr("time") },
             ]} data={auditList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} page={page} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} />
-        }
     </>;
 };
 
