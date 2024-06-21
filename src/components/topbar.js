@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AppContext } from '../context';
 
-import { AppBar, Box, Toolbar, Typography, Divider, MenuItem, ListItemIcon, Menu, Snackbar, Alert, LinearProgress, IconButton, Tooltip, useTheme, useMediaQuery } from "@mui/material";
+import { AppBar, Box, Toolbar, Typography, Divider, MenuItem, ListItemIcon, Menu, Snackbar, Alert, LinearProgress, IconButton, Tooltip, Dialog, DialogActions, DialogContent, DialogTitle, Button, useTheme, useMediaQuery } from "@mui/material";
 import { AccountBoxRounded, SettingsRounded, FlareRounded, LogoutRounded, MenuRounded, AltRouteRounded } from '@mui/icons-material';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -38,6 +38,7 @@ const TopBar = (props) => {
         setSnackbarContent("");
     };
     const [showProfileModal, setShowProfileModal] = useState(1);
+    const [desktopClientWarning, setDesktopClientWarning] = useState(false);
 
     const sleep = ms => new Promise(
         resolve => setTimeout(resolve, ms)
@@ -349,7 +350,7 @@ const TopBar = (props) => {
         <Link to="/supporters"><MenuItem sx={{ color: '#f47fff' }}><ListItemIcon><FontAwesomeIcon icon={faClover} style={{ marginLeft: "3px" }} /></ListItemIcon>{tr("supporters")}</MenuItem></Link>
         {!window.isElectron && <>
             <Divider sx={{ marginTop: "5px", marginBottom: "5px" }} />
-            <MenuItem onClick={() => { window.location.href = downloadUrl; }}><ListItemIcon><FontAwesomeIcon icon={faDownload} /></ListItemIcon>{tr("download_app")}</MenuItem>
+            <MenuItem onClick={() => { setDesktopClientWarning(true); window.location.href = downloadUrl; }}><ListItemIcon><FontAwesomeIcon icon={faDownload} /></ListItemIcon>{tr("download_app")}</MenuItem>
         </>}
         <Divider sx={{ marginTop: "5px", marginBottom: "5px" }} />
         <MenuItem onClick={logout}><ListItemIcon><LogoutRounded fontSize="small" /></ListItemIcon>{tr("logout")}</MenuItem>
@@ -412,6 +413,38 @@ const TopBar = (props) => {
                 </AppBar>
                 <LinearProgress ref={progressBarRef} sx={{ ...progressBarStyle, top: "80px", position: "fixed", zIndex: 101, display: loading ? "block" : "none", '& .MuiLinearProgress-barColorPrimary': { backgroundColor: theme.palette.info.main } }} />
             </Box>
+            <Dialog open={desktopClientWarning} onClose={() => setDesktopClientWarning(false)}>
+                <DialogTitle>Desktop Client</DialogTitle>
+                <DialogContent>
+                    <Typography variant="body2">
+                        The download for the desktop client should have started.
+                    </Typography>
+                    <br />
+                    <Typography variant="body2">
+                        Please be aware that the desktop client is only a side project and may not be as stable as the web version.
+                    </Typography>
+                    <br />
+                    <Typography variant="body2">
+                        You may experience unexpected crashes or even be unable to launch it. Your anti-virus may also mark it as a virus, because we do not have a certificate to sign it (the certificate is too costly for us).
+                    </Typography>
+                    <br />
+                    <Typography variant="body2">
+                        The desktop client is not mandatory to use the service, and it only provides Discord Rich Presence and Desktop Notification as additional features. All other features are the same as the web version.
+                    </Typography>
+                    <br />
+                    <Typography variant="body2">
+                        We are unable to provide support on any issues of the desktop client, unless the same issue exists on the web version. We apologize for any inconvenience.
+                    </Typography>
+                    <br />
+                    <Typography variant="body2">
+                        Best, <br />
+                        CHub Team
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="primary" onClick={() => { setAboutCHubModal(false); }}>{tr("close")}</Button>
+                </DialogActions>
+            </Dialog>
             <Snackbar
                 open={!!snackbarContent}
                 autoHideDuration={loading ? null : 5000}
