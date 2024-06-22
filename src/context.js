@@ -51,6 +51,7 @@ export const AppContext = createContext({
     dlogDetailsCache: {}, setDlogDetailsCache: () => { }, // dlogDetails from ATM database
     economyCache: { config: null, trucks: [], garagesMap: {}, merchMap: {} }, setEconomyCache: () => { },
     allUsersCache: [], setAllUsersCache: () => { }, // only loaded to purge inactive
+    allDiscordMembers: [], setAllDiscordMembers: () => { },
 
     loadMemberUIDs: async () => { },
     loadAnnouncementTypes: async () => { },
@@ -58,6 +59,7 @@ export const AppContext = createContext({
     loadDivisions: async () => { },
     loadDlogDetails: async () => { },
     loadAllUsers: async () => { },
+    loadAllDiscordMembers: async () => { },
 });
 
 export const AppContextProvider = ({ children }) => {
@@ -105,6 +107,7 @@ export const AppContextProvider = ({ children }) => {
     const [dlogDetailsCache, setDlogDetailsCache] = useState({});
     const [economyCache, setEconomyCache] = useState({ config: null, trucks: [], garagesMap: {}, merchMap: {} });
     const [allUsersCache, setAllUsersCache] = useState([]);
+    const [allDiscordMembers, setAllDiscordMembers] = useState([]);
 
     useEffect(() => {
         if (curUID !== null && users[curUID] !== undefined) {
@@ -231,6 +234,17 @@ export const AppContextProvider = ({ children }) => {
     }, [apiPath]);
 
     // load when needed
+    const loadAllDiscordMembers = useCallback(async () => {
+        let result = [];
+
+        let [resp] = await makeRequestsWithAuth([`${apiPath}/member/discord`]);
+        result = resp;
+
+        setAllDiscordMembers(result);
+        return result;
+    }, [apiPath]);
+
+    // load when needed
     const loadAnnouncementTypes = useCallback(async () => {
         const [announcementTypes] = await makeRequestsAuto([{ url: `${apiPath}/announcements/types`, auth: false }]);
         if (announcementTypes) {
@@ -310,8 +324,9 @@ export const AppContextProvider = ({ children }) => {
 
         dlogDetailsCache, setDlogDetailsCache, loadDlogDetails,
         economyCache, setEconomyCache,
-        allUsersCache, setAllUsersCache, loadAllUsers
-    }), [apiPath, apiVersion, apiConfig, vtcLogo, vtcBanner, vtcBackground, customBackground, specialRoles, specialUsers, patrons, curUserPatreonID, userConfig, userLevel, vtcLevel, webConfig, languages, allRoles, allPerms, allRanks, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, announcementTypes, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache]);
+        allUsersCache, setAllUsersCache, loadAllUsers,
+        allDiscordMembers, setAllDiscordMembers, loadAllDiscordMembers
+    }), [apiPath, apiVersion, apiConfig, vtcLogo, vtcBanner, vtcBackground, customBackground, specialRoles, specialUsers, patrons, curUserPatreonID, userConfig, userLevel, vtcLevel, webConfig, languages, allRoles, allPerms, allRanks, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, announcementTypes, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache, allDiscordMembers]);
 
     return (
         <AppContext.Provider value={value}>

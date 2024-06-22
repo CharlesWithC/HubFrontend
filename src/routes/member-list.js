@@ -20,7 +20,7 @@ import { makeRequestsAuto, customAxios as axios, getAuthToken, removeNUEValues, 
 
 const MemberList = () => {
     const { t: tr } = useTranslation();
-    const { apiPath, userLevel, allRoles, users, memberUIDs, userSettings, setUsers } = useContext(AppContext);
+    const { apiPath, userLevel, allRoles, users, memberUIDs, userSettings, setUsers, allDiscordMembers, loadAllDiscordMembers } = useContext(AppContext);
     const { cache, setCache } = useContext(CacheContext);
     const allMembers = useMemo(() => (memberUIDs.map((uid) => users[uid])), [memberUIDs, users]);
 
@@ -116,19 +116,19 @@ const MemberList = () => {
     }, [apiPath, allMembers]);
 
     const [tmpVtcId, setTmpVtcId] = useState("");
-    const [tmpCompareResult, setTmpCompareResult] = useState([]);
-    const compareTruckersMP = useCallback(async () => {
+    const [tmpCompareResult, setMemberCompareResult] = useState([]);
+    const compareMembers = useCallback(async () => {
         if (userLevel < 4) {
-            setSnackbarContent(tr("compare_truckersmp_members_is_a_platinum_perk_sponsor_at_charlwspatreon"));
+            setSnackbarContent(tr("compare_members_is_a_platinum_perk_sponsor_at_charlwspatreon"));
             setSnackbarSeverity("warning");
             return;
         }
 
         setDialogButtonDisabled(true);
-        setTmpCompareResult([]);
+        setMemberCompareResult([]);
         let resp = await axios({ url: `https://corsproxy.io/?https://api.truckersmp.com/v2/vtc/${tmpVtcId}/members`, fetchOnly: true });
         if (resp.status !== 200) {
-            setTmpCompareResult(newTmpCompareResult);
+            setMemberCompareResult(newCompareResult);
             setSnackbarContent(tr("failed_to_fetch_truckersmp_members"));
             setSnackbarSeverity("error");
             return;
@@ -164,17 +164,29 @@ const MemberList = () => {
             }
         }
 
-        let newTmpCompareResult = [];
+        let dhNoDiscord = [];
+        if (allDiscordMembers.length > 0) {
+            for (let i = 0; i < allMembers.length; i++) {
+                if (!allDiscordMembers.includes(allMembers[i].discordid)) {
+                    dhNoDiscord.push(allMembers[i]);
+                }
+            }
+        }
+
+        let newCompareResult = [];
         for (let i = 0; i < tmpNoDh.length; i++) {
-            newTmpCompareResult.push({ name: tmpNoDh[i].username, steamid: tmpNoDh[i].steam_id, truckersmpid: tmpNoDh[i].user_id, status: tr("not_in_drivers_hub") });
+            newCompareResult.push({ name: tmpNoDh[i].username, steamid: tmpNoDh[i].steam_id, truckersmpid: tmpNoDh[i].user_id, status: tr("not_in_drivers_hub") });
         }
         for (let i = 0; i < dhNoTmp.length; i++) {
-            newTmpCompareResult.push({ ...dhNoTmp[i], status: tr("not_in_truckersmp_vtc") });
+            newCompareResult.push({ ...dhNoTmp[i], status: tr("not_in_truckersmp_vtc") });
         }
-        setTmpCompareResult(newTmpCompareResult);
+        for (let i = 0; i < dhNoDiscord.length; i++) {
+            newCompareResult.push({ ...dhNoDiscord[i], status: tr("not_in_discord") });
+        }
+        setMemberCompareResult(newCompareResult);
 
         setDialogButtonDisabled(false);
-    }, [allMembers, tmpVtcId]);
+    }, [allMembers, tmpVtcId, allDiscordMembers]);
 
     const [batchRoleUpdateUsers, setBatchRoleUpdateUsers] = useState([]);
     const [batchRoleUpdateRoles, setBatchRoleUpdateRoles] = useState([]);
@@ -412,8 +424,8 @@ const MemberList = () => {
                 <Button variant="contained" color="info" onClick={() => { syncProfile(); }} disabled={dialogButtonDisabled}>{tr("sync")}</Button>
             </DialogActions>
         </Dialog>
-        <Dialog fullWidth open={dialogOpen === "compare-truckersmp"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
-            <DialogTitle><FontAwesomeIcon icon={faCodeCompare} />{tr("compare_truckersmp_members")}<SponsorBadge level={4} /></DialogTitle>
+        <Dialog fullWidth open={dialogOpen === "compare-members"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
+            <DialogTitle><FontAwesomeIcon icon={faCodeCompare} />{tr("compare_members")}<SponsorBadge level={4} /></DialogTitle>
             <DialogContent>
                 <TextField size="small"
                     label={tr("truckersmp_vtc_id")}
@@ -447,7 +459,7 @@ const MemberList = () => {
                 </Card>
             </DialogContent>
             <DialogActions>
-                <Button variant="contained" color="info" onClick={() => { compareTruckersMP(); }} disabled={dialogButtonDisabled || tmpVtcId.replaceAll(" ", "") === ""}>{tr("compare")}</Button>
+                <Button variant="contained" color="info" onClick={() => { compareMembers(); }} disabled={dialogButtonDisabled || tmpVtcId.replaceAll(" ", "") === ""}>{tr("compare")}</Button>
             </DialogActions>
         </Dialog>
         <Dialog open={dialogOpen === "batch-role-update"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
@@ -565,10 +577,10 @@ const MemberList = () => {
                 onClick={() => setDialogOpen("sync-profile")}
             />
             <SpeedDialAction
-                key="compare-truckersmp"
+                key="compare-members"
                 icon={<FontAwesomeIcon icon={faCodeCompare} />}
-                tooltipTitle={tr("compare_truckersmp_members")}
-                onClick={() => setDialogOpen("compare-truckersmp")}
+                tooltipTitle={tr("compare_members")}
+                onClick={() => { setDialogOpen("compare-members"); if (allDiscordMembers.length === 0) loadAllDiscordMembers(); }}
             />
             <SpeedDialAction
                 key="batch-role-update"
