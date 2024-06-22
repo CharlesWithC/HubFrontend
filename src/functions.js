@@ -268,6 +268,17 @@ export async function FetchProfile({ apiPath, specialUsers, patrons, setUserLeve
                     }
                 }
             }
+
+            if (apiPath === "https://drivershub.charlws.com/atm") {
+                // ATM Leadership & HR+ gets platinum perks
+                for (let i = 0; i < curUser.roles.length; i++) {
+                    if (curUser.roles[i] < 30) {
+                        userLevel = 4;
+                        break;
+                    }
+                }
+            }
+
             setUserLevel(userLevel);
 
             customAxios({ url: `${apiPath}/user/language`, headers: { "Authorization": `Bearer ${bearerToken}` } })
