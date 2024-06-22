@@ -17,7 +17,7 @@ import QRCodeStyling from 'qr-code-styling';
 import CreatableSelect from 'react-select/creatable';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRefresh, faFingerprint, faHashtag, faScrewdriverWrench, faEarthAmericas, faCrown, faClover, faDesktop } from '@fortawesome/free-solid-svg-icons';
+import { faRefresh, faFingerprint, faHashtag, faScrewdriverWrench, faEarthAmericas, faCrown, faClover, faDesktop, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { faChrome, faFirefox, faEdge, faInternetExplorer, faOpera, faSafari, faPatreon } from '@fortawesome/free-brands-svg-icons';
 
 import ColorInput from '../components/colorInput';
@@ -1228,7 +1228,12 @@ const Settings = ({ defaultTab = 0 }) => {
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("language")}</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("language")}&nbsp;
+                        <Tooltip placement="bottom" arrow title={<>Did not find your language?<br />Contact us to help with translations!</>}
+                            PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                            <FontAwesomeIcon icon={faInfoCircle} />
+                        </Tooltip>
+                    </Typography>
                     <br />
                     {languages && <TextField select size="small"
                         key="user-language"
