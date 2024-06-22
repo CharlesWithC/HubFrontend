@@ -324,11 +324,11 @@ if __name__ == "__main__":
 
         history_rewards = []
         if os.path.exists(data_folder + "/latest/chub-fmd-rewards-history.json"):
-            history_rewards = json.loads(open(data_folder + "/latest/chub-fmd-rewards-history.json", "r", encoding="utf-8"))
+            history_rewards = json.loads(open(data_folder + "/latest/chub-fmd-rewards-history.json", "r", encoding="utf-8").read())
 
         current_rewards = json.loads(open(data_folder + "/latest/chub-fmd-rewards.json", "r", encoding="utf-8").read())
 
-        new_history_rewards = history_rewards + current_rewards
+        new_history_rewards = current_rewards + history_rewards
 
         os.system("mv freightmaster-config-next.json freightmaster-config.json")
         new_config = json.loads(open("./freightmaster-config.json", "r", encoding="utf-8").read())

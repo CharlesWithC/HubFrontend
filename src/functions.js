@@ -137,7 +137,6 @@ export const makeRequestsAuto = async (urls) => {
                     real_url = encodeURIComponent(real_url);
                     url = `https://corsproxy.io/?${real_url}`;
                 }
-                console.log(url);
                 return await customAxios({
                     url,
                     fetchOnly: true,
