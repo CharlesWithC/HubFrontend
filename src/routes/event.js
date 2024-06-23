@@ -29,7 +29,7 @@ function ParseEventImage(events) {
     return events;
 }
 
-const EventCard = ({ event, eventid, imageUrl, title, description, link, meetupTime, departureTime, departure, destination, distance, votercnt, attendeecnt, points, futureEvent, voters, attendees, voted, onVote, onUnvote, onUpdateAttendees, onEdit, onDelete }) => {
+const EventCard = ({ event, eventid, imageUrl, title, creator, description, link, meetupTime, departureTime, departure, destination, distance, votercnt, attendeecnt, points, futureEvent, voters, attendees, voted, onVote, onUnvote, onUpdateAttendees, onEdit, onDelete }) => {
     const { t: tr } = useTranslation();
     const { curUID, curUserPerm, userSettings } = useContext(AppContext);
 
@@ -100,6 +100,11 @@ const EventCard = ({ event, eventid, imageUrl, title, description, link, meetupT
                     </>}
                 </div>
                 <Grid container>
+                    <Grid item xs={12}>
+                        {creator !== null && <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
+                            <EditNoteRounded />&nbsp;&nbsp;<UserCard user={creator} inline={true} />
+                        </Typography>}
+                    </Grid>
                     <Grid item xs={12} sm={6} md={6} lg={6}>
                         <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
                             <LocalParkingRounded />&nbsp;&nbsp;<TimeDelta timestamp={meetupTime * 1000} />
@@ -424,6 +429,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
                         eventid={modalEvent.eventid}
                         imageUrl={modalEvent.image}
                         title={modalEvent.title}
+                        creator={modalEvent.creator}
                         description={modalEvent.description}
                         link={modalEvent.link}
                         meetupTime={modalEvent.meetup_timestamp}
@@ -456,6 +462,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
                             eventid={upcomingEvents[0].eventid}
                             imageUrl={upcomingEvents[0].image}
                             title={upcomingEvents[0].title}
+                            creator={upcomingEvents[0].creator}
                             description={upcomingEvents[0].description}
                             link={upcomingEvents[0].link}
                             meetupTime={upcomingEvents[0].meetup_timestamp}
@@ -479,6 +486,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
                             eventid={upcomingEvents[1].eventid}
                             imageUrl={upcomingEvents[1].image}
                             title={upcomingEvents[1].title}
+                            creator={upcomingEvents[1].creator}
                             description={upcomingEvents[1].description}
                             link={upcomingEvents[1].link}
                             meetupTime={upcomingEvents[1].meetup_timestamp}
@@ -917,6 +925,7 @@ const Events = () => {
                         eventid={toDelete.eventid}
                         imageUrl=""
                         title={toDelete.title}
+                        creator={toDelete.creator}
                         description=""
                         link=""
                         meetupTime={toDelete.meetupTime}

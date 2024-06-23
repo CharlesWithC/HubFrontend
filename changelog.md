@@ -9,6 +9,7 @@
    - Added tooltip on hover showing full datetime
 3. Added operation and user search in audit log
 4. Added compare discord members
+5. Added event creator display
 
 ## v3.4.3
 
