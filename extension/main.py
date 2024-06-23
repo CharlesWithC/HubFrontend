@@ -553,7 +553,7 @@ async def getConfig(domain: str, request: Request, response: Response):
     
     config = json.loads(open(f"/var/hub/config/{domain}.json", "r").read())
 
-    config_whitelist = ["abbr", "name", "color", "name_color", "theme_main_color", "theme_background_color", "theme_darken_ratio", "distance_unit", "use_highest_role_color", "domain", "api_host", "plugins", "logo_key", "banner_key", "bgimage_key", "gallery"]
+    config_whitelist = ["abbr", "name", "color", "name_color", "theme_main_color", "theme_background_color", "theme_darken_ratio", "distance_unit", "use_highest_role_color", "domain", "api_host", "plugins", "truckersmp_vtc_id", "logo_key", "banner_key", "bgimage_key", "gallery"]
     config_keys = list(config.keys())
     for k in config_keys:
         if k not in config_whitelist:
@@ -574,6 +574,8 @@ async def getConfig(domain: str, request: Request, response: Response):
         config["bgimage_key"] = ""
     if "use_highest_role_color" not in config.keys():
         config["use_highest_role_color"] = True
+    if "truckersmp_vtc_id" not in config.keys():
+        config["truckersmp_vtc_id"] = ""
     if "gallery" not in config.keys():
         config["gallery"] = []
 
@@ -665,7 +667,7 @@ async def patchConfig(domain: str, request: Request, response: Response, authori
     
     try:
         newconfig = data["config"]
-        config_whitelist = ["abbr", "name", "color", "name_color", "theme_main_color", "theme_background_color", "theme_darken_ratio", "distance_unit", "use_highest_role_color", "domain", "api_host", "plugins", "logo_key", "banner_key", "bgimage_key", "gallery"]
+        config_whitelist = ["abbr", "name", "color", "name_color", "theme_main_color", "theme_background_color", "theme_darken_ratio", "distance_unit", "use_highest_role_color", "domain", "api_host", "plugins", "logo_key", "banner_key", "bgimage_key", "truckersmp_vtc_id", "gallery"]
         toremove = ["abbr", "domain", "api_host", "plugins"]
         for t in toremove:
             if t in newconfig.keys():
@@ -679,6 +681,11 @@ async def patchConfig(domain: str, request: Request, response: Response, authori
         except:
             response.status_code = 400
             return {"error": "Invalid JSON data"}
+        
+        try:
+            newconfig["truckersmp_vtc_id"] = int(newconfig["truckersmp_vtc_id"])
+        except:
+            newconfig["truckersmp_vtc_id"] = ""
         
         newconfig_keys = list(newconfig.keys())
         for t in newconfig_keys:

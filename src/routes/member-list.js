@@ -20,7 +20,7 @@ import { makeRequestsAuto, customAxios as axios, getAuthToken, removeNUEValues, 
 
 const MemberList = () => {
     const { t: tr } = useTranslation();
-    const { apiPath, userLevel, allRoles, users, memberUIDs, userSettings, setUsers, allDiscordMembers, loadAllDiscordMembers } = useContext(AppContext);
+    const { apiPath, webConfig, userLevel, allRoles, users, memberUIDs, userSettings, setUsers, allDiscordMembers, loadAllDiscordMembers } = useContext(AppContext);
     const { cache, setCache } = useContext(CacheContext);
     const allMembers = useMemo(() => (memberUIDs.map((uid) => users[uid])), [memberUIDs, users]);
 
@@ -115,7 +115,7 @@ const MemberList = () => {
         setDialogButtonDisabled(false);
     }, [apiPath, allMembers]);
 
-    const [tmpVtcId, setTmpVtcId] = useState("");
+    const [tmpVtcId, setTmpVtcId] = useState(String(webConfig.truckersmp_vtc_id) || "");
     const [tmpCompareResult, setMemberCompareResult] = useState([]);
     const compareMembers = useCallback(async () => {
         if (userLevel < 4) {
@@ -425,7 +425,7 @@ const MemberList = () => {
             </DialogActions>
         </Dialog>
         <Dialog fullWidth open={dialogOpen === "compare-members"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
-            <DialogTitle><FontAwesomeIcon icon={faCodeCompare} />{tr("compare_members")}<SponsorBadge level={4} /></DialogTitle>
+            <DialogTitle><FontAwesomeIcon icon={faCodeCompare} />&nbsp;&nbsp;{tr("compare_members")}&nbsp;&nbsp;<SponsorBadge level={4} /></DialogTitle>
             <DialogContent>
                 <TextField size="small"
                     label={tr("truckersmp_vtc_id")}

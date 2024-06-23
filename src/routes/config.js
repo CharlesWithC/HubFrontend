@@ -3913,11 +3913,19 @@ const Configuration = () => {
                             fullWidth
                         />
                     </Grid>
-                    <Grid item xs={12} sm={12} md={4} lg={4}>
+                    <Grid item xs={6} sm={6} md={2} lg={2}>
                         <TextField
                             label={tr("theme_color")}
                             value={webConfig.color}
                             onChange={(e) => { setWebConfig({ ...webConfig, color: e.target.value }); }}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={6} sm={6} md={2} lg={2}>
+                        <TextField
+                            label={tr("truckersmp_vtc_id")}
+                            value={webConfig.truckersmp_vtc_id}
+                            onChange={(e) => { setWebConfig({ ...webConfig, truckersmp_vtc_id: e.target.value }); }}
                             fullWidth
                         />
                     </Grid>
