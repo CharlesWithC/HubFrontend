@@ -3370,7 +3370,52 @@ const Configuration = () => {
         }
     }
 
-    const plugins = { "announcement": "Announcement", "application": "Application", "challenge": "Challenge", "division": "Division", "downloads": "Downloads", "economy": "Economy", "event": "Event", "poll": "Poll", "banner": "Profile Banner", "route": "Delivery Route" };
+    const [enabledAP, setEnabledAP] = useState(null);
+    const [reloadAP, setReloadAP] = useState(0);
+    const loadAdvancedPlugins = useCallback(async () => {
+        let resp = await axios({ url: `${apiPath}/advanced-plugin/list`, method: "GET" });
+        if (resp.status === 200) {
+            setEnabledAP(resp.data.plugins);
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+    }, []);
+    useEffect(() => {
+        loadAdvancedPlugins();
+    }, [reloadAP]);
+
+    const [pluginName, setPluginName] = useState("unknown");
+    const [pluginKey, setPluginKey] = useState("");
+    const toggleAdvancedPlugin = useCallback(async () => {
+        if (enabledAP.includes(pluginName)) {
+            let resp = await axios({ url: `${apiPath}/advanced-plugin/disable?name=${pluginName}`, method: "POST", headers: { key: pluginKey } });
+            if (resp.status === 200) {
+                setSnackbarContent(tr("success"));
+                setSnackbarSeverity("success");
+                setReloadAP(+new Date());
+            } else {
+                setSnackbarContent(resp.data.error);
+                setSnackbarSeverity("error");
+            }
+        } else {
+            let resp = await axios({
+                url: `${apiPath}/advanced-plugin/enable?name=${pluginName}`, method: "POST", headers: { key: pluginKey }
+            });
+            if (resp.status === 200) {
+                setSnackbarContent(tr("success"));
+                setSnackbarSeverity("success");
+                setReloadAP(+new Date());
+            } else {
+                setSnackbarContent(resp.data.error);
+                setSnackbarSeverity("error");
+            }
+        }
+    }, [enabledAP, pluginName, pluginKey]);
+
+    const PLUGINS = { "announcement": "Announcement", "application": "Application", "challenge": "Challenge", "division": "Division", "downloads": "Downloads", "economy": "Economy", "event": "Event", "poll": "Poll", "banner": "Profile Banner", "route": "Delivery Route" };
+    const ADVANCED_PLUGINS = { "truckersmp-auto-import-event": "TruckersMP Auto Import Event" };
+    const ADVANCED_PLUGINS_PRICING = { "truckersmp-auto-import-event": "$10" };
     const DHPLAN = { 0: "Regular Plan", 1: "Premium Plan", 3: "Special Guest" };
 
     return (<>
@@ -3456,17 +3501,58 @@ const Configuration = () => {
                     Plugins
                 </Typography>
                 <Grid container spacing={2} rowSpacing={-0.5}>
-                    {Object.keys(plugins).map((plugin) => (
+                    {Object.keys(PLUGINS).map((plugin) => (
                         <Grid item xs={6} sm={6} md={4} lg={3}>
                             <Typography variant="body2">
                                 {curWebConfig.plugins.includes(plugin) && !["banner", "route"].includes(plugin) && <FontAwesomeIcon icon={faLockOpen}></FontAwesomeIcon>}
                                 {!curWebConfig.plugins.includes(plugin) && !["banner", "route"].includes(plugin) && <FontAwesomeIcon icon={faLock}></FontAwesomeIcon>}
                                 {["banner", "route"].includes(plugin) && <FontAwesomeIcon icon={faCircleQuestion}></FontAwesomeIcon>}
-                                &nbsp;{plugins[plugin]}
+                                &nbsp;{PLUGINS[plugin]}
                             </Typography>
                         </Grid>
                     ))}
                 </Grid>
+                <br />
+                <Typography variant="body2" fontWeight="bold">
+                    Advanced Plugins
+                </Typography>
+                <Typography variant="body2" sx={{ mb: "5px" }}>
+                    Advanced plugins provide additional features on top of the core system and regular plugins. Certain regular plugins may be required to enable certain advanced plugins.<br />
+                    These features are not mandatory to use the Drivers Hub, and thus are considered as paid value-added services and are not included in any subscription or regular plugin.<br />
+                    When you purchase a plugin, we will send you a key to enable it in the below text box.
+                </Typography>
+                <Grid container spacing={2} rowSpacing={-0.5} sx={{ mb: "5px" }}>
+                    {Object.keys(ADVANCED_PLUGINS).map((plugin) => (
+                        <Grid item xs={6} sm={6} md={4} lg={3}>
+                            <Typography variant="body2">
+                                {enabledAP !== null && enabledAP.includes(plugin) && <FontAwesomeIcon icon={faLockOpen}></FontAwesomeIcon>}
+                                {enabledAP !== null && !enabledAP.includes(plugin) && <FontAwesomeIcon icon={faLock}></FontAwesomeIcon>}
+                                {enabledAP === null && <FontAwesomeIcon icon={faCircleQuestion}></FontAwesomeIcon>}
+                                &nbsp;{ADVANCED_PLUGINS[plugin]} ({ADVANCED_PLUGINS_PRICING[plugin]})
+                            </Typography>
+                        </Grid>
+                    ))}
+                </Grid>
+                <Typography variant="body2">
+                    Enable/Disable Advanced Plugin with Key:&nbsp;&nbsp;
+                    <TextField
+                        select
+                        size="small"
+                        value={pluginName}
+                        onChange={(e) => { setPluginName(e.target.value); }}
+                    >
+                        {pluginName === "unknown" && <MenuItem key="unknown" value="unknown">Select one</MenuItem>}
+                        {Object.keys(ADVANCED_PLUGINS).map((plugin) => (
+                            <MenuItem key={plugin} value={plugin}>{ADVANCED_PLUGINS[plugin]}</MenuItem>
+                        ))}
+                    </TextField>&nbsp;&nbsp;
+                    <TextField
+                        size="small"
+                        value={pluginKey}
+                        onChange={(e) => { setPluginKey(e.target.value); }}
+                    />&nbsp;&nbsp;
+                    <Button variant="contained" color="primary" onClick={() => { toggleAdvancedPlugin(); }}>{tr("submit")}</Button>
+                </Typography>
                 <br />
                 <Typography variant="body2">
                     <FontAwesomeIcon icon={faLockOpen}></FontAwesomeIcon> indicates enabled plugins and <FontAwesomeIcon icon={faLock}></FontAwesomeIcon> indicates disabled plugins.<br /><FontAwesomeIcon icon={faCircleQuestion}></FontAwesomeIcon> indicates that the client is not capable of detecting whether the plugin is enabled or disabled.<br />To purchase a plugin, contact us by creating a ticket in our Discord server. Pricing is available at <a href="https://drivershub.charlws.com/setup">https://drivershub.charlws.com/setup</a>.
