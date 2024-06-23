@@ -113,6 +113,12 @@ const SideBar = (props) => {
         menu = menu.map(subMenu => subMenu.filter(item => (!toRemove.includes(item))));
         menu = menu.filter(subMenu => subMenu.length > 0);
 
+        let removedPath = [];
+        for (let i = 0; i < toRemove.length; i++) {
+            removedPath.push(menuRoute[toRemove[i]]);
+        }
+        if (removedPath.includes(window.location.pathname)) navigate("/404");
+
         return menu;
     }, [webConfig, curUID, curUser, curUserPerm, vtcLevel]);
 
