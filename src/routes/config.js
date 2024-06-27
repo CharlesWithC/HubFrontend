@@ -3415,7 +3415,7 @@ const Configuration = () => {
 
     const PLUGINS = { "announcement": "Announcement", "application": "Application", "challenge": "Challenge", "division": "Division", "downloads": "Downloads", "economy": "Economy", "event": "Event", "poll": "Poll", "banner": "Profile Banner", "route": "Delivery Route" };
     const ADVANCED_PLUGINS = { "truckersmp-auto-import-event": "TruckersMP Auto Import Event" };
-    const ADVANCED_PLUGINS_PRICING = { "truckersmp-auto-import-event": "$10" };
+    const ADVANCED_PLUGINS_PRICING = { "truckersmp-auto-import-event": "10 ADP Credits" };
     const DHPLAN = { 0: "Regular Plan", 1: "Premium Plan", 3: "Special Guest" };
 
     return (<>
@@ -3518,8 +3518,9 @@ const Configuration = () => {
                 </Typography>
                 <Typography variant="body2" sx={{ mb: "5px" }}>
                     Advanced plugins provide additional features on top of the core system and regular plugins. Certain regular plugins may be required to enable certain advanced plugins.<br />
-                    These features are not mandatory to use the Drivers Hub, and thus are considered as paid value-added services and are not included in any subscription or regular plugin.<br />
-                    When you purchase a plugin, we will send you a key to enable it in the below text box.
+                    These features are not mandatory to use the Drivers Hub, and thus cost ADP Credits to unlock.<br />
+                    ADP Credits may be accumulated by referring new VTCs to use CHub (10 credits/referral), joining giveaways in Discord, or be purchased at US$1/credit.<br />
+                    For more questions regarding advanced plugins or ADP Credits, please contact us in Discord.
                 </Typography>
                 <Grid container spacing={2} rowSpacing={-0.5} sx={{ mb: "5px" }}>
                     {Object.keys(ADVANCED_PLUGINS).map((plugin) => (
