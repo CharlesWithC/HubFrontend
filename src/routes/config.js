@@ -3370,12 +3370,12 @@ const Configuration = () => {
         }
     }
 
-    const [enabledAP, setEnabledAP] = useState(null);
+    const [advancedPlugins, setAdvancedPlugins] = useState([]);
     const [reloadAP, setReloadAP] = useState(0);
     const loadAdvancedPlugins = useCallback(async () => {
         let resp = await axios({ url: `${apiPath}/advanced-plugin/list`, method: "GET" });
         if (resp.status === 200) {
-            setEnabledAP(resp.data.plugins);
+            setAdvancedPlugins(resp.data);
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
@@ -3385,11 +3385,17 @@ const Configuration = () => {
         loadAdvancedPlugins();
     }, [reloadAP]);
 
-    const [pluginName, setPluginName] = useState("unknown");
+    const [pluginId, setPluginId] = useState("unknown");
     const [pluginKey, setPluginKey] = useState("");
     const toggleAdvancedPlugin = useCallback(async () => {
-        if (enabledAP.includes(pluginName)) {
-            let resp = await axios({ url: `${apiPath}/advanced-plugin/disable?name=${pluginName}`, method: "POST", headers: { key: pluginKey } });
+        let isEnabled = false;
+        for (let i = 0; i < advancedPlugins.length; i++) {
+            if (advancedPlugins[i].id === pluginId) {
+                isEnabled = advancedPlugins[i].enabled;
+            }
+        }
+        if (isEnabled) {
+            let resp = await axios({ url: `${apiPath}/advanced-plugin/disable?name=${pluginId}`, method: "POST", headers: { key: pluginKey } });
             if (resp.status === 200) {
                 setSnackbarContent(tr("success"));
                 setSnackbarSeverity("success");
@@ -3400,7 +3406,7 @@ const Configuration = () => {
             }
         } else {
             let resp = await axios({
-                url: `${apiPath}/advanced-plugin/enable?name=${pluginName}`, method: "POST", headers: { key: pluginKey }
+                url: `${apiPath}/advanced-plugin/enable?name=${pluginId}`, method: "POST", headers: { key: pluginKey }
             });
             if (resp.status === 200) {
                 setSnackbarContent(tr("success"));
@@ -3411,11 +3417,9 @@ const Configuration = () => {
                 setSnackbarSeverity("error");
             }
         }
-    }, [enabledAP, pluginName, pluginKey]);
+    }, [advancedPlugins, pluginId, pluginKey]);
 
     const PLUGINS = { "announcement": "Announcement", "application": "Application", "challenge": "Challenge", "division": "Division", "downloads": "Downloads", "economy": "Economy", "event": "Event", "poll": "Poll", "banner": "Profile Banner", "route": "Delivery Route" };
-    const ADVANCED_PLUGINS = { "truckersmp-auto-import-event": "TruckersMP Auto Import Event" };
-    const ADVANCED_PLUGINS_PRICING = { "truckersmp-auto-import-event": "10 ADP Credits" };
     const DHPLAN = { 0: "Regular Plan", 1: "Premium Plan", 3: "Special Guest" };
 
     return (<>
@@ -3523,13 +3527,12 @@ const Configuration = () => {
                     For more questions regarding advanced plugins or ADP Credits, please contact us in Discord.
                 </Typography>
                 <Grid container spacing={2} rowSpacing={-0.5} sx={{ mb: "5px" }}>
-                    {Object.keys(ADVANCED_PLUGINS).map((plugin) => (
+                    {advancedPlugins.map((plugin) => (
                         <Grid item xs={6} sm={6} md={4} lg={3}>
                             <Typography variant="body2">
-                                {enabledAP !== null && enabledAP.includes(plugin) && <FontAwesomeIcon icon={faLockOpen}></FontAwesomeIcon>}
-                                {enabledAP !== null && !enabledAP.includes(plugin) && <FontAwesomeIcon icon={faLock}></FontAwesomeIcon>}
-                                {enabledAP === null && <FontAwesomeIcon icon={faCircleQuestion}></FontAwesomeIcon>}
-                                &nbsp;{ADVANCED_PLUGINS[plugin]} ({ADVANCED_PLUGINS_PRICING[plugin]})
+                                {plugin.enabled && <FontAwesomeIcon icon={faLockOpen}></FontAwesomeIcon>}
+                                {!plugin.enabled && <FontAwesomeIcon icon={faLock}></FontAwesomeIcon>}
+                                &nbsp;{plugin.name} ({plugin.cost} ADP Credit)
                             </Typography>
                         </Grid>
                     ))}
@@ -3539,12 +3542,12 @@ const Configuration = () => {
                     <TextField
                         select
                         size="small"
-                        value={pluginName}
-                        onChange={(e) => { setPluginName(e.target.value); }}
+                        value={pluginId}
+                        onChange={(e) => { setPluginId(e.target.value); }}
                     >
-                        {pluginName === "unknown" && <MenuItem key="unknown" value="unknown">Select one</MenuItem>}
-                        {Object.keys(ADVANCED_PLUGINS).map((plugin) => (
-                            <MenuItem key={plugin} value={plugin}>{ADVANCED_PLUGINS[plugin]}</MenuItem>
+                        {pluginId === "unknown" && <MenuItem key="unknown" value="unknown">Select one</MenuItem>}
+                        {advancedPlugins.map((plugin) => (
+                            <MenuItem key={plugin.id} value={plugin.id}>{plugin.name}</MenuItem>
                         ))}
                     </TextField>&nbsp;&nbsp;
                     <TextField
