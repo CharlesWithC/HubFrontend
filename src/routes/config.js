@@ -3389,6 +3389,7 @@ const Configuration = () => {
     const [pluginKey, setPluginKey] = useState("");
     const [adpSettingsOpen, setADPSettingsOpen] = useState(false);
     const [adpSettings, setADPSettings] = useState({});
+    const [adpDisabled, setADPDisabled] = useState(false); // form button
     const toggleAdvancedPlugin = useCallback(async () => {
         let isEnabled = false;
         for (let i = 0; i < advancedPlugins.length; i++) {
@@ -3443,6 +3444,7 @@ const Configuration = () => {
             setSnackbarSeverity("error");
             return;
         }
+        setADPDisabled(true);
         let resp = await axios({
             url: `${apiPath}/advanced-plugins/${pluginId}/settings`, method: "PATCH", data: { config: JSON.parse(adpSettings) }, headers: { Authorization: `Bearer ${getAuthToken()}` }
         });
@@ -3453,6 +3455,7 @@ const Configuration = () => {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
         }
+        setADPDisabled(false);
     }, [adpSettings, pluginId]);
 
     const PLUGINS = { "announcement": "Announcement", "application": "Application", "challenge": "Challenge", "division": "Division", "downloads": "Downloads", "economy": "Economy", "event": "Event", "poll": "Poll", "banner": "Profile Banner", "route": "Delivery Route" };
@@ -3571,7 +3574,7 @@ const Configuration = () => {
                                 {plugin.enabled && <FontAwesomeIcon icon={faLockOpen}></FontAwesomeIcon>}
                                 {!plugin.enabled && <FontAwesomeIcon icon={faLock}></FontAwesomeIcon>}
                                 &nbsp;{plugin.name} (ADPC {plugin.cost})&nbsp;
-                                {plugin.settings && <FontAwesomeIcon icon={faCogs} onClick={() => { loadADPSettings(plugin.id); }} style={{ cursor: "pointer" }}></FontAwesomeIcon>}
+                                {plugin.settings && plugin.enabled && <FontAwesomeIcon icon={faCogs} onClick={() => { loadADPSettings(plugin.id); }} style={{ cursor: "pointer" }}></FontAwesomeIcon>}
                             </Typography>
                         </Grid>
                     ))}
@@ -4139,7 +4142,7 @@ const Configuration = () => {
             </DialogContent>
             <DialogActions>
                 <Button onClick={() => { setADPSettingsOpen(false); }} variant="contained" color="secondary" sx={{ ml: 'auto' }}>{tr("close")}</Button>
-                <Button onClick={() => { updateADPSettings(); }} variant="contained" color="success" sx={{ ml: 'auto' }}>{tr("submit")}</Button>
+                <Button onClick={() => { updateADPSettings(); }} variant="contained" color="info" sx={{ ml: 'auto' }} disabled={adpDisabled}>{tr("submit")}</Button>
             </DialogActions>
         </Dialog>
         <Dialog open={reloadModalOpen} onClose={() => { setADPSettingsOpen(false); }}>
