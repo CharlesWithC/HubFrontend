@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, memo, useContext, useMemo } from 'rea
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '../context';
 
-import { Card, Typography, Button, ButtonGroup, Box, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Grid, InputLabel, Tabs, Tab, Collapse, IconButton, MenuItem, Checkbox, FormControlLabel, Slider, Divider, useTheme } from '@mui/material';
+import { Card, Typography, Button, ButtonGroup, Box, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Grid, InputLabel, Tabs, Tab, Collapse, IconButton, MenuItem, Checkbox, FormControlLabel, Slider, Divider, useTheme, Tooltip } from '@mui/material';
 import { ExpandMoreRounded } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import { Portal } from '@mui/base';
@@ -14,7 +14,7 @@ import Papa from 'papaparse';
 import { saveAs } from 'file-saver';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faServer, faClockRotateLeft, faFingerprint, faDesktop, faPlus, faMinus, faArrowUp, faArrowDown, faWrench, faFileImport, faFileExport, faLock, faCircleInfo, faLockOpen, faCircleQuestion } from '@fortawesome/free-solid-svg-icons';
+import { faServer, faClockRotateLeft, faFingerprint, faDesktop, faPlus, faMinus, faArrowUp, faArrowDown, faWrench, faFileImport, faFileExport, faLock, faCircleInfo, faLockOpen, faCircleQuestion, faCogs, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 
 import TimeDelta from '../components/timedelta';
 import ColorInput from '../components/colorInput';
@@ -3387,6 +3387,8 @@ const Configuration = () => {
 
     const [pluginId, setPluginId] = useState("unknown");
     const [pluginKey, setPluginKey] = useState("");
+    const [adpSettingsOpen, setADPSettingsOpen] = useState(false);
+    const [adpSettings, setADPSettings] = useState({});
     const toggleAdvancedPlugin = useCallback(async () => {
         let isEnabled = false;
         for (let i = 0; i < advancedPlugins.length; i++) {
@@ -3418,6 +3420,40 @@ const Configuration = () => {
             }
         }
     }, [advancedPlugins, pluginId, pluginKey]);
+    const loadADPSettings = useCallback(async (pluginId) => {
+        let resp = await axios({ url: `${apiPath}/advanced-plugins/${pluginId}/settings`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 200) {
+            setADPSettings(JSON.stringify(resp.data.config, null, 4));
+            setADPSettingsOpen(true);
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+
+    }, []);
+    const updateADPSettings = useCallback(async () => {
+        try {
+            JSON.parse(adpSettings);
+        } catch (error) {
+            if (error instanceof SyntaxError) {
+                setSnackbarContent(error.message);
+            } else {
+                setSnackbarContent(error);
+            }
+            setSnackbarSeverity("error");
+            return;
+        }
+        let resp = await axios({
+            url: `${apiPath}/advanced-plugins/${pluginId}/settings`, method: "PATCH", data: { config: JSON.parse(adpSettings) }, headers: { Authorization: `Bearer ${getAuthToken()}` }
+        });
+        if (resp.status === 204) {
+            setSnackbarContent(tr("success"));
+            setSnackbarSeverity("success");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+    }, [adpSettings, pluginId]);
 
     const PLUGINS = { "announcement": "Announcement", "application": "Application", "challenge": "Challenge", "division": "Division", "downloads": "Downloads", "economy": "Economy", "event": "Event", "poll": "Poll", "banner": "Profile Banner", "route": "Delivery Route" };
     const DHPLAN = { 0: "Regular Plan", 1: "Premium Plan", 3: "Special Guest" };
@@ -3518,21 +3554,24 @@ const Configuration = () => {
                 </Grid>
                 <br />
                 <Typography variant="body2" fontWeight="bold">
-                    Advanced Plugins
-                </Typography>
-                <Typography variant="body2" sx={{ mb: "5px" }}>
-                    Advanced plugins provide additional features on top of the core system and regular plugins. Certain regular plugins may be required to enable certain advanced plugins.<br />
-                    These features are not mandatory to use the Drivers Hub, and thus cost ADP Credits to unlock.<br />
-                    ADP Credits may be accumulated by referring new VTCs to use CHub (10 credits/referral), joining giveaways in Discord, or be purchased at US$1/credit.<br />
-                    For more questions regarding advanced plugins or ADP Credits, please contact us in Discord.
+                    Advanced Plugins <Tooltip placement="top" arrow title={<Typography variant="body2">
+                        Advanced plugins provide additional features on top of the core system and regular plugins.<br />
+                        These optional functions cost ADP Credits (ADPC) to unlock.<br />
+                        ADP Credits (ADPC) may be accumulated by referring new VTCs to use CHub (10 credits/referral), joining giveaways in Discord, or be purchased at US$1/credit.<br />
+                        For more questions regarding advanced plugins or ADP Credits (ADPC), please contact us in Discord.
+                    </Typography>}
+                        PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                        <FontAwesomeIcon icon={faInfoCircle} />
+                    </Tooltip>
                 </Typography>
                 <Grid container spacing={2} rowSpacing={-0.5} sx={{ mb: "5px" }}>
                     {advancedPlugins.map((plugin) => (
                         <Grid item xs={6} sm={6} md={4} lg={3}>
-                            <Typography variant="body2">
+                            <Typography variant="body2" onClick={() => { setPluginId(plugin.id); }}>
                                 {plugin.enabled && <FontAwesomeIcon icon={faLockOpen}></FontAwesomeIcon>}
                                 {!plugin.enabled && <FontAwesomeIcon icon={faLock}></FontAwesomeIcon>}
-                                &nbsp;{plugin.name} ({plugin.cost} ADP Credit)
+                                &nbsp;{plugin.name} (ADPC {plugin.cost})&nbsp;
+                                {plugin.settings && <FontAwesomeIcon icon={faCogs} onClick={() => { loadADPSettings(plugin.id); }} style={{ cursor: "pointer" }}></FontAwesomeIcon>}
                             </Typography>
                         </Grid>
                     ))}
@@ -4084,9 +4123,28 @@ const Configuration = () => {
                 </Box>
             </TabPanel>
         </Card >
-        <Dialog open={reloadModalOpen} onClose={handleCloseReloadModal}>
+        <Dialog open={adpSettingsOpen} onClose={() => { setADPSettingsOpen(false); }} fullWidth>
             <DialogTitle>
-                <Typography variant="h6" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
+                <Typography variant="h6" fontWeight="bold" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
+                    <FontAwesomeIcon icon={faCogs} />&nbsp;&nbsp;Advanced Plugin Settings</Typography>
+            </DialogTitle>
+            <DialogContent>
+                <TextField
+                    multiline
+                    rows={10}
+                    value={adpSettings}
+                    onChange={(e) => setADPSettings(e.target.value)}
+                    fullWidth
+                />
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={() => { setADPSettingsOpen(false); }} variant="contained" color="secondary" sx={{ ml: 'auto' }}>{tr("close")}</Button>
+                <Button onClick={() => { updateADPSettings(); }} variant="contained" color="success" sx={{ ml: 'auto' }}>{tr("submit")}</Button>
+            </DialogActions>
+        </Dialog>
+        <Dialog open={reloadModalOpen} onClose={() => { setADPSettingsOpen(false); }}>
+            <DialogTitle>
+                <Typography variant="h6" fontWeight="bold" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
                     <FontAwesomeIcon icon={faFingerprint} />&nbsp;&nbsp;{tr("attention_required")}</Typography>
             </DialogTitle>
             <DialogContent>
