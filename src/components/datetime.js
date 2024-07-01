@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useCallback } from 'react';
 import { AppContext } from '../context';
 
 import { TextField } from '@mui/material';
@@ -6,7 +6,7 @@ import { TextField } from '@mui/material';
 import { getTimezoneOffset } from '../functions';
 
 // all in seconds, not milliseconds
-const DateTimeField = ({ label, defaultValue, onChange, fullWidth = false, size = undefined, sx = {}, disabled = false }) => {
+const DateTimeField = ({ label, defaultValue, onChange, fullWidth = false, size = undefined, sx = {}, disabled = false, noDate = false }) => {
     const { userLevel, userSettings } = useContext(AppContext);
 
     let displayTimezone = userSettings.display_timezone;
@@ -37,7 +37,11 @@ const DateTimeField = ({ label, defaultValue, onChange, fullWidth = false, size 
         }
     }, [defaultValue]);
 
-    const handleChange = (event) => {
+    const handleChange = useCallback((event) => {
+        if (noDate) {
+            onChange(event.target.value);
+            return;
+        }
         const newTimestamp = new Date(event.target.value).getTime() / 1000 + getTimezoneOffset(displayTimezone, Intl.DateTimeFormat().resolvedOptions().timeZone) * 60;
 
         if (prevDefaultValue === undefined) {
@@ -48,13 +52,13 @@ const DateTimeField = ({ label, defaultValue, onChange, fullWidth = false, size 
         }
 
         onChange(newTimestamp);
-    };
+    }, [noDate]);
 
     return (
         <>{defaultValueConverted !== null && <TextField
             key={prevDefaultValue}
             label={label}
-            type="datetime-local"
+            type={!noDate ? "datetime-local" : "time"}
             defaultValue={defaultValueConverted}
             onChange={handleChange}
             InputLabelProps={{

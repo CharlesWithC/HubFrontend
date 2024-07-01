@@ -3,14 +3,15 @@ import { useState, useEffect, useCallback, useContext, useMemo } from 'react';
 import { AppContext, CacheContext } from '../context';
 
 import { Grid, Card, CardContent, Typography, Snackbar, Alert, SpeedDial, SpeedDialIcon, SpeedDialAction, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, Button, TextField } from '@mui/material';
-import { RefreshRounded, AltRouteRounded } from '@mui/icons-material';
+import { RefreshRounded, AltRouteRounded, NotificationsRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAnglesDown, faAnglesUp, faCoins } from '@fortawesome/free-solid-svg-icons';
 import { faDiscord } from '@fortawesome/free-brands-svg-icons';
 
-import { makeRequestsWithAuth, TSep, customAxios as axios, getAuthToken, isSameDay } from '../functions';
+import { makeRequestsWithAuth, TSep, customAxios as axios, getAuthToken, isSameDay, convertLocalTimeToUTC } from '../functions';
+import DateTimeField from '../components/datetime';
 
 const Ranking = () => {
     const { t: tr } = useTranslation();
@@ -24,9 +25,8 @@ const Ranking = () => {
     }, []);
 
     const [modalCRTOpen, setModalCRTOpen] = useState(false);
-    const handleModalCRTClose = useCallback(() => {
-        setModalCRTOpen(false);
-    }, [setModalCRTOpen]);
+    const [modalNotificationsOpen, setModalNotificationsOpen] = useState(false);
+    const [notificationTime, setNotificationTime] = useState(null);
 
     const [rankIdx, setRankIdx] = useState(null);
     const [curRankTypeId, setRankTypeId] = useState(cache.ranking.curRankTypeId);
@@ -169,6 +169,16 @@ const Ranking = () => {
             setSnackbarSeverity("error");
         }
     }, [apiPath]);
+    const updateNotificationSettings = useCallback(async () => {
+        let resp = await axios({ url: `${apiPath}/member/bonus/notification/settings`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { utctime: notificationTime || "" } });
+        if (resp.status === 204) {
+            setSnackbarContent(tr("success"));
+            setSnackbarSeverity("success");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+    }, [notificationTime]);
 
     return <>
         {(userPoints === null || rankIdx === null) && <Grid container spacing={2} sx={{ marginBottom: "20px" }}>
@@ -243,7 +253,7 @@ const Ranking = () => {
                         <Typography variant="subtitle2" align="center" gutterBottom>{tr("current_rank")}</Typography>
                         {rankIdx >= 0 && <>
                             <Typography variant="h5" align="center" component="div" sx={{ color: curRankRoles[rankIdx]?.color, cursor: "pointer" }} onClick={getDiscordRole}>
-                            {rankChange > 0 ? <FontAwesomeIcon icon={faAnglesUp} /> : (rankChange < 0 ? <FontAwesomeIcon icon={faAnglesDown} /> : <></>)} {curRankRoles[rankIdx].name} {rankChange > 0 ? <FontAwesomeIcon icon={faAnglesUp} /> : (rankChange < 0 ? <FontAwesomeIcon icon={faAnglesDown} /> : <></>)}
+                                {rankChange > 0 ? <FontAwesomeIcon icon={faAnglesUp} /> : (rankChange < 0 ? <FontAwesomeIcon icon={faAnglesDown} /> : <></>)} {curRankRoles[rankIdx].name} {rankChange > 0 ? <FontAwesomeIcon icon={faAnglesUp} /> : (rankChange < 0 ? <FontAwesomeIcon icon={faAnglesDown} /> : <></>)}
                             </Typography>
                             <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
                                 {TSep(userPoints)} {tr("pts")}
@@ -302,7 +312,7 @@ const Ranking = () => {
                 </Grid >
             ))}
         </Grid>
-        <Dialog open={modalCRTOpen} onClose={handleModalCRTClose}>
+        <Dialog open={modalCRTOpen} onClose={() => { setModalCRTOpen(false); }}>
             <DialogTitle>
                 <Typography variant="h6" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", minWidth: "300px" }}>
                     <AltRouteRounded />&nbsp;&nbsp;{tr("change_rank_type")}</Typography>
@@ -321,7 +331,27 @@ const Ranking = () => {
                 </TextField>
             </DialogContent>
             <DialogActions>
-                <Button onClick={handleModalCRTClose} variant="contained" color="secondary" sx={{ ml: 'auto' }}>{tr("close")}</Button>
+                <Button onClick={() => { setModalCRTOpen(false); }} variant="contained" color="secondary" sx={{ ml: 'auto' }}>{tr("close")}</Button>
+            </DialogActions>
+        </Dialog>
+        <Dialog open={modalNotificationsOpen} onClose={() => { setModalNotificationsOpen(false); }}>
+            <DialogTitle>
+                <Typography variant="h6" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", minWidth: "300px" }}>
+                    <NotificationsRounded />&nbsp;&nbsp;Daily Bonus Notification Settings</Typography>
+            </DialogTitle>
+            <DialogContent>
+                <DateTimeField
+                    label="Alert me at"
+                    defaultValue={notificationTime}
+                    onChange={(time) => { setNotificationTime(time); }}
+                    fullWidth noDate
+                    sx={{ mt: "5px" }}
+                />
+                <Typography variant="body2" align="right">Leave empty to disable notifications</Typography>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={() => { setModalNotificationsOpen(false); }} variant="contained" color="secondary" sx={{ ml: 'auto' }}>{tr("close")}</Button>
+                <Button onClick={() => { updateNotificationSettings(); }} variant="contained" color="info" sx={{ ml: 'auto' }}>{tr("update")}</Button>
             </DialogActions>
         </Dialog>
         <SpeedDial
@@ -340,6 +370,12 @@ const Ranking = () => {
                 icon={<AltRouteRounded />}
                 tooltipTitle={tr("change_rank_type")}
                 onClick={() => setModalCRTOpen(true)}
+            />
+            <SpeedDialAction
+                key="notifications"
+                icon={<NotificationsRounded />}
+                tooltipTitle="Daily Bonus Notification Settings"
+                onClick={() => { setNotificationTime(null); setModalNotificationsOpen(true); }}
             />
             <SpeedDialAction
                 key="bonus"

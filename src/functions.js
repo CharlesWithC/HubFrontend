@@ -774,6 +774,24 @@ export function toLocalISOString(date) {
         ':' + pad(tzo % 60);
 }
 
+export function convertLocalTimeToUTC(time) {
+    // Extract hours and minutes from the input time
+    const [hours, minutes] = time.split(':').map(Number);
+
+    // Create a Date object for today with the specified local time
+    const localDate = new Date();
+    localDate.setHours(hours, minutes, 0, 0);
+
+    // Get the UTC hours and minutes
+    const utcHours = localDate.getUTCHours();
+    const utcMinutes = localDate.getUTCMinutes();
+
+    // Format the UTC time as HH:MM
+    const formattedUTCTime = `${utcHours.toString().padStart(2, '0')}:${utcMinutes.toString().padStart(2, '0')}`;
+
+    return formattedUTCTime;
+}
+
 export const DEFAULT_ROLES = [{ 'id': 0, 'name': 'Owner', 'order_id': 0, 'discord_role_id': '' }, { 'id': 10, 'name': 'Leadership', 'order_id': 10, 'discord_role_id': '' }, { 'id': 20, 'name': 'Human Resources Manager', 'order_id': 20, 'discord_role_id': '' }, { 'id': 21, 'name': 'Human Resources Staff', 'order_id': 21, 'discord_role_id': '' }, { 'id': 30, 'name': 'Events Manager', 'order_id': 30, 'discord_role_id': '' }, { 'id': 31, 'name': 'Events Staff', 'order_id': 31, 'discord_role_id': '' }, { 'id': 40, 'name': 'Convoy Supervisor', 'order_id': 40, 'discord_role_id': '' }, { 'id': 41, 'name': 'Convoy Control', 'order_id': 41, 'discord_role_id': '' }, { 'id': 70, 'name': 'Division Manager', 'order_id': 70, 'discord_role_id': '' }, { 'id': 71, 'name': 'Division Supervisor', 'order_id': 71, 'discord_role_id': '' }, { 'id': 80, 'name': 'Community Manager', 'order_id': 80, 'discord_role_id': '' }, { 'id': 81, 'name': 'Community Team', 'order_id': 81, 'discord_role_id': '' }, { 'id': 99, 'name': 'Trial Staff', 'order_id': 99, 'discord_role_id': '' }, { 'id': 100, 'name': 'Driver', 'order_id': 100, 'discord_role_id': '' }, { 'id': 200, 'name': 'Staff of the Month', 'order_id': 200, 'discord_role_id': '', 'display_order_id': '-100' }, { 'id': 201, 'name': 'Driver of the Month', 'order_id': 201, 'discord_role_id': '', 'display_order_id': '-100' }, { 'id': 202, 'name': 'Leave of absence', 'order_id': 202, 'discord_role_id': '', 'display_order_id': '-1' }];
 
 export const DEFAULT_PERMS = { 'administrator': [0, 10], 'update_config': [], 'reload_config': [], 'restart_service': [], 'accept_members': [20, 21], 'dismiss_members': [20, 21], 'update_roles': [20, 21], 'update_points': [20, 21], 'update_connections': [20, 21], 'disable_mfa': [20], 'delete_notifications': [20], 'manage_profiles': [20, 21], 'view_sensitive_profile': [20, 21], 'view_privacy_protected_data': [20, 21], 'view_global_note': [20, 21], 'update_global_note': [20, 21], 'view_external_user_list': [20, 21], 'ban_users': [20, 21], 'delete_users': [20, 21], 'import_dlogs': [20], 'delete_dlogs': [20], 'view_audit_log': [20, 21], 'manage_announcements': [20], 'manage_applications': [20, 21, 70, 71], 'delete_applications': [20], 'manage_challenges': [20, 80, 81], 'manage_divisions': [70, 71], 'manage_downloads': [], 'manage_economy': [], 'manage_economy_balance': [], 'manage_economy_truck': [], 'manage_economy_garage': [], 'manage_economy_merch': [], 'manage_events': [40, 41], 'manage_polls': [], 'driver': [100], 'staff_of_the_month': [200], 'driver_of_the_month': [201] };
