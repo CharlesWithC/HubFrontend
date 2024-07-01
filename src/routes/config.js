@@ -26,7 +26,7 @@ import { getRolePerms, customAxios as axios, makeRequestsAuto, getAuthToken, DEF
 const LANGUAGES = { 'ar': 'Arabic (العربية)', 'be': 'Belarusian (беларуская)', 'bg': 'Bulgarian (български)', 'cs': 'Czech (čeština)', 'cy': 'Welsh (Cymraeg)', 'da': 'Danish (dansk)', 'de': 'German (Deutsch)', 'el': 'Greek (Ελληνικά)', 'en': 'English', 'eo': 'Esperanto', 'es': 'Spanish (Español)', 'et': 'Estonian (eesti keel)', 'fi': 'Finnish (suomi)', 'fr': 'French (français)', 'ga': 'Irish (Gaeilge)', 'gd': 'Scottish (Gàidhlig)', 'hu': 'Hungarian (magyar)', 'hy': 'Armenian (Հայերեն)', 'id': 'Indonesian (Bahasa Indonesia)', 'is': 'Icelandic (íslenska)', 'it': 'Italian (italiano)', 'ja': 'Japanese (日本語)', 'ko': 'Korean (한국어)', 'lt': 'Lithuanian (lietuvių kalba)', 'lv': 'Latvian (latviešu valoda)', 'mk/sl': 'Macedonian/Slovenian (македонски/​slovenščina)', 'mn': 'Mongolian (Монгол)', 'mo': 'Moldavian (Moldova)', 'ne': 'Nepali (नेपाली)', 'nl': 'Dutch (Nederlands)', 'nn': 'Norwegian (norsk nynorsk)', 'pl': 'Polish (polski)', 'pt': 'Portuguese (Português)', 'ro': 'Romanian (română)', 'ru': 'Russian (русский)', 'sk': 'Slovak (slovenčina)', 'sl': 'Slovenian (slovenščina)', 'sq': 'Albanian (Shqip)', 'sr': 'Serbian (српски)', 'sv': 'Swedish (Svenska)', 'th': 'Thai (ไทย)', 'tr': 'Turkish (Türkçe)', 'uk': 'Ukrainian (українська)', 'vi': 'Vietnamese (Tiếng Việt)', 'yi': 'Yiddish (ייִדיש)', 'zh': 'Chinese (中文)' };
 
 const CONFIG_SECTIONS = {
-    "general": ["name", "language", "distance_unit", "security_level", "privacy", "logo_url", "hex_color", "hook_audit_log"], "profile": ["sync_discord_email", "must_join_guild", "use_server_nickname", "allow_custom_profile", "use_custom_activity", "avatar_domain_whitelist", "required_connections", "register_methods"], "tracker": ["trackers"], "dlog": ["delivery_rules", "hook_delivery_log", "delivery_webhook_image_urls"], "discord-steam": ["discord_guild_id", "discord_client_id", "discord_client_secret", "discord_bot_token", "steam_api_key"], "role": ["roles", "perms"], "smtp": ["smtp_host", "smtp_port", "smtp_email", "smtp_password", "email_template"], "rank": ["rank_types"], "announcement": ["announcement_types"], "application": ["application_types"], "division": ["divisions"], "discord-member": ["member_accept", "member_leave", "driver_role_add", "driver_role_remove", "rank_up"], "discord-other": ["announcement_forwarding", "challenge_forwarding", "challenge_completed_forwarding", "downloads_forwarding", "event_forwarding", "event_upcoming_forwarding", "poll_forwarding"], "economy": ["economy"]
+    "general": ["name", "language", "distance_unit", "security_level", "privacy", "logo_url", "hex_color", "hook_audit_log", "banner_background_url", "banner_info_first_row", "banner_background_opacity"], "profile": ["sync_discord_email", "must_join_guild", "use_server_nickname", "allow_custom_profile", "use_custom_activity", "avatar_domain_whitelist", "required_connections", "register_methods"], "tracker": ["trackers"], "dlog": ["delivery_rules", "hook_delivery_log", "delivery_webhook_image_urls"], "discord-steam": ["discord_guild_id", "discord_client_id", "discord_client_secret", "discord_bot_token", "steam_api_key"], "role": ["roles", "perms"], "smtp": ["smtp_host", "smtp_port", "smtp_email", "smtp_password", "email_template"], "rank": ["rank_types"], "announcement": ["announcement_types"], "application": ["application_types"], "division": ["divisions"], "discord-member": ["member_accept", "member_leave", "driver_role_add", "driver_role_remove", "rank_up"], "discord-other": ["announcement_forwarding", "challenge_forwarding", "challenge_completed_forwarding", "downloads_forwarding", "event_forwarding", "event_upcoming_forwarding", "poll_forwarding"], "economy": ["economy"]
 };
 
 const CONFIG_SECTIONS_INDEX = { "general": 0, "profile": 1, "tracker": 2, "dlog": 3, "discord-steam": 4, "role": 5, "rank": 7, "smtp": 6, "announcement": 8, "division": 9, "application": 10, "discord-member": 11, "discord-other": 12, "economy": 13 };
@@ -183,6 +183,43 @@ const MemoGeneralForm = memo(({ theme, formConfig }) => {
                 fullWidth
                 value={formConfig.state.hex_color}
                 onChange={(e) => { formConfig.setState({ ...formConfig.state, hex_color: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="banner_background_url"
+                label="Banner Background URL"
+                variant="outlined"
+                fullWidth
+                value={formConfig.state.banner_background_url}
+                onChange={(e) => { formConfig.setState({ ...formConfig.state, banner_background_url: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={12} sm={3}>
+            <TextField select
+                style={{ marginBottom: '16px' }}
+                key="banner_info_first_row"
+                label="Banner Info First Row"
+                variant="outlined"
+                fullWidth
+                value={formConfig.state.banner_info_first_row}
+                onChange={(e) => { formConfig.setState({ ...formConfig.state, banner_info_first_row: e.target.value }); }}
+            >
+                <MenuItem key="rank" value="rank">Always Rank</MenuItem>
+                <MenuItem key="division" value="division">Always Division</MenuItem>
+                <MenuItem key="division_first" value="division_first">Prioritize Division</MenuItem>
+            </TextField>
+        </Grid>
+        <Grid item xs={12} sm={3}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="banner_background_opacity"
+                label="Banner Background Opacity"
+                variant="outlined"
+                fullWidth
+                value={formConfig.state.banner_background_opacity}
+                onChange={(e) => { formConfig.setState({ ...formConfig.state, banner_background_opacity: e.target.value }); }}
             />
         </Grid>
         {formConfig.state.hook_audit_log.map((hook, index) => (<>
