@@ -42,7 +42,7 @@ const UserSelect = ({ label, users, onUpdate, isMulti = true, includeCompany = f
     useEffect(() => {
         let formattedInit = [];
         for (let i = 0; i < users.length; i++) {
-            if (users[i] === undefined || users[i].userid === undefined) continue;
+            if (users[i] === undefined || users[i].userid === undefined || users[i].userid === null) continue;
             formattedInit.push({ value: users[i].userid !== null ? users[i].userid : users[i].uid, label: `${memberMap[users[i].userid].name} ${(users[i].userid === null || users[i].userid >= 0) ? `(${users[i].userid !== null ? users[i].userid : `UID: ${users[i].uid}`})` : ``}` });
         }
         if (selectedUsers !== formattedInit) {
