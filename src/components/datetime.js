@@ -37,11 +37,7 @@ const DateTimeField = ({ label, defaultValue, onChange, fullWidth = false, size 
         }
     }, [defaultValue]);
 
-    const handleChange = useCallback((event) => {
-        if (noDate) {
-            onChange(event.target.value);
-            return;
-        }
+    const handleChange = (event) => {
         const newTimestamp = new Date(event.target.value).getTime() / 1000 + getTimezoneOffset(displayTimezone, Intl.DateTimeFormat().resolvedOptions().timeZone) * 60;
 
         if (prevDefaultValue === undefined) {
@@ -51,8 +47,13 @@ const DateTimeField = ({ label, defaultValue, onChange, fullWidth = false, size 
             }, 50);
         }
 
+        if (noDate) {
+            onChange(event.target.value);
+            return;
+        }
+
         onChange(newTimestamp);
-    }, [noDate]);
+    };
 
     return (
         <>{defaultValueConverted !== null && <TextField
