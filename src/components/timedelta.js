@@ -110,7 +110,7 @@ const TimeDelta = ({ timestamp, lower = false, rough = false, shortenedMonth = f
     }, [timestamp, intervalDuration]);
 
     const date = new Date(timestamp);
-    const day = date.toLocaleDateString(userSettings.language, { weekday: 'long' });
+    const day = date.toLocaleDateString(userSettings.language || "en", { weekday: 'long' });
     return <Tooltip placement="top" arrow title={<>{day}, {getFormattedDate(userSettings.display_timezone, date).replaceAll("at ", "")}</>}
         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
         {timeAgo.replaceAll("at ", "")}
