@@ -2,8 +2,8 @@ import { useRef, useState, useEffect, useCallback, useMemo, useContext, memo } f
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '../context';
 
-import { Card, CardContent, Typography, Grid, Snackbar, Alert, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button, IconButton, ButtonGroup, useTheme } from '@mui/material';
-import { CloseRounded } from '@mui/icons-material';
+import { Card, CardContent, Typography, Grid, Snackbar, Alert, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button, IconButton, useTheme, Divider } from '@mui/material';
+import { CloseRounded, DeleteRounded, EditRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
 
 import CustomTable from '../components/table';
@@ -56,7 +56,7 @@ const TaskTable = memo(({ showDetail, reload }) => {
 
             if (!inited.current) {
                 [_due, _tasks] = await makeRequestsAuto([
-                    { url: `${apiPath}/tasks/list?page=1&page_size=2&order_by=due_timestamp&order=asc`, auth: true },
+                    { url: `${apiPath}/tasks/list?page=1&page_size=2&order_by=due_timestamp&order=asc&mark_completed=false`, auth: true },
                     { url: `${apiPath}/tasks/list?page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
                 ]);
                 setDue(_due.list);
@@ -87,7 +87,22 @@ const TaskTable = memo(({ showDetail, reload }) => {
     }
 
     return <>
-        {due.length !== 0 && <Grid container spacing={2} style={{ marginBottom: "20px" }}>
+        {due.length === 0 && <Grid container spacing={2} sx={{ marginBottom: "20px" }}>
+            <Grid item xs={12} sm={12} md={12} lg={12}>
+                <Card>
+                    <CardContent>
+                        <Typography variant="body2" gutterBottom>No Pending Tasks</Typography>
+                        <Typography variant="h5" component="div">
+                            All tasks completed!
+                        </Typography>
+                        <Typography variant="body2" sx={{ mt: 1 }}>
+                            It looks like a great day to rest, relax, and recharge.
+                        </Typography>
+                    </CardContent>
+                </Card>
+            </Grid>
+        </Grid>}
+        {due.length !== 0 && <Grid container spacing={2} sx={{ marginBottom: "20px" }}>
             <Grid item xs={12} sm={12} md={due.length === 2 ? 6 : 12} lg={due.length === 2 ? 6 : 12}>
                 <Card>
                     <CardContent>
@@ -127,7 +142,7 @@ const Task = () => {
 
     const [reload, setReload] = useState(0);
     const [detailTask, setDetailTask] = useState(null);
-    const [dialogOpen, setDialogOpen] = useState(false);
+    const [dialogAction, setDialogAction] = useState("");
     const [buttonDisabled, setButtonDisabled] = useState(false);
     const [isTaskAssignee, setIsTaskAssignee] = useState(false);
     const [isTaskManager, setIsTaskManager] = useState(false);
@@ -141,6 +156,8 @@ const Task = () => {
     const theme = useTheme();
     const PRIORITY_STRING = ["Very High", "High", "Normal", "Low", "Very Low"];
     const PRIORITY_COLOR = [theme.palette.error.main, theme.palette.warning.main, theme.palette.info.main, theme.palette.success.main, theme.palette.success.light];
+    const STATUS_CONVERT = [[0, 2], [1, 2]]; // [mark_completed, confirm_completed]
+    const STATUS = useMemo(() => { return { 0: <span style={{ color: theme.palette.warning.main }}>Pending</span>, 1: <span style={{ color: theme.palette.info.main }}>Submitted</span>, 2: <span style={{ color: theme.palette.success.main }}>Completed</span> }; }, [theme]);
 
     const showDetail = useCallback(async (task) => {
         window.loading += 1;
@@ -149,7 +166,7 @@ const Task = () => {
         let resp = await axios({ url: `${apiPath}/tasks/${task.taskid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
             setDetailTask(resp.data);
-            setDialogOpen(true);
+            setDialogAction("detail");
 
             let task = resp.data;
             setIsTaskAssignee(task.assign_mode === 0 && curUser.userid === task.creator.userid ||
@@ -165,11 +182,12 @@ const Task = () => {
         window.loading -= 1;
     }, [apiPath, curUser, allPerms]);
 
+    const [markNote, setMarkNote] = useState("");
     const markAsCompleted = useCallback(async (mark) => {
         window.loading += 1;
         setButtonDisabled(true);
 
-        let resp = await axios({ url: `${apiPath}/tasks/${detailTask.taskid}/complete/mark`, method: mark ? "PUT" : "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { note: "" } });
+        let resp = await axios({ url: `${apiPath}/tasks/${detailTask.taskid}/complete/mark`, method: mark ? "PUT" : "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { note: markNote } });
         if (resp.status === 204) {
             setSnackbarContent(tr("success"));
             setSnackbarSeverity("success");
@@ -182,12 +200,13 @@ const Task = () => {
 
         setButtonDisabled(false);
         window.loading -= 1;
-    }, [apiPath, detailTask]);
+    }, [apiPath, detailTask, markNote]);
 
+    const [confirmNote, setConfirmNote] = useState("");
     const confirmAsCompleted = useCallback(async (confirm) => {
         window.loading += 1;
 
-        let resp = await axios({ url: `${apiPath}/tasks/${detailTask.taskid}/complete/${confirm ? "accept" : "reject"}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { note: "" } });
+        let resp = await axios({ url: `${apiPath}/tasks/${detailTask.taskid}/complete/${confirm ? "accept" : "reject"}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { note: confirmNote } });
         if (resp.status === 204) {
             setSnackbarContent(tr("success"));
             setSnackbarSeverity("success");
@@ -199,38 +218,73 @@ const Task = () => {
         }
 
         window.loading -= 1;
-    }, [apiPath, detailTask]);
+    }, [apiPath, detailTask, confirmNote]);
 
     return <>
         <TaskTable showDetail={showDetail} reload={reload}></TaskTable>
-        {detailTask !== null && <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} >
-            <DialogTitle>
+        {detailTask !== null && <Dialog open={dialogAction === "detail"} onClose={() => setDialogAction("")} >
+            <DialogTitle sx={{ alignItems: "center" }}>
                 {detailTask.title}
-                <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogOpen(false)}>
+                {isTaskManager && <>
+                    <IconButton size="small" aria-label={tr("edit")} sx={{ marginLeft: "10px", marginTop: "-3px" }}><EditRounded /></IconButton >
+                    <IconButton size="small" aria-label={tr("delete")} sx={{ marginTop: "-3px" }}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
+                </>}
+                <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogAction("")}>
                     <CloseRounded />
                 </IconButton>
             </DialogTitle>
             <DialogContent sx={{ minWidth: "550px" }}>
                 <Typography variant="body2" gutterBottom><MarkdownRenderer>{detailTask.description}</MarkdownRenderer></Typography>
                 <br />
-                <Typography variant="body2" gutterBottom>Priority: <span style={{ color: PRIORITY_COLOR[detailTask.priority] }}>{PRIORITY_STRING[detailTask.priority]}</span></Typography>
-                <Typography variant="body2" gutterBottom>Due: <TimeDelta key={`${+new Date()}`} timestamp={detailTask.due_timestamp * 1000} /></Typography>
-                <Typography variant="body2" gutterBottom>Creator: <UserCard user={detailTask.creator} /></Typography>
-                <Typography variant="body2" gutterBottom>Assigned to:&nbsp;
+                <Typography variant="body2" gutterBottom><b>Priority</b>: <span style={{ color: PRIORITY_COLOR[detailTask.priority] }}>{PRIORITY_STRING[detailTask.priority]}</span></Typography>
+                <Typography variant="body2" gutterBottom><b>Due</b>: <TimeDelta key={`${+new Date()}`} timestamp={detailTask.due_timestamp * 1000} /></Typography>
+                <Typography variant="body2" gutterBottom><b>Creator</b>: <UserCard user={detailTask.creator} /></Typography>
+                <Typography variant="body2" gutterBottom><b>Assigned to</b>:&nbsp;
                     {detailTask.assign_mode === 0 && <UserCard user={detailTask.creator} />}
                     {detailTask.assign_mode === 1 && detailTask.assign_to.map((user, index) => (<UserCard key={index} user={user} />))}
                     {detailTask.assign_mode === 2 && detailTask.assign_to.map((role, index) => (<>{allRoles[role].name}{index !== detailTask.assign_to.length - 1 ? " ," : ""}</>))}
                 </Typography>
-                <Typography variant="body2" gutterBottom>Mark completed: {detailTask.mark_completed ? "Yes" : "No"} {detailTask.mark_timestamp && <>(<TimeDelta timestamp={detailTask.mark_timestamp * 1000} />)</>}</Typography>
-                <Typography variant="body2" gutterBottom>Confirm completed: {detailTask.confirm_completed ? "Yes" : "No"} {detailTask.confirm_timestamp && <>(<TimeDelta timestamp={detailTask.confirm_timestamp * 1000} />)</>}</Typography>
+                <Typography variant="body2" gutterBottom><b>Status</b>: {STATUS[STATUS_CONVERT[+detailTask.mark_completed][+detailTask.confirm_completed]]} {detailTask.mark_completed && !detailTask.confirm_completed && detailTask.mark_timestamp && <>(<TimeDelta timestamp={detailTask.mark_timestamp * 1000} lower={true} />)</>} {detailTask.confirm_completed && detailTask.confirm_timestamp && <>(Accepted <TimeDelta timestamp={detailTask.confirm_timestamp * 1000} lower={true} />)</>}</Typography>
+                {detailTask.mark_note !== "" && <Typography variant="body2" gutterBottom><b>Assignee note</b>: {detailTask.mark_note}</Typography>}
+                {detailTask.confirm_note !== "" && <Typography variant="body2" gutterBottom><b>Manager note</b>: {detailTask.confirm_note}</Typography>}
+                <br />
+                {isTaskAssignee && <>
+                    <Typography variant="body2" gutterBottom><b>Mark Status</b></Typography>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} sm={6} md={6} lg={8}>
+                            <TextField
+                                label="Note"
+                                value={markNote}
+                                onChange={(e) => setMarkNote(e.target.value)}
+                                fullWidth size="small"
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={6} lg={4}>
+                            {!detailTask.mark_completed && <Button variant="contained" color="info" onClick={() => { markAsCompleted(1); }} disabled={buttonDisabled} fullWidth>Completed</Button>}
+                            {detailTask.mark_completed && <Button variant="contained" color="warning" onClick={() => { markAsCompleted(0); }} disabled={buttonDisabled} fullWidth>Uncompleted</Button>}
+                        </Grid>
+                    </Grid>
+                </>}
+                {isTaskAssignee && isTaskManager && <Divider sx={{ margin: "15px 0 10px 0" }} />}
+                {isTaskManager && <>
+                    <Typography variant="body2" gutterBottom><b>Manager Status</b></Typography>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} sm={6} md={6} lg={8}>
+                            <TextField
+                                label="Note"
+                                value={confirmNote}
+                                onChange={(e) => setConfirmNote(e.target.value)}
+                                fullWidth size="small"
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={6} lg={4}>
+                            {!detailTask.confirm_completed && <Button variant="contained" color="success" onClick={() => { confirmAsCompleted(1); }} disabled={buttonDisabled} fullWidth>Accept</Button>}
+                            {detailTask.confirm_completed && <Button variant="contained" color="error" onClick={() => { confirmAsCompleted(0); }} disabled={buttonDisabled} fullWidth>Reject</Button>}
+                        </Grid>
+                    </Grid>
+                </>}
             </DialogContent>
             <DialogActions>
-                <ButtonGroup sx={{ padding: "10px" }}>
-                    {isTaskAssignee && !detailTask.mark_completed && <Button variant="contained" color="info" onClick={() => { markAsCompleted(1); }} disabled={buttonDisabled}>Mark completed</Button>}
-                    {isTaskAssignee && detailTask.mark_completed && <Button variant="contained" color="warning" onClick={() => { markAsCompleted(0); }} disabled={buttonDisabled}>Unmark completed</Button>}
-                    {isTaskManager && !detailTask.confirm_completed && <Button variant="contained" color="info" onClick={() => { confirmAsCompleted(1); }} disabled={buttonDisabled}>Confirm completed</Button>}
-                    {isTaskManager && detailTask.confirm_completed && <Button variant="contained" color="warning" onClick={() => { confirmAsCompleted(0); }} disabled={buttonDisabled}>Unconfirm completed</Button>}
-                </ButtonGroup>
             </DialogActions>
         </Dialog>}
         <Portal>

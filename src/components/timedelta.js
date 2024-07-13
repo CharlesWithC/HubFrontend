@@ -70,7 +70,8 @@ const TimeDelta = ({ timestamp, lower = false, rough = false, shortenedMonth = f
             ret = getFormattedDate(userSettings.display_timezone, date, false, false, shortenedMonth); // 10. January 2017. at 10:20
         }
         if (rough) ret = ret.split(" at")[0];
-        return ret;
+        if (lower) return ret.toLowerCase();
+        else return ret;
     }, []);
 
     const calculateInterval = useCallback((timestamp) => {
@@ -102,7 +103,7 @@ const TimeDelta = ({ timestamp, lower = false, rough = false, shortenedMonth = f
                 } else if (newInterval !== intervalDuration) {
                     setIntervalDuration(newInterval);
                 }
-                setTimeAgo(calculate(timestamp));
+                setTimeAgo(calculate(timestamp, lower));
             }, intervalDuration);
         }
 
