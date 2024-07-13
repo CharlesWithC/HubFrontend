@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.4.5
+
+1. Added task plugin
+
 ## v3.4.4
 
 1. Added delta statistics in overview and statistics tab

@@ -38,6 +38,7 @@ const Downloads = lazy(() => import("./routes/downloads"));
 const Economy = lazy(() => import("./routes/economy"));
 const Events = lazy(() => import("./routes/event"));
 const Poll = lazy(() => import("./routes/poll"));
+const Task = lazy(() => import("./routes/task"));
 const Gallery = lazy(() => import("./routes/gallery"));
 
 // lazy load: large files
@@ -227,12 +228,12 @@ function App() {
         }
     }, [cookieSettings]);
 
-    const hasSpeedDial = (["/announcement", "/gallery", "/challenge", "/delivery", "/division", "/downloads", "/event", "/leaderboard", "/poll", "/ranking", "/member-list", "/external-user"].includes(location.pathname) || location.pathname.startsWith("/delivery"));
+    const hasSpeedDial = (["/announcement", "/gallery", "/challenge", "/delivery", "/division", "/downloads", "/event", "/leaderboard", "/poll", "/task", "/ranking", "/member-list", "/external-user"].includes(location.pathname) || location.pathname.startsWith("/delivery"));
 
     if (window.isElectron && webConfig !== null) {
         window.electron.ipcRenderer.send("presence-settings", userSettings.presence);
 
-        const STATUS_NAMES = { "/": "Viewing Overview", "/overview": "Viewing Overview", "/statistics": "Viewing Statistics", "/gallery": "Viewing Gallery", "/announcement": "Viewing Announcements", "/downloads": "Viewing Downloads", "/poll": "Viewing Polls", "/map": "Viewing Map", "/delivery": "Viewing Deliveries", "/challenge": "Viewing Challenges", "/division": "Viewing Divisions", "/economy": "Viewing Economy", "/event": "Viewing Events", "/member": "Viewing Members", "/leaderboard": "Viewing Leaderboard", "/ranking": "Viewing Rankings", "/freightmaster": "Viewing FreightMaster", "/apply": "Submitting Application", "/application/new": "Submitting Application", "/application/my": "Viewing Own Applications", "/application/all": "Viewing All Applications", "/member-list": "Viewing Member List", "/external-user": "Viewing External Users", "/audit-log": "Viewing Audit Log", "/config": "Modifying Configuration", "/settings": "Modifying Settings", "/sponsor": "Sponsoring...", "/supporters": "Viewing Supporters", "/badges": "Viewing Badges", "/notifications": "Viewing Notifications", "/auth": "Logging in..." };
+        const STATUS_NAMES = { "/": "Viewing Overview", "/overview": "Viewing Overview", "/statistics": "Viewing Statistics", "/gallery": "Viewing Gallery", "/announcement": "Viewing Announcements", "/downloads": "Viewing Downloads", "/poll": "Viewing Polls", "/task": "Viewing Tasks", "/map": "Viewing Map", "/delivery": "Viewing Deliveries", "/challenge": "Viewing Challenges", "/division": "Viewing Divisions", "/economy": "Viewing Economy", "/event": "Viewing Events", "/member": "Viewing Members", "/leaderboard": "Viewing Leaderboard", "/ranking": "Viewing Rankings", "/freightmaster": "Viewing FreightMaster", "/apply": "Submitting Application", "/application/new": "Submitting Application", "/application/my": "Viewing Own Applications", "/application/all": "Viewing All Applications", "/member-list": "Viewing Member List", "/external-user": "Viewing External Users", "/audit-log": "Viewing Audit Log", "/config": "Modifying Configuration", "/settings": "Modifying Settings", "/sponsor": "Sponsoring...", "/supporters": "Viewing Supporters", "/badges": "Viewing Badges", "/notifications": "Viewing Notifications", "/auth": "Logging in..." };
         let path = window.location.pathname;
         if (path.startsWith("/auth")) path = "/auth";
         if (Object.keys(STATUS_NAMES).includes(path)) {
@@ -364,6 +365,7 @@ function App() {
                                         <Route path="/announcement" element={<Announcement />}></Route>
                                         <Route path="/downloads" element={<Downloads />}></Route>
                                         <Route path="/poll" element={<Poll />}></Route>
+                                        <Route path="/task" element={<Task />}></Route>
                                         <Route path="/map" element={<Map />}></Route>
                                         <Route path="/delivery" element={<Deliveries />}></Route>
                                         <Route path="/delivery/:logid" element={<Delivery />} />
@@ -428,7 +430,7 @@ function App() {
                                         <Grid container spacing={2} rowSpacing={-0.5}>
                                             <Grid item xs={12} md={6}>
                                                 <Typography variant="body2">
-                                                    Client: 3.4.4 (build.{buildhash})
+                                                    Client: 3.4.5 (build.{buildhash})
                                                 </Typography>
                                             </Grid>
                                             <Grid item xs={12} md={6}>
