@@ -125,7 +125,7 @@ const AuthLogin = () => {
                                 <img src={`https://cdn.chub.page/assets/${webConfig.abbr}/banner.png?${webConfig.banner_key !== undefined ? webConfig.banner_key : ""}`} alt="" style={{ width: "100%" }} />
                             </Box>
                             <br />
-                            <Typography variant="body2" sx={{ mb: "5px" }}>{tr("register_with")}: {apiConfig.register_methods.map((item) => (CONNECTION_NAME[item])).join(" / ")}</Typography>
+                            <Typography variant="body2" sx={{ mb: "5px" }}>{tr("register_with")}: {apiConfig.register_methods.map((item) => (CONNECTION_NAME[item])).join(" / ")} | <span>{tr("or_login_with")}</span>:</Typography>
                             <ButtonGroup fullWidth>
                                 <Button variant="contained" color="primary" onClick={() => { navigate("/auth/discord/redirect"); }}>
                                     <FontAwesomeIcon icon={faDiscord} />&nbsp;&nbsp;Discord
