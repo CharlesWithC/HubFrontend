@@ -133,8 +133,8 @@ const CustomTable = ({ page: initPage, columns, orderBy, order, onOrderingUpdate
                                         {column.label}
                                         {column.orderKey !== undefined && <>&nbsp;
                                             {column.orderKey !== orderBy && <FontAwesomeIcon onClick={() => onOrderingUpdate(column.orderKey, column.defaultOrder)} icon={faArrowsUpDown} style={{ opacity: 0.5, cursor: "pointer" }} />}
-                                            {column.orderKey === orderBy && order === "asc" && <FontAwesomeIcon onClick={() => onOrderingUpdate(column.orderKey, "desc")} icon={faArrowUp} style={{ cursor: "pointer" }} />}
-                                            {column.orderKey === orderBy && order === "desc" && <FontAwesomeIcon onClick={() => onOrderingUpdate(column.orderKey, "asc")} icon={faArrowDown} style={{ cursor: "pointer" }} />}
+                                            {column.orderKey === orderBy && order === "asc" && (!column.reversedOrder ? <FontAwesomeIcon onClick={() => onOrderingUpdate(column.orderKey, "desc")} icon={faArrowUp} style={{ cursor: "pointer" }} /> : <FontAwesomeIcon onClick={() => onOrderingUpdate(column.orderKey, "asc")} icon={faArrowDown} style={{ cursor: "pointer" }} />)}
+                                            {column.orderKey === orderBy && order === "desc" && (!column.reversedOrder ? <FontAwesomeIcon onClick={() => onOrderingUpdate(column.orderKey, "asc")} icon={faArrowDown} style={{ cursor: "pointer" }} /> : <FontAwesomeIcon onClick={() => onOrderingUpdate(column.orderKey, "desc")} icon={faArrowUp} style={{ cursor: "pointer" }} />)}
                                         </>}
                                     </TableCell>
                                 ))}

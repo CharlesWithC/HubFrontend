@@ -2,17 +2,67 @@ import { useRef, useState, useEffect, useCallback, useMemo, useContext, memo } f
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '../context';
 
-import { Card, CardContent, Typography, Grid, Snackbar, Alert, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button, IconButton, useTheme, Divider } from '@mui/material';
-import { CloseRounded, DeleteRounded, EditRounded } from '@mui/icons-material';
+import { Card, CardContent, Typography, Grid, Snackbar, Alert, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button, IconButton, useTheme, Divider, SpeedDial, SpeedDialIcon, SpeedDialAction, Box, MenuItem, FormControlLabel, Checkbox } from '@mui/material';
+import { CloseRounded, DeleteRounded, EditNoteRounded, EditRounded, PeopleAltRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
 
 import CustomTable from '../components/table';
 import UserCard from '../components/usercard';
 import TimeDelta from '../components/timedelta';
 import MarkdownRenderer from '../components/markdown';
+import DateTimeField from '../components/datetime';
+import UserSelect from '../components/userselect';
+import RoleSelect from '../components/roleselect';
 
-import { makeRequestsAuto, customAxios as axios, getAuthToken, removeNUEValues } from '../functions';
+import { makeRequestsAuto, customAxios as axios, getAuthToken, removeNUEValues, checkUserPerm } from '../functions';
 import { checkPerm } from '../functions';
+
+function userFriendlyDurationToSeconds(duration) {
+    const regex = /(\d+)([smhd])/g;
+    let totalSeconds = 0;
+
+    let match;
+    while ((match = regex.exec(duration)) !== null) {
+        const value = parseInt(match[1]);
+        const unit = match[2];
+
+        switch (unit) {
+            case 's':
+                totalSeconds += value;
+                break;
+            case 'm':
+                totalSeconds += value * 60;
+                break;
+            case 'h':
+                totalSeconds += value * 3600;
+                break;
+            case 'd':
+                totalSeconds += value * 86400;
+                break;
+            default:
+                throw new Error('Invalid time unit in duration');
+        }
+    }
+
+    return totalSeconds;
+}
+
+function secondsToUserFriendlyDuration(seconds) {
+    const days = Math.floor(seconds / 86400);
+    seconds %= 86400;
+    const hours = Math.floor(seconds / 3600);
+    seconds %= 3600;
+    const minutes = Math.floor(seconds / 60);
+    seconds %= 60;
+
+    let result = '';
+    if (days > 0) result += `${days}d`;
+    if (hours > 0) result += `${hours}h`;
+    if (minutes > 0) result += `${minutes}m`;
+    if (seconds > 0 || result === '') result += `${seconds}s`;
+
+    return result;
+}
 
 const TaskTable = memo(({ showDetail, reload }) => {
     const { t: tr } = useTranslation();
@@ -21,7 +71,7 @@ const TaskTable = memo(({ showDetail, reload }) => {
     const columns = [
         { id: 'id', label: 'ID', orderKey: 'taskid', defaultOrder: 'desc' },
         { id: 'title', label: tr("title"), orderKey: "title", defaultOrder: "asc" },
-        { id: 'priority', label: "Priority", orderKey: 'priority', defaultOrder: 'asc' },
+        { id: 'priority', label: "Priority", orderKey: 'priority', defaultOrder: 'asc', reversedOrder: true },
         { id: 'due_timestamp', label: "Due Date", orderKey: 'due_timestamp', defaultOrder: 'asc' },
         { id: 'status', label: tr("status") }
     ];
@@ -40,7 +90,7 @@ const TaskTable = memo(({ showDetail, reload }) => {
     const [page, setPage] = useState(1);
     const pageRef = useRef(1);
     const [pageSize, setPageSize] = useState(userSettings.default_row_per_page);
-    const [listParam, setListParam] = useState({ order_by: "priority", order: "asc" });
+    const [listParam, setListParam] = useState({ order_by: "priority", order: "desc" });
 
 
     useEffect(() => {
@@ -56,7 +106,7 @@ const TaskTable = memo(({ showDetail, reload }) => {
 
             if (!inited.current) {
                 [_due, _tasks] = await makeRequestsAuto([
-                    { url: `${apiPath}/tasks/list?page=1&page_size=2&order_by=due_timestamp&order=asc&mark_completed=false`, auth: true },
+                    { url: `${apiPath}/tasks/list?page=1&page_size=2&order_by=due_timestamp&order=asc&mark_completed=false&confirm_completed=false`, auth: true },
                     { url: `${apiPath}/tasks/list?page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
                 ]);
                 setDue(_due.list);
@@ -136,11 +186,40 @@ const TaskTable = memo(({ showDetail, reload }) => {
     </>;
 });
 
+const TaskManagers = memo(() => {
+    const { allPerms, users, memberUIDs } = useContext(AppContext);
+    const allMembers = memberUIDs.map((uid) => users[uid]);
+
+    let managers = [];
+    for (let i = 0; i < allMembers.length; i++) {
+        if (checkPerm(allMembers[i].roles, ["administrator", "manage_public_tasks"], allPerms)) {
+            managers.push(allMembers[i]);
+        }
+    }
+
+    return <>{
+        managers.map((user) => (
+            <UserCard user={user} useChip={true} inline={true} />
+        ))
+    }</>;
+});
+
 const Task = () => {
     const { t: tr } = useTranslation();
-    const { apiPath, curUser, allRoles, allPerms } = useContext(AppContext);
+    const { apiPath, curUser, allRoles, allPerms, memberUIDs, users } = useContext(AppContext);
+    const membersMapping = useMemo(() => (
+        memberUIDs.reduce((acc, uid) => {
+            acc[users[uid].userid] = users[uid];
+            return acc;
+        }, {})
+    ), [memberUIDs, users]);
+
+    const TASK_FORM = { title: "", description: "", priority: 2, bonus: 0, due_timestamp: Math.floor(Date.now() / 1000) + 86400, remind_timestamp: Math.floor(Date.now() / 1000) + 86400 - 3600, recurring: 0, recurringText: "", assign_mode: 0, assign_to: [curUser.userid] };
 
     const [reload, setReload] = useState(0);
+    const [editId, setEditId] = useState(null);
+    const [taskForm, setTaskForm] = useState(TASK_FORM);
+    const [assignToTmp, setAssignToTmp] = useState([]);
     const [detailTask, setDetailTask] = useState(null);
     const [dialogAction, setDialogAction] = useState("");
     const [buttonDisabled, setButtonDisabled] = useState(false);
@@ -159,6 +238,42 @@ const Task = () => {
     const STATUS_CONVERT = [[0, 2], [1, 2]]; // [mark_completed, confirm_completed]
     const STATUS = useMemo(() => { return { 0: <span style={{ color: theme.palette.warning.main }}>Pending</span>, 1: <span style={{ color: theme.palette.info.main }}>Submitted</span>, 2: <span style={{ color: theme.palette.success.main }}>Completed</span> }; }, [theme]);
 
+    const createTask = useCallback(() => {
+        if (editId !== null) {
+            setEditId(null);
+            setTaskForm(TASK_FORM);
+            setAssignToTmp([]);
+        }
+        setDialogAction("create");
+    }, [editId]);
+
+    const submitTaskForm = useCallback(async () => {
+        window.loading += 1;
+        setButtonDisabled(true);
+
+        let method = "POST";
+        let url = `${apiPath}/tasks`;
+        if (editId !== null) {
+            method = "PATCH";
+            url = `${apiPath}/tasks/${editId}`;
+        }
+
+        let resp = await axios({ url: url, method: method, headers: { Authorization: `Bearer ${getAuthToken()}` }, data: taskForm });
+        if (resp.status === 204 || resp.status === 200) {
+            setSnackbarContent(tr("success"));
+            setSnackbarSeverity("success");
+            setDialogAction("");
+            setReload(+new Date());
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+
+        setButtonDisabled(false);
+        window.loading -= 1;
+    }, [editId, taskForm, dialogAction]);
+
+    const [bonusControl, setBonusControl] = useState(true);
     const showDetail = useCallback(async (task) => {
         window.loading += 1;
         setButtonDisabled(true);
@@ -173,6 +288,16 @@ const Task = () => {
                 task.assign_mode === 1 && task.assign_to.includes(curUser.userid) ||
                 task.assign_mode === 2 && task.assign_to.some(role => curUser.roles.includes(role)));
             setIsTaskManager(task.creator.userid === curUser.userid || checkPerm(curUser.roles, ["manage_public_tasks"], allPerms));
+
+            if (task.confirm_completed) {
+                setBonusControl(true);
+            } else if (!task.confirm_completed) {
+                if (task.due_timestamp < Math.floor(Date.now() / 1000)) {
+                    setBonusControl(true);
+                } else {
+                    setBonusControl(false);
+                }
+            }
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
@@ -206,7 +331,7 @@ const Task = () => {
     const confirmAsCompleted = useCallback(async (confirm) => {
         window.loading += 1;
 
-        let resp = await axios({ url: `${apiPath}/tasks/${detailTask.taskid}/complete/${confirm ? "accept" : "reject"}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { note: confirmNote } });
+        let resp = await axios({ url: `${apiPath}/tasks/${detailTask.taskid}/complete/${confirm ? "accept" : "reject"}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { note: confirmNote, distribute_bonus: bonusControl, remove_bonus: bonusControl } });
         if (resp.status === 204) {
             setSnackbarContent(tr("success"));
             setSnackbarSeverity("success");
@@ -218,7 +343,7 @@ const Task = () => {
         }
 
         window.loading -= 1;
-    }, [apiPath, detailTask, confirmNote]);
+    }, [apiPath, detailTask, confirmNote, bonusControl]);
 
     return <>
         <TaskTable showDetail={showDetail} reload={reload}></TaskTable>
@@ -226,7 +351,7 @@ const Task = () => {
             <DialogTitle sx={{ alignItems: "center" }}>
                 {detailTask.title}
                 {isTaskManager && <>
-                    <IconButton size="small" aria-label={tr("edit")} sx={{ marginLeft: "10px", marginTop: "-3px" }}><EditRounded /></IconButton >
+                    <IconButton size="small" aria-label={tr("edit")} sx={{ marginLeft: "10px", marginTop: "-3px" }} onClick={() => { setEditId(detailTask.taskid); setTaskForm(detailTask); setDialogAction("edit"); setAssignToTmp(detailTask.assign_mode === 1 ? detailTask.assign_to.map(userid => membersMapping[userid]) : (detailTask.assign_mode === 0 ? [curUser.userid] : [])); }}><EditRounded /></IconButton >
                     <IconButton size="small" aria-label={tr("delete")} sx={{ marginTop: "-3px" }}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
                 </>}
                 <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogAction("")}>
@@ -241,8 +366,8 @@ const Task = () => {
                 <Typography variant="body2" gutterBottom><b>Creator</b>: <UserCard user={detailTask.creator} /></Typography>
                 <Typography variant="body2" gutterBottom><b>Assigned to</b>:&nbsp;
                     {detailTask.assign_mode === 0 && <UserCard user={detailTask.creator} />}
-                    {detailTask.assign_mode === 1 && detailTask.assign_to.map((user, index) => (<UserCard key={index} user={user} />))}
-                    {detailTask.assign_mode === 2 && detailTask.assign_to.map((role, index) => (<>{allRoles[role].name}{index !== detailTask.assign_to.length - 1 ? " ," : ""}</>))}
+                    {detailTask.assign_mode === 1 && detailTask.assign_to.map((userid, index) => (<><UserCard key={index} user={membersMapping[userid]} />&nbsp;</>))}
+                    {detailTask.assign_mode === 2 && detailTask.assign_to.map((role, index) => (<>{allRoles[role].name}{index !== detailTask.assign_to.length - 1 ? ", " : ""}</>))}
                 </Typography>
                 <Typography variant="body2" gutterBottom><b>Status</b>: {STATUS[STATUS_CONVERT[+detailTask.mark_completed][+detailTask.confirm_completed]]} {detailTask.mark_completed && !detailTask.confirm_completed && detailTask.mark_timestamp && <>(<TimeDelta timestamp={detailTask.mark_timestamp * 1000} lower={true} />)</>} {detailTask.confirm_completed && detailTask.confirm_timestamp && <>(Accepted <TimeDelta timestamp={detailTask.confirm_timestamp * 1000} lower={true} />)</>}</Typography>
                 {detailTask.mark_note !== "" && <Typography variant="body2" gutterBottom><b>Assignee note</b>: {detailTask.mark_note}</Typography>}
@@ -268,7 +393,7 @@ const Task = () => {
                 {isTaskAssignee && isTaskManager && <Divider sx={{ margin: "15px 0 10px 0" }} />}
                 {isTaskManager && <>
                     <Typography variant="body2" gutterBottom><b>Manager Status</b></Typography>
-                    <Grid container spacing={2}>
+                    <Grid container spacing={2} rowSpacing={-2}>
                         <Grid item xs={12} sm={6} md={6} lg={8}>
                             <TextField
                                 label="Note"
@@ -281,12 +406,162 @@ const Task = () => {
                             {!detailTask.confirm_completed && <Button variant="contained" color="success" onClick={() => { confirmAsCompleted(1); }} disabled={buttonDisabled} fullWidth>Accept</Button>}
                             {detailTask.confirm_completed && <Button variant="contained" color="error" onClick={() => { confirmAsCompleted(0); }} disabled={buttonDisabled} fullWidth>Reject</Button>}
                         </Grid>
+                        <Grid item xs={0} sm={6} md={6} lg={8}></Grid>
+                        <Grid item xs={12} sm={6} md={6} lg={4}>
+                            <FormControlLabel size="small"
+                                control={<Checkbox checked={bonusControl} onChange={(e) => { setBonusControl(e.target.checked); }} />}
+                                label={`${detailTask.confirm_completed ? "Remove Bonus" : "Distribute Bonus"}`}
+                            />
+                        </Grid>
                     </Grid>
                 </>}
             </DialogContent>
             <DialogActions>
             </DialogActions>
         </Dialog>}
+        <Dialog open={dialogAction === "managers"} onClose={() => setDialogAction("")}>
+            <DialogTitle>Public Task Managers</DialogTitle>
+            <DialogContent>
+                <TaskManagers />
+            </DialogContent>
+            <DialogActions>
+                <Button variant="contained" onClick={() => { setDialogAction(""); }}>{tr("close")}</Button>
+            </DialogActions>
+        </Dialog>
+        <Dialog open={dialogAction === "create" || dialogAction == "edit"} onClose={() => setDialogAction("")}>
+            <DialogTitle>
+                {dialogAction === "create" ? "Create Task" : "Edit Task"}
+                <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogAction("")}>
+                    <CloseRounded />
+                </IconButton>
+            </DialogTitle>
+            <DialogContent>
+                <form onSubmit={submitTaskForm} style={{ marginTop: "5px" }}>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                            <TextField
+                                label={tr("title")}
+                                value={taskForm.title}
+                                onChange={(e) => setTaskForm(taskForm => ({ ...taskForm, title: e.target.value }))}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                label={tr("description")}
+                                multiline
+                                value={taskForm.description}
+                                onChange={(e) => setTaskForm(taskForm => ({ ...taskForm, description: e.target.value }))}
+                                fullWidth
+                                minRows={4}
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <TextField
+                                label="Priority"
+                                select
+                                value={taskForm.priority}
+                                onChange={(e) => setTaskForm(taskForm => ({ ...taskForm, priority: e.target.value }))}
+                                fullWidth
+                            >
+                                {PRIORITY_STRING.map((priority, index) => (
+                                    <MenuItem key={index} value={index} sx={{ color: PRIORITY_COLOR[index] }}>{priority}</MenuItem>
+                                ))}
+                            </TextField>
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <TextField
+                                label="Bonus"
+                                value={taskForm.bonus}
+                                onChange={(e) => setTaskForm(taskForm => ({ ...taskForm, bonus: e.target.value }))}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <DateTimeField
+                                label="Due Date"
+                                defaultValue={taskForm.due_timestamp}
+                                onChange={(timestamp) => setTaskForm(taskForm => ({ ...taskForm, due_timestamp: timestamp }))}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <DateTimeField
+                                label="Remind Date"
+                                defaultValue={taskForm.remind_timestamp}
+                                onChange={(timestamp) => setTaskForm(taskForm => ({ ...taskForm, remind_timestamp: timestamp }))}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={6} md={6}>
+                            <TextField
+                                label="Recurring (Every ..., e.g. 1d 4h 10m 30s)"
+                                value={taskForm.recurringText}
+                                onChange={(e) => setTaskForm(taskForm => ({ ...taskForm, recurring: userFriendlyDurationToSeconds(e.target.value), recurringText: e.target.value }))}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={6} md={3}>
+                            <TextField
+                                label="Recurring (Seconds)"
+                                value={taskForm.recurring}
+                                onChange={(e) => setTaskForm(taskForm => ({ ...taskForm, recurring: e.target.value, recurringText: secondsToUserFriendlyDuration(e.target.value) }))}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={3}>
+                            <TextField
+                                label="Assign Mode"
+                                select
+                                value={taskForm.assign_mode}
+                                onChange={(e) => setTaskForm(taskForm => ({ ...taskForm, assign_mode: e.target.value, assign_to: e.target.value === 0 ? [curUser.userid] : [] }))}
+                                fullWidth
+                            >
+                                <MenuItem value={0}>Self</MenuItem>
+                                <MenuItem value={1}>Users</MenuItem>
+                                <MenuItem value={2}>Roles</MenuItem>
+                            </TextField>
+                        </Grid>
+                        <Grid item xs={12}>
+                            {taskForm.assign_mode === 1 && <UserSelect label="Assign To" users={assignToTmp} isMulti={true} onUpdate={(users) => { setAssignToTmp(users); setTaskForm(taskForm => ({ ...taskForm, assign_to: users.map(user => user.userid) })); }} style={{ marginTop: "-5px" }} />}
+                            {taskForm.assign_mode === 2 && <RoleSelect initialRoles={taskForm.assign_to} onUpdate={(newRoles) => { setTaskForm(taskForm => ({ ...taskForm, assign_to: newRoles.map((role) => (role.id)) })); }} label="Assign To" showAllRoles={true} style={{ marginTop: "-5px" }} />}
+                        </Grid>
+                    </Grid>
+                </form>
+            </DialogContent>
+            <DialogActions>
+                <Grid container justifyContent="space-between" padding="10px">
+                    <Grid item>
+                        <Box sx={{ display: 'flex', gap: '10px' }}>
+                            <Button variant="contained" onClick={() => { setTaskForm(TASK_FORM); }}>{tr("clear")}</Button>
+                        </Box>
+                    </Grid>
+                    <Grid item>
+                        <Box sx={{ display: 'flex', gap: '10px' }}>
+                            <Button variant="contained" color="info" onClick={submitTaskForm} disabled={buttonDisabled}>{dialogAction === "create" ? "Create" : "Edit"}</Button>
+                        </Box>
+                    </Grid>
+                </Grid>
+            </DialogActions>
+        </Dialog>
+        <SpeedDial
+            ariaLabel={tr("controls")}
+            sx={{ position: 'fixed', bottom: 20, right: 20 }}
+            icon={<SpeedDialIcon />}
+        >
+            {curUser.userid !== -1 && <SpeedDialAction
+                key="create"
+                icon={<EditNoteRounded />}
+                tooltipTitle={tr("create")}
+                onClick={() => createTask()}
+            />}
+            {curUser.userid !== -1 && <SpeedDialAction
+                key="managers"
+                icon={<PeopleAltRounded />}
+                tooltipTitle={tr("managers")}
+                onClick={() => setDialogAction("managers")}
+            />}
+        </SpeedDial>
         <Portal>
             <Snackbar
                 open={!!snackbarContent}

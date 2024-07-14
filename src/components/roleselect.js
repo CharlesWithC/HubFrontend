@@ -50,11 +50,11 @@ const RoleSelect = ({ label, initialRoles, onUpdate, showAllRoles = false, isMul
                 value: parseInt(initialRoles[i]),
                 label: getRole(initialRoles[i]).name,
                 orderId: getRole(initialRoles[i]).order_id,
-                isFixed: !divisionOnly ? getRole(initialRoles[i]).order_id <= userHighestRole : !divisionRoles.includes(parseInt(initialRoles[i]))
+                isFixed: !showAllRoles && (!divisionOnly ? getRole(initialRoles[i]).order_id <= userHighestRole : !divisionRoles.includes(parseInt(initialRoles[i])))
             });
         }
         return result;
-    }, [initialRoles, divisionOnly, userHighestRole, divisionRoles]);
+    }, [initialRoles, divisionOnly, showAllRoles, userHighestRole, divisionRoles]);
 
     const [selectedRoles, setSelectedRoles] = useState(formattedInit !== undefined ? formattedInit : []);
 
@@ -85,7 +85,7 @@ const RoleSelect = ({ label, initialRoles, onUpdate, showAllRoles = false, isMul
                         isFixed: !showAllRoles && (!divisionOnly ? getRole(roleId).order_id <= userHighestRole : !divisionRoles.includes(parseInt(roleId))),
                         isDisabled: !showAllRoles && (!divisionOnly ? getRole(roleId).order_id <= userHighestRole : !divisionRoles.includes(parseInt(roleId)))
                     }))}
-                isClearable={selectedRoles.some((v) => !v.isFixed)}
+                isClearable={selectedRoles.some((v) => v.isFixed)}
                 className="basic-multi-select"
                 classNamePrefix="select"
                 styles={customSelectStyles(theme)}
