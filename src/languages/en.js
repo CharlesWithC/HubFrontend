@@ -7,7 +7,7 @@ const en = {
     "about_me_updated": "About me updated",
     "accept": "Accept",
     "accept_as_member": "Accept as Member",
-    "accepted": "(Accepted",
+    "accepted": "Accepted",
     "accepted_as_driver": "Accepted as driver",
     "account_connections": "Account Connections",
     "account_deleted_goodbye": "Account deleted! Goodbye!",

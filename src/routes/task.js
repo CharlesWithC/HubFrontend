@@ -384,7 +384,7 @@ const Task = () => {
                     {detailTask.assign_mode === 1 && detailTask.assign_to.map((userid, index) => (<><UserCard key={index} user={membersMapping[userid]} />&nbsp;</>))}
                     {detailTask.assign_mode === 2 && detailTask.assign_to.map((role, index) => (<>{allRoles[role].name}{index !== detailTask.assign_to.length - 1 ? ", " : ""}</>))}
                 </Typography>
-                <Typography variant="body2" gutterBottom><b>{tr("status")}</b>: {STATUS[STATUS_CONVERT[+detailTask.mark_completed][+detailTask.confirm_completed]]} {detailTask.mark_completed && !detailTask.confirm_completed && detailTask.mark_timestamp && <>(<TimeDelta timestamp={detailTask.mark_timestamp * 1000} lower={true} />)</>} {detailTask.confirm_completed && detailTask.confirm_timestamp && <>{tr("accepted")} <TimeDelta timestamp={detailTask.confirm_timestamp * 1000} lower={true} />)</>}</Typography>
+                <Typography variant="body2" gutterBottom><b>{tr("status")}</b>: {STATUS[STATUS_CONVERT[+detailTask.mark_completed][+detailTask.confirm_completed]]} {detailTask.mark_completed && !detailTask.confirm_completed && detailTask.mark_timestamp && <>(<TimeDelta timestamp={detailTask.mark_timestamp * 1000} lower={true} />)</>} {detailTask.confirm_completed && detailTask.confirm_timestamp && <>({tr("accepted")} <TimeDelta timestamp={detailTask.confirm_timestamp * 1000} lower={true} />)</>}</Typography>
                 {detailTask.mark_note !== "" && <Typography variant="body2" gutterBottom><b>{tr("assignee_note")}</b>: {detailTask.mark_note}</Typography>}
                 {detailTask.confirm_note !== "" && <Typography variant="body2" gutterBottom><b>{tr("manager_note")}</b>: {detailTask.confirm_note}</Typography>}
                 <br />
