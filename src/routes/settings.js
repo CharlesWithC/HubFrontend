@@ -29,7 +29,7 @@ import SponsorBadge from '../components/sponsorBadge';
 import { makeRequestsWithAuth, customAxios as axios, getAuthToken, writeLS, setAuthMode } from '../functions';
 
 const LANGUAGES = { 'ar': 'Arabic (العربية)', 'be': 'Belarusian (беларуская)', 'bg': 'Bulgarian (български)', 'cs': 'Czech (čeština)', 'cy': 'Welsh (Cymraeg)', 'da': 'Danish (dansk)', 'de': 'German (Deutsch)', 'el': 'Greek (Ελληνικά)', 'en': 'English', 'eo': 'Esperanto', 'es': 'Spanish (Español)', 'et': 'Estonian (eesti keel)', 'fi': 'Finnish (suomi)', 'fr': 'French (français)', 'ga': 'Irish (Gaeilge)', 'gd': 'Scottish (Gàidhlig)', 'hu': 'Hungarian (magyar)', 'hy': 'Armenian (Հայերեն)', 'id': 'Indonesian (Bahasa Indonesia)', 'is': 'Icelandic (íslenska)', 'it': 'Italian (italiano)', 'ja': 'Japanese (日本語)', 'ko': 'Korean (한국어)', 'lt': 'Lithuanian (lietuvių kalba)', 'lv': 'Latvian (latviešu valoda)', 'mk/sl': 'Macedonian/Slovenian (македонски/​slovenščina)', 'mn': 'Mongolian (Монгол)', 'mo': 'Moldavian (Moldova)', 'ne': 'Nepali (नेपाली)', 'nl': 'Dutch (Nederlands)', 'nn': 'Norwegian (norsk nynorsk)', 'pl': 'Polish (polski)', 'pt': 'Portuguese (Português)', 'ro': 'Romanian (română)', 'ru': 'Russian (русский)', 'sk': 'Slovak (slovenčina)', 'sl': 'Slovenian (slovenščina)', 'sq': 'Albanian (Shqip)', 'sr': 'Serbian (српски)', 'sv': 'Swedish (Svenska)', 'th': 'Thai (ไทย)', 'tr': 'Turkish (Türkçe)', 'uk': 'Ukrainian (українська)', 'vi': 'Vietnamese (Tiếng Việt)', 'yi': 'Yiddish (ייִדיש)', 'zh': 'Chinese (中文)' };
-const RADIO_TYPES = { "tsr": "TruckStopRadio", "tfm": "TruckersFM", "simhit": "SimulatorHits", "custom-pean": "[Custom] Pean FM" };
+const RADIO_TYPES = { "tsr": "TruckStopRadio", "tfm": "TruckersFM", "simhit": "SimulatorHits", "custom-pean": tr("custom_pean_fm") };
 const CUSTOM_RADIO_URL = { "custom-pean": "https://radio.plvtc.com/listen/peanfm/radio.mp3" };
 const settingsRoutes = ["/general", "/profile", "/appearance", "/security", "/sessions"];
 
@@ -119,11 +119,11 @@ const Settings = ({ defaultTab = 0 }) => {
         "upcoming_event": tr("upcoming_event"),
         "new_poll": tr("new_poll"),
         "poll_result": tr("poll_result"),
-        "new_task": "New Task",
-        "task_reminder": "Task Reminder",
-        "task_updated": "Task Updated",
-        "task_mark_completed": "[Staff] User Completed Task",
-        "task_confirm_completed": "[User] Task Accepted / Rejected"
+        "new_task": tr("new_task"),
+        "task_reminder": tr("task_reminder"),
+        "task_updated": tr("task_updated"),
+        "task_mark_completed": tr("staff_user_completed_task"),
+        "task_confirm_completed": tr("user_task_accepted_rejected")
     }), []);
     const NOTIFICATION_TYPES = useMemo(() => Object.keys(NOTIFICATION_NAMES), []);
     const PRIVACY_ATTRIBUTES = useMemo(() => ({
@@ -1234,7 +1234,7 @@ const Settings = ({ defaultTab = 0 }) => {
 
                 <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("language")}&nbsp;
-                        <Tooltip placement="bottom" arrow title={<>Did not find your language?<br />Contact us to help with translations!</>}
+                        <Tooltip placement="bottom" arrow title={<>{tr("did_not_find_your_language")}<br />{tr("contact_us_to_help_with_translations")}</>}
                             PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                             <FontAwesomeIcon icon={faInfoCircle} />
                         </Tooltip>

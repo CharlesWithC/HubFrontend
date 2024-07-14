@@ -39,7 +39,7 @@ function userFriendlyDurationToSeconds(duration) {
                 totalSeconds += value * 86400;
                 break;
             default:
-                throw new Error('Invalid time unit in duration');
+                throw new Error(tr("invalid_time_unit_in_duration"));
         }
     }
 
@@ -70,16 +70,16 @@ const TaskTable = memo(({ showDetail, reload }) => {
     const columns = [
         { id: 'id', label: 'ID', orderKey: 'taskid', defaultOrder: 'desc' },
         { id: 'title', label: tr("title"), orderKey: "title", defaultOrder: "asc" },
-        { id: 'priority', label: "Priority", orderKey: 'priority', defaultOrder: 'asc', reversedOrder: true },
-        { id: 'due_timestamp', label: "Due Date", orderKey: 'due_timestamp', defaultOrder: 'asc' },
+        { id: 'priority', label: tr("priority"), orderKey: 'priority', defaultOrder: 'asc', reversedOrder: true },
+        { id: 'due_timestamp', label: tr("due_date"), orderKey: 'due_timestamp', defaultOrder: 'asc' },
         { id: 'status', label: tr("status") }
     ];
 
     const theme = useTheme();
-    const PRIORITY_STRING = ["Very High", "High", "Normal", "Low", "Very Low"];
+    const PRIORITY_STRING = [tr("very_high"), tr("high"), tr("normal"), tr("low"), tr("very_low")];
     const PRIORITY_COLOR = [theme.palette.error.main, theme.palette.warning.main, theme.palette.info.main, theme.palette.success.main, theme.palette.success.light];
     const STATUS_CONVERT = [[0, 2], [1, 2]]; // [mark_completed, confirm_completed]
-    const STATUS = useMemo(() => { return { 0: <span style={{ color: theme.palette.warning.main }}>Pending</span>, 1: <span style={{ color: theme.palette.info.main }}>Submitted</span>, 2: <span style={{ color: theme.palette.success.main }}>Completed</span> }; }, [theme]);
+    const STATUS = useMemo(() => { return { 0: <span style={{ color: theme.palette.warning.main }}>{tr("pending")}</span>, 1: <span style={{ color: theme.palette.info.main }}>{tr("submitted")}</span>, 2: <span style={{ color: theme.palette.success.main }}>{tr("completed")}</span> }; }, [theme]);
 
     const [due, setDue] = useState([]);
     const [tasks, setTasks] = useState(null);
@@ -140,13 +140,9 @@ const TaskTable = memo(({ showDetail, reload }) => {
             <Grid item xs={12} sm={12} md={12} lg={12}>
                 <Card>
                     <CardContent>
-                        <Typography variant="body2" gutterBottom>No Pending Tasks</Typography>
-                        <Typography variant="h5" component="div">
-                            All tasks completed!
-                        </Typography>
-                        <Typography variant="body2" sx={{ mt: 1 }}>
-                            It looks like a great day to rest, relax, and recharge.
-                        </Typography>
+                        <Typography variant="body2" gutterBottom>{tr("no_pending_tasks")}</Typography>
+                        <Typography variant="h5" component="div">{tr("all_tasks_completed")}</Typography>
+                        <Typography variant="body2" sx={{ mt: 1 }}>{tr("it_looks_like_a_great_day_to_rest_relax_and")}</Typography>
                     </CardContent>
                 </Card>
             </Grid>
@@ -155,12 +151,12 @@ const TaskTable = memo(({ showDetail, reload }) => {
             <Grid item xs={12} sm={12} md={due.length === 2 ? 6 : 12} lg={due.length === 2 ? 6 : 12}>
                 <Card>
                     <CardContent>
-                        <Typography variant="body2" gutterBottom>Todo #1</Typography>
+                        <Typography variant="body2" gutterBottom>{tr("todo_1")}</Typography>
                         <Typography variant="h5" component="div">
                             {due[0].title}
                         </Typography>
                         <Typography variant="body2" sx={{ mt: 1 }}>
-                            <>Due</>: <TimeDelta key={`${+new Date()}`} timestamp={due[0].due_timestamp * 1000} />
+                            <>{tr("due")}</>: <TimeDelta key={`${+new Date()}`} timestamp={due[0].due_timestamp * 1000} />
                         </Typography>
                     </CardContent>
                 </Card>
@@ -169,12 +165,12 @@ const TaskTable = memo(({ showDetail, reload }) => {
                 <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Card>
                         <CardContent>
-                            <Typography variant="body2" gutterBottom>Todo #2</Typography>
+                            <Typography variant="body2" gutterBottom>{tr("todo_2")}</Typography>
                             <Typography variant="h5" component="div">
                                 {due[1].title}
                             </Typography>
                             <Typography variant="body2" sx={{ mt: 1 }}>
-                                <>Due</>: <TimeDelta key={`${+new Date()}`} timestamp={due[1].due_timestamp * 1000} />
+                                <>{tr("due")}</>: <TimeDelta key={`${+new Date()}`} timestamp={due[1].due_timestamp * 1000} />
                             </Typography>
                         </CardContent>
                     </Card>
@@ -233,10 +229,10 @@ const Task = () => {
     }, []);
 
     const theme = useTheme();
-    const PRIORITY_STRING = ["Very High", "High", "Normal", "Low", "Very Low"];
+    const PRIORITY_STRING = [tr("very_high"), tr("high"), tr("normal"), tr("low"), tr("very_low")];
     const PRIORITY_COLOR = [theme.palette.error.main, theme.palette.warning.main, theme.palette.info.main, theme.palette.success.main, theme.palette.success.light];
     const STATUS_CONVERT = [[0, 2], [1, 2]]; // [mark_completed, confirm_completed]
-    const STATUS = useMemo(() => { return { 0: <span style={{ color: theme.palette.warning.main }}>Pending</span>, 1: <span style={{ color: theme.palette.info.main }}>Submitted</span>, 2: <span style={{ color: theme.palette.success.main }}>Completed</span> }; }, [theme]);
+    const STATUS = useMemo(() => { return { 0: <span style={{ color: theme.palette.warning.main }}>{tr("pending")}</span>, 1: <span style={{ color: theme.palette.info.main }}>{tr("submitted")}</span>, 2: <span style={{ color: theme.palette.success.main }}>{tr("completed")}</span> }; }, [theme]);
 
     const createTask = useCallback(() => {
         if (editId !== null) {
@@ -380,56 +376,56 @@ const Task = () => {
             <DialogContent sx={{ minWidth: "550px" }}>
                 <Typography variant="body2" gutterBottom><MarkdownRenderer>{detailTask.description}</MarkdownRenderer></Typography>
                 <br />
-                <Typography variant="body2" gutterBottom><b>Priority</b>: <span style={{ color: PRIORITY_COLOR[detailTask.priority] }}>{PRIORITY_STRING[detailTask.priority]}</span></Typography>
-                <Typography variant="body2" gutterBottom><b>Due</b>: <TimeDelta key={`${+new Date()}`} timestamp={detailTask.due_timestamp * 1000} /></Typography>
-                <Typography variant="body2" gutterBottom><b>Creator</b>: <UserCard user={detailTask.creator} /></Typography>
-                <Typography variant="body2" gutterBottom><b>Assigned to</b>:&nbsp;
+                <Typography variant="body2" gutterBottom><b>{tr("priority")}</b>: <span style={{ color: PRIORITY_COLOR[detailTask.priority] }}>{PRIORITY_STRING[detailTask.priority]}</span></Typography>
+                <Typography variant="body2" gutterBottom><b>{tr("due")}</b>: <TimeDelta key={`${+new Date()}`} timestamp={detailTask.due_timestamp * 1000} /></Typography>
+                <Typography variant="body2" gutterBottom><b>{tr("creator")}</b>: <UserCard user={detailTask.creator} /></Typography>
+                <Typography variant="body2" gutterBottom><b>{tr("assigned_to")}</b>:&nbsp;
                     {detailTask.assign_mode === 0 && <UserCard user={detailTask.creator} />}
                     {detailTask.assign_mode === 1 && detailTask.assign_to.map((userid, index) => (<><UserCard key={index} user={membersMapping[userid]} />&nbsp;</>))}
                     {detailTask.assign_mode === 2 && detailTask.assign_to.map((role, index) => (<>{allRoles[role].name}{index !== detailTask.assign_to.length - 1 ? ", " : ""}</>))}
                 </Typography>
-                <Typography variant="body2" gutterBottom><b>Status</b>: {STATUS[STATUS_CONVERT[+detailTask.mark_completed][+detailTask.confirm_completed]]} {detailTask.mark_completed && !detailTask.confirm_completed && detailTask.mark_timestamp && <>(<TimeDelta timestamp={detailTask.mark_timestamp * 1000} lower={true} />)</>} {detailTask.confirm_completed && detailTask.confirm_timestamp && <>(Accepted <TimeDelta timestamp={detailTask.confirm_timestamp * 1000} lower={true} />)</>}</Typography>
-                {detailTask.mark_note !== "" && <Typography variant="body2" gutterBottom><b>Assignee note</b>: {detailTask.mark_note}</Typography>}
-                {detailTask.confirm_note !== "" && <Typography variant="body2" gutterBottom><b>Manager note</b>: {detailTask.confirm_note}</Typography>}
+                <Typography variant="body2" gutterBottom><b>{tr("status")}</b>: {STATUS[STATUS_CONVERT[+detailTask.mark_completed][+detailTask.confirm_completed]]} {detailTask.mark_completed && !detailTask.confirm_completed && detailTask.mark_timestamp && <>(<TimeDelta timestamp={detailTask.mark_timestamp * 1000} lower={true} />)</>} {detailTask.confirm_completed && detailTask.confirm_timestamp && <>{tr("accepted")} <TimeDelta timestamp={detailTask.confirm_timestamp * 1000} lower={true} />)</>}</Typography>
+                {detailTask.mark_note !== "" && <Typography variant="body2" gutterBottom><b>{tr("assignee_note")}</b>: {detailTask.mark_note}</Typography>}
+                {detailTask.confirm_note !== "" && <Typography variant="body2" gutterBottom><b>{tr("manager_note")}</b>: {detailTask.confirm_note}</Typography>}
                 <br />
                 {isTaskAssignee && <>
-                    <Typography variant="body2" gutterBottom><b>Mark Status</b></Typography>
+                    <Typography variant="body2" gutterBottom><b>{tr("mark_status")}</b></Typography>
                     <Grid container spacing={2}>
                         <Grid item xs={12} sm={6} md={6} lg={8}>
                             <TextField
-                                label="Note"
+                                label={tr("note")}
                                 value={markNote}
                                 onChange={(e) => setMarkNote(e.target.value)}
                                 fullWidth size="small"
                             />
                         </Grid>
                         <Grid item xs={12} sm={6} md={6} lg={4}>
-                            {!detailTask.mark_completed && <Button variant="contained" color="info" onClick={() => { markAsCompleted(1); }} disabled={buttonDisabled} fullWidth>Completed</Button>}
-                            {detailTask.mark_completed && <Button variant="contained" color="warning" onClick={() => { markAsCompleted(0); }} disabled={buttonDisabled} fullWidth>Uncompleted</Button>}
+                            {!detailTask.mark_completed && <Button variant="contained" color="info" onClick={() => { markAsCompleted(1); }} disabled={buttonDisabled} fullWidth>{tr("completed")}</Button>}
+                            {detailTask.mark_completed && <Button variant="contained" color="warning" onClick={() => { markAsCompleted(0); }} disabled={buttonDisabled} fullWidth>{tr("uncompleted")}</Button>}
                         </Grid>
                     </Grid>
                 </>}
                 {isTaskAssignee && isTaskManager && <Divider sx={{ margin: "15px 0 10px 0" }} />}
                 {isTaskManager && <>
-                    <Typography variant="body2" gutterBottom><b>Manager Status</b></Typography>
+                    <Typography variant="body2" gutterBottom><b>{tr("manager_status")}</b></Typography>
                     <Grid container spacing={2} rowSpacing={-2}>
                         <Grid item xs={12} sm={6} md={6} lg={8}>
                             <TextField
-                                label="Note"
+                                label={tr("note")}
                                 value={confirmNote}
                                 onChange={(e) => setConfirmNote(e.target.value)}
                                 fullWidth size="small"
                             />
                         </Grid>
                         <Grid item xs={12} sm={6} md={6} lg={4}>
-                            {!detailTask.confirm_completed && <Button variant="contained" color="success" onClick={() => { confirmAsCompleted(1); }} disabled={buttonDisabled} fullWidth>Accept</Button>}
-                            {detailTask.confirm_completed && <Button variant="contained" color="error" onClick={() => { confirmAsCompleted(0); }} disabled={buttonDisabled} fullWidth>Reject</Button>}
+                            {!detailTask.confirm_completed && <Button variant="contained" color="success" onClick={() => { confirmAsCompleted(1); }} disabled={buttonDisabled} fullWidth>{tr("accept")}</Button>}
+                            {detailTask.confirm_completed && <Button variant="contained" color="error" onClick={() => { confirmAsCompleted(0); }} disabled={buttonDisabled} fullWidth>{tr("reject")}</Button>}
                         </Grid>
                         <Grid item xs={0} sm={6} md={6} lg={8}></Grid>
                         <Grid item xs={12} sm={6} md={6} lg={4}>
                             <FormControlLabel size="small"
                                 control={<Checkbox checked={bonusControl} onChange={(e) => { setBonusControl(e.target.checked); }} />}
-                                label={`${detailTask.confirm_completed ? "Remove Bonus" : "Distribute Bonus"}`}
+                                label={`${detailTask.confirm_completed ? tr("remove_bonus") : tr("distribute_bonus")}`}
                             />
                         </Grid>
                     </Grid>
@@ -439,7 +435,7 @@ const Task = () => {
             </DialogActions>
         </Dialog>}
         <Dialog open={dialogAction === "managers"} onClose={() => setDialogAction("")}>
-            <DialogTitle>Public Task Managers</DialogTitle>
+            <DialogTitle>{tr("public_task_managers")}</DialogTitle>
             <DialogContent>
                 <TaskManagers />
             </DialogContent>
@@ -449,7 +445,7 @@ const Task = () => {
         </Dialog>
         <Dialog open={dialogAction === "create" || dialogAction == "edit"} onClose={() => setDialogAction("")}>
             <DialogTitle>
-                {dialogAction === "create" ? "Create Task" : "Edit Task"}
+                {dialogAction === "create" ? tr("create_task") : tr("edit_task")}
                 <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogAction("")}>
                     <CloseRounded />
                 </IconButton>
@@ -477,7 +473,7 @@ const Task = () => {
                         </Grid>
                         <Grid item xs={12} md={canManagePublicTasks ? 6 : 12}>
                             <TextField
-                                label="Priority"
+                                label={tr("priority")}
                                 select
                                 value={taskForm.priority}
                                 onChange={(e) => setTaskForm(taskForm => ({ ...taskForm, priority: e.target.value }))}
@@ -490,7 +486,7 @@ const Task = () => {
                         </Grid>
                         {canManagePublicTasks && <Grid item xs={12} md={6}>
                             <TextField
-                                label="Bonus"
+                                label={tr("bonus")}
                                 value={taskForm.bonus}
                                 onChange={(e) => setTaskForm(taskForm => ({ ...taskForm, bonus: e.target.value }))}
                                 fullWidth
@@ -498,7 +494,7 @@ const Task = () => {
                         </Grid>}
                         <Grid item xs={12} md={6}>
                             <DateTimeField
-                                label="Due Date"
+                                label={tr("due_date")}
                                 defaultValue={taskForm.due_timestamp}
                                 onChange={(timestamp) => setTaskForm(taskForm => ({ ...taskForm, due_timestamp: timestamp }))}
                                 fullWidth
@@ -506,7 +502,7 @@ const Task = () => {
                         </Grid>
                         <Grid item xs={12} md={6}>
                             <DateTimeField
-                                label="Remind Date"
+                                label={tr("remind_date")}
                                 defaultValue={taskForm.remind_timestamp}
                                 onChange={(timestamp) => setTaskForm(taskForm => ({ ...taskForm, remind_timestamp: timestamp }))}
                                 fullWidth
@@ -514,7 +510,7 @@ const Task = () => {
                         </Grid>
                         <Grid item xs={6} md={6}>
                             <TextField
-                                label="Recurring (Every ..., e.g. 1d 4h 10m 30s)"
+                                label={tr("recurring_every_eg_1d_4h_10m_30s")}
                                 value={taskForm.recurringText}
                                 onChange={(e) => setTaskForm(taskForm => ({ ...taskForm, recurring: userFriendlyDurationToSeconds(e.target.value), recurringText: e.target.value }))}
                                 fullWidth
@@ -522,7 +518,7 @@ const Task = () => {
                         </Grid>
                         <Grid item xs={6} md={3}>
                             <TextField
-                                label="Recurring (Seconds)"
+                                label={tr("recurring_seconds")}
                                 value={taskForm.recurring}
                                 onChange={(e) => setTaskForm(taskForm => ({ ...taskForm, recurring: e.target.value, recurringText: secondsToUserFriendlyDuration(e.target.value) }))}
                                 fullWidth
@@ -530,20 +526,20 @@ const Task = () => {
                         </Grid>
                         <Grid item xs={12} md={3}>
                             <TextField
-                                label="Assign Mode"
+                                label={tr("assign_mode")}
                                 select
                                 value={taskForm.assign_mode}
                                 onChange={(e) => setTaskForm(taskForm => ({ ...taskForm, assign_mode: e.target.value, assign_to: e.target.value === 0 ? [curUser.userid] : [] }))}
                                 fullWidth
                             >
-                                <MenuItem value={0}>Self</MenuItem>
-                                {canManagePublicTasks && <MenuItem value={1}>Users</MenuItem>}
-                                {canManagePublicTasks && <MenuItem value={2}>Roles</MenuItem>}
+                                <MenuItem value={0}>{tr("self")}</MenuItem>
+                                {canManagePublicTasks && <MenuItem value={1}>{tr("users")}</MenuItem>}
+                                {canManagePublicTasks && <MenuItem value={2}>{tr("roles")}</MenuItem>}
                             </TextField>
                         </Grid>
                         {canManagePublicTasks && <Grid item xs={12}>
-                            {taskForm.assign_mode === 1 && <UserSelect label="Assign To" users={assignToTmp} isMulti={true} onUpdate={(users) => { setAssignToTmp(users); setTaskForm(taskForm => ({ ...taskForm, assign_to: users.map(user => user.userid) })); }} style={{ marginTop: "-5px" }} />}
-                            {taskForm.assign_mode === 2 && <RoleSelect initialRoles={taskForm.assign_to} onUpdate={(newRoles) => { setTaskForm(taskForm => ({ ...taskForm, assign_to: newRoles.map((role) => (role.id)) })); }} label="Assign To" showAllRoles={true} style={{ marginTop: "-5px" }} />}
+                            {taskForm.assign_mode === 1 && <UserSelect label={tr("assign_to")} users={assignToTmp} isMulti={true} onUpdate={(users) => { setAssignToTmp(users); setTaskForm(taskForm => ({ ...taskForm, assign_to: users.map(user => user.userid) })); }} style={{ marginTop: "-5px" }} />}
+                            {taskForm.assign_mode === 2 && <RoleSelect initialRoles={taskForm.assign_to} onUpdate={(newRoles) => { setTaskForm(taskForm => ({ ...taskForm, assign_to: newRoles.map((role) => (role.id)) })); }} label={tr("assign_to")} showAllRoles={true} style={{ marginTop: "-5px" }} />}
                         </Grid>}
                     </Grid>
                 </form>
@@ -557,16 +553,16 @@ const Task = () => {
                     </Grid>
                     <Grid item>
                         <Box sx={{ display: 'flex', gap: '10px' }}>
-                            <Button variant="contained" color="info" onClick={submitTaskForm} disabled={buttonDisabled}>{dialogAction === "create" ? "Create" : "Edit"}</Button>
+                            <Button variant="contained" color="info" onClick={submitTaskForm} disabled={buttonDisabled}>{dialogAction === "create" ? tr("create") : tr("edit")}</Button>
                         </Box>
                     </Grid>
                 </Grid>
             </DialogActions>
         </Dialog>
         {detailTask !== null && <Dialog open={dialogAction === "delete"} onClose={() => setDialogAction("")}>
-            <DialogTitle>Delete Task</DialogTitle>
+            <DialogTitle>{tr("delete_task")}</DialogTitle>
             <DialogContent>
-                <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>Are you sure you want to delete this task?</Typography>
+                <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>{tr("are_you_sure_you_want_to_delete_this_task")}</Typography>
                 <Typography variant="body2" sx={{ minWidth: "400px" }}><b>{detailTask.title}</b></Typography>
             </DialogContent>
             <DialogActions>
