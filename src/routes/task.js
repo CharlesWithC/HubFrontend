@@ -14,8 +14,7 @@ import DateTimeField from '../components/datetime';
 import UserSelect from '../components/userselect';
 import RoleSelect from '../components/roleselect';
 
-import { makeRequestsAuto, customAxios as axios, getAuthToken, removeNUEValues, checkUserPerm } from '../functions';
-import { checkPerm } from '../functions';
+import { makeRequestsAuto, customAxios as axios, getAuthToken, removeNUEValues, checkUserPerm, checkPerm } from '../functions';
 
 function userFriendlyDurationToSeconds(duration) {
     const regex = /(\d+)([smhd])/g;
@@ -206,13 +205,14 @@ const TaskManagers = memo(() => {
 
 const Task = () => {
     const { t: tr } = useTranslation();
-    const { apiPath, curUser, allRoles, allPerms, memberUIDs, users } = useContext(AppContext);
+    const { apiPath, curUser, allRoles, allPerms, memberUIDs, users, curUserPerm } = useContext(AppContext);
     const membersMapping = useMemo(() => (
         memberUIDs.reduce((acc, uid) => {
             acc[users[uid].userid] = users[uid];
             return acc;
         }, {})
     ), [memberUIDs, users]);
+    const canManagePublicTasks = checkUserPerm(curUserPerm, ["administrator", "manage_public_tasks"]);
 
     const TASK_FORM = { title: "", description: "", priority: 2, bonus: 0, due_timestamp: Math.floor(Date.now() / 1000) + 86400, remind_timestamp: Math.floor(Date.now() / 1000) + 86400 - 3600, recurring: 0, recurringText: "", assign_mode: 0, assign_to: [curUser.userid] };
 
@@ -307,6 +307,25 @@ const Task = () => {
         window.loading -= 1;
     }, [apiPath, curUser, allPerms]);
 
+    const deleteTask = useCallback(async (task) => {
+        window.loading += 1;
+        setButtonDisabled(true);
+
+        let resp = await axios({ url: `${apiPath}/tasks/${task.taskid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            setSnackbarContent(tr("success"));
+            setSnackbarSeverity("success");
+            setDialogAction("");
+            setReload(+new Date());
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+
+        setButtonDisabled(false);
+        window.loading -= 1;
+    }, [apiPath]);
+
     const [markNote, setMarkNote] = useState("");
     const markAsCompleted = useCallback(async (mark) => {
         window.loading += 1;
@@ -352,7 +371,7 @@ const Task = () => {
                 {detailTask.title}
                 {isTaskManager && <>
                     <IconButton size="small" aria-label={tr("edit")} sx={{ marginLeft: "10px", marginTop: "-3px" }} onClick={() => { setEditId(detailTask.taskid); setTaskForm(detailTask); setDialogAction("edit"); setAssignToTmp(detailTask.assign_mode === 1 ? detailTask.assign_to.map(userid => membersMapping[userid]) : (detailTask.assign_mode === 0 ? [curUser.userid] : [])); }}><EditRounded /></IconButton >
-                    <IconButton size="small" aria-label={tr("delete")} sx={{ marginTop: "-3px" }}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
+                    <IconButton size="small" aria-label={tr("delete")} sx={{ marginTop: "-3px" }}><DeleteRounded sx={{ "color": "red" }} onClick={() => { setDialogAction("delete"); }} /></IconButton >
                 </>}
                 <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogAction("")}>
                     <CloseRounded />
@@ -456,7 +475,7 @@ const Task = () => {
                                 minRows={4}
                             />
                         </Grid>
-                        <Grid item xs={12} md={6}>
+                        <Grid item xs={12} md={canManagePublicTasks ? 6 : 12}>
                             <TextField
                                 label="Priority"
                                 select
@@ -469,14 +488,14 @@ const Task = () => {
                                 ))}
                             </TextField>
                         </Grid>
-                        <Grid item xs={12} md={6}>
+                        {canManagePublicTasks && <Grid item xs={12} md={6}>
                             <TextField
                                 label="Bonus"
                                 value={taskForm.bonus}
                                 onChange={(e) => setTaskForm(taskForm => ({ ...taskForm, bonus: e.target.value }))}
                                 fullWidth
                             />
-                        </Grid>
+                        </Grid>}
                         <Grid item xs={12} md={6}>
                             <DateTimeField
                                 label="Due Date"
@@ -518,14 +537,14 @@ const Task = () => {
                                 fullWidth
                             >
                                 <MenuItem value={0}>Self</MenuItem>
-                                <MenuItem value={1}>Users</MenuItem>
-                                <MenuItem value={2}>Roles</MenuItem>
+                                {canManagePublicTasks && <MenuItem value={1}>Users</MenuItem>}
+                                {canManagePublicTasks && <MenuItem value={2}>Roles</MenuItem>}
                             </TextField>
                         </Grid>
-                        <Grid item xs={12}>
+                        {canManagePublicTasks && <Grid item xs={12}>
                             {taskForm.assign_mode === 1 && <UserSelect label="Assign To" users={assignToTmp} isMulti={true} onUpdate={(users) => { setAssignToTmp(users); setTaskForm(taskForm => ({ ...taskForm, assign_to: users.map(user => user.userid) })); }} style={{ marginTop: "-5px" }} />}
                             {taskForm.assign_mode === 2 && <RoleSelect initialRoles={taskForm.assign_to} onUpdate={(newRoles) => { setTaskForm(taskForm => ({ ...taskForm, assign_to: newRoles.map((role) => (role.id)) })); }} label="Assign To" showAllRoles={true} style={{ marginTop: "-5px" }} />}
-                        </Grid>
+                        </Grid>}
                     </Grid>
                 </form>
             </DialogContent>
@@ -544,6 +563,27 @@ const Task = () => {
                 </Grid>
             </DialogActions>
         </Dialog>
+        {detailTask !== null && <Dialog open={dialogAction === "delete"} onClose={() => setDialogAction("")}>
+            <DialogTitle>Delete Task</DialogTitle>
+            <DialogContent>
+                <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>Are you sure you want to delete this task?</Typography>
+                <Typography variant="body2" sx={{ minWidth: "400px" }}><b>{detailTask.title}</b></Typography>
+            </DialogContent>
+            <DialogActions>
+                <Grid container justifyContent="space-between" padding="10px">
+                    <Grid item>
+                        <Box sx={{ display: 'flex', gap: '10px' }}>
+                            <Button variant="contained" onClick={() => { setDialogAction(""); }}>{tr("cancel")}</Button>
+                        </Box>
+                    </Grid>
+                    <Grid item>
+                        <Box sx={{ display: 'flex', gap: '10px' }}>
+                            <Button variant="contained" color="error" onClick={() => { deleteTask(detailTask); }} disabled={buttonDisabled}>{tr("delete")}</Button>
+                        </Box>
+                    </Grid>
+                </Grid>
+            </DialogActions>
+        </Dialog>}
         <SpeedDial
             ariaLabel={tr("controls")}
             sx={{ position: 'fixed', bottom: 20, right: 20 }}
