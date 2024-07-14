@@ -118,7 +118,12 @@ const Settings = ({ defaultTab = 0 }) => {
         "new_event": tr("new_event"),
         "upcoming_event": tr("upcoming_event"),
         "new_poll": tr("new_poll"),
-        "poll_result": tr("poll_result")
+        "poll_result": tr("poll_result"),
+        "new_task": "New Task",
+        "task_reminder": "Task Reminder",
+        "task_updated": "Task Updated",
+        "task_mark_completed": "[Staff] User Completed Task",
+        "task_confirm_completed": "[User] Task Accepted / Rejected"
     }), []);
     const NOTIFICATION_TYPES = useMemo(() => Object.keys(NOTIFICATION_NAMES), []);
     const PRIVACY_ATTRIBUTES = useMemo(() => ({
