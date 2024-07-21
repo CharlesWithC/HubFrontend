@@ -118,14 +118,27 @@ const Ranking = () => {
         }
         if (previousRank !== currentRank) {
             setRankChange(previousRank < currentRank ? 1 : -1);
-            getDiscordRole();
+            getDiscordRole(false);
         }
     }, [apiConfig, detailedPoints, curRankRoles, curRankPointTypes]);
 
-    const doLoad = useCallback(async () => {
+    const doLoadRank = useCallback(async () => {
         window.loading += 1;
 
-        const [_leaderboard, _bonusHistory] = await makeRequestsWithAuth([`${apiPath}/dlog/leaderboard?userids=${curUser.userid}`, `${apiPath}/member/bonus/history`]);
+        const [_leaderboard] = await makeRequestsWithAuth([`${apiPath}/dlog/leaderboard?userids=${curUser.userid}`]);
+
+        if (_leaderboard.list.length === 0) {
+            setDetailedPoints({ distance: 0, challenge: 0, event: 0, division: 0, bonus: 0 });
+        } else {
+            setDetailedPoints(_leaderboard.list[0].points);
+        }
+
+        window.loading -= 1;
+    }, [apiPath]);
+    const doLoadBonus = useCallback(async () => {
+        window.loading += 1;
+
+        const [_bonusHistory, _bonusNotification] = await makeRequestsWithAuth([`${apiPath}/member/bonus/history`, `${apiPath}/member/bonus/notification/settings`]);
 
         for (let i = _bonusHistory.length - 1; i >= 0; i--) {
             if (isSameDay(_bonusHistory[i].timestamp * 1000)) {
@@ -136,24 +149,24 @@ const Ranking = () => {
                 break;
             }
         }
-        if (_leaderboard.list.length === 0) {
-            setDetailedPoints({ distance: 0, challenge: 0, event: 0, division: 0, bonus: 0 });
-        } else {
-            setDetailedPoints(_leaderboard.list[0].points);
+
+        if (_bonusNotification) {
+            setNotificationTime(_bonusNotification.utcnow);
         }
 
         window.loading -= 1;
     }, [apiPath]);
     useEffect(() => {
-        doLoad();
+        doLoadRank();
+        doLoadBonus();
     }, [apiPath]);
 
-    const getDiscordRole = useCallback(async () => {
+    const getDiscordRole = useCallback(async (show_error = true) => {
         let resp = await axios({ url: `${apiPath}/member/roles/rank/${curRankTypeId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("you_received_a_new_rank_role"));
             setSnackbarSeverity("success");
-        } else {
+        } else if (show_error) {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
         }
@@ -340,17 +353,17 @@ const Ranking = () => {
                     <NotificationsRounded />&nbsp;&nbsp;Daily Bonus Notification Settings</Typography>
             </DialogTitle>
             <DialogContent>
-                <DateTimeField
+                {notificationTime !== null && <DateTimeField
                     label="Alert me at"
                     defaultValue={notificationTime}
                     onChange={(time) => { setNotificationTime(time); }}
                     fullWidth noDate
                     sx={{ mt: "5px" }}
-                />
-                <Typography variant="body2" align="right">Leave empty to disable notifications</Typography>
+                />}
             </DialogContent>
-            <DialogActions>
+            <DialogActions sx={{ mb: "5px" }}>
                 <Button onClick={() => { setModalNotificationsOpen(false); }} variant="contained" color="secondary" sx={{ ml: 'auto' }}>{tr("close")}</Button>
+                <Button onClick={() => { setNotificationTime(""); updateNotificationSettings(); }} variant="contained" color="warning" sx={{ ml: 'auto' }}>{tr("clear")}</Button>
                 <Button onClick={() => { updateNotificationSettings(); }} variant="contained" color="info" sx={{ ml: 'auto' }}>{tr("update")}</Button>
             </DialogActions>
         </Dialog>
@@ -375,7 +388,7 @@ const Ranking = () => {
                 key="notifications"
                 icon={<NotificationsRounded />}
                 tooltipTitle="Daily Bonus Notification Settings"
-                onClick={() => { setNotificationTime(null); setModalNotificationsOpen(true); }}
+                onClick={() => { setModalNotificationsOpen(true); }}
             />
             <SpeedDialAction
                 key="bonus"
