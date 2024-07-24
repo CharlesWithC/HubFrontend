@@ -283,7 +283,7 @@ const Task = () => {
             setIsTaskAssignee(task.assign_mode === 0 && curUser.userid === task.creator.userid ||
                 task.assign_mode === 1 && task.assign_to.includes(curUser.userid) ||
                 task.assign_mode === 2 && task.assign_to.some(role => curUser.roles.includes(role)));
-            setIsTaskManager(task.creator.userid === curUser.userid || checkPerm(curUser.roles, ["manage_public_tasks"], allPerms));
+            setIsTaskManager(task.creator.userid === curUser.userid || checkPerm(curUser.roles, ["administrator", "manage_public_tasks"], allPerms));
 
             if (task.confirm_completed) {
                 setBonusControl(true);
