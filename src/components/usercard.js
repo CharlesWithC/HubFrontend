@@ -697,7 +697,7 @@ const UserCard = (props) => {
 
     const acceptUser = useCallback(async () => {
         setDialogBtnDisabled(true);
-        let resp = await axios({ url: `${apiPath}/user/${user.uid}/accept`, data: { tracker: trackerInUse }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${apiPath}/user/${user.uid}/accept`, data: trackerInUse !== "unknown" ? { tracker: trackerInUse } : {}, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
             setUsers(users => ({ ...users, [user.uid]: { ...users[user.uid], userid: resp.data.userid, roles: [] } }));
             setMemberUIDs(memberUIDs => [...memberUIDs, user.uid]);

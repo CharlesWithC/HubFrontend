@@ -3638,7 +3638,7 @@ const Configuration = () => {
                 </Typography>
                 <br />
                 <Typography variant="body2">
-                    <FontAwesomeIcon icon={faLockOpen}></FontAwesomeIcon> indicates enabled plugins and <FontAwesomeIcon icon={faLock}></FontAwesomeIcon> indicates disabled plugins.<br /><FontAwesomeIcon icon={faCircleQuestion}></FontAwesomeIcon> indicates that the client is not capable of detecting whether the plugin is enabled or disabled.<br />To purchase a plugin, contact us by creating a ticket in our Discord server. Pricing is available at <a href="https://drivershub.charlws.com/setup">https://drivershub.charlws.com/setup</a>.
+                    <FontAwesomeIcon icon={faLockOpen}></FontAwesomeIcon> indicates enabled plugins and <FontAwesomeIcon icon={faLock}></FontAwesomeIcon> indicates disabled plugins.<br /><FontAwesomeIcon icon={faCircleQuestion}></FontAwesomeIcon> indicates that the client is not capable of detecting whether the plugin is enabled or disabled.<br />You may be able to purchase new plugins on our <a href="https://drivershub.charlws.com/setup" style={{ color: theme.palette.info.main, cursor: "pointer" }}>website</a>, where pricing is displayed as well. Alternatively, reach out to us by creating a ticket in our Discord server to purchase additional plugins.
                 </Typography>
                 <Typography variant="body2">
                     CHub Discord Server: <a href="https://discord.gg/KRFsymnVKm">https://discord.gg/KRFsymnVKm</a>
