@@ -132,10 +132,10 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
         }
 
         toDelete = toDelete.reduce((acc, cur) => { return (!toAdd.includes(cur) ? [...acc, cur] : acc); }, []);
-        
+
         for (let i = 0; i < toDelete.length; i++) {
             if (formData[toDelete[i]] !== undefined) {
-                
+
                 delete newFormData[toDelete[i]];
                 modified = true;
             }
@@ -474,10 +474,12 @@ const NewApplication = () => {
         // just to fix the legacy "position" type
         if (selectedType === null) return null;
         let config = applicationTypes[selectedType].form;
-        for (let i = 0; i < config.length; i++) {
-            if (config[i].type === "position") {
-                config[i].type = "dropdown";
-                config[i].choices = [];
+        if (config) {
+            for (let i = 0; i < config.length; i++) {
+                if (config[i].type === "position") {
+                    config[i].type = "dropdown";
+                    config[i].choices = [];
+                }
             }
         }
         return config;

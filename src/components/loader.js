@@ -384,7 +384,7 @@ const Loader = ({ onLoaderLoaded }) => {
                 const curUser = readLS("cache-user", window.dhhost + bearerToken);
                 setUsers(users => ({ ...users, [curUser.uid]: curUser }));
                 setCurUID(curUser.uid);
-                setIsMember(curUser.userid !== -1);
+                setIsMember(curUser.userid && curUser.userid !== -1);
 
                 FetchProfile({ ...appContext, apiPath: apiPath, webConfig: webConfig, specialUsers: specialUsers, patrons: patrons }).then((auth) => {
                     setIsMember(auth.member);
