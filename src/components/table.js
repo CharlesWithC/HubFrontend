@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { debounce } from 'lodash';
 import { Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Card, CardContent, TablePagination, Typography, Menu, TextField } from '@mui/material';
 
@@ -23,6 +24,7 @@ const CustomTableRow = memo(({ children, onContextMenu, ...props }) => {
 const CustomTable = ({ page: initPage, columns, orderBy, order, onOrderingUpdate, name, nameRight, data, totalItems, rowsPerPageOptions, defaultRowsPerPage, onPageChange, onRowsPerPageChange, onRowClick, onSearch, searchHint, searchUpdateInterval, searchWidth, style, pstyle }) => {
     if (onOrderingUpdate === undefined) onOrderingUpdate = function (order, order_by) { };
 
+    const { t: tr } = useTranslation();
     const [page, setPage] = useState(initPage - 1); // page for MUI Table (from 0)
     const [inputPage, setInputPage] = useState(initPage); // page for user input (from 1)
     const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
@@ -167,9 +169,10 @@ const CustomTable = ({ page: initPage, columns, orderBy, order, onOrderingUpdate
                     page={page}
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
+                    labelRowsPerPage={tr("rows_per_page")}
                     sx={pstyle}
                     labelDisplayedRows={({ from, to, count }) => (<div>
-                        Page
+                        {tr("page")}
                         <TextField
                             value={inputPage}
                             onChange={handleInputPage}

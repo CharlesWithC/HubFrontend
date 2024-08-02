@@ -178,7 +178,7 @@ const EventCard = ({ event, eventid, imageUrl, title, creator, description, link
 
 const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, setCalendarEvents, allEvents, setAllEvents, openEventDetails, setOpenEventDetals, modalEvent, setModalEvent, setSnackbarContent, setSnackbarSeverity, onEdit, onDelete, onUpdateAttendees, doReload }) => {
     const { t: tr } = useTranslation();
-    const { apiPath, curUID, curUser } = useContext(AppContext);
+    const { apiPath, curUID, curUser, userSettings } = useContext(AppContext);
 
     const [isInitialLoad, setIsInitialLoad] = useState(true);
     const [curMonthCount, setCurMonthCount] = useState(-1);
@@ -414,6 +414,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
                     contentHeight="auto"
                     eventClick={handleEventClick}
                     datesSet={handleDateSet}
+                    locale={userSettings.language}
                 />
                 {curMonthCount !== -1 && <Box sx={{ textAlign: 'right' }}>
                     <Typography variant="body2">
