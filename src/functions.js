@@ -288,7 +288,7 @@ export async function FetchProfile({ apiPath, specialUsers, patrons, setUserLeve
                     }
                 });
 
-            if (curUser.userid && curUser.userid !== -1) {
+            if (curUser.userid !== undefined && curUser.userid !== null && curUser.userid !== -1) {
                 if (isLogin) {
                     // just patch, don't wait
                     customAxios({ url: `${apiPath}/user/timezone`, method: "PATCH", data: { timezone: Intl.DateTimeFormat().resolvedOptions().timeZone }, headers: { "Authorization": `Bearer ${bearerToken}` } });
