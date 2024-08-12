@@ -44,8 +44,11 @@ const CustomTable = ({ page: initPage, columns, orderBy, order, onOrderingUpdate
 
     const handleInputPage = useCallback((event) => {
         let newPage = event.target.value;
-        if (isNaN(newPage) || newPage === "")
-            newPage = 1;
+        if (newPage === "") {
+            setInputPage("");
+            return;
+        }
+        if (isNaN(newPage)) return;
         if (newPage < 1) newPage = 1;
         if (newPage > Math.ceil(totalItems / rowsPerPage)) newPage = Math.ceil(totalItems / rowsPerPage);
 
