@@ -872,7 +872,7 @@ const de = {
     "scrap_truck": "Schrott-LKW",
     "scrapped": "Verschrottet",
     "scs_convoy": "SCS Konvoi",
-    "search_by_username_or_discord_id": "Suche nach Benutzername oder Discord-ID",
+    "search_by_username_or_ids": "Suche nach Benutzername oder ID",
     "seconds_ago": "Vor {{seconds}} Sekunden",
     "security": "Sicherheit",
     "select": "Auswählen",

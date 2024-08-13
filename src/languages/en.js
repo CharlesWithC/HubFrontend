@@ -1010,7 +1010,7 @@ const en = {
     "scrap_truck": "Scrap Truck",
     "scrapped": "Scrapped",
     "scs_convoy": "SCS Convoy",
-    "search_by_username_or_discord_id": "Search by username or discord id",
+    "search_by_username_or_ids": "Search by username or IDs",
     "seconds_ago": "{{seconds}} seconds ago",
     "seconds_later": "In {{seconds}} seconds",
     "security": "Security",

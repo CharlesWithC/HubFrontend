@@ -156,23 +156,41 @@ const ExternalUsers = () => {
             let processedParam = removeNUEValues(userListParam);
 
             let [_userList] = [{}];
-            if (userSearch === "")
+            if (userSearch === "") {
                 [_userList] = await makeRequestsAuto([
                     { url: `${apiPath}/user/list?order=desc&order_by=uid&page=${userPage}&page_size=${userPageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
                 ]);
-            else if (isNaN(userSearch) || !isNaN(userSearch) && (userSearch.length < 17 || userSearch.length > 19)) // not discord id
-                [_userList] = await makeRequestsAuto([
-                    { url: `${apiPath}/user/list?name=${userSearch}&order=desc&order_by=uid&page=${userPage}&page_size=${userPageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
-                ]);
-            else if (!isNaN(userSearch) && userSearch.length >= 17 && userSearch.length <= 19) { // is discord id
+            } else if (!isNaN(userSearch) && userSearch.length >= 3 && userSearch.length <= 10) { // is truckersmp id
                 let [_userProfile] = await makeRequestsAuto([
-                    { url: `${apiPath}/user/profile?discordid=${userSearch}`, auth: true },
+                    { url: `${apiPath}/user/profile?truckersmpid=${userSearch}`, auth: true },
                 ]);
-                if (_userProfile.error === undefined) {
+                if (_userProfile.error === undefined && _userProfile.userid >= 0 && _userProfile.userid !== null) {
                     _userList = { list: [_userProfile], total_items: 1 };
                 } else {
                     _userList = { list: [], total_items: 0 };
                 }
+            } else if (!isNaN(userSearch) && userSearch.length === 17 && userSearch.startsWith("76561")) { // is steam id
+                let [_userProfile] = await makeRequestsAuto([
+                    { url: `${apiPath}/user/profile?steamid=${userSearch}`, auth: true },
+                ]);
+                if (_userProfile.error === undefined && _userProfile.userid >= 0 && _userProfile.userid !== null) {
+                    _userList = { list: [_userProfile], total_items: 1 };
+                } else {
+                    _userList = { list: [], total_items: 0 };
+                }
+            } else if (!isNaN(userSearch) && userSearch.length >= 17 && userSearch.length <= 19) { // is discord id
+                let [_userProfile] = await makeRequestsAuto([
+                    { url: `${apiPath}/user/profile?discordid=${userSearch}`, auth: true },
+                ]);
+                if (_userProfile.error === undefined && _userProfile.userid >= 0 && _userProfile.userid !== null) {
+                    _userList = { list: [_userProfile], total_items: 1 };
+                } else {
+                    _userList = { list: [], total_items: 0 };
+                }
+            } else { // not any id
+                [_userList] = await makeRequestsAuto([
+                    { url: `${apiPath}/user/list?name=${userSearch}&order=desc&order_by=uid&page=${userPage}&page_size=${userPageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                ]);
             }
             if (_userList.list !== undefined) {
                 let newUserList = [];
@@ -205,15 +223,29 @@ const ExternalUsers = () => {
             let processedParam = removeNUEValues(banListParam);
 
             let [_banList] = [{}];
-            if (banSearch === "")
+            if (banSearch === "") {
                 [_banList] = await makeRequestsAuto([
                     { url: `${apiPath}/user/ban/list?order=desc&order_by=uid&page=${userPage}&page_size=${banPageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
                 ]);
-            else if (isNaN(banSearch) || !isNaN(banSearch) && (banSearch.length < 17 || banSearch.length > 19)) // not discord id
-                [_banList] = await makeRequestsAuto([
-                    { url: `${apiPath}/user/ban/list?name=${banSearch}&order=desc&order_by=uid&page=${userPage}&page_size=${banPageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+            } else if (!isNaN(banSearch) && banSearch.length >= 3 && banSearch.length <= 10) { // is truckersmp id
+                let [_banProfile] = await makeRequestsAuto([
+                    { url: `${apiPath}/user/ban?truckersmpid=${banSearch}`, auth: true },
                 ]);
-            else if (!isNaN(banSearch) && banSearch.length >= 17 && banSearch.length <= 19) { // is discord id
+                if (_banProfile.error === undefined) {
+                    _banList = { list: [_banProfile], total_items: 1 };
+                } else {
+                    _banList = { list: [], total_items: 0 };
+                }
+            } else if (!isNaN(banSearch) && banSearch.length === 17 && banSearch.startsWith("76561")) { // is steam id
+                let [_banProfile] = await makeRequestsAuto([
+                    { url: `${apiPath}/user/ban?steamid=${banSearch}`, auth: true },
+                ]);
+                if (_banProfile.error === undefined) {
+                    _banList = { list: [_banProfile], total_items: 1 };
+                } else {
+                    _banList = { list: [], total_items: 0 };
+                }
+            } else if (!isNaN(banSearch) && banSearch.length >= 17 && banSearch.length <= 19) { // is discord id
                 let [_banProfile] = await makeRequestsAuto([
                     { url: `${apiPath}/user/ban?discordid=${banSearch}`, auth: true },
                 ]);
@@ -222,6 +254,10 @@ const ExternalUsers = () => {
                 } else {
                     _banList = { list: [], total_items: 0 };
                 }
+            } else { // not any id
+                [_banList] = await makeRequestsAuto([
+                    { url: `${apiPath}/user/ban/list?name=${banSearch}&order=desc&order_by=uid&page=${userPage}&page_size=${banPageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                ]);
             }
 
             if (_banList.list !== undefined) {
@@ -256,8 +292,8 @@ const ExternalUsers = () => {
     }, [apiPath]);
 
     return <>
-        <CustomTable page={userPage} name={<><FontAwesomeIcon icon={faUserPlus} />&nbsp;&nbsp;{tr("external_users")}</>} order={userListParam.order} orderBy={userListParam.order_by} onOrderingUpdate={(order_by, order) => { setUserListParam({ ...userListParam, order_by: order_by, order: order }); }} titlePosition="top" columns={puColumns} data={userList} totalItems={userTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={userPageSize} onPageChange={setUserPage} onRowsPerPageChange={setUserPageSize} onSearch={(content) => { setUserPage(1); setUserSearch(content); }} searchHint={tr("search_by_username_or_discord_id")} />
-        <CustomTable page={banPage} name={<><FontAwesomeIcon icon={faBan} />&nbsp;&nbsp;{tr("banned_users")}</>} order={banListParam.order} orderBy={banListParam.order_by} onOrderingUpdate={(order_by, order) => { setBanListParam({ ...banListParam, order_by: order_by, order: order }); }} titlePosition="top" columns={buColumns} data={banList} totalItems={banTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={banPageSize} onPageChange={setBanPage} onRowsPerPageChange={setBanPageSize} style={{ marginTop: "15px" }} onSearch={(content) => { setBanPage(1); setBanSearch(content); }} searchHint={tr("search_by_username_or_discord_id")} />
+        <CustomTable page={userPage} name={<><FontAwesomeIcon icon={faUserPlus} />&nbsp;&nbsp;{tr("external_users")}</>} order={userListParam.order} orderBy={userListParam.order_by} onOrderingUpdate={(order_by, order) => { setUserListParam({ ...userListParam, order_by: order_by, order: order }); }} titlePosition="top" columns={puColumns} data={userList} totalItems={userTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={userPageSize} onPageChange={setUserPage} onRowsPerPageChange={setUserPageSize} onSearch={(content) => { setUserPage(1); setUserSearch(content); }} searchHint={tr("search_by_username_or_ids")} />
+        <CustomTable page={banPage} name={<><FontAwesomeIcon icon={faBan} />&nbsp;&nbsp;{tr("banned_users")}</>} order={banListParam.order} orderBy={banListParam.order_by} onOrderingUpdate={(order_by, order) => { setBanListParam({ ...banListParam, order_by: order_by, order: order }); }} titlePosition="top" columns={buColumns} data={banList} totalItems={banTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={banPageSize} onPageChange={setBanPage} onRowsPerPageChange={setBanPageSize} style={{ marginTop: "15px" }} onSearch={(content) => { setBanPage(1); setBanSearch(content); }} searchHint={tr("search_by_username_or_ids")} />
         <Portal>
             <Snackbar
                 open={!!snackbarContent}

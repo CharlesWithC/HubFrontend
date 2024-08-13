@@ -365,10 +365,26 @@ const MemberList = () => {
                 [_userList] = await makeRequestsAuto([
                     { url: `${apiPath}/member/list?order=desc&order_by=userid&page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
                 ]);
-            else if (isNaN(search) || !isNaN(search) && (search.length < 17 || search.length > 19)) // not discord id
-                [_userList] = await makeRequestsAuto([
-                    { url: `${apiPath}/member/list?name=${search}&order=desc&order_by=userid&page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+            else if (!isNaN(search) && search.length >= 3 && search.length <= 10) { // is truckersmp id
+                let [_userProfile] = await makeRequestsAuto([
+                    { url: `${apiPath}/user/profile?truckersmpid=${search}`, auth: true },
                 ]);
+                if (_userProfile.error === undefined && _userProfile.userid >= 0 && _userProfile.userid !== null) {
+                    _userList = { list: [_userProfile], total_items: 1 };
+                } else {
+                    _userList = { list: [], total_items: 0 };
+                }
+            }
+            else if (!isNaN(search) && search.length === 17 && search.startsWith("76561")) { // is steam id
+                let [_userProfile] = await makeRequestsAuto([
+                    { url: `${apiPath}/user/profile?steamid=${search}`, auth: true },
+                ]);
+                if (_userProfile.error === undefined && _userProfile.userid >= 0 && _userProfile.userid !== null) {
+                    _userList = { list: [_userProfile], total_items: 1 };
+                } else {
+                    _userList = { list: [], total_items: 0 };
+                }
+            }
             else if (!isNaN(search) && search.length >= 17 && search.length <= 19) { // is discord id
                 let [_userProfile] = await makeRequestsAuto([
                     { url: `${apiPath}/user/profile?discordid=${search}`, auth: true },
@@ -379,6 +395,10 @@ const MemberList = () => {
                     _userList = { list: [], total_items: 0 };
                 }
             }
+            else // not any id
+                [_userList] = await makeRequestsAuto([
+                    { url: `${apiPath}/member/list?name=${search}&order=desc&order_by=userid&page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                ]);
             if (_userList.list !== undefined) {
                 let newUserList = [];
                 for (let i = 0; i < _userList.list.length; i++) {
@@ -405,7 +425,7 @@ const MemberList = () => {
             { id: 'truckersmpid', label: tr("truckersmp_id"), orderKey: 'truckersmpid', defaultOrder: 'asc' },
             { id: 'joined', label: tr("joined"), orderKey: 'join_timestamp', defaultOrder: 'asc' },
             { id: 'last_seen', label: tr("last_seen"), orderKey: 'last_seen', defaultOrder: 'desc' }
-        ]} data={userList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onSearch={(content) => { setPage(1); setSearch(content); }} searchHint={tr("search_by_username_or_discord_id")} />
+        ]} data={userList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onSearch={(content) => { setPage(1); setSearch(content); }} searchHint={tr("search_by_username_or_ids")} />
         <Dialog open={dialogOpen === "sync-profile"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
             <DialogTitle><FontAwesomeIcon icon={faArrowsRotate} />&nbsp;&nbsp;{tr("sync_profiles")}&nbsp;&nbsp;<SponsorBadge level={4} /></DialogTitle>
             <DialogContent>

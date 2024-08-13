@@ -872,7 +872,7 @@ const nl = {
     "scrap_truck": "Afschrijven Vrachtwagen",
     "scrapped": "Afgeschreven",
     "scs_convoy": "SCS Convooi",
-    "search_by_username_or_discord_id": "Zoeken op gebruikersnaam of Discord-ID",
+    "search_by_username_or_ids": "Zoeken op gebruikersnaam of ID",
     "seconds_ago": "{{seconds}} seconden geleden",
     "security": "Beveiliging",
     "select": "Selecteer",

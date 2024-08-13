@@ -875,7 +875,7 @@ const es = {
     "scrap_truck": "Chatarra de camión",
     "scrapped": "Chatarra",
     "scs_convoy": "Convoy de SCS",
-    "search_by_username_or_discord_id": "Buscar por nombre de usuario o ID de Discord",
+    "search_by_username_or_ids": "Buscar por nombre de usuario o IDs",
     "seconds_ago": "Hace {{seconds}} segundos",
     "security": "Seguridad",
     "select": "Seleccionar",
