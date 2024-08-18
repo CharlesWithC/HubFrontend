@@ -694,6 +694,9 @@ export function removeNUEValues(obj) { // NUE => null + nan + undefined + empty 
         if (obj.hasOwnProperty(key) && obj[key] !== null && obj[key] !== undefined && obj[key] !== "" && !Number.isNaN(obj[key])) {
             newObj[key] = obj[key];
         }
+        if (typeof (newObj[key]) === "object") {
+            newObj[key] = newObj[key].join(","); // lists are converted to comma separated strings
+        }
     }
 
     return newObj;

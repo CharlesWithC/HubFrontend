@@ -6,7 +6,7 @@ import { useTheme, Dialog, DialogTitle, DialogContent, DialogActions, LinearProg
 import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowsRotate, faCodeCompare, faFileExport, faIdCard, faTruck, faUserGroup, faUsersSlash } from '@fortawesome/free-solid-svg-icons';
+import { faArrowsRotate, faCodeCompare, faFileExport, faGears, faIdCard, faTruck, faUserGroup, faUsersSlash } from '@fortawesome/free-solid-svg-icons';
 
 import TimeDelta from '../components/timedelta';
 import CustomTable from "../components/table";
@@ -36,6 +36,7 @@ const MemberList = () => {
     const [search, setSearch] = useState(cache.member_list.search);
     const searchRef = useRef(cache.member_list.search);
     const [listParam, setListParam] = useState(cache.member_list.listParam);
+    const [tempListParam, setTempListParam] = useState(cache.member_list.listParam);
 
     useEffect(() => {
         return () => {
@@ -579,11 +580,64 @@ const MemberList = () => {
                 <Button variant="contained" color="error" onClick={() => { batchDismiss(); }} disabled={dialogButtonDisabled}>{tr("dismiss")}</Button>
             </DialogActions>
         </Dialog>
+        <Dialog open={dialogOpen === "settings"} onClose={() => { setDialogOpen(""); }} fullWidth>
+            <DialogTitle><FontAwesomeIcon icon={faGears} />&nbsp;&nbsp;{tr("settings")}</DialogTitle>
+            <DialogContent>
+                <Grid container spacing={2} sx={{ mt: "5px" }}>
+                    <Grid item xs={6}>
+                        <DateTimeField
+                            label="Joined After"
+                            defaultValue={tempListParam.joined_after}
+                            onChange={(timestamp) => { setTempListParam({ ...tempListParam, joined_after: timestamp }); }}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <DateTimeField
+                            label="Joined Before"
+                            defaultValue={tempListParam.joined_before}
+                            onChange={(timestamp) => { setTempListParam({ ...tempListParam, joined_before: timestamp }); }}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <DateTimeField
+                            label="Last Seen After"
+                            defaultValue={tempListParam.last_seen_after}
+                            onChange={(timestamp) => { setTempListParam({ ...tempListParam, last_seen_after: timestamp }); }}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <DateTimeField
+                            label="Last Seen Before"
+                            defaultValue={tempListParam.last_seen_before}
+                            onChange={(timestamp) => { setTempListParam({ ...tempListParam, last_seen_before: timestamp }); }}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                        <RoleSelect initialRoles={tempListParam.include_roles || []} onUpdate={(newRoles) => setTempListParam({ ...tempListParam, include_roles: newRoles.map((role) => (role.id)) })} label="Include Roles" style={{ marginBottom: '16px' }} showAllRoles={true} />
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                        <RoleSelect initialRoles={tempListParam.exclude_roles || []} onUpdate={(newRoles) => setTempListParam({ ...tempListParam, exclude_roles: newRoles.map((role) => (role.id)) })} label="Exclude Roles" style={{ marginBottom: '16px' }} showAllRoles={true} />
+                    </Grid>
+                </Grid>
+            </DialogContent>
+            <DialogActions>
+                <Button variant="contained" onClick={() => { setListParam(tempListParam); setPage(1); }}>{tr("update")}</Button>
+            </DialogActions>
+        </Dialog>
         <SpeedDial
             ariaLabel={tr("controls")}
             sx={{ position: 'fixed', bottom: 20, right: 20 }}
             icon={<SpeedDialIcon />}
         >
+            <SpeedDialAction
+                key="settings"
+                tooltipTitle={tr("settings")}
+                icon={<FontAwesomeIcon icon={faGears} />}
+                onClick={() => { setDialogOpen("settings"); }} />
             <SpeedDialAction
                 key="export-member-list"
                 icon={<FontAwesomeIcon icon={faFileExport} />}
