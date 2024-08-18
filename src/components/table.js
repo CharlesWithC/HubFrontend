@@ -50,7 +50,6 @@ const CustomTable = ({ page: initPage, columns, orderBy, order, onOrderingUpdate
         }
         if (isNaN(newPage)) return;
         if (newPage < 1) newPage = 1;
-        if (newPage > Math.ceil(totalItems / rowsPerPage)) newPage = Math.ceil(totalItems / rowsPerPage);
 
         setPage(newPage - 1);
         setInputPage(newPage);
