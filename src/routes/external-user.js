@@ -164,7 +164,7 @@ const ExternalUsers = () => {
                 let [_userProfile] = await makeRequestsAuto([
                     { url: `${apiPath}/user/profile?truckersmpid=${userSearch}`, auth: true },
                 ]);
-                if (_userProfile.error === undefined && _userProfile.userid >= 0 && _userProfile.userid !== null) {
+                if (_userProfile.error === undefined) {
                     _userList = { list: [_userProfile], total_items: 1 };
                 } else {
                     _userList = { list: [], total_items: 0 };
@@ -173,7 +173,7 @@ const ExternalUsers = () => {
                 let [_userProfile] = await makeRequestsAuto([
                     { url: `${apiPath}/user/profile?steamid=${userSearch}`, auth: true },
                 ]);
-                if (_userProfile.error === undefined && _userProfile.userid >= 0 && _userProfile.userid !== null) {
+                if (_userProfile.error === undefined) {
                     _userList = { list: [_userProfile], total_items: 1 };
                 } else {
                     _userList = { list: [], total_items: 0 };
@@ -182,7 +182,7 @@ const ExternalUsers = () => {
                 let [_userProfile] = await makeRequestsAuto([
                     { url: `${apiPath}/user/profile?discordid=${userSearch}`, auth: true },
                 ]);
-                if (_userProfile.error === undefined && _userProfile.userid >= 0 && _userProfile.userid !== null) {
+                if (_userProfile.error === undefined) {
                     _userList = { list: [_userProfile], total_items: 1 };
                 } else {
                     _userList = { list: [], total_items: 0 };
