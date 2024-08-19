@@ -27,8 +27,26 @@ const DivisionCard = ({ division }) => {
     const [showDetails, setShowDetails] = useState(false);
     const getFirstDayOfMonth = () => {
         const now = new Date();
-        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
-        return +firstDay / 1000;
+        const timezone = userSettings.display_timezone;
+
+        const options = { timeZone: timezone, year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' };
+        const formatter = new Intl.DateTimeFormat([], options);
+        const parts = formatter.formatToParts(now);
+        const dateTimeInTimeZone = new Date(
+            parts.find(part => part.type === 'year').value,
+            parts.find(part => part.type === 'month').value - 1,
+            parts.find(part => part.type === 'day').value,
+            parts.find(part => part.type === 'hour').value,
+            parts.find(part => part.type === 'minute').value,
+            parts.find(part => part.type === 'second').value
+        );
+
+        const offset = dateTimeInTimeZone.getTime() - now.getTime();
+
+        const firstDay = new Date(dateTimeInTimeZone.getFullYear(), dateTimeInTimeZone.getMonth(), 1, 0, 0, 0, 0);
+        const firstDayUtc = new Date(firstDay.getTime() - offset);
+
+        return Math.floor(firstDayUtc.getTime() / 1000);
     };
     const [listParam, setListParam] = useState({ after: getFirstDayOfMonth() });
 
