@@ -48,7 +48,7 @@ const DivisionCard = ({ division }) => {
 
         return Math.floor(firstDayUtc.getTime() / 1000);
     };
-    const [listParam, setListParam] = useState({ after: getFirstDayOfMonth() });
+    const [listParam, setListParam] = useState({ after: getFirstDayOfMonth(), order: 'desc', order_by: 'jobs' });
 
     const [page, setPage] = useState(1);
     const pageRef = useRef(1);
@@ -193,7 +193,7 @@ const DivisionCard = ({ division }) => {
                         </TextField>
                     </Grid>
                 </Grid>
-                <CustomTable page={page} columns={columns} data={userList} totalItems={totalItems} rowsPerPageOptions={[5, 10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} style={{ marginTop: "15px" }} />
+                <CustomTable page={page} columns={columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} data={userList} totalItems={totalItems} rowsPerPageOptions={[5, 10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} style={{ marginTop: "15px" }} />
             </DialogContent>
             <DialogActions>
                 <Button variant="primary" onClick={() => setShowDetails(false)}>{tr("close")}</Button>
