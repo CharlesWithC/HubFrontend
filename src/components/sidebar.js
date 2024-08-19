@@ -11,6 +11,8 @@ import 'simplebar-react/dist/simplebar.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCrown } from '@fortawesome/free-solid-svg-icons';
 
+const ALL_STAFF_PERMS = ['administrator', 'update_config', 'reload_config', 'restart_service', 'accept_members', 'dismiss_members', 'update_roles', 'update_points', 'update_connections', 'disable_mfa', 'delete_notifications', 'manage_profiles', 'view_sensitive_profile', 'view_privacy_protected_data', 'view_global_note', 'update_global_note', 'view_external_user_list', 'ban_users', 'delete_users', 'import_dlogs', 'delete_dlogs', 'view_audit_log', 'manage_announcements', 'manage_applications', 'delete_applications', 'manage_challenges', 'manage_divisions', 'manage_downloads', 'manage_economy', 'manage_economy_balance', 'manage_economy_truck', 'manage_economy_garage', 'manage_economy_merch', 'manage_events', 'manage_polls', 'manage_public_tasks'];
+
 const SideBar = (props) => {
     const { t: tr } = useTranslation();
     const { vtcBanner, vtcLevel, webConfig, curUID, curUser, curUserPerm } = useContext(AppContext);
@@ -73,11 +75,14 @@ const SideBar = (props) => {
                 } else {
                     toRemove = toRemove.filter(item => item !== "configuration");
                 }
-                if (!curUserPerm.includes("manage_profiles") && !curUserPerm.includes("view_external_user_list") && !curUserPerm.includes("ban_users") && !curUserPerm.includes("disable_mfa") && !curUserPerm.includes("update_connections") && !curUserPerm.includes("delete_connections") && !curUserPerm.includes("delete_users")) {
+                if (!curUserPerm.includes("view_external_user_list") && !curUserPerm.includes("ban_users")) {
                     toRemove.push("external_user");
-                    toRemove.push("member_list");
                 } else {
                     toRemove = toRemove.filter(item => item !== "external_user");
+                }
+                if (!ALL_STAFF_PERMS.some(item => curUserPerm.includes(item))) {
+                    toRemove.push("member_list");
+                } else {
                     toRemove = toRemove.filter(item => item !== "member_list");
                 }
                 if (!curUserPerm.includes("manage_divisions")) {

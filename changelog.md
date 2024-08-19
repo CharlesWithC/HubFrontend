@@ -3,6 +3,8 @@
 ## v3.4.5
 
 1. Added task plugin
+2. Added division activity
+3. Allowed more staff to access member list
 
 ## v3.4.4
 
