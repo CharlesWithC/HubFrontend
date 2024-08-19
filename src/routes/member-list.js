@@ -526,7 +526,7 @@ const MemberList = () => {
                 >
                     <MenuItem value="trucky">Trucky</MenuItem>
                     <MenuItem value="tracksim">TrackSim</MenuItem>
-                    <MenuItem value="custom">Custom</MenuItem>
+                    <MenuItem value="custom">{tr("custom")}</MenuItem>
                 </TextField>
                 {(dialogButtonDisabled || batchTrackerUpdateCurrent !== 0 && batchTrackerUpdateCurrent == batchTrackerUpdateUsers.length) && <>
                     <Typography variant="body2" gutterBottom sx={{ mt: "5px" }}>{tr("completed")}{batchTrackerUpdateCurrent} / {batchTrackerUpdateUsers.length}</Typography>
@@ -586,7 +586,7 @@ const MemberList = () => {
                 <Grid container spacing={2} sx={{ mt: "5px" }}>
                     <Grid item xs={6}>
                         <DateTimeField
-                            label="Joined After"
+                            label={tr("joined_after")}
                             defaultValue={tempListParam.joined_after}
                             onChange={(timestamp) => { setTempListParam({ ...tempListParam, joined_after: timestamp }); }}
                             fullWidth
@@ -594,7 +594,7 @@ const MemberList = () => {
                     </Grid>
                     <Grid item xs={6}>
                         <DateTimeField
-                            label="Joined Before"
+                            label={tr("joined_before")}
                             defaultValue={tempListParam.joined_before}
                             onChange={(timestamp) => { setTempListParam({ ...tempListParam, joined_before: timestamp }); }}
                             fullWidth
@@ -602,7 +602,7 @@ const MemberList = () => {
                     </Grid>
                     <Grid item xs={6}>
                         <DateTimeField
-                            label="Last Seen After"
+                            label={tr("last_seen_after")}
                             defaultValue={tempListParam.last_seen_after}
                             onChange={(timestamp) => { setTempListParam({ ...tempListParam, last_seen_after: timestamp }); }}
                             fullWidth
@@ -610,17 +610,17 @@ const MemberList = () => {
                     </Grid>
                     <Grid item xs={6}>
                         <DateTimeField
-                            label="Last Seen Before"
+                            label={tr("last_seen_before")}
                             defaultValue={tempListParam.last_seen_before}
                             onChange={(timestamp) => { setTempListParam({ ...tempListParam, last_seen_before: timestamp }); }}
                             fullWidth
                         />
                     </Grid>
                     <Grid item xs={12} md={6}>
-                        <RoleSelect initialRoles={tempListParam.include_roles || []} onUpdate={(newRoles) => setTempListParam({ ...tempListParam, include_roles: newRoles.map((role) => (role.id)) })} label="Include Roles" style={{ marginBottom: '16px' }} showAllRoles={true} />
+                        <RoleSelect initialRoles={tempListParam.include_roles || []} onUpdate={(newRoles) => setTempListParam({ ...tempListParam, include_roles: newRoles.map((role) => (role.id)) })} label={tr("include_roles")} style={{ marginBottom: '16px' }} showAllRoles={true} />
                     </Grid>
                     <Grid item xs={12} md={6}>
-                        <RoleSelect initialRoles={tempListParam.exclude_roles || []} onUpdate={(newRoles) => setTempListParam({ ...tempListParam, exclude_roles: newRoles.map((role) => (role.id)) })} label="Exclude Roles" style={{ marginBottom: '16px' }} showAllRoles={true} />
+                        <RoleSelect initialRoles={tempListParam.exclude_roles || []} onUpdate={(newRoles) => setTempListParam({ ...tempListParam, exclude_roles: newRoles.map((role) => (role.id)) })} label={tr("exclude_roles")} style={{ marginBottom: '16px' }} showAllRoles={true} />
                     </Grid>
                 </Grid>
             </DialogContent>

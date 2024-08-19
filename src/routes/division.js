@@ -2,9 +2,10 @@ import { useRef, useEffect, useState, useCallback, useContext, memo } from 'reac
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AppContext, CacheContext } from '../context';
+import { debounce } from 'lodash';
 
-import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Snackbar, Alert, useTheme, Tooltip } from '@mui/material';
-import { PermContactCalendarRounded, LocalShippingRounded, EuroRounded, AttachMoneyRounded, RouteRounded, LocalGasStationRounded, EmojiEventsRounded, PeopleAltRounded, RefreshRounded, VerifiedOutlined } from '@mui/icons-material';
+import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Snackbar, Alert, useTheme, Tooltip, IconButton, TextField } from '@mui/material';
+import { PermContactCalendarRounded, LocalShippingRounded, EuroRounded, AttachMoneyRounded, RouteRounded, LocalGasStationRounded, EmojiEventsRounded, PeopleAltRounded, RefreshRounded, VerifiedOutlined, AspectRatioRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -20,56 +21,167 @@ import { ConvertUnit, TSep, makeRequestsWithAuth, checkUserPerm, checkPerm, cust
 const CURRENTY_ICON = { 1: "€", 2: "$" };
 
 const DivisionCard = ({ division }) => {
-    const { userSettings } = useContext(AppContext);
+    const { apiPath, userSettings } = useContext(AppContext);
+    const { t: tr } = useTranslation();
 
-    return (<Card>
-        <CardContent>
-            <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
-                <Typography variant="h5" sx={{ flexGrow: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                        {division.name}
-                    </div>
-                </Typography>
-            </div>
-            <Grid container spacing={2}>
-                <Grid item xs={6} sm={6} md={6} lg={6}>
-                    <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
-                        <PermContactCalendarRounded />&nbsp;{TSep(division.drivers)}
+    const [showDetails, setShowDetails] = useState(false);
+    const getFirstDayOfMonth = () => {
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+        return +firstDay / 1000;
+    };
+    const [listParam, setListParam] = useState({ after: getFirstDayOfMonth() });
+
+    const [page, setPage] = useState(1);
+    const pageRef = useRef(1);
+    const [pageSize, setPageSize] = useState(5);
+    const [totalItems, setTotalItems] = useState(0);
+    useEffect(() => {
+        pageRef.current = page;
+    }, [page]);
+
+    const columns = [
+        { id: 'user', label: tr("driver") },
+        { id: 'jobs', label: tr("jobs"), orderKey: 'jobs', defaultOrder: 'desc' },
+        { id: 'distance', label: tr("distance"), orderKey: 'distance', defaultOrder: 'desc' },
+        { id: 'fuel', label: tr("fuel"), orderKey: 'fuel', defaultOrder: 'desc' },
+        { id: 'profit.euro', label: tr("profit_ets2"), orderKey: 'profit_euro', defaultOrder: 'desc' },
+        { id: 'profit.dollar', label: tr("profit_ats"), orderKey: 'profit_dollar', defaultOrder: 'desc' },
+        { id: 'points', label: tr("points"), orderKey: 'points', defaultOrder: 'desc' },
+    ];
+    const [userList, setUserList] = useState([]);
+
+    useEffect(() => {
+        const debouncedDoLoad = debounce(async function doLoad() {
+            window.loading += 1;
+
+            let processedParam = removeNUEValues(listParam);
+
+            let urls = [
+                `${apiPath}/divisions/${division.divisionid}/activity?page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`,
+            ];
+            let [_userList] = await makeRequestsWithAuth(urls);
+            let newUserList = [];
+            for (let i = 0; i < _userList.list.length; i++) {
+                let row = _userList.list[i];
+                newUserList.push({ user: <UserCard user={row.user} inline={true} />, jobs: row.jobs, distance: ConvertUnit(userSettings.unit, "km", row.distance), fuel: ConvertUnit(userSettings.unit, "l", row.fuel), "profit.euro": `${CURRENTY_ICON[1]}${TSep(row.profit.euro)}`, "profit.dollar": `${CURRENTY_ICON[2]}${TSep(row.profit.dollar)}`, points: TSep(row.points) });
+            }
+            setUserList(newUserList);
+            setTotalItems(_userList.total_items);
+
+            window.loading -= 1;
+        }, 300);
+
+        if (showDetails) debouncedDoLoad();
+    }, [showDetails, apiPath, division, listParam, page, pageSize]);
+
+    return (<>
+        <Card>
+            <CardContent>
+                <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
+                    <Typography variant="h5" sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            {division.name}
+                        </div>
+                        <IconButton sx={{ marginLeft: 'auto' }} onClick={() => setShowDetails(true)}>
+                            <AspectRatioRounded />
+                        </IconButton>
                     </Typography>
+                </div>
+                <Grid container spacing={2}>
+                    <Grid item xs={6} sm={6} md={6} lg={6}>
+                        <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
+                            <PermContactCalendarRounded />&nbsp;{TSep(division.drivers)}
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={6} sm={6} md={6} lg={6}>
+                        <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
+                            <LocalShippingRounded />&nbsp;{TSep(division.jobs)}
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={6} sm={6} md={6} lg={6}>
+                        <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
+                            <RouteRounded />&nbsp;{ConvertUnit(userSettings.unit, "km", division.distance)}
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={6} sm={6} md={6} lg={6}>
+                        <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
+                            <LocalGasStationRounded />&nbsp;{ConvertUnit(userSettings.unit, "l", division.fuel)}
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={6} sm={6} md={6} lg={6}>
+                        <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
+                            <EuroRounded />&nbsp;{TSep(division.profit.euro)}
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={6} sm={6} md={6} lg={6}>
+                        <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
+                            <AttachMoneyRounded />&nbsp;{TSep(division.profit.dollar)}
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={6} sm={6} md={6} lg={6}>
+                        <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
+                            <EmojiEventsRounded />&nbsp;{TSep(division.points)}
+                        </Typography>
+                    </Grid>
                 </Grid>
-                <Grid item xs={6} sm={6} md={6} lg={6}>
-                    <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
-                        <LocalShippingRounded />&nbsp;{TSep(division.jobs)}
-                    </Typography>
+            </CardContent>
+        </Card>
+        <Dialog open={showDetails} onClose={() => setShowDetails(false)}
+            PaperProps={{
+                sx: {
+                    minWidth: "min(1000px, 100vw)"
+                }
+            }}>
+            <DialogTitle>{tr("division_activity")}{division.name}</DialogTitle>
+            <DialogContent>
+                <Grid container spacing={2} sx={{ paddingTop: "5px" }}>
+                    <Grid item xs={6}>
+                        <DateTimeField
+                            label={tr("after")}
+                            defaultValue={listParam.after}
+                            onChange={(timestamp) => { setListParam({ ...listParam, after: timestamp }); }}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <DateTimeField
+                            label={tr("before")}
+                            defaultValue={listParam.before}
+                            onChange={(timestamp) => { setListParam({ ...listParam, before: timestamp }); }}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <TextField select
+                            label={tr("include_previous_drivers")}
+                            value={listParam.include_previous_drivers}
+                            onChange={(e) => { setListParam({ ...listParam, include_previous_drivers: e.target.value }); }}
+                            fullWidth
+                        >
+                            <MenuItem value={true}>{tr("yes")}</MenuItem>
+                            <MenuItem value={false}>{tr("no")}</MenuItem>
+                        </TextField>
+                    </Grid>
+                    <Grid item xs={6}>
+                        <TextField select
+                            label={tr("include_pending_validations")}
+                            value={listParam.include_pending}
+                            onChange={(e) => { setListParam({ ...listParam, include_pending: e.target.value }); }}
+                            fullWidth
+                        >
+                            <MenuItem value={true}>{tr("yes")}</MenuItem>
+                            <MenuItem value={false}>{tr("no")}</MenuItem>
+                        </TextField>
+                    </Grid>
                 </Grid>
-                <Grid item xs={6} sm={6} md={6} lg={6}>
-                    <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
-                        <RouteRounded />&nbsp;{ConvertUnit(userSettings.unit, "km", division.distance)}
-                    </Typography>
-                </Grid>
-                <Grid item xs={6} sm={6} md={6} lg={6}>
-                    <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
-                        <LocalGasStationRounded />&nbsp;{ConvertUnit(userSettings.unit, "l", division.fuel)}
-                    </Typography>
-                </Grid>
-                <Grid item xs={6} sm={6} md={6} lg={6}>
-                    <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
-                        <EuroRounded />&nbsp;{TSep(division.profit.euro)}
-                    </Typography>
-                </Grid>
-                <Grid item xs={6} sm={6} md={6} lg={6}>
-                    <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
-                        <AttachMoneyRounded />&nbsp;{TSep(division.profit.dollar)}
-                    </Typography>
-                </Grid>
-                <Grid item xs={6} sm={6} md={6} lg={6}>
-                    <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
-                        <EmojiEventsRounded />&nbsp;{TSep(division.points)}
-                    </Typography>
-                </Grid>
-            </Grid>
-        </CardContent>
-    </Card>);
+                <CustomTable page={page} columns={columns} data={userList} totalItems={totalItems} rowsPerPageOptions={[5, 10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} style={{ marginTop: "15px" }} />
+            </DialogContent>
+            <DialogActions>
+                <Button variant="primary" onClick={() => setShowDetails(false)}>{tr("close")}</Button>
+            </DialogActions>
+        </Dialog >
+    </>);
 };
 
 const DivisionsMemo = memo(({ doReload, loadComplete, setLoadComplete, listParam }) => {
@@ -84,7 +196,7 @@ const DivisionsMemo = memo(({ doReload, loadComplete, setLoadComplete, listParam
             let processedParam = removeNUEValues(listParam);
 
             let urls = [
-                `${apiPath}/divisions?${new URLSearchParams(processedParam).toString()}`,
+                `${apiPath}/divisions/statistics?${new URLSearchParams(processedParam).toString()}`,
             ];
             let [_divisions] = await makeRequestsWithAuth(urls);
             setDivisions(_divisions);
@@ -317,8 +429,8 @@ const Divisions = () => {
     const [dialogManagers, setDialogManagers] = useState(false);
     const [dialogOpen, setDialogOpen] = useState("");
 
-    const [tempListParam, setTempListParam] = useState(cache.division.listParam);
     const [listParam, setListParam] = useState(cache.division.listParam);
+    const [tempListParam, setTempListParam] = useState(cache.division.listParam);
 
     useEffect(() => {
         return () => {
@@ -364,7 +476,7 @@ const Divisions = () => {
                 </Grid>
             </DialogContent>
             <DialogActions>
-                <Button variant="contained" onClick={() => { setListParam(tempListParam); }}>{tr("update")}</Button>
+                <Button variant="contained" onClick={() => { setTempListParam(tempListParam); }}>{tr("update")}</Button>
             </DialogActions>
         </Dialog>
         {location.pathname === "/division" && <SpeedDial
