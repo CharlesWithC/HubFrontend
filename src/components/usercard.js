@@ -873,8 +873,13 @@ const UserCard = (props) => {
                     if (event.target.src !== `${apiPath}/member/banner?userid=${user.userid}`)
                         event.target.src = `${apiPath}/member/banner?userid=${user.userid}`;
                 }}
+                onClick={() => {
+                    navigator.clipboard.writeText(`${apiPath}/member/banner?userid=${user.userid}`);
+                    setSnackbarContent("Banner URL copied to clipboard!");
+                    setSnackbarSeverity("success");
+                }}
                 alt=""
-                sx={{ borderRadius: "5px 5px 0 0" }}
+                sx={{ borderRadius: "5px 5px 0 0", cursor: "pointer" }}
             />}
             <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${PROFILE_COLOR[theme.mode].paper}A0, ${PROFILE_COLOR[theme.mode].paper}E0)`, borderRadius: "0 0 5px 5px" }}>
                 <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${PROFILE_COLOR[theme.mode].paper}E0, ${PROFILE_COLOR[theme.mode].paper}E0)`, borderRadius: "5px" }}>
@@ -1730,8 +1735,13 @@ const UserCard = (props) => {
                         if (event.target.src !== `${apiPath}/member/banner?userid=${user.userid}`)
                             event.target.src = `${apiPath}/member/banner?userid=${user.userid}`;
                     }}
+                    onClick={() => {
+                        navigator.clipboard.writeText(`${apiPath}/member/banner?userid=${user.userid}`);
+                        setSnackbarContent("Banner URL copied to clipboard!");
+                        setSnackbarSeverity("success");
+                    }}
                     alt=""
-                    sx={{ borderRadius: "5px 5px 0 0" }}
+                    sx={{ borderRadius: "5px 5px 0 0", cursor: "pointer" }}
                 />}
                 <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${PROFILE_COLOR[theme.mode].paper}A0, ${PROFILE_COLOR[theme.mode].paper}E0)`, borderRadius: "0 0 5px 5px" }}>
                     <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${PROFILE_COLOR[theme.mode].paper}E0, ${PROFILE_COLOR[theme.mode].paper}E0)`, borderRadius: "5px" }}>
