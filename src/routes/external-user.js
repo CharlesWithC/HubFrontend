@@ -160,7 +160,16 @@ const ExternalUsers = () => {
                 [_userList] = await makeRequestsAuto([
                     { url: `${apiPath}/user/list?order=desc&order_by=uid&page=${userPage}&page_size=${userPageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
                 ]);
-            } else if (!isNaN(userSearch) && userSearch.length >= 3 && userSearch.length <= 10) { // is truckersmp id
+            } else if (!isNaN(userSearch) && userSearch.length >= 1 && userSearch.length <= 4) { // is drivers hub id
+                let [_userProfile] = await makeRequestsAuto([
+                    { url: `${apiPath}/user/profile?userid=${userSearch}`, auth: true },
+                ]);
+                if (_userProfile.error === undefined && _userProfile.userid >= 0 && _userProfile.userid !== null) {
+                    _userList = { list: [_userProfile], total_items: 1 };
+                } else {
+                    _userList = { list: [], total_items: 0 };
+                }
+            } else if (!isNaN(userSearch) && userSearch.length >= 5 && userSearch.length <= 10) { // is truckersmp id
                 let [_userProfile] = await makeRequestsAuto([
                     { url: `${apiPath}/user/profile?truckersmpid=${userSearch}`, auth: true },
                 ]);
@@ -227,7 +236,16 @@ const ExternalUsers = () => {
                 [_banList] = await makeRequestsAuto([
                     { url: `${apiPath}/user/ban/list?order=desc&order_by=uid&page=${userPage}&page_size=${banPageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
                 ]);
-            } else if (!isNaN(banSearch) && banSearch.length >= 3 && banSearch.length <= 10) { // is truckersmp id
+            } else if (!isNaN(banSearch) && banSearch.length >= 1 && banSearch.length <= 4) { // is drivers hub id
+                let [_userProfile] = await makeRequestsAuto([
+                    { url: `${apiPath}/user/profile?userid=${banSearch}`, auth: true },
+                ]);
+                if (_userProfile.error === undefined && _userProfile.userid >= 0 && _userProfile.userid !== null) {
+                    _userList = { list: [_userProfile], total_items: 1 };
+                } else {
+                    _userList = { list: [], total_items: 0 };
+                }
+            } else if (!isNaN(banSearch) && banSearch.length >= 5 && banSearch.length <= 10) { // is truckersmp id
                 let [_banProfile] = await makeRequestsAuto([
                     { url: `${apiPath}/user/ban?truckersmpid=${banSearch}`, auth: true },
                 ]);

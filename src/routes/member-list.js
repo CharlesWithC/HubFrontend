@@ -366,7 +366,17 @@ const MemberList = () => {
                 [_userList] = await makeRequestsAuto([
                     { url: `${apiPath}/member/list?order=desc&order_by=userid&page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
                 ]);
-            else if (!isNaN(search) && search.length >= 3 && search.length <= 10) { // is truckersmp id
+            else if (!isNaN(search) && search.length >= 1 && search.length <= 4) { // is drivers hub id
+                let [_userProfile] = await makeRequestsAuto([
+                    { url: `${apiPath}/user/profile?userid=${search}`, auth: true },
+                ]);
+                if (_userProfile.error === undefined && _userProfile.userid >= 0 && _userProfile.userid !== null) {
+                    _userList = { list: [_userProfile], total_items: 1 };
+                } else {
+                    _userList = { list: [], total_items: 0 };
+                }
+            }
+            else if (!isNaN(search) && search.length >= 5 && search.length <= 10) { // is truckersmp id
                 let [_userProfile] = await makeRequestsAuto([
                     { url: `${apiPath}/user/profile?truckersmpid=${search}`, auth: true },
                 ]);
