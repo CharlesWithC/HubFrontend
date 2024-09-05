@@ -563,7 +563,7 @@ const Delivery = memo(() => {
 
     const userDivisionIDs = useMemo(() => {
         if (!curUser.roles) return [];
-        const divisionIDs = Object.keys(divisions);
+        const divisionIDs = Object.keys(divisions || {});
         const result = [];
         for (let i = 0; i < divisionIDs.length; i++) {
             if (curUser.roles.includes(divisions[divisionIDs[i]].role_id)) {
@@ -709,7 +709,7 @@ const Delivery = memo(() => {
                             sx={{ marginTop: "6px", marginBottom: "6px", height: "30px" }}
                             fullWidth size="small"
                         >
-                            {Object.keys(divisions).map((divisionID, index) => (
+                            {Object.keys(divisions || {}).map((divisionID, index) => (
                                 <MenuItem value={`${divisionID}`} key={index}>{divisions[divisionID].name}</MenuItem>
                             ))}
                         </TextField>
@@ -736,9 +736,9 @@ const Delivery = memo(() => {
             <DialogActions>
                 <Button onClick={handleCloseDivisionModal} variant="contained" color="secondary" sx={{ ml: 'auto' }}>{tr("close")}</Button>
                 {(checkUserPerm(curUserPerm, ["administrator", "manage_divisions"]) && divisionStatus !== -1) &&
-                    <Button onClick={handleDVUpdate} variant="contained" color="secondary" sx={{ ml: 'auto' }} disabled={!Object.keys(divisions).includes(String(selectedDivision))}>{tr("update")}</Button>}
+                    <Button onClick={handleDVUpdate} variant="contained" color="secondary" sx={{ ml: 'auto' }} disabled={!Object.keys(divisions || {}).includes(String(selectedDivision))}>{tr("update")}</Button>}
                 {(userDivisionIDs.length !== 0 && divisionStatus === -1) &&
-                    <Button onClick={handleRDVSubmit} variant="contained" color="secondary" sx={{ ml: 'auto' }} disabled={!Object.keys(divisions).includes(String(selectedDivision))}>{tr("submit")}</Button>
+                    <Button onClick={handleRDVSubmit} variant="contained" color="secondary" sx={{ ml: 'auto' }} disabled={!Object.keys(divisions || {}).includes(String(selectedDivision))}>{tr("submit")}</Button>
                 }
             </DialogActions>
         </Dialog>}

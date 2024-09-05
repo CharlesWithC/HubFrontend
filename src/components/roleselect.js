@@ -34,7 +34,7 @@ const RoleSelect = ({ label, initialRoles, onUpdate, showAllRoles = false, isMul
 
     let divisionRoles = useMemo(() => {
         const result = [];
-        let divisionIds = Object.keys(divisions);
+        let divisionIds = Object.keys(divisions || {});
         for (let i = 0; i < divisionIds.length; i++) {
             result.push(divisions[divisionIds[i]].role_id);
         }
