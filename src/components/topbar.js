@@ -17,10 +17,10 @@ import UserCard from './usercard';
 
 import { FetchProfile, customAxios as axios, getAuthToken, eraseAuthMode } from "../functions";
 
-const radioURLs = { "tsr": "https://oreo.truckstopradio.co.uk/radio/8000/radio.mp3", "tfm": "https://live.truckers.fm/", "simhit": "https://radio.simulatorhits.com/radio/8000/stream" };
-const radioNames = { "tsr": "TruckStopRadio", "tfm": "TruckersFM", "simhit": "SimulatorHits" };
-const radioImages = { "tsr": "https://truckstopradio.co.uk/autodj.png", "tfm": "https://truckersfm.s3.fr-par.scw.cloud/static/tfm-2020.png", "simhit": "https://simulatorhits.com/images/SH_Logo.jpg" };
-const RADIO_TYPES = { "tsr": "TruckStopRadio", "tfm": "TruckersFM", "simhit": "SimulatorHits" };
+const radioURLs = { "tfm": "https://live.truckers.fm/", "simhit": "https://radio.simulatorhits.com/radio/8000/stream" };
+const radioNames = { "tfm": "TruckersFM", "simhit": "SimulatorHits" };
+const radioImages = { "tfm": "https://truckersfm.s3.fr-par.scw.cloud/static/tfm-2020.png", "simhit": "https://simulatorhits.com/images/SH_Logo.jpg" };
+const RADIO_TYPES = { "tfm": "TruckersFM", "simhit": "SimulatorHits" };
 
 const TopBar = (props) => {
     const { t: tr } = useTranslation();
@@ -65,8 +65,8 @@ const TopBar = (props) => {
     const loadRadio = useCallback(async () => {
         if (userSettings.radio !== "disabled") {
             let radioOK = false;
-            if (userLevel < 2 && userSettings.radio_type !== "tsr" || userLevel < 4 && !Object.keys(RADIO_TYPES).includes(userSettings.radio_type)) {
-                setUserSettings(userSettings => ({ ...userSettings, radio_type: "tsr" }));
+            if (userLevel < 2 && userSettings.radio_type !== "tfm" || userLevel < 4 && !Object.keys(RADIO_TYPES).includes(userSettings.radio_type)) {
+                setUserSettings(userSettings => ({ ...userSettings, radio_type: "tfm" }));
             }
             if (Object.keys(radioURLs).includes(userSettings.radio_type)) {
                 setRadioURL(radioURLs[userSettings.radio_type]);
@@ -135,24 +135,10 @@ const TopBar = (props) => {
         const interval = setInterval(async () => {
             if (radioRef.current !== null && !radioRef.current.paused) {
                 try {
-                    if (userLevel < 2 && userSettings.radio_type !== "tsr" || userLevel < 4 && !Object.keys(RADIO_TYPES).includes(userSettings.radio_type)) {
-                        setUserSettings(userSettings => ({ ...userSettings, radio_type: "tsr" }));
+                    if (userLevel < 2 && userSettings.radio_type !== "tfm" || userLevel < 4 && !Object.keys(RADIO_TYPES).includes(userSettings.radio_type)) {
+                        setUserSettings(userSettings => ({ ...userSettings, radio_type: "tfm" }));
                     }
-                    if (userSettings.radio_type === "tsr") {
-                        let resp = await axios({ url: `https://api.truckstopradio.co.uk/song-database/public/current` });
-                        setRadioSongName(resp.data.song.title);
-                        if (!userSettings.data_saver) setRadioImage(resp.data.song.graphic);
-                        else setRadioImage(radioImages[userSettings.radio_type]);
-                        setRadioSpotifyId(resp.data.song.extraInfo.track.external_urls.spotify.split("/").pop());
-                        navigator.mediaSession.metadata = new MediaMetadata({
-                            title: resp.data.song.title,
-                            artist: resp.data.song.artist,
-                            album: resp.data.song.album,
-                            artwork: userSettings.data_saver ? [] : [
-                                { src: resp.data.song.graphic, sizes: '300x300', type: 'image/jpeg' }
-                            ]
-                        });
-                    } else if (userSettings.radio_type === "tfm") {
+                    if (userSettings.radio_type === "tfm") {
                         let resp = await axios({ url: `https://radiocloud.pro/api/public/v1/song/current` });
                         setRadioSongName(resp.data.data.title);
                         if (!userSettings.data_saver) setRadioImage(resp.data.data.album_art);
