@@ -533,7 +533,11 @@ export const CacheContextProvider = ({ children }) => {
             'member_list.listParam',
             'ranking.detailedPoints',
             'ranking.curRankTypeId',
-            'division.listParam'
+            'division.listParam',
+            'delivery_list.detailStats',
+            'overview.latest',
+            'overview.delta',
+            'overview.charts',
         ];
 
         const listParamCache = listParamPaths.reduce((acc, path) => {

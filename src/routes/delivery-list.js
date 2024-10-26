@@ -231,18 +231,20 @@ const Deliveries = () => {
             let processedParam = removeNUEValues(listParam);
 
             if (!inited.current) {
-                [detailS, dlogL] = await makeRequestsAuto([
-                    { url: `${apiPath}/dlog/statistics/details?after=` + getMonthUTC() / 1000, auth: true },
-                    { url: `${apiPath}/dlog/list?page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: "prefer" },
-                ]);
-
-                setDetailStats(detailS);
                 inited.current = true;
-            } else {
-                [dlogL] = await makeRequestsAuto([
-                    { url: `${apiPath}/dlog/list?page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: "prefer" },
-                ]);
+                setDetailStats({ truck: [{ name: "No.1 truck?", count: 200 }, { name: "Runner-up?", count: 100 }, { name: "3rd place?", count: 50 }], cargo: [{ name: "No.1 cargo?", count: 200 }, { name: "Runner-up?", count: 100 }, { name: "3rd place?", count: 50 }], fine: [{ unique_id: "No.1 fine?", count: 200 }, { unique_id: "Runner-up?", count: 100 }, { unique_id: "3rd place?", count: 50 }] });
+                setTimeout(async function () {
+                    [detailS] = await makeRequestsAuto([
+                        { url: `${apiPath}/dlog/statistics/details?after=` + getMonthUTC() / 1000, auth: true },
+                    ]);
+
+                    setDetailStats({ truck: detailS.truck, cargo: detailS.cargo, fine: detailS.fine });
+                }, 0);
             }
+
+            [dlogL] = await makeRequestsAuto([
+                { url: `${apiPath}/dlog/list?page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: "prefer" },
+            ]);
 
             let newDlogList = [];
             for (let i = 0; i < dlogL.list.length; i++) {
@@ -268,7 +270,7 @@ const Deliveries = () => {
             }
 
             window.loading -= 1;
-        }
+        };
         doLoad();
     }, [apiPath, page, pageSize, listParam, theme]);
 
