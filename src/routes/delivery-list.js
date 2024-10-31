@@ -119,7 +119,7 @@ const Deliveries = () => {
     );
     const importFromTruckyMultiple = useCallback(async () => {
         if (userLevel < 4) {
-            setSnackbarContent(tr("auto_import_multiple_trucky_jobs_is_a_platinum_perk_sponsor"));
+            setSnackbarContent(tr("auto_import_multiple_trucky_jobs_platinum_perk"));
             setSnackbarSeverity("warning");
             return;
         }

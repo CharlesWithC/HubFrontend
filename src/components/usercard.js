@@ -727,6 +727,9 @@ const UserCard = (props) => {
         let resp = undefined;
         if (action === "update") {
             let processedNC = removeNUEValues(newConnections);
+            // we disable these two connections to prevent impersonation
+            delete processedNC["discordid"];
+            delete processedNC["steamid"];
             resp = await axios({ url: `${apiPath}/user/${user.uid}/connections`, method: "PATCH", data: processedNC, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         } else if (action === "delete") {
             resp = await axios({ url: `${apiPath}/user/${user.uid}/connections/${connection}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
@@ -1574,7 +1577,7 @@ const UserCard = (props) => {
                                     label={tr("discord_id")}
                                     value={newConnections.discordid}
                                     onChange={(e) => setNewConnections({ ...newConnections, discordid: e.target.value })}
-                                    fullWidth disabled={dialogBtnDisabled}
+                                    fullWidth disabled={true}
                                 />
                             </Grid>
                             <Grid item xs={6}>
@@ -1582,7 +1585,7 @@ const UserCard = (props) => {
                                     label={tr("steam_id")}
                                     value={newConnections.steamid}
                                     onChange={(e) => setNewConnections({ ...newConnections, steamid: e.target.value })}
-                                    fullWidth disabled={dialogBtnDisabled}
+                                    fullWidth disabled={true}
                                 />
                             </Grid>
                             <Grid item xs={6}>

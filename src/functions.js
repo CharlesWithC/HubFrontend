@@ -260,7 +260,7 @@ export async function FetchProfile({ apiPath, specialUsers, patrons, setUserLeve
 
             if (curUser.discordid !== null && curUser.discordid !== undefined && Object.keys(specialUsers).includes(curUser.discordid) && specialUsers[curUser.discordid] !== undefined) {
                 for (let i = 0; i < specialUsers[curUser.discordid].length; i++) {
-                    if (['lead_developer', 'project_manager', 'community_manager', 'development_team', 'support_leader', 'marketing_leader', 'graphic_leader', 'support_team', 'marketing_team', 'graphic_team'].includes(specialUsers[curUser.discordid][i].role)) {
+                    if (['lead_developer', 'project_manager', 'community_manager', 'development_team', 'support_leader', 'marketing_leader', 'graphic_leader', 'support_team', 'marketing_team', 'graphic_team', 'platinum_access'].includes(specialUsers[curUser.discordid][i].role)) {
                         // Team member get Platinum Perks
                         userLevel = 4;
                         break;
