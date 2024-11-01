@@ -738,8 +738,12 @@ export function getCookie(name) {
     return null;
 }
 
-export function eraseCookie(name) {
-    document.cookie = name + '=; Max-Age=-99999999;';
+export function eraseCookie(name, path = '/', domain = '') {
+    document.cookie = name + '=; ' +
+        'expires=Thu, 01 Jan 1970 00:00:00 GMT; ' +
+        'path=' + path + '; ' +
+        (domain ? 'domain=' + domain + '; ' : '') +
+        'max-age=0';
 }
 
 export function setAuthMode(name, value = "") {
