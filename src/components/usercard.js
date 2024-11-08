@@ -395,7 +395,7 @@ const UserCard = (props) => {
     // local pending updates
     const [newRoles, setNewRoles] = useState(user.userid !== null ? user.roles : allPerms.driver);
     useEffect(() => {
-        if (newRoles !== undefined && (newRoles.length > 0 || user.userid !== null)) return;
+        if (newRoles !== undefined && newRoles !== null && (newRoles.length > 0 || user.userid !== null)) return;
         setNewRoles(allPerms.driver);
     }, [newRoles, allPerms.driver]);
     const [newPoints, setNewPoints] = useState({ distance: 0, distance_note: "", bonus: 0, bonus_note: "" });

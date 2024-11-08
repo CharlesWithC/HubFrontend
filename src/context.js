@@ -155,6 +155,7 @@ export const AppContextProvider = ({ children }) => {
     // background load
     const loadMemberUIDs = useCallback(async () => {
         if (memberUIDs.length > 0) return;
+        if (curUser.userid === undefined || curUser.userid === null || curUser.userid === -1) return;
 
         const orderedRoles = Object.values(allRoles).sort((a, b) => a.order_id - b.order_id).map(role => role.id);
 
