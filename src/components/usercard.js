@@ -212,7 +212,7 @@ const UserCard = (props) => {
             setUsers(users => ({ ...users, [user.uid]: resp.data }));
             // updating info for current user will be automatically handled in setUsers
 
-            setNewProfile({ name: resp.data.name, avatar: resp.data.avatar });
+            setNewProfile({ name: resp.data.name, avatar: resp.data.avatar, join_timestamp: resp.data.join_timestamp });
             setNewAboutMe(resp.data.bio);
             setNewNote(resp.data.note);
             setNewGlobalNote(resp.data.global_note);
@@ -224,7 +224,7 @@ const UserCard = (props) => {
 
     // update user info across components
     useEffect(() => {
-        setNewProfile({ name: user.name, avatar: user.avatar });
+        setNewProfile({ name: user.name, avatar: user.avatar, join_timestamp: user.join_timestamp });
         setNewAboutMe(user.bio);
         setNewNote(user.note);
         setNewGlobalNote(user.global_note);
@@ -399,7 +399,7 @@ const UserCard = (props) => {
         setNewRoles(allPerms.driver);
     }, [newRoles, allPerms.driver]);
     const [newPoints, setNewPoints] = useState({ distance: 0, distance_note: "", bonus: 0, bonus_note: "" });
-    const [newProfile, setNewProfile] = useState({ name: user.name, avatar: user.avatar });
+    const [newProfile, setNewProfile] = useState({ name: user.name, avatar: user.avatar, join_timestamp: user.join_timestamp });
     const [newAboutMe, setNewAboutMe] = useState(user.bio);
     const [newConnections, setNewConnections] = useState({ email: user.email, discordid: user.discordid, steamid: user.steamid, truckersmpid: user.truckersmpid });
     const [newBan, setNewBan] = useState({ expire: +new Date() / 1000 + 86400 * 7, reason: "" });
@@ -544,7 +544,7 @@ const UserCard = (props) => {
             setUsers(users => ({ ...users, [user.uid]: resp.data }));
             // updating info for current user will be automatically handled in setUsers
 
-            setNewProfile({ name: resp.data.name, avatar: resp.data.avatar });
+            setNewProfile({ name: resp.data.name, avatar: resp.data.avatar, join_timestamp: resp.data.join_timestamp });
             setNewAboutMe(resp.data.bio);
             setNewNote(resp.data.note);
             setNewGlobalNote(resp.data.global_note);
@@ -1282,13 +1282,16 @@ const UserCard = (props) => {
                         <Typography variant="body2">{tr("custom_profile_may_be_set")}</Typography>
                         <Typography variant="body2">{tr("alternatively_sync_to_discord_steam")}</Typography>
                         <Grid container spacing={2} sx={{ mt: "5px" }}>
-                            <Grid item xs={12}>
+                            <Grid item xs={12} md={6}>
                                 <TextField
                                     label={tr("name")}
                                     value={newProfile.name}
                                     onChange={(e) => setNewProfile({ ...newProfile, name: e.target.value })}
                                     fullWidth disabled={dialogBtnDisabled}
                                 />
+                            </Grid>
+                            <Grid item xs={12} md={6}>
+                                <DateTimeField label={tr("member_since")} defaultValue={newProfile.join_timestamp} onChange={(timestamp) => setNewProfile({ ...newProfile, join_timestamp: timestamp })} disabled={dialogBtnDisabled || !checkUserPerm(curUserPerm, ["administrator", "manage_profiles"])} fullWidth />
                             </Grid>
                             <Grid item xs={12}>
                                 <TextField

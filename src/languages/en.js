@@ -704,6 +704,7 @@ const en = {
     "member_events": "Member Events",
     "member_leave": "Member Leave",
     "member_list": "Member List",
+    "member_since": "Member Since",
     "members": "Members",
     "merch_purchased": "Merch purchased",
     "merch_sold": "Merch sold",
