@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useContext, useState, useEffect, useCallback, useRef } from "react";
 import { AppContext, CacheContext } from '../context';
 import { useTranslation } from "react-i18next";
@@ -62,9 +63,9 @@ const FreightMaster = () => {
             setSeasonName(position.season_name);
             setStartTime(<TimeDelta timestamp={position.start_time * 1000} rough={true} />);
             setEndTime(<TimeDelta timestamp={position.end_time * 1000} rough={true} />);
-            setRankd(position.rankd ?? "Unranked");
+            setRankd(position.rankd ?? tr("unranked"));
             setPointd(position.pointd ?? 0);
-            setRanka(position.ranka ?? "Unranked");
+            setRanka(position.ranka ?? tr("unranked"));
             setPointa(position.pointa ?? 0);
             positionLoaded.current = true;
         } else {
@@ -126,31 +127,26 @@ const FreightMaster = () => {
         <Grid item xs={4} md={1} lg={4}></Grid>
         <Grid item xs={8} md={5} lg={4} sx={{ mt: { md: "10px" } }}>
             <ButtonGroup fullWidth>
-                <Button variant="contained" color={fMode === "d" ? "info" : "secondary"} onClick={() => { setFMode("d"); setLeaderboard([]); setTotalItems(1); setPage(1); }}>Cross VTC</Button>
-                <Button variant="contained" color={fMode === "a" ? "info" : "secondary"} onClick={() => { setFMode("a"); setLeaderboard([]); setTotalItems(1); setPage(1); }}>Single VTC</Button>
+                <Button variant="contained" color={fMode === "d" ? "info" : "secondary"} onClick={() => { setFMode("d"); setLeaderboard([]); setTotalItems(1); setPage(1); }}>{tr("cross_vtc")}</Button>
+                <Button variant="contained" color={fMode === "a" ? "info" : "secondary"} onClick={() => { setFMode("a"); setLeaderboard([]); setTotalItems(1); setPage(1); }}>{tr("single_vtc")}</Button>
             </ButtonGroup>
         </Grid>
         <Grid item xs={12} md={4}>
             <Card>
                 <CardContent>
-                    <Typography variant="h5" fontWeight="bold" fontSize="30px">
-                        Rank: {fMode === "d" ? rankd : ranka}
+                    <Typography variant="h5" fontWeight="bold" fontSize="30px">{tr("rank")}{fMode === "d" ? rankd : ranka}
                     </Typography>
-                    <Typography variant="body2" fontSize="25px">
-                        Points: {TSep(fMode === "d" ? pointd : pointa)}
+                    <Typography variant="body2" fontSize="25px">{tr("points")}{TSep(fMode === "d" ? pointd : pointa)}
                     </Typography>
-                    <Typography variant="body2" fontSize="25px">
-                        Level: {fMode === "d" ? parseInt(pointd / D_LEVEL_POINT + 1) : parseInt(pointa / A_LEVEL_POINT + 1)}
+                    <Typography variant="body2" fontSize="25px">{tr("level")}{fMode === "d" ? parseInt(pointd / D_LEVEL_POINT + 1) : parseInt(pointa / A_LEVEL_POINT + 1)}
                     </Typography>
                 </CardContent>
             </Card>
             <Card sx={{ mt: "10px" }}>
                 <CardContent>
-                    <Typography variant="h5" fontWeight="bold" fontSize="30px">
-                        Season Rewards
-                    </Typography>
-                    <Typography variant="body2" fontSize="15px" color="grey" sx={{ mb: "5px" }}>(Only applies to cross-vtc ranking)</Typography>
-                    <Typography variant="body2" fontWeight="bold" fontSize="15px">Player Title</Typography>
+                    <Typography variant="h5" fontWeight="bold" fontSize="30px">{tr("season_rewards")}</Typography>
+                    <Typography variant="body2" fontSize="15px" color="grey" sx={{ mb: "5px" }}>{tr("only_applies_to_crossvtc_ranking")}</Typography>
+                    <Typography variant="body2" fontWeight="bold" fontSize="15px">{tr("player_title")}</Typography>
                     {fmRewards.filter((reward) => reward.reward_type === "title" && reward.active).map((reward) =>
                         <Typography variant="body2" fontSize="15px">
                             {reward.reward_value}
@@ -162,18 +158,18 @@ const FreightMaster = () => {
             </Card>
         </Grid>
         <Grid item xs={12} md={8}>
-            {fMode === "d" && <CustomTable page={page} name={<><FontAwesomeIcon icon={faCrown} />&nbsp;&nbsp;{tr("leaderboard")} (Tracked Distance)</>} columns={[
-                { id: 'rank', label: "Rank" },
-                { id: 'vtc', label: "VTC" },
-                { id: 'user', label: "User" },
-                { id: 'points', label: "Points" },
-                { id: 'level', label: "Level" }
+            {fMode === "d" && <CustomTable page={page} name={<><FontAwesomeIcon icon={faCrown} />&nbsp;&nbsp;{tr("leaderboard")}{tr("tracked_distance")}</>} columns={[
+                { id: 'rank', label: tr("rank") },
+                { id: 'vtc', label: tr("vtc") },
+                { id: 'user', label: tr("user") },
+                { id: 'points', label: tr("points") },
+                { id: 'level', label: tr("level") }
             ]} data={leaderboard} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} />}
-            {fMode === "a" && <CustomTable page={page} name={<><FontAwesomeIcon icon={faCrown} />&nbsp;&nbsp;{tr("leaderboard")} (All Points)</>} columns={[
-                { id: 'rank', label: "Rank" },
-                { id: 'user', label: "User" },
-                { id: 'points', label: "Points" },
-                { id: 'level', label: "Level" }
+            {fMode === "a" && <CustomTable page={page} name={<><FontAwesomeIcon icon={faCrown} />&nbsp;&nbsp;{tr("leaderboard")}{tr("all_points")}</>} columns={[
+                { id: 'rank', label: tr("rank") },
+                { id: 'user', label: tr("user") },
+                { id: 'points', label: tr("points") },
+                { id: 'level', label: tr("level") }
             ]} data={leaderboard} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} />}
         </Grid>
     </Grid>;
