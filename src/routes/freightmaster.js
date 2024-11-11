@@ -133,11 +133,11 @@ const FreightMaster = () => {
         <Grid item xs={12} md={4}>
             <Card>
                 <CardContent>
-                    <Typography variant="h5" fontWeight="bold" fontSize="30px">{tr("rank")}{fMode === "d" ? rankd : ranka}
+                    <Typography variant="h5" fontWeight="bold" fontSize="30px">{tr("rank")} {fMode === "d" ? rankd : ranka}
                     </Typography>
-                    <Typography variant="body2" fontSize="25px">{tr("points")}{TSep(fMode === "d" ? pointd : pointa)}
+                    <Typography variant="body2" fontSize="25px">{tr("points")} {TSep(fMode === "d" ? pointd : pointa)}
                     </Typography>
-                    <Typography variant="body2" fontSize="25px">{tr("level")}{fMode === "d" ? parseInt(pointd / D_LEVEL_POINT + 1) : parseInt(pointa / A_LEVEL_POINT + 1)}
+                    <Typography variant="body2" fontSize="25px">{tr("level")} {fMode === "d" ? parseInt(pointd / D_LEVEL_POINT + 1) : parseInt(pointa / A_LEVEL_POINT + 1)}
                     </Typography>
                 </CardContent>
             </Card>
