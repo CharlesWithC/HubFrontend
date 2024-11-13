@@ -54,9 +54,10 @@ const Ranking = () => {
     }, [userPoints, detailedPoints, bonusStreak, curRankTypeId]);
 
     const handleRankTypeIdChange = useCallback((e) => {
-        setRankTypeId(e.target.value);
+        const rankTypeId = parseInt(e.target.value);
+        setRankTypeId(rankTypeId);
         for (let i = 0; i < allRanks.length; i++) {
-            if (allRanks[i].id === e.target.value) {
+            if (allRanks[i].id === rankTypeId) {
                 setCurRankRoles(allRanks[i].details);
                 setCurRankPointTypes(allRanks[i].point_types);
                 break;
