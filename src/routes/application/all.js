@@ -100,7 +100,7 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
                         Object.entries(resp.data.application).map(([_, answer]) => {
                             const matcha1 = answer.match(/\[AT-(\d+)\] .*: (.*)/);
                             if (matcha1) {
-                                assignee = <>Assigned to {users[matcha1[1]] !== undefined && <UserCard user={users[matcha1[1]]} />}{users[matcha1[1]] === undefined && <>{matcha1[2]}</>}</>;
+                                assignee = <>{tr("assigned_to")}{users[matcha1[1]] !== undefined && <UserCard user={users[matcha1[1]]} />}{users[matcha1[1]] === undefined && <>{matcha1[2]}</>}</>;
                             } else {
                                 const matcha2 = answer.match(/\[AS\] .*: (.*)/);
                                 if (matcha2) {
@@ -206,7 +206,7 @@ const AllApplication = () => {
         }
         return result;
     }, [apiConfig.trackers]);
-    const trackerMapping = { "unknown": "Unknown", "tracksim": "TrackSim", "trucky": "Trucky", "custom": "Custom" };
+    const trackerMapping = { "unknown": tr("unknown"), "tracksim": "TrackSim", "trucky": "Trucky", "custom": tr("custom") };
 
     const [detailApp, setDetailApp] = useState(null);
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -259,7 +259,7 @@ const AllApplication = () => {
 
     const updateStatus = useCallback(async () => {
         if (!messageDisabled && message.startsWith("[")) {
-            setSnackbarContent("Message may not start with character '['.");
+            setSnackbarContent(tr("message_may_not_start_with_character"));
             setSnackbarSeverity("error");
             return;
         }
@@ -369,7 +369,7 @@ const AllApplication = () => {
                         {tmpData.vtcHistory !== null && tmpData.vtcHistory.length === 0 && <>
                             <b>{tr("vtc_history_0")}</b>{tr("na")}</>}
                         {tmpData.vtcHistory === null && <>
-                            <b>{tr("vtc_history")}</b>: <i>Not available</i></>}
+                            <b>{tr("vtc_history")}</b>: <i>{tr("not_available")}</i></>}
                     </>}
                     {tmpData === null && <><br />
                         <b>{tr("current_vtc")}</b>{tr("na")}<br />
@@ -380,20 +380,20 @@ const AllApplication = () => {
                 {Object.entries(detailApp.application).map(([question, answer]) => {
                     const matchq = question.match(/\[Message\] (.*) \((\d+)\) #(\d+)/);
                     if (matchq) {
-                        question = <>Message from {membersMapping[matchq[2]] !== undefined && <UserCard user={membersMapping[matchq[2]]} />}{membersMapping[matchq[2]] === undefined && <>{matchq[1]}</>}</>;
+                        question = <>{tr("message_from")} {membersMapping[matchq[2]] !== undefined && <UserCard user={membersMapping[matchq[2]]} />}{membersMapping[matchq[2]] === undefined && <>{matchq[1]}</>}</>;
                     }
                     if (vtcLevel >= 1) {
                         const matcha1 = answer.match(/\[AT-(\d+)\] .*: (.*)/);
                         if (matcha1) {
-                            answer = <>Application assigned to {users[matcha1[1]] !== undefined && <UserCard user={users[matcha1[1]]} />}{users[matcha1[1]] === undefined && <>{matcha1[2]}</>}</>;
+                            answer = <>{tr("application_assigned_to")} {users[matcha1[1]] !== undefined && <UserCard user={users[matcha1[1]]} />}{users[matcha1[1]] === undefined && <>{matcha1[2]}</>}</>;
                         } else {
                             const matcha2 = answer.match(/\[AS\] .*: (.*)/);
                             if (matcha2) {
-                                answer = <>Application status updated to: {matcha2[1]}</>;
+                                answer = <>{tr("application_status_updated_to")} {matcha2[1]}</>;
                             } else {
                                 const matcha3 = answer.match(/\[XAS\] .*: (.*)/);
                                 if (matcha3) {
-                                    answer = <>Application status cleared.</>;
+                                    answer = <>{tr("application_status_cleared")}</>;
                                 } else {
                                     answer = <MarkdownRenderer>{answer}</MarkdownRenderer>;
                                 }
@@ -412,24 +412,18 @@ const AllApplication = () => {
                     </>;
                 })}
                 <hr />
-                <Typography variant="body2" fontWeight="bold" sx={{ mt: "5px", mb: "5px" }}>Advanced Response <SponsorBadge vtclevel={1} /></Typography>
-                <Typography variant="body2" sx={{ mb: "5px" }}>
-                    - The message will be automatically constructed when using advanced response. You still have to <span style={{ color: theme.palette.info.main }}>click "Respond"</span> to make the update. To <span style={{ color: theme.palette.info.main }}>clear the message</span>, click "Clear" in bottom-left.<br />
-                    - To <span style={{ color: theme.palette.info.main }}>clear all status</span>, click "Clear" on the right of "Advanced status". The <span style={{ color: theme.palette.info.main }}>assignee</span>, if exists, otherwise <span style={{ color: theme.palette.info.main }}>N/A</span>, would show in status. To disable advanced status, set it to <span style={{ color: theme.palette.info.main }}>Pending</span>.<br />
-                    - The "official status" would be locked to "Pending" when making advanced response.
-                </Typography>
+                <Typography variant="body2" fontWeight="bold" sx={{ mt: "5px", mb: "5px" }}>{tr("advanced_response")}<SponsorBadge vtclevel={1} /></Typography>
+                <Typography variant="body2" sx={{ mb: "5px" }}>{tr("the_message_will_be_automatically_constructed_when_using_advanced_response")}<br />{tr("to_clear_all_status_click_clear_on_the_right_of")}<br />{tr("the_official_status_would_be_locked_to_pending_when_making")}</Typography>
                 <Grid container spacing={2}>
                     <Grid item xs={12} md={6}>
-                        <Typography variant="body2">
-                            Assign to
-                            <UserSelect users={[assignTo]} isMulti={false} onUpdate={(e) => { setAssignTo(e); setMessage(`[AT-${e.uid}] Application assigned to: ${e.name}`); setNewStatus(0); setMessageDisabled(true); }} disabled={vtcLevel < 1} />
+                        <Typography variant="body2">{tr("assign_to")}<UserSelect users={[assignTo]} isMulti={false} onUpdate={(e) => { setAssignTo(e); setMessage(`[AT-${e.uid}] Application assigned to: ${e.name}`); setNewStatus(0); setMessageDisabled(true); }} disabled={vtcLevel < 1} />
                         </Typography>
                     </Grid>
                     <Grid item xs={12} md={6}>
                         <Typography variant="body2">
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <div>Advanced status</div>
-                                <div><span style={{ cursor: "pointer" }} onClick={() => { setAdvancedStatus(""); setMessage(`[XAS] Application status updated to: N/A.`); setNewStatus(0); setMessageDisabled(true); }} disabled={vtcLevel < 1}>Clear</span></div>
+                                <div>{tr("advanced_status")}</div>
+                                <div><span style={{ cursor: "pointer" }} onClick={() => { setAdvancedStatus(""); setMessage(`[XAS] Application status updated to: N/A.`); setNewStatus(0); setMessageDisabled(true); }} disabled={vtcLevel < 1}>{tr("clear")}</span></div>
                             </div>
                             <TextField value={advancedStatus} onChange={(e) => { setAdvancedStatus(e.target.value); setMessage(`[AS] Application status updated to: ${e.target.value}`); setNewStatus(0); setMessageDisabled(true); }} size="small" disabled={vtcLevel < 1} fullWidth
                             />
@@ -473,7 +467,7 @@ const AllApplication = () => {
                                 <MenuItem key={3} value={3}>{tr("accepted_as_driver")}</MenuItem>
                             </TextField>
                             {newStatus === 3 &&
-                                <TextField select label="Tracker" size="small" value={trackerInUse} onChange={(e) => setTrackerInUse(e.target.value)} sx={{ height: "40px" }}>
+                                <TextField select label={tr("tracker")} size="small" value={trackerInUse} onChange={(e) => setTrackerInUse(e.target.value)} sx={{ height: "40px" }}>
                                     {availableTrackers.map((tracker) => (
                                         <MenuItem key={tracker} value={tracker}>
                                             {trackerMapping[tracker]}

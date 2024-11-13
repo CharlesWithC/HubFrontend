@@ -17,6 +17,8 @@ const AuditLog = () => {
     const { cache, setCache } = useContext(CacheContext);
     const theme = useTheme();
 
+    const CATEGORIES = { "announcement": tr("announcement"), "application": tr("application"), "auth": tr("authentication"), "challenge": tr("challenge"), "division": tr("division"), "dlog": tr("deliveries"), "downloads": tr("downloads"), "economy": tr("economy"), "event": tr("event"), "member": tr("member"), "poll": tr("poll"), "system": tr("system"), "tracker": tr("tracker"), "user": tr("user"), "legacy": tr("legacy") };
+
     const [auditList, setAuditList] = useState(cache.audit_log.auditList);
     const [totalItems, setTotalItems] = useState(cache.audit_log.totalItems);
     const [searchOp, setSearchOp] = useState("");
@@ -56,7 +58,7 @@ const AuditLog = () => {
             let newUserList = [];
             for (let i = 0; i < _auditList.list.length; i++) {
                 let row = _auditList.list[i];
-                newUserList.push({ user: <UserCard user={row.user} />, time: <TimeDelta key={`${+new Date()}`} timestamp={row.timestamp * 1000} />, category: row.category.charAt(0).toUpperCase() + row.category.substr(1), operation: <MarkdownRenderer>{row.operation}</MarkdownRenderer> });
+                newUserList.push({ user: <UserCard user={row.user} />, time: <TimeDelta key={`${+new Date()}`} timestamp={row.timestamp * 1000} />, category: CATEGORIES[row.category], operation: <MarkdownRenderer>{row.operation}</MarkdownRenderer> });
             }
 
             if (pageRef.current === page) {
@@ -71,7 +73,7 @@ const AuditLog = () => {
 
     return <>
         <CustomTable name={<><VerifiedUserRounded />&nbsp;&nbsp;{tr("audit_log")}</>}
-            onSearch={(content) => { setPage(1); setSearchOp(content); }} searchHint="Search by operation"
+            onSearch={(content) => { setPage(1); setSearchOp(content); }} searchHint={tr("search_by_operation")}
             columns={[
                 { id: 'user', label: tr("user") },
                 { id: 'category', label: tr("category") },
