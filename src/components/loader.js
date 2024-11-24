@@ -244,7 +244,7 @@ const Loader = ({ onLoaderLoaded }) => {
                 // chub data
                 const urlsBatch1 = [
                     { url: "https://config.chub.page/roles", auth: false },
-                    { url: "https://config.chub.page/patrons", auth: false },
+                    { url: "https://config.chub.page/sponsors", auth: false },
                     { url: `https://config.chub.page/config/user?abbr=${webConfig.abbr}`, auth: false },
                 ];
 

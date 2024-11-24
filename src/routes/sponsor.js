@@ -1,17 +1,17 @@
 import { useTranslation } from 'react-i18next';
 import React from 'react';
-import { Grid, Card, CardHeader, CardContent, Typography, List, ListItem, ListItemText, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { Grid, Card, CardHeader, CardContent, Typography, List, ListItem, ListItemText, Button } from '@mui/material';
 
 const UpgradeCard = () => {
     const { t: tr } = useTranslation();
-    
+
+    const navigate = useNavigate();
+
     const bronze = [tr("a_special_discord_role"), tr("a_special_thank_you")];
     const silver = [tr("silver_name"), tr("custom_color_theme"), tr("more_radio_stations")];
     const gold = [tr("gold_name"), tr("custom_background_image"), tr("custom_profile_theme"), tr("custom_profile_banner"), tr("configurable_display_timezone"), tr("sponsor_support")];
     const platinum = [tr("more_name_color"), tr("any_radio_stations_radio_url"), tr("advanced_staff_functions"), tr("early_access_to_all_chub_features"), tr("sponsor_priority_support")];
-
-    const navigate = useNavigate();
 
     return (
         <Grid container spacing={2} justifyContent="center">
@@ -19,7 +19,7 @@ const UpgradeCard = () => {
                 <Card>
                     <CardHeader
                         title={tr("become_a_sponsor")}
-                        subheader={<>{tr("fuel_the_journey_power_the_drivers_hub_project_chub")}<a style={{ cursor: "pointer" }} onClick={() => { navigate("/supporters"); }}>{tr("explore_our_current_backers")}</a><br /><a style={{ cursor: "pointer" }} onClick={() => { navigate("/settings"); }}>{tr("activate_exclusive_benefits_by_connecting_your_patreon_account_in_settings")}</a></>}
+                        subheader={<>{tr("fuel_the_journey_power_the_drivers_hub_project_chub")} <a style={{ cursor: "pointer" }} onClick={() => { navigate("/supporters"); }}>{tr("explore_our_current_backers")}</a><br /><a style={{ cursor: "pointer" }} onClick={() => { navigate("/settings"); }}>Activate exclusive benefits by connecting your CHub Membership account in Settings.</a><br /><br />Please visit our main website <a href="https://drivershub.charlws.com/sponsor">drivershub.charlws.com</a> to sponsor us!</>}
                         titleTypographyProps={{ align: 'center' }}
                         subheaderTypographyProps={{ align: 'center' }}
                     />
@@ -42,9 +42,9 @@ const UpgradeCard = () => {
                             ))}
                         </List>
                         <Typography variant="h5" align="center" gutterBottom>
-                            $1/mo.
+                            CA$2.99/mo
                         </Typography>
-                        <a href="https://www.patreon.com/checkout/charlws?rid=9973080" target="_blank" rel="noreferrer"><Button variant="contained" color="primary" fullWidth>{tr("sponsor")}</Button></a>
+                        <Button variant="contained" color="info" fullWidth onClick={() => { window.location.href = "https://drivershub.charlws.com/sponsor"; }} >Visit Main Website</Button>
                     </CardContent>
                 </Card>
             </Grid>
@@ -65,9 +65,9 @@ const UpgradeCard = () => {
                             ))}
                         </List>
                         <Typography variant="h5" align="center" gutterBottom>
-                            $3/mo.
+                            CA$4.99/mo
                         </Typography>
-                        <a href="https://www.patreon.com/checkout/charlws?rid=9360617" target="_blank" rel="noreferrer"><Button variant="contained" color="primary" fullWidth>{tr("sponsor")}</Button></a>
+                        <Button variant="contained" color="info" fullWidth onClick={() => { window.location.href = "https://drivershub.charlws.com/sponsor"; }} >Visit Main Website</Button>
                     </CardContent>
                 </Card>
             </Grid>
@@ -88,9 +88,12 @@ const UpgradeCard = () => {
                             ))}
                         </List>
                         <Typography variant="h5" align="center" gutterBottom>
-                            $5/mo.
+                            CA$6.66/mo <span style={{ fontSize: "12px", color: "grey" }}>when billed quarterly</span>
                         </Typography>
-                        <a href="https://www.patreon.com/checkout/charlws?rid=9973090" target="_blank" rel="noreferrer"><Button variant="contained" color="primary" fullWidth>{tr("sponsor")}</Button></a>
+                        <Typography variant="h5" align="center" gutterBottom color="grey">
+                            Or, CA$7.99 <span style={{ fontSize: "12px" }}>every month</span>
+                        </Typography>
+                        <Button variant="contained" color="info" fullWidth onClick={() => { window.location.href = "https://drivershub.charlws.com/sponsor"; }} >Visit Main Website</Button>
                     </CardContent>
                 </Card>
             </Grid>
@@ -140,9 +143,12 @@ const UpgradeCard = () => {
                             ))}
                         </List>
                         <Typography variant="h5" align="center" gutterBottom>
-                            $8/mo.
+                            CA$9.99/mo <span style={{ fontSize: "12px", color: "grey" }}>when billed quarterly</span>
                         </Typography>
-                        <a href="https://www.patreon.com/checkout/charlws?rid=9973097" target="_blank" rel="noreferrer"><Button variant="contained" color="primary" fullWidth>{tr("sponsor")}</Button></a>
+                        <Typography variant="h5" align="center" gutterBottom color="grey">
+                            Or, CA$11.99 <span style={{ fontSize: "12px" }}>every month</span>
+                        </Typography>
+                        <Button variant="contained" color="info" fullWidth onClick={() => { window.location.href = "https://drivershub.charlws.com/sponsor"; }} >Visit Main Website</Button>
                     </CardContent>
                 </Card>
             </Grid>

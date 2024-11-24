@@ -86,7 +86,7 @@ function TabPanel(props) {
 
 const Settings = ({ defaultTab = 0 }) => {
     const { t: tr } = useTranslation();
-    const { apiPath, vtcBackground, customBackground, setCustomBackground, specialUsers, patrons, curUserPatreonID, vtcLogo, userConfig, setUserConfig, vtcLevel, userLevel, apiConfig, webConfig, languages, allRoles, setUsers, curUser, setCurUser, userSettings, setUserSettings } = useContext(AppContext);
+    const { apiPath, vtcBackground, customBackground, setCustomBackground, specialUsers, patrons, curUserPatreonID, vtcLogo, userConfig, setUserConfig, vtcLevel, userLevel, apiConfig, webConfig, languages, allRoles, setUsers, curUser, userSettings, setUserSettings } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     const sessionsColumns = useMemo(() => ([
@@ -160,6 +160,17 @@ const Settings = ({ defaultTab = 0 }) => {
     const navigate = useNavigate();
 
     const [allowClearCache, setAllowClearCache] = useState(localStorage.getItem("cache-preload") !== null);
+    const connectedCHubAccount = useMemo(() => {
+        let tiers = ["platinum", "gold", "silver", "bronze"];
+        for (let k = 0; k < 4; k++) {
+            for (let i = 0; i < patrons[tiers[k]].length; i++) {
+                if (patrons[tiers[k]][i].abbr === webConfig.abbr && patrons[tiers[k]][i].uid === curUser.uid && !patrons[tiers[k]][i].patreon_id) {
+                    return "OK";
+                }
+            }
+        }
+        return "N/A";
+    }, [patrons, webConfig, curUser]);
 
     const [otp, setOtp] = useState("");
     const [otpAction, setOtpAction] = useState("");
@@ -1395,6 +1406,24 @@ const Settings = ({ defaultTab = 0 }) => {
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
                                     <Button variant="contained" onClick={() => { updateTruckersMPID(); }} disabled={newTruckersMPDisabled} fullWidth>{tr("update")}</Button>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                        <Grid item xs={12} sm={12} md={6} lg={6}>
+                            <Grid container spacing={2}>
+                                <Grid item xs={8} sm={8} md={8} lg={8}>
+                                    <TextField
+                                        label="CHub Membership Account"
+                                        value={connectedCHubAccount}
+                                        fullWidth disabled size="small"
+                                    />
+                                </Grid>
+                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                    <Button variant="contained" onClick={() => {
+                                        const hubData = { "name": webConfig.name, "abbr": webConfig.abbr, "uid": curUser.uid };
+                                        const hubKey = btoa(JSON.stringify(hubData));
+                                        window.location.href = "https://drivershub.charlws.com/sponsor?connect_hub=true&hub_key=" + hubKey;
+                                    }} fullWidth>{tr("connect")}</Button>
                                 </Grid>
                             </Grid>
                         </Grid>

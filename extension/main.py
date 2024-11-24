@@ -1,6 +1,7 @@
 # Drivers Hub: Frontend (Extension)
 # Author: @CharlesWithC
 
+import base64
 import hashlib
 import hmac
 import json
@@ -24,8 +25,8 @@ r = redis.Redis(decode_responses=True)
 
 rolesCache = []
 rolesLU = 0
-patronsCache = []
-patronsLU = 0
+sponsorsCache = []
+sponsorsLU = 0
 userConfigCache = []
 userConfigLU = 0
 
@@ -43,7 +44,7 @@ ucur = uconn.cursor()
 # user-settings => set name color + profile upper/lower theme + profile banner url
 # these data are synced into /roles endpoint
 ucur.execute("CREATE TABLE IF NOT EXISTS users (uid BIGINT UNSIGNED, abbr VARCHAR(10), name_color INT, profile_upper_color INT, profile_lower_color INT, profile_banner_url TEXT, patreon_id BIGINT, patreon_name TEXT, patreon_email TEXT)")
-# we might not really need to refresh their tokens since we use creator api to get list of patrons
+# we might not really need to refresh their tokens since we use creator api to get list of sponsors
 ucur.execute("CREATE TABLE IF NOT EXISTS patreon_tokens (patreon_id BIGINT, patreon_access_token TEXT, patreon_refresh_token TEXT, patreon_token_expire_timestamp BIGINT)")
 try:
     ucur.execute("CREATE INDEX users_uid ON users (uid)")
@@ -126,7 +127,14 @@ async def getRoles():
         updateRolesCache()
     return rolesCache
 
-def updatePatronsCache():
+def getAvatarSrc(discordid, avatar):
+    if avatar is None:
+        return f"https://cdn.discordapp.com/embed/avatars/{discordid % 5}.png"
+    if avatar.startswith("a_"):
+        return f"https://cdn.discordapp.com/avatars/{discordid}/{avatar}.gif"
+    return f"https://cdn.discordapp.com/avatars/{discordid}/{avatar}.png"
+
+def updateSponsorsCache():
     headers = {
         'Authorization': f'Bearer {feconfig["creator_access_token"]}',
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -164,16 +172,36 @@ def updatePatronsCache():
         'sort': 'pledge_relationship_start'
     }
 
-    patrons = {"platinum": [], "gold": [], "silver": [], "bronze": []}
+    sponsors = {"platinum": [], "gold": [], "silver": [], "bronze": []}
+    
+    # In-house URL (place them before Patreon)
+    url = "https://drivershub.charlws.com/api/membership/list"
+    resp = requests.get(url, headers={"User-Agent": "CHub Frontend Extension"})
+    if resp.status_code == 200:
+        d = json.loads(resp.text)["list"]
+        for t in d:
+            if t["tier"] not in sponsors.keys():
+                continue
+            t["abbr"] = None
+            t["uid"] = None
+            if t["hub_key"] is not None:
+                try:
+                    decoded_key = json.loads(base64.b64decode(t["hub_key"].encode()))
+                    t["abbr"] = decoded_key["abbr"]
+                    t["uid"] = decoded_key["uid"]
+                except:
+                    pass
+            del t["hub_key"]
+            sponsors[t["tier"]].append({"abbr": t["abbr"], "uid": t["uid"], "name": t["name"], "avatar": getAvatarSrc(t["discordid"], t["avatar"])})
 
     ucur.execute("SELECT abbr, uid, patreon_id FROM users")
     t = ucur.fetchall()
-    connected_patrons = {}
+    connected_sponsors = {}
     for tt in t:
         if tt[2] is not None:
-            connected_patrons[tt[2]] = (tt[0], tt[1])
+            connected_sponsors[tt[2]] = (tt[0], tt[1])
 
-    # Initial URL
+    # Patreon URL
     url = f'https://www.patreon.com/api/oauth2/v2/campaigns/{patreon_campaign_id}/members'
     while url:
         resp = requests.get(url, headers=headers, params=params)
@@ -190,11 +218,11 @@ def updatePatronsCache():
                 patreon_id = t["relationships"]["user"]["data"]["id"]
                 full_name = t["attributes"]["full_name"]
                 avatar = avatars[patreon_id]
-                (abbr, uid) = connected_patrons.get(int(patreon_id), (None, None))
+                (abbr, uid) = connected_sponsors.get(int(patreon_id), (None, None))
                 for tier in tiers:
                     if tier["id"] not in patreon_tiers.keys():
                         continue
-                    patrons[patreon_tiers[tier["id"]]].append({"abbr": abbr, "uid": uid, "id": patreon_id, "name": full_name, "avatar": avatar})
+                    sponsors[patreon_tiers[tier["id"]]].append({"abbr": abbr, "uid": uid, "patreon_id": patreon_id, "name": full_name, "avatar": avatar})
 
         # Get the next page URL, if it exists
         if "links" in d.keys():
@@ -206,17 +234,17 @@ def updatePatronsCache():
         else:
             url = None
 
-    global patronsCache
-    patronsCache = patrons
+    global sponsorsCache
+    sponsorsCache = sponsors
 
-@app.get("/patrons")
-async def getPatrons():
-    global patronsCache
-    global patronsLU
-    if time.time() - patronsLU >= 300:
-        patronsLU = time.time()
-        updatePatronsCache()
-    return patronsCache
+@app.get("/sponsors")
+async def getSponsors():
+    global sponsorsCache
+    global sponsorsLU
+    if time.time() - sponsorsLU >= 300:
+        sponsorsLU = time.time()
+        updateSponsorsCache()
+    return sponsorsCache
 
 def updateTruckersMP():
     conn = sqlite3.connect("truckersmp.db", check_same_thread=False)
@@ -416,12 +444,12 @@ async def updatePatreon(domain: str, code: str, request: Request, response: Resp
     ucur.execute("INSERT INTO patreon_tokens VALUES (?, ?, ?, ?)", (patreon_id, token_json["access_token"], token_json["refresh_token"], token_json["expires_in"] + int(time.time()), ))
     uconn.commit()
 
-    global patronsCache
+    global sponsorsCache
     for tier in ["platinum", "gold", "silver", "bronze"]:
-        for i in range(len(patronsCache[tier])):
-            if patronsCache[tier][i]["id"] == patreon_id:
-                patronsCache[tier][i]["abbr"] = abbr
-                patronsCache[tier][i]["uid"] = uid
+        for i in range(len(sponsorsCache[tier])):
+            if sponsorsCache[tier][i]["id"] == patreon_id:
+                sponsorsCache[tier][i]["abbr"] = abbr
+                sponsorsCache[tier][i]["uid"] = uid
 
     return {"patreon_id": patreon_id}
 
