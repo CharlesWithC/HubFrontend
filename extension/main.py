@@ -457,7 +457,7 @@ async def updatePatreon(domain: str, code: str, request: Request, response: Resp
     global sponsorsCache
     for tier in ["platinum", "gold", "silver", "bronze"]:
         for i in range(len(sponsorsCache[tier])):
-            if sponsorsCache[tier][i]["id"] == patreon_id:
+            if "patreon_id" in sponsorsCache[tier][i] and sponsorsCache[tier][i]["patreon_id"] == patreon_id:
                 sponsorsCache[tier][i]["abbr"] = abbr
                 sponsorsCache[tier][i]["uid"] = uid
 
