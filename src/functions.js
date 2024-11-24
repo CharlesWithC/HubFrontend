@@ -132,11 +132,6 @@ export const makeRequestsAuto = async (urls) => {
     const responses = await Promise.all(
         urls.map(async ({ url, auth, fetchOnly }) => {
             if (fetchOnly) {
-                if (url.startsWith("https://corsproxy.io/?")) {
-                    let real_url = url.slice(22);
-                    real_url = encodeURIComponent(real_url);
-                    url = `https://corsproxy.io/?${real_url}`;
-                }
                 return await customAxios({
                     url,
                     fetchOnly: true,

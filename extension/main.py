@@ -127,6 +127,16 @@ async def getRoles():
         updateRolesCache()
     return rolesCache
 
+@app.get("/proxy")
+async def getTruckersMPProxy(request: Request, url: str):
+    domain = urllib.parse.urlparse(url).netloc
+    if domain != "api.truckersmp.com":
+        return Response(status_code=403)
+    headers = { "User-Agent": "The Drivers Hub Project (CHub)" }
+    r = requests.get(url, headers=headers)
+    response_headers = {key: value for key, value in r.headers.items() if key.lower() != "content-encoding"}
+    return Response(content=r.content, status_code=r.status_code, headers=response_headers)
+
 def getAvatarSrc(discordid, avatar):
     if avatar is None:
         return f"https://cdn.discordapp.com/embed/avatars/{discordid % 5}.png"

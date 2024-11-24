@@ -127,7 +127,7 @@ const MemberList = () => {
 
         setDialogButtonDisabled(true);
         setMemberCompareResult([]);
-        let resp = await axios({ url: `https://corsproxy.io/?https://api.truckersmp.com/v2/vtc/${tmpVtcId}/members`, fetchOnly: true });
+        let resp = await axios({ url: `https://config.chub.page/proxy?url=https://api.truckersmp.com/v2/vtc/${tmpVtcId}/members`, fetchOnly: true });
         if (resp.status !== 200) {
             setMemberCompareResult(newCompareResult);
             setSnackbarContent(tr("failed_to_fetch_truckersmp_members"));
