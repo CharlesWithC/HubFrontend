@@ -152,7 +152,7 @@ const ApplicationTable = memo(({ showDetail }) => {
             <Grid item xs={12} sm={12} md={recent.length === 2 ? 6 : 12} lg={recent.length === 2 ? 6 : 12}>
                 <Card>
                     <CardContent>
-                        <Typography variant="subtitle2" gutterBottom>{tr("recent")} {applicationTypes !== null ? applicationTypes[recent[0].type].name : tr("unknown")} {tr("application")}</Typography>
+                        <Typography variant="subtitle2" gutterBottom>{tr("recent")} {applicationTypes !== null && applicationTypes[recent[0].type] ? applicationTypes[recent[0].type].name : tr("unknown")} {tr("application")}</Typography>
                         <Typography variant="h5" component="div">
                             {STATUS[recent[0].status]}
                         </Typography>
@@ -166,7 +166,7 @@ const ApplicationTable = memo(({ showDetail }) => {
                 <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Card>
                         <CardContent>
-                            <Typography variant="subtitle2" gutterBottom>{tr("recent")} {applicationTypes !== null ? applicationTypes[recent[1].type].name : tr("unknown")} {tr("application")}</Typography>
+                            <Typography variant="subtitle2" gutterBottom>{tr("recent")} {applicationTypes !== null && applicationTypes[recent[1].type] ? applicationTypes[recent[1].type].name : tr("unknown")} {tr("application")}</Typography>
                             <Typography variant="h5" component="div">
                                 {STATUS[recent[1].status]}
                             </Typography>
