@@ -382,6 +382,16 @@ const TopBar = (props) => {
                                         <audio ref={radioRef}>
                                             <source src={radioURL} type="audio/mp3" />{tr("browser_does_not_support_audio")}</audio>
                                     </div>}
+                                {+new Date() <= 1733115599999 && <Box sx={{ display: "flex", flexDirection: "column", gap: "4px", ml: "16px" }}>
+                                    <Link to="/sponsor">
+                                        <Typography variant="body1" fontWeight="600">
+                                            Black Friday 2024 - Support CHub
+                                        </Typography>
+                                        <Typography variant="body2" sx={{ opacity: 0.8 }}>
+                                            Get <span style={{ color: "#fcd116" }}>20%</span> off new membership (discount auto applied)!
+                                        </Typography>
+                                    </Link>
+                                </Box>}
                             </Box>
                             <div className="user-profile" onClick={handleProfileMenuOpen}>
                                 <div className="user-info">
