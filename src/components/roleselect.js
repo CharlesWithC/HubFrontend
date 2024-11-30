@@ -7,7 +7,7 @@ import { customSelectStyles } from '../designs';
 
 import { checkUserPerm } from '../functions';
 
-const RoleSelect = ({ label, initialRoles, onUpdate, showAllRoles = false, isMulti = true, style = {} }) => {
+const RoleSelect = ({ label, initialRoles, onUpdate, showAllRoles = false, isMulti = true, style = {}, noFixed = false }) => {
     const { allRoles, curUser, curUserPerm, divisions } = useContext(AppContext);
     const theme = useTheme();
 
@@ -50,7 +50,7 @@ const RoleSelect = ({ label, initialRoles, onUpdate, showAllRoles = false, isMul
                 value: parseInt(initialRoles[i]),
                 label: getRole(initialRoles[i]).name,
                 orderId: getRole(initialRoles[i]).order_id,
-                isFixed: !showAllRoles && (!divisionOnly ? getRole(initialRoles[i]).order_id <= userHighestRole : !divisionRoles.includes(parseInt(initialRoles[i])))
+                isFixed: !noFixed && !showAllRoles && (!divisionOnly ? getRole(initialRoles[i]).order_id <= userHighestRole : !divisionRoles.includes(parseInt(initialRoles[i])))
             });
         }
         return result;
@@ -82,8 +82,8 @@ const RoleSelect = ({ label, initialRoles, onUpdate, showAllRoles = false, isMul
                         value: parseInt(roleId),
                         label: getRole(roleId).name,
                         orderId: getRole(roleId).order_id,
-                        isFixed: !showAllRoles && (!divisionOnly ? getRole(roleId).order_id <= userHighestRole : !divisionRoles.includes(parseInt(roleId))),
-                        isDisabled: !showAllRoles && (!divisionOnly ? getRole(roleId).order_id <= userHighestRole : !divisionRoles.includes(parseInt(roleId)))
+                        isFixed: !noFixed && !showAllRoles && (!divisionOnly ? getRole(roleId).order_id <= userHighestRole : !divisionRoles.includes(parseInt(roleId))),
+                        isDisabled: !noFixed && !showAllRoles && (!divisionOnly ? getRole(roleId).order_id <= userHighestRole : !divisionRoles.includes(parseInt(roleId)))
                     }))}
                 isClearable={selectedRoles.some((v) => v.isFixed)}
                 className="basic-multi-select"

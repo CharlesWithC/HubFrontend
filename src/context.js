@@ -41,6 +41,7 @@ export const AppContext = createContext({
     curUserPerm: [], setCurUserPerm: () => { },
     curUserBanner: { name: "", role: "", avatar: "" }, setCurUserBanner: () => { },
 
+    testRoleMode: false, setTestRoleMode: () => { },
     userSettings: { "notification_refresh_interval": 30, "unit": "metric", "radio": "disabled", "radio_type": "tfm", "radio_volume": 100, "display_timezone": Intl.DateTimeFormat().resolvedOptions().timeZone, "data_saver": false, "font_size": "regular", "default_row_per_page": 10, "language": null, "presence": "full", "streamer_mode": false }, setUserSettings: () => { },
     // radio: enabled / disabled / auto-play (enabled)
     // radio-type: tfm / simhit / {url}
@@ -100,6 +101,7 @@ export const AppContextProvider = ({ children }) => {
     const [curUserPerm, setCurUserPerm] = useState([]);
     const [curUserBanner, setCurUserBanner] = useState({ name: "", role: "", avatar: "" });
 
+    const [testRoleMode, setTestRoleMode] = useState(false);
     const [userSettings, setUserSettings] = useState({ "notification_refresh_interval": 30, "unit": "metric", "radio": "disabled", "radio_type": "tfm", "radio_volume": 100, "display_timezone": Intl.DateTimeFormat().resolvedOptions().timeZone, "data_saver": false, "font_size": "regular", "default_row_per_page": 10, "language": null, "presence": "full", "streamer_mode": false });
 
     const [announcementTypes, setAnnouncementTypes] = useState(null);
@@ -113,9 +115,14 @@ export const AppContextProvider = ({ children }) => {
 
     useEffect(() => {
         if (curUID !== null && users[curUID] !== undefined) {
-            setCurUser(users[curUID]);
+            // don't update current user's role when on "test-role-mode"
+            if (!testRoleMode) {
+                setCurUser(users[curUID]);
+            } else {
+                setCurUser(prev => ({ ...users[curUID], roles: prev.roles }));
+            }
         }
-    }, [curUID, users[curUID]]);
+    }, [curUID, users[curUID], testRoleMode]);
 
     useEffect(() => {
         if (curUID !== null && users[curUID] !== undefined) {
@@ -330,6 +337,7 @@ export const AppContextProvider = ({ children }) => {
         curUserPerm, setCurUserPerm,
         curUserBanner, setCurUserBanner,
 
+        testRoleMode, setTestRoleMode,
         userSettings, setUserSettings,
 
         announcementTypes, setAnnouncementTypes, loadAnnouncementTypes,
@@ -340,7 +348,7 @@ export const AppContextProvider = ({ children }) => {
         economyCache, setEconomyCache,
         allUsersCache, setAllUsersCache, loadAllUsers,
         allDiscordMembers, setAllDiscordMembers, loadAllDiscordMembers
-    }), [apiPath, apiVersion, apiConfig, vtcLogo, vtcBanner, vtcBackground, customBackground, specialRoles, specialUsers, patrons, curUserPatreonID, userConfig, userLevel, vtcLevel, webConfig, languages, allRoles, allPerms, allRanks, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, announcementTypes, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache, allDiscordMembers]);
+    }), [apiPath, apiVersion, apiConfig, vtcLogo, vtcBanner, vtcBackground, customBackground, specialRoles, specialUsers, patrons, curUserPatreonID, userConfig, userLevel, vtcLevel, webConfig, adPlugins, languages, allRoles, allPerms, allRanks, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, testRoleMode, userSettings, announcementTypes, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache, allDiscordMembers]);
 
     return (
         <AppContext.Provider value={value}>

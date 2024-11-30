@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef, useCallback, useContext } from "react";
+import { useState, useEffect, useRef, useCallback, useContext, useMemo } from "react";
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AppContext } from '../context';
 
 import { AppBar, Box, Toolbar, Typography, Divider, MenuItem, ListItemIcon, Menu, Snackbar, Alert, LinearProgress, IconButton, Tooltip, Dialog, DialogActions, DialogContent, DialogTitle, Button, useTheme, useMediaQuery } from "@mui/material";
-import { AccountBoxRounded, SettingsRounded, FlareRounded, LogoutRounded, MenuRounded, AltRouteRounded } from '@mui/icons-material';
+import { AccountBoxRounded, SettingsRounded, FlareRounded, LogoutRounded, MenuRounded, AltRouteRounded, Terminal } from '@mui/icons-material';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCirclePlay, faCirclePause, faClover, faDownload } from '@fortawesome/free-solid-svg-icons';
@@ -14,8 +14,9 @@ import SimpleBar from 'simplebar-react';
 
 import NotificationsPopover from './notifications';
 import UserCard from './usercard';
+import RoleSelect from "./roleselect";
 
-import { FetchProfile, customAxios as axios, getAuthToken, eraseAuthMode } from "../functions";
+import { FetchProfile, customAxios as axios, getAuthToken, eraseAuthMode, checkUserPerm } from "../functions";
 
 const radioURLs = { "tfm": "https://live.truckers.fm/", "simhit": "https://radio.simulatorhits.com/radio/8000/stream" };
 const radioNames = { "tfm": "TruckersFM", "simhit": "SimulatorHits" };
@@ -24,13 +25,46 @@ const RADIO_TYPES = { "tfm": "TruckersFM", "simhit": "SimulatorHits" };
 
 const TopBar = (props) => {
     const { t: tr } = useTranslation();
-    const { apiPath, userLevel, webConfig, setUsers, curUID, setCurUID, curUser, setCurUser, setCurUserPerm, curUserBanner, userSettings, setUserSettings } = useContext(AppContext);
+    const { apiPath, userLevel, webConfig, allPerms, setUsers, curUID, setCurUID, users, curUser, setCurUser, curUserPerm, setCurUserPerm, curUserBanner, testRoleMode, setTestRoleMode, userSettings, setUserSettings } = useContext(AppContext);
 
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
     const theme = useTheme();
     const isSm = useMediaQuery(theme.breakpoints.down('sm'));
+
+    const [showTestRoles, setShowTestRoles] = useState(false);
+    const [showTestRolesSelect, setShowTestRolesSelect] = useState(true);
+    const [showTestRolesModal, setShowTestRolesModal] = useState(false);
+    useEffect(() => {
+        if (checkUserPerm(curUserPerm, ["administrator"])) {
+            setShowTestRoles(true);
+        }
+    }, [curUserPerm]);
+    const handleReloadUserPerm = useCallback((newRoles) => {
+        if (curUID !== null && curUser !== undefined) {
+            const permKeys = Object.keys(allPerms);
+            const userPerm = [];
+            for (let i = 0; i < newRoles.length; i++) {
+                for (let j = 0; j < permKeys.length; j++) {
+                    if (allPerms[permKeys[j]].includes(newRoles[i]) && !userPerm.includes(permKeys[j])) {
+                        userPerm.push(permKeys[j]);
+                    }
+                }
+            }
+            setCurUserPerm(userPerm);
+        } else {
+            setCurUserPerm([]);
+        }
+    }, [curUID, allPerms]);
+    const handleDisableTestRoleMode = useCallback(() => {
+        setCurUser(prev => ({ ...prev, roles: users[curUID].roles }));
+        handleReloadUserPerm(users[curUID].roles);
+
+        setTestRoleMode(false);
+        setShowTestRolesSelect(false);
+        setTimeout(() => { setShowTestRolesSelect(true); }, 50);
+    }, [users]);
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -331,6 +365,7 @@ const TopBar = (props) => {
     >
         {curUser.userid !== -1 && curUser.userid !== null && <MenuItem onClick={openProfileModal}><ListItemIcon><AccountBoxRounded fontSize="small" /></ListItemIcon>{tr("profile")}</MenuItem>}
         <Link to="/settings"><MenuItem><ListItemIcon><SettingsRounded fontSize="small" /></ListItemIcon>{tr("settings")}</MenuItem></Link>
+        {showTestRoles && <MenuItem onClick={() => { setShowTestRolesModal(true); handleMenuClose(); }}><ListItemIcon><Terminal fontSize="small" /></ListItemIcon>Test Roles</MenuItem>}
         <Divider sx={{ marginTop: "5px", marginBottom: "5px" }} />
         <Link to="/sponsor"><MenuItem sx={{ color: '#FFC400' }}><ListItemIcon><FlareRounded fontSize="small" /></ListItemIcon>{tr("sponsor")}</MenuItem></Link>
         <Link to="/supporters"><MenuItem sx={{ color: '#f47fff' }}><ListItemIcon><FontAwesomeIcon icon={faClover} style={{ marginLeft: "3px" }} /></ListItemIcon>{tr("supporters")}</MenuItem></Link>
@@ -441,6 +476,37 @@ const TopBar = (props) => {
                     <Button variant="primary" onClick={() => { setAboutCHubModal(false); }}>{tr("close")}</Button>
                 </DialogActions>
             </Dialog>
+            <Dialog open={showTestRolesModal} onClose={() => { setShowTestRolesModal(false); }} fullWidth >
+                <DialogTitle>Test Roles</DialogTitle>
+                <DialogContent>
+                    <Typography variant="body2" sx={{ mb: "8px" }}>
+                        Select the roles you want to view the Drivers Hub with.
+                    </Typography>
+                    {showTestRolesSelect && <RoleSelect initialRoles={curUser.roles} noFixed={true} onUpdate={(newRoles) => {
+                        setTestRoleMode(true);
+                        setCurUser({ ...curUser, roles: newRoles.map((role) => (role.id ?? role)) });
+                        handleReloadUserPerm(newRoles.map((role) => (role.id ?? role)));
+                    }} />}
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="primary" onClick={() => { setShowTestRolesModal(false); }}>{tr("close")}</Button>
+                    <Button variant="contained" onClick={handleDisableTestRoleMode}>{tr("revert")}</Button>
+                </DialogActions>
+            </Dialog>
+            <Snackbar
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                open={testRoleMode}
+                autoHideDuration={null}
+                message="Viewing Drivers Hub in Test Roles"
+                action={<>
+                    <Button variant="outlined" color="primary" size="small" onClick={() => { setShowTestRolesModal(true); }} sx={{ mr: "8px" }}>
+                        Update Roles
+                    </Button>
+                    <Button variant="contained" color="secondary" size="small" onClick={handleDisableTestRoleMode}>
+                        Disable
+                    </Button>
+                </>}
+            />
             <Snackbar
                 open={!!snackbarContent}
                 autoHideDuration={loading ? null : 5000}
