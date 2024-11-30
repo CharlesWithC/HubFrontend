@@ -32,7 +32,7 @@ const Loader = ({ onLoaderLoaded }) => {
 
     const { t: tr } = useTranslation();
     const appContext = useContext(AppContext);
-    const { apiPath, setApiPath, setApiVersion, vtcLogo, setVtcLogo, vtcBanner, setVtcBanner, vtcBackground, setVtcBackground, setSpecialRoles, setSpecialUsers, setPatrons, setFMRewards, setFMRewardsDistributed, setVtcLevel, setUserConfig, setApiConfig, webConfig, setWebConfig, setUsers, setCurUID, loadLanguages, setAllRoles, setAllPerms, setAllRanks, loadMemberUIDs, loadDlogDetails } = useContext(AppContext);
+    const { apiPath, setApiPath, setApiVersion, vtcLogo, setVtcLogo, vtcBanner, setVtcBanner, vtcBackground, setVtcBackground, setSpecialRoles, setSpecialUsers, setPatrons, setFMRewards, setFMRewardsDistributed, setVtcLevel, setUserConfig, setApiConfig, webConfig, setWebConfig, setUsers, setCurUID, loadADPlugins, loadLanguages, setAllRoles, setAllPerms, setAllRanks, loadMemberUIDs, loadDlogDetails } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     const [isMember, setIsMember] = useState(false);
@@ -421,8 +421,10 @@ const Loader = ({ onLoaderLoaded }) => {
         }
     }, [apiPath, isMember]);
     useEffect(() => {
-        if (apiPath !== "")
+        if (apiPath !== "") {
             loadLanguages();
+            loadADPlugins();
+        }
     }, [apiPath]);
 
     const handleDomainUpdate = useCallback(() => {

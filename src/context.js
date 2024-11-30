@@ -26,6 +26,7 @@ export const AppContext = createContext({
 
     apiConfig: null, setApiConfig: () => { },
     webConfig: null, setWebConfig: () => { },
+    adPlugins: null, setADPlugins: () => { }, loadADPlugins: () => { },
     languages: [], setLanguages: () => { }, loadLanguages: () => { },
     allRoles: {}, setAllRoles: () => { },
     allPerms: {}, setAllPerms: () => { },
@@ -84,6 +85,7 @@ export const AppContextProvider = ({ children }) => {
 
     const [apiConfig, setApiConfig] = useState(null);
     const [webConfig, setWebConfig] = useState(null);
+    const [adPlugins, setADPlugins] = useState(null);
     const [languages, setLanguages] = useState([]);
     const [allRoles, setAllRoles] = useState({});
     const [allPerms, setAllPerms] = useState({});
@@ -208,6 +210,17 @@ export const AppContextProvider = ({ children }) => {
         }
     }, [apiPath]);
 
+    // background load
+    const loadADPlugins = useCallback(async () => {
+        let [adPlugins] = await makeRequestsAuto([{ url: `${apiPath}/advanced-plugin/list`, auth: true }]);
+        if (adPlugins) {
+            setADPlugins(adPlugins);
+            return adPlugins;
+        } else {
+            return [];
+        }
+    }, [apiPath]);
+
     // load when needed
     const loadAllUsers = useCallback(async () => {
         let result = [];
@@ -303,6 +316,7 @@ export const AppContextProvider = ({ children }) => {
 
         apiConfig, setApiConfig,
         webConfig, setWebConfig,
+        adPlugins, setADPlugins, loadADPlugins,
         languages, setLanguages, loadLanguages,
         allRoles, setAllRoles,
         allPerms, setAllPerms,

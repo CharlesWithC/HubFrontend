@@ -42,6 +42,7 @@ const MfaAuth = () => {
                 appContext.loadMemberUIDs();
                 appContext.loadDlogDetails();
                 appContext.loadLanguages();
+                appContext.loadADPlugins();
                 setTimeout(function () { navigate("/"); }, 500);
             } else {
                 setOtpError(true);

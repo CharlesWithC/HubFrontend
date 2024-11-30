@@ -46,6 +46,7 @@ const DiscordAuth = () => {
                             appContext.loadMemberUIDs();
                             appContext.loadDlogDetails();
                             appContext.loadLanguages();
+                            appContext.loadADPlugins();
                             setContinue(true);
                             setTimeout(function () { navigate('/'); }, 500);
                         } else {

@@ -134,7 +134,7 @@ const UserCard = (props) => {
     const { t: tr } = useTranslation();
     const theme = useTheme();
     const navigate = useNavigate();
-    const { apiPath, specialUsers, patrons, userConfig, vtcLevel, apiConfig, webConfig, allRoles, allPerms, users, setUsers, userProfiles, setUserProfiles, setMemberUIDs, curUser, curUserPerm, userSettings, fmRewards, fmRewardsDistributed } = useContext(AppContext);
+    const { apiPath, specialUsers, patrons, userConfig, vtcLevel, apiConfig, webConfig, adPlugins, allRoles, allPerms, users, setUsers, userProfiles, setUserProfiles, setMemberUIDs, curUser, curUserPerm, userSettings, fmRewards, fmRewardsDistributed } = useContext(AppContext);
     const orderedRoles = useMemo(() => (Object.values(allRoles).sort((a, b) => a.order_id - b.order_id).map(role => role.id)), [allRoles]);
     const fmRewardsMapping = useMemo(() => {
         let result = {};
@@ -394,6 +394,7 @@ const UserCard = (props) => {
 
     // local pending updates
     const [newRoles, setNewRoles] = useState(user.userid !== null ? user.roles : allPerms.driver);
+    const [newRoleMessage, setNewRoleMessage] = useState("");
     useEffect(() => {
         if (newRoles !== undefined && newRoles !== null && (newRoles.length > 0 || user.userid !== null)) return;
         setNewRoles(allPerms.driver);
@@ -605,15 +606,20 @@ const UserCard = (props) => {
         let resp = await axios({ url: `${apiPath}/member/${user.userid}/roles`, method: "PATCH", data: { roles: newRoles.map((role) => (role.id ?? role)) }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         // RoleSelect sends back role objects, but API sends back role ids
         if (resp.status === 204) {
-            setUsers(users => ({ ...users, [user.uid]: { ...users[user.uid], roles: newRoles.map((role) => (role.id)) } }));
+            setUsers(users => ({ ...users, [user.uid]: { ...users[user.uid], roles: newRoles.map((role) => (role.id ?? role)) } }));
             setSnackbarContent(tr("roles_updated"));
             setSnackbarSeverity("success");
+
+            if (newRoleMessage.trim()) {
+                await axios({ url: `${apiPath}/advanced-plugins/role-update-custom-message/message`, method: "PUT", data: { mention: `<@!${user.discordid}>`, message: newRoleMessage }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            }
+            setNewRoleMessage("");
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
         }
         setDialogBtnDisabled(false);
-    }, [apiPath, user.userid, newRoles]);
+    }, [apiPath, user.userid, newRoles, newRoleMessage]);
 
     const updatePoints = useCallback(async () => {
         // no need to update user info since points are not included in user info
@@ -1347,6 +1353,14 @@ const UserCard = (props) => {
                     <DialogTitle>{tr("update_roles")}<>|</>{user.name} (<>{tr("user_id")}</>: {user.userid})</DialogTitle>
                     <DialogContent>
                         <RoleSelect initialRoles={user.roles} onUpdate={setNewRoles} />
+                        <TextField
+                            label={tr("message")}
+                            value={newRoleMessage}
+                            onChange={(e) => setNewRoleMessage(e.target.value)}
+                            fullWidth
+                            sx={{ mt: "15px" }}
+                            disabled={adPlugins.find(item => item.id === "role-update-custom-message")?.enabled !== true}
+                        />
                     </DialogContent>
                     <DialogActions>
                         <Button variant="primary" onClick={() => { setCtxAction(""); }}>{tr("close")}</Button>
