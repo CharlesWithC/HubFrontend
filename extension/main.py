@@ -130,7 +130,7 @@ async def getRoles():
 @app.get("/proxy")
 async def getTruckersMPProxy(request: Request, url: str):
     domain = urllib.parse.urlparse(url).netloc
-    if domain != "api.truckersmp.com":
+    if domain not in ["api.truckersmp.com", "drivershub.charlws.com", "drivershub05.charlws.com", "drivershub10.charlws.com"]:
         return Response(status_code=403)
     headers = { "User-Agent": "The Drivers Hub Project (CHub)" }
     r = requests.get(url, headers=headers)
