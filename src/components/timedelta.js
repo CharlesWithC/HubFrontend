@@ -7,7 +7,7 @@ import { Tooltip } from '@mui/material';
 import { getFormattedDate } from "../functions";
 
 
-const TimeDelta = ({ timestamp, lower = false, rough = false, shortenedMonth = false }) => {
+const TimeDelta = ({ timestamp, lower = false, rough = false }) => {
     const { t: tr } = useTranslation();
     const { userSettings } = useContext(AppContext);
 
@@ -65,9 +65,9 @@ const TimeDelta = ({ timestamp, lower = false, rough = false, shortenedMonth = f
             else return ret;
         }
         if (isThisYear) {
-            ret = getFormattedDate(userSettings.display_timezone, date, false, true, shortenedMonth); // 10. January at 10:20
+            ret = getFormattedDate(userSettings.display_timezone, date, false, true); // 10. January at 10:20
         } else {
-            ret = getFormattedDate(userSettings.display_timezone, date, false, false, shortenedMonth); // 10. January 2017. at 10:20
+            ret = getFormattedDate(userSettings.display_timezone, date, false, false); // 10. January 2017. at 10:20
         }
         if (rough) ret = ret.split(" at")[0];
         if (lower) return ret.toLowerCase();
@@ -112,9 +112,9 @@ const TimeDelta = ({ timestamp, lower = false, rough = false, shortenedMonth = f
 
     const date = new Date(timestamp);
     const day = date.toLocaleDateString(userSettings.language || "en", { weekday: 'long' });
-    return <Tooltip placement="top" arrow title={<>{day}, {getFormattedDate(userSettings.display_timezone, date).replaceAll("at ", "")}</>}
+    return <Tooltip placement="top" arrow title={<>{day}, {getFormattedDate(userSettings.display_timezone, date)}</>}
         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-        {timeAgo.replaceAll("at ", "")}
+        {timeAgo}
     </Tooltip>;
 };
 

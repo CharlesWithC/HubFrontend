@@ -389,16 +389,6 @@ export const loadImageAsBase64 = async (imageUrl, fallback = "") => {
     }
 };
 
-export const MONTH_NAMES = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-];
-
-export const MONTH_NAMES_SHORT = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-];
-
 export function OrdinalSuffix(i) {
     var j = i % 10,
         k = i % 100;
@@ -471,7 +461,7 @@ export function getTimezoneOffset(timezone, compareWith = 'UTC') {
     return (baseDate - tzDate) / (1000 * 60);
 }
 
-export function getFormattedDate(display_timezone, date, prefomattedDate = false, hideYear = false, shortenedMonth = false) {
+export function getFormattedDate(display_timezone, date, prefomattedDate = false) {
     if (date === undefined || date === null) return "";
     if (typeof date === "number") {
         if (date < 2000000000) date = date * 1000;
@@ -485,34 +475,17 @@ export function getFormattedDate(display_timezone, date, prefomattedDate = false
         return "";
     }
 
-    const day = date.getDate();
-    const month = !shortenedMonth ? MONTH_NAMES[date.getMonth()] + " " : MONTH_NAMES_SHORT[date.getMonth()] + ".";
-    const year = date.getFullYear();
-    let hours = date.getHours();
-    let minutes = date.getMinutes();
-
-    if (hours < 10) {
-        // Adding leading zero to hours
-        hours = `0${hours}`;
-    }
-    if (minutes < 10) {
-        // Adding leading zero to minutes
-        minutes = `0${minutes}`;
-    }
+    const localizedDate = date.toLocaleDateString();
+    const localizedTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     if (prefomattedDate) {
         // Today at 10:20
         // Yesterday at 10:20
-        return `${prefomattedDate} at ${hours}:${minutes}`;
+        return `${prefomattedDate} at ${localizedTime}`;
     }
 
-    if (hideYear) {
-        // January 10. at 10:20 // we have " " or "." after month itself
-        return `${month}${OrdinalSuffix(day)} at ${hours}:${minutes}`;
-    }
-
-    // January 10. 2017. at 10:20 // we have " " or "." after month itself
-    return `${month}${OrdinalSuffix(day)} ${year} at ${hours}:${minutes}`;
+    // {localized datetime} at 10:20
+    return `${localizedDate} ${localizedTime}`;
 }
 
 export function getTodayUTC() {

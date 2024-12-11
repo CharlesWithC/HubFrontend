@@ -207,7 +207,7 @@ const ExternalUsers = () => {
                     let user = _userList.list[i];
                     let banMark = <></>;
                     if (user.ban !== null) banMark = <FontAwesomeIcon icon={faBan} style={{ color: theme.palette.error.main }} />;
-                    newUserList.push({ uid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{user.uid}</span>&nbsp;{banMark}</Typography>, user: <UserCard key={user.uid} user={user} />, email: user.email, discordid: user.discordid, steamid: <a href={`https://steamcommunity.com/profiles/${user.steamid}`} target="_blank" rel="noreferrer" >{user.steamid}</a>, truckersmpid: <a href={`https://truckersmp.com/user/${user.truckersmpid}`} target="_blank" rel="noreferrer" >{user.truckersmpid}</a>, joined: <TimeDelta key={`${+new Date()}`} timestamp={user.join_timestamp * 1000} rough={true} shortenedMonth={true} /> });
+                    newUserList.push({ uid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{user.uid}</span>&nbsp;{banMark}</Typography>, user: <UserCard key={user.uid} user={user} />, email: user.email, discordid: user.discordid, steamid: <a href={`https://steamcommunity.com/profiles/${user.steamid}`} target="_blank" rel="noreferrer" >{user.steamid}</a>, truckersmpid: <a href={`https://truckersmp.com/user/${user.truckersmpid}`} target="_blank" rel="noreferrer" >{user.truckersmpid}</a>, joined: <TimeDelta key={`${+new Date()}`} timestamp={user.join_timestamp * 1000} rough={true} /> });
                 }
                 if (userPageRef.current === userPage && userSearchRef.current === userSearch) {
                     setUserList(newUserList);
@@ -282,7 +282,7 @@ const ExternalUsers = () => {
                 let newBanList = [];
                 for (let i = 0; i < _banList.list.length; i++) {
                     let ban = _banList.list[i];
-                    let expireDT = <TimeDelta key={`${+new Date()}`} timestamp={ban.ban.expire * 1000} rough={true} shortenedMonth={true} />;
+                    let expireDT = <TimeDelta key={`${+new Date()}`} timestamp={ban.ban.expire * 1000} rough={true} />;
                     if (ban.ban.expire >= 4102444800 || ban.ban.expire === null) expireDT = "/";
                     newBanList.push({ uid: ban.meta.uid, user: ban.user === null ? undefined : <UserCard key={ban.user.uid} user={ban.user} />, email: ban.meta.email, discordid: ban.meta.discordid, steamid: <a href={`https://steamcommunity.com/profiles/${ban.meta.steamid}`} target="_blank" rel="noreferrer" >{ban.meta.steamid}</a>, truckersmpid: <a href={`https://truckersmp.com/user/${ban.meta.truckersmpid}`} target="_blank" rel="noreferrer" >{ban.meta.truckersmpid}</a>, reason: ban.ban.reason, expire: expireDT, contextMenu: <MenuItem onClick={() => { unbanUser(ban.meta); doLoadBan(); }}>{tr("unban")}</MenuItem> });
                 }
