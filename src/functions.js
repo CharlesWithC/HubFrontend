@@ -461,7 +461,7 @@ export function getTimezoneOffset(timezone, compareWith = 'UTC') {
     return (baseDate - tzDate) / (1000 * 60);
 }
 
-export function getFormattedDate(display_timezone, date, prefomattedDate = false, longForm = false) {
+export function getFormattedDate(display_timezone, date, preformattedDate = false, longForm = false) {
     if (date === undefined || date === null) return "";
     if (typeof date === "number") {
         if (date < 2000000000) date = date * 1000;
@@ -475,24 +475,29 @@ export function getFormattedDate(display_timezone, date, prefomattedDate = false
         return "";
     }
 
+    const localizedFullDateTime = date.toLocaleString(undefined, {
+        dateStyle: 'full',
+        timeStyle: 'short'
+    });
+    const localizedLongDate = date.toLocaleDateString(undefined, {
+        dateStyle: 'full'
+    });
+    const localizedShortDate = date.toLocaleDateString(undefined, {
+        dateStyle: 'short'
+    });
+    const localizedTime = date.toLocaleTimeString(undefined, {
+        timeStyle: 'short'
+    });
+
     if (longForm) {
-        return date.toLocaleString(undefined, {
-            dateStyle: 'full',
-            timeStyle: 'short'
-        }).replaceAll("at", "");
+        return `${localizedLongDate} ${localizedTime}`;
     }
 
-    const localizedDate = date.toLocaleDateString();
-    const localizedTime = date.toLocaleTimeString([], { timeStyle: "short" });
-
-    if (prefomattedDate) {
-        // Today at 10:20
-        // Yesterday at 10:20
-        return `${prefomattedDate} at ${localizedTime}`;
+    if (preformattedDate) {
+        return `${localizedFullDateTime.replace(localizedLongDate, preformattedDate)}`;
     }
 
-    // {localized datetime} at 10:20
-    return `${localizedDate} ${localizedTime}`;
+    return `${localizedShortDate} ${localizedTime}`;
 }
 
 export function getTodayUTC() {
