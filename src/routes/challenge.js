@@ -689,7 +689,7 @@ const Challenges = () => {
 
     return <>
         <ChallengesMemo userDrivenDistance={userDrivenDistance} challengeList={challengeList} setChallengeList={setChallengeList} upcomingChallenges={upcomingChallenges} setUpcomingChallenges={setUpcomingChallenges} activeChallenges={activeChallenges} setActiveChallenges={setActiveChallenges} doReload={doReload} onShowDetails={showChallengeDetails} onUpdateDelivery={updateDlog} onEdit={editChallenge} onDelete={deleteChallenge} />
-        {listModalItems.length !== 0 && <ListModal title={listModalChallenge.title} items={listModalItems} data={listModalChallenge} open={listModalOpen} onClose={handleCloseDetail} additionalContent={<Typography variant="body2" sx={{ marginTop: "20px" }}>
+        {listModalItems.length !== 0 && <ListModal title={listModalChallenge.title} items={listModalItems} data={listModalChallenge} open={listModalOpen} onClose={handleCloseDetail} head={<Typography variant="body2" sx={{ marginTop: "20px" }}>
             <MarkdownRenderer>{listModalChallenge.description}</MarkdownRenderer>
         </Typography>} />}
         <Dialog open={modalUpdateDlogOpen} onClose={() => setModalUpdateDlogOpen(false)}>

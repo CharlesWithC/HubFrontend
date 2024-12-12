@@ -5,7 +5,7 @@ import SimpleBar from 'simplebar-react';
 
 import { useTranslation } from 'react-i18next';
 
-const ListModal = ({ title, items, data, additionalContent, open, onClose }) => {
+const ListModal = ({ title, items, data, head, tail, open, onClose }) => {
     const { t: tr } = useTranslation();
 
     const modalStyle = {
@@ -33,6 +33,7 @@ const ListModal = ({ title, items, data, additionalContent, open, onClose }) => 
                     </IconButton>
                 </div>
                 <SimpleBar style={{ maxHeight: "60vh" }}>
+                    {head !== undefined && <>{head}<br /></>}
                     <TableContainer>
                         <Table>
                             <TableBody>
@@ -49,7 +50,7 @@ const ListModal = ({ title, items, data, additionalContent, open, onClose }) => 
                             </TableBody>
                         </Table>
                     </TableContainer>
-                    {additionalContent !== undefined ? additionalContent : <></>}
+                    {tail !== undefined && <><br />{tail}</>}
                 </SimpleBar>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
                     <Button variant="contained" color="secondary" sx={{ ml: 'auto' }}

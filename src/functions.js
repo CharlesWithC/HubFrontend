@@ -461,7 +461,7 @@ export function getTimezoneOffset(timezone, compareWith = 'UTC') {
     return (baseDate - tzDate) / (1000 * 60);
 }
 
-export function getFormattedDate(display_timezone, date, prefomattedDate = false) {
+export function getFormattedDate(display_timezone, date, prefomattedDate = false, longForm = false) {
     if (date === undefined || date === null) return "";
     if (typeof date === "number") {
         if (date < 2000000000) date = date * 1000;
@@ -475,8 +475,15 @@ export function getFormattedDate(display_timezone, date, prefomattedDate = false
         return "";
     }
 
+    if (longForm) {
+        return date.toLocaleString(undefined, {
+            dateStyle: 'full',
+            timeStyle: 'short'
+        }).replaceAll("at", "");
+    }
+
     const localizedDate = date.toLocaleDateString();
-    const localizedTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const localizedTime = date.toLocaleTimeString([], { timeStyle: "short" });
 
     if (prefomattedDate) {
         // Today at 10:20
