@@ -244,10 +244,10 @@ const Ranking = () => {
                         <Typography variant="subtitle2" align="center" gutterBottom>{tr("previous_rank")}</Typography>
                         {rankIdx >= 1 && <>
                             <Typography variant="h5" align="center" component="div" sx={{ color: curRankRoles[rankIdx - 1]?.color }}>
-                                {curRankRoles[rankIdx - 1].name}
+                                {curRankRoles[rankIdx - 1]?.name}
                             </Typography>
                             <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
-                                {TSep(curRankRoles[rankIdx - 1].points)} {tr("pts")} | -{TSep(userPoints - curRankRoles[rankIdx - 1].points)} {tr("pts")}
+                                {TSep(curRankRoles[rankIdx - 1]?.points || 0)} {tr("pts")} | -{TSep(userPoints - curRankRoles[rankIdx - 1]?.points || 0)} {tr("pts")}
                             </Typography>
                         </>}
                         {rankIdx <= 0 && <>
@@ -267,7 +267,7 @@ const Ranking = () => {
                         <Typography variant="subtitle2" align="center" gutterBottom>{tr("current_rank")}</Typography>
                         {rankIdx >= 0 && <>
                             <Typography variant="h5" align="center" component="div" sx={{ color: curRankRoles[rankIdx]?.color, cursor: "pointer" }} onClick={getDiscordRole}>
-                                {rankChange > 0 ? <FontAwesomeIcon icon={faAnglesUp} /> : (rankChange < 0 ? <FontAwesomeIcon icon={faAnglesDown} /> : <></>)} {curRankRoles[rankIdx].name} {rankChange > 0 ? <FontAwesomeIcon icon={faAnglesUp} /> : (rankChange < 0 ? <FontAwesomeIcon icon={faAnglesDown} /> : <></>)}
+                                {rankChange > 0 ? <FontAwesomeIcon icon={faAnglesUp} /> : (rankChange < 0 ? <FontAwesomeIcon icon={faAnglesDown} /> : <></>)} {curRankRoles[rankIdx]?.name} {rankChange > 0 ? <FontAwesomeIcon icon={faAnglesUp} /> : (rankChange < 0 ? <FontAwesomeIcon icon={faAnglesDown} /> : <></>)}
                             </Typography>
                             <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
                                 {TSep(userPoints)} {tr("pts")}
@@ -292,10 +292,10 @@ const Ranking = () => {
                         <Typography variant="subtitle2" align="center" gutterBottom>{tr("next_rank")}</Typography>
                         {rankIdx + 1 <= curRankRoles.length - 1 && <>
                             <Typography variant="h5" align="center" component="div" sx={{ color: curRankRoles[rankIdx + 1]?.color }}>
-                                {curRankRoles[rankIdx + 1].name}
+                                {curRankRoles[rankIdx + 1]?.name}
                             </Typography>
                             <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
-                                {TSep(curRankRoles[rankIdx + 1].points)} {tr("pts")} | +{TSep(curRankRoles[rankIdx + 1].points - userPoints)} {tr("pts")}
+                                {TSep(curRankRoles[rankIdx + 1]?.points || 0)} {tr("pts")} | +{TSep(curRankRoles[rankIdx + 1]?.points || 0 - userPoints)} {tr("pts")}
                             </Typography>
                         </>}
                         {rankIdx + 1 > curRankRoles.length - 1 && <>
