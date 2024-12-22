@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "name": "drivershub",
   "description": "An advanced Drivers Hub solution.",
   "author": "CharlesWithC <me@charlws.com> (https://charlws.com)",
@@ -22,9 +23,6 @@
     "@mui/material": "^5.15.19",
     "@sentry/cli": "^2.32.1",
     "@sentry/react": "^8.7.0",
-    "@testing-library/jest-dom": "^6.4.5",
-    "@testing-library/react": "^16.0.0",
-    "@testing-library/user-event": "^14.5.2",
     "axios": "^1.7.2",
     "axios-retry": "^4.4.0",
     "bootstrap": "^5.3.3",
@@ -44,6 +42,7 @@
     "i18next": "^23.11.5",
     "i18next-browser-languagedetector": "^8.0.0",
     "lodash": "^4.17.21",
+    "lodash.debounce": "^4.0.8",
     "lz-string": "^1.5.0",
     "moment-timezone": "^0.5.45",
     "ol": "^9.2.4",
@@ -57,23 +56,20 @@
     "react-i18next": "^14.1.2",
     "react-markdown": "^9.0.1",
     "react-ol-wrapper": "^0.2.9",
-    "react-scripts": "5.0.1",
     "react-select": "^5.8.0",
     "readline-sync": "^1.4.10",
-    "simplebar-react": "^3.2.5",
-    "source-map-explorer": "^2.5.3",
-    "web-vitals": "^4.0.1"
+    "simplebar-react": "^3.3.0",
+    "source-map-explorer": "^2.5.3"
   },
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",
-    "start": "react-scripts start",
-    "build": "cross-env PUBLIC_URL=https://cdn.chub.page/ react-scripts build && bash ./scripts/browser-build.sh && npm run sentry:sourcemaps && bash -c \"find ./build -type f -name '*.map' -exec rm {} \\;\"",
-    "build:dev": "cross-env PUBLIC_URL=https://cdn.chub.page/ react-scripts build && bash ./scripts/browser-build.sh",
-    "build:electron": "react-scripts build && bash ./scripts/electron-build.sh && bash -c \"find ./build -type f -name '*.map' -exec rm {} \\;\"",
-    "build:electron:dev": "react-scripts build && bash ./scripts/electron-build.sh",
-    "build:serve": "react-scripts build && serve -s build --port 3001",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
+    "dev": "vite",
+    "build": "vite build && bash ./scripts/browser-build.sh && npm run sentry:sourcemaps && bash -c \"find ./build -type f -name '*.map' -exec rm {} \\;\"",
+    "build:dev": "vite build && bash ./scripts/browser-build.sh",
+    "build:electron": "vite build && bash ./scripts/electron-build.sh && bash -c \"find ./build -type f -name '*.map' -exec rm {} \\;\"",
+    "build:electron:dev": "vite build && bash ./scripts/electron-build.sh",
+    "build:serve": "vite build && serve -s build --port 3001",
+    "test": "vitest",
     "electron": "electron .",
     "electron:build": "npm run build:electron && node ./build-electron/main.js",
     "electron-pack": "build --em.main=public/electron.js",
@@ -661,9 +657,10 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "cross-env": "^7.0.3",
+    "@vitejs/plugin-react": "^4.3.4",
     "electron": "^30.1.0",
     "electron-builder": "^24.13.3",
-    "react-router-dom": "^6.23.1"
+    "react-router-dom": "^6.23.1",
+    "vite": "^6.0.5"
   }
 }

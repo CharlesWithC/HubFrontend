@@ -8,6 +8,7 @@ import { Card, CardContent, Typography, Button, Grid, Dialog, DialogActions, Dia
 
 import Loader from './components/loader';
 import Redirect from './components/redirect';
+import BrowserAuth from './components/browserAuth.js';
 
 import Overview from './routes/overview';
 import Statistics from './routes/statistics';
@@ -18,7 +19,6 @@ import Ranking from './routes/ranking';
 import FreightMaster from './routes/freightmaster';
 
 // lazy load: auth (just accessed once on login)
-const BrowserAuth = lazy(() => import('./components/browserAuth'));
 const AuthLogin = lazy(() => import('./routes/auth/login'));
 const TokenAuth = lazy(() => import('./routes/auth/token'));
 const DiscordAuth = lazy(() => import('./routes/auth/discord/callback'));

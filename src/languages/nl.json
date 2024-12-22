@@ -1,4 +1,4 @@
-const nl = {
+{
     "1_minute_ago": "1 minuut geleden",
     "1_minute_later": "In 1 minute",
     "a_special_discord_role": "Een speciale Discord rol",
@@ -1345,5 +1345,4 @@ const nl = {
     "you_have_resigned_goodbye_and_best_wishes": "You have resigned! Goodbye and best wishes!",
     "you_may_try_to_reload_it_in_detailed_info_modal": "Je kunt proberen het opnieuw te laden in het gedetailleerde informatiemodel.",
     "you_received_a_new_rank_role": "Je hebt een nieuwe rangrol ontvangen"
-};
-exports.nl = nl;
+}

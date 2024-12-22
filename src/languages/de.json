@@ -1,4 +1,4 @@
-const de = {
+{
     "1_minute_ago": "vor einer Minute",
     "1_minute_later": "In 1 minute",
     "a_special_discord_role": "Eine besondere Discord-Rolle",
@@ -1345,5 +1345,4 @@ const de = {
     "you_have_resigned_goodbye_and_best_wishes": "Sie sind zurückgetreten! Auf Wiedersehen und beste Wünsche!",
     "you_may_try_to_reload_it_in_detailed_info_modal": "Du kannst versuchen, sie im Detailinfomodal neu zu laden.",
     "you_received_a_new_rank_role": "Du hast eine neue Rangrolle erhalten"
-};
-exports.de = de;
+}

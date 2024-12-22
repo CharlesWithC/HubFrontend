@@ -295,7 +295,7 @@ const Ranking = () => {
                                 {curRankRoles[rankIdx + 1]?.name}
                             </Typography>
                             <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
-                                {TSep(curRankRoles[rankIdx + 1]?.points || 0)} {tr("pts")} | +{TSep(curRankRoles[rankIdx + 1]?.points || 0 - userPoints)} {tr("pts")}
+                                {TSep(curRankRoles[rankIdx + 1]?.points || 0)} {tr("pts")} | +{TSep((curRankRoles[rankIdx + 1]?.points || 0) - userPoints)} {tr("pts")}
                             </Typography>
                         </>}
                         {rankIdx + 1 > curRankRoles.length - 1 && <>

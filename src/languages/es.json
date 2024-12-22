@@ -1,4 +1,4 @@
-const es = {
+{
     "1_minute_ago": "Hace 1 minuto",
     "1_minute_later": "In 1 minute",
     "a_special_discord_role": "Un Rol Especial en Discord",
@@ -1345,5 +1345,4 @@ const es = {
     "you_have_resigned_goodbye_and_best_wishes": "You have resigned! Goodbye and best wishes!",
     "you_may_try_to_reload_it_in_detailed_info_modal": "Puedes intentar recargarlo en el modal de información detallada.",
     "you_received_a_new_rank_role": "Has recibido un nuevo rol de rango"
-};
-exports.es = es;
+}

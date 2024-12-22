@@ -11,7 +11,7 @@ import { Portal } from '@mui/base';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStamp } from '@fortawesome/free-solid-svg-icons';
 
-import SimpleBar from 'simplebar-react/dist';
+import SimpleBar from 'simplebar-react';
 
 import UserCard from '../components/usercard';
 import ListModal from '../components/listmodal';
