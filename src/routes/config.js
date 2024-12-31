@@ -3397,15 +3397,17 @@ const Configuration = () => {
         window.loading -= 1;
     }, [apiPath, formConfig, formConfigOrg]);
 
-    let buildhash = "dev";
-    const scripts = document.getElementsByTagName('script');
-    for (let i = 0; i < scripts.length; i++) {
-        const script = scripts[i];
-        if (script.src.includes('main.')) {
-            const hash = script.src.split('main.')[1].split('.js')[0];
-            buildhash = hash;
+    const [buildhash, setBuildHash] = useState("drgn.dev");
+    useEffect(() => {
+        const scripts = document.getElementsByTagName('script');
+        const mainScript = Array.from(scripts).find(script => script.src);
+
+        if (mainScript) {
+            const filename = mainScript.src.split('/').pop().replace('.js', '');
+            if (filename === 'client') setBuildHash("drgn.dev");
+            else setBuildHash("drgn." + (filename.substring(0, 8) || "dev"));
         }
-    }
+    }, []);
 
     const [advancedPlugins, setAdvancedPlugins] = useState([]);
     const [reloadAP, setReloadAP] = useState(0);

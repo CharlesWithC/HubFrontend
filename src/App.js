@@ -123,15 +123,17 @@ function App() {
     const uTheme = useTheme();
     const isMd = useMediaQuery(uTheme.breakpoints.up('md'));
 
-    let buildhash = "dev";
-    const scripts = document.getElementsByTagName('script');
-    for (let i = 0; i < scripts.length; i++) {
-        const script = scripts[i];
-        if (script.src.includes('main.')) {
-            const hash = script.src.split('main.')[1].split('.js')[0];
-            buildhash = hash;
+    const [buildhash, setBuildHash] = useState("drgn.dev");
+    useEffect(() => {
+        const scripts = document.getElementsByTagName('script');
+        const mainScript = Array.from(scripts).find(script => script.src);
+
+        if (mainScript) {
+            const filename = mainScript.src.split('/').pop().replace('.js', '');
+            if (filename === 'client') setBuildHash("drgn.dev");
+            else setBuildHash("drgn." + (filename.substring(0, 8) || "dev"));
         }
-    }
+    }, []);
 
     const [showSurveyCard, setShowSurveyCard] = useState(+new Date() <= 1710806399000 && (localStorage.getItem("survey-202402") === null || parseInt(localStorage.getItem("survey-202402")) <= +new Date()));
 
