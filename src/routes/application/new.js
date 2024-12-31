@@ -117,16 +117,22 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
 
         // update form data to remove fields that are not shown
         let modified = false;
-        let newFormData = JSON.parse(JSON.stringify(formData));
+        let newFormData = {}; // we set it to empty and redo it - so questions are kept in correct order
 
         let toDelete = [], toAdd = [];
         for (let i = 0; i < config.length; i++) {
             let field = config[i];
+            if (formData[field.label] !== undefined) {
+                // copy based on order
+                newFormData[field.label] = formData[field.label];
+            }
             if (field.x_must_be !== undefined) {
                 if (formData[field.x_must_be.label] !== field.x_must_be.value) {
                     toDelete.push(field.label);
-                } else {
-                    toAdd.push(field.label);
+                } else if (formData[field.label] === undefined) {
+                    newFormData[field.label] = ""; // add here directly
+                    toAdd.push(field.label); // no effect - just for calculating "toDelete"
+                    modified = true;
                 }
             }
         }
@@ -135,14 +141,7 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
 
         for (let i = 0; i < toDelete.length; i++) {
             if (formData[toDelete[i]] !== undefined) {
-
                 delete newFormData[toDelete[i]];
-                modified = true;
-            }
-        }
-        for (let i = 0; i < toAdd.length; i++) {
-            if (formData[toAdd[i]] === undefined) {
-                newFormData[toAdd[i]] = "";
                 modified = true;
             }
         }
@@ -499,7 +498,7 @@ const NewApplication = () => {
     const handleSubmit = useCallback(async () => {
         setSubmitDisabled(true);
 
-        let modFormData = JSON.parse(JSON.stringify(formData));
+        let modFormData = { ...formData };
         let keys = Object.keys(modFormData);
         for (let i = 0; i < keys.length; i++) {
             if (modFormData[keys[i]] instanceof Array) {
