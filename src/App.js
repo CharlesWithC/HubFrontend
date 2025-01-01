@@ -103,7 +103,7 @@ function App() {
     useEffect(() => {
         console.log(drivershub);
         console.log(`Drivers Hub: Frontend`);
-        console.log(`Copyright (C) ${new Date().getFullYear()} CharlesWithC All rights reserved.`);
+        console.log(`Copyright (C) 2022-2025 CharlesWithC All rights reserved.`);
     }, []);
 
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
@@ -451,7 +451,7 @@ function App() {
                                 <footer style={{ display: ["/auth", "/auth/login", "/auth/email", "/auth/discord/callback", "/auth/discord/redirect", "/auth/steam/callback", "/auth/steam/redirect", "/auth/patreon/callback", "/auth/mfa"].includes(location.pathname) ? "none" : "block", marginTop: "auto", fontSize: "0.9em" }}>
                                     {isMd && <div style={{ display: 'flex', alignItems: 'center', marginTop: "20px", color: theme.palette.text.secondary }}>
                                         <Typography variant="body2" sx={{ flexGrow: 1, fontWeight: 800 }}>
-                                            &copy; {new Date().getFullYear()} <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a>
+                                            &copy; 2022-2025 <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a>
                                         </Typography>
                                         <Typography variant="body2" sx={{ marginLeft: "auto", alignSelf: 'flex-end', textAlign: "right", fontWeight: 800, marginRight: hasSpeedDial ? "70px" : 0 }}>
                                             <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">The Drivers Hub Project (CHub)</a>  <FontAwesomeIcon icon={faQuestionCircle} onClick={() => { setAboutCHubModal(true); }} style={{ cursor: "pointer" }} />
@@ -459,7 +459,7 @@ function App() {
                                     </div>}
                                     {!isMd && <div style={{ alignItems: 'center', marginTop: "20px", color: theme.palette.text.secondary }}>
                                         <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                            &copy; {new Date().getFullYear()} <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a>
+                                            &copy; 2022-2025 <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a>
                                             <br />
                                             <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">The Drivers Hub Project (CHub)</a>  <FontAwesomeIcon icon={faQuestionCircle} onClick={() => { setAboutCHubModal(true); }} style={{ cursor: "pointer" }} />
                                         </Typography>
