@@ -1359,7 +1359,7 @@ const UserCard = (props) => {
                             onChange={(e) => setNewRoleMessage(e.target.value)}
                             fullWidth
                             sx={{ mt: "15px" }}
-                            disabled={adPlugins.find(item => item.id === "role-update-custom-message")?.enabled !== true}
+                            disabled={!adPlugins.find || adPlugins.find(item => item.id === "role-update-custom-message")?.enabled !== true}
                         />
                     </DialogContent>
                     <DialogActions>
