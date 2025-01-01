@@ -371,9 +371,16 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
 
         mergeEvents(ParseEventImage(monthEvents.list));
 
+        let monthStart = dateInfo.start;
+        if (monthStart.getDate() !== 1) {
+            monthStart = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 1);
+        }
+        let monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0);
+        monthEnd.setHours(23, 59, 59, 999);
+
         let count = 0;
         for (let i = 0; i < monthEvents.list.length; i++) {
-            if (monthEvents.list[i].departure_timestamp * 1000 >= dateInfo.start && monthEvents.list[i].departure_timestamp * 1000 <= dateInfo.end) {
+            if (monthEvents.list[i].departure_timestamp * 1000 >= monthStart && monthEvents.list[i].departure_timestamp * 1000 <= monthEnd) {
                 count += 1;
             }
         }
