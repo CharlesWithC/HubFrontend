@@ -133,6 +133,7 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
                     newFormData[field.label] = ""; // add here directly
                     toAdd.push(field.label); // no effect - just for calculating "toDelete"
                     modified = true;
+                    setSubmitDisabled(true);
                 }
             }
         }
@@ -146,8 +147,7 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
             }
         }
 
-        if (modified) {
-            setSubmitDisabled(true);
+        if (modified || Object.keys(formData) !== Object.keys(newFormData)) {
             setFormData(newFormData);
         }
     }, [formData, config]);
