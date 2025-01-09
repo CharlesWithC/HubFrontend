@@ -3,18 +3,18 @@ import Select, { components } from 'react-select';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '../context';
 
-import { Typography } from '@mui/material';
+import { Typography, Box } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckSquare } from '@fortawesome/free-solid-svg-icons';
 import { customSelectStyles } from '../designs';
 
-const UserSelect = ({ label, users, onUpdate, isMulti = true, includeCompany = false, includeBlackhole = false, limit = undefined, style = {}, userList: inputUserList = undefined, disabled = false, allowSelectAll = false }) => {
+const UserSelect = ({ label, users, onUpdate, isMulti = true, includeCompany = false, includeBlackhole = false, limit = undefined, style = {}, userList: inputUserList = undefined, disabled = false, allowSelectAll = false, allowDeselect = false }) => {
     const { t: tr } = useTranslation();
     const { webConfig, users: cachedUsers, memberUIDs } = useContext(AppContext);
     const theme = useTheme();
-    
+
     const userList = useMemo(() => (inputUserList !== undefined ? inputUserList : memberUIDs.map((uid) => cachedUsers[uid])), [inputUserList, cachedUsers, memberUIDs]);
 
     const memberMap = useMemo(() => {
@@ -77,7 +77,12 @@ const UserSelect = ({ label, users, onUpdate, isMulti = true, includeCompany = f
 
     return (
         <div style={style}>
-            {label && <Typography variant="body2">{label}</Typography>}
+            <Box sx={{ display: "flex", width: "100%", justifyContent: "space-between" }}>
+                {label && <Typography variant="body2">{label}</Typography>}
+                {allowDeselect && <Typography variant="body2" sx={{ opacity: "0.8", cursor: "pointer" }} onClick={() => {
+                    onUpdate(null);
+                }}>{tr("clear")}</Typography>}
+            </Box>
             <Select
                 isMulti={isMulti}
                 name="colors"

@@ -2,7 +2,7 @@ import { useRef, useEffect, useState, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppContext, CacheContext } from '../context';
 
-import { Typography, Grid, Tooltip, SpeedDial, SpeedDialAction, SpeedDialIcon, Dialog, DialogActions, DialogTitle, DialogContent, TextField, Button, Snackbar, Alert, Divider, FormControl, FormControlLabel, Checkbox, MenuItem, useTheme } from '@mui/material';
+import { Typography, Grid, Tooltip, SpeedDial, SpeedDialAction, SpeedDialIcon, Dialog, DialogActions, DialogTitle, DialogContent, TextField, Button, Snackbar, Alert, Divider, FormControl, FormControlLabel, Checkbox, MenuItem, Box, useTheme } from '@mui/material';
 import { LocalShippingRounded, WidgetsRounded, VerifiedOutlined } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { Portal } from '@mui/base';
@@ -14,6 +14,7 @@ import DateTimeField from '../components/datetime';
 import Podium from "../components/podium";
 import CustomTable from "../components/table";
 import UserCard from '../components/usercard';
+import UserSelect from '../components/userselect';
 import TimeDelta from '../components/timedelta';
 import SponsorBadge from '../components/sponsorBadge';
 import { makeRequestsAuto, getMonthUTC, ConvertUnit, customAxios as axios, getAuthToken, downloadLocal, checkUserPerm, removeNUEValues } from '../functions';
@@ -22,7 +23,7 @@ const CURRENTY_ICON = { 1: "€", 2: "$" };
 
 const Deliveries = () => {
     const { t: tr } = useTranslation();
-    const { apiPath, userLevel, curUserPerm, userSettings } = useContext(AppContext);
+    const { apiPath, userLevel, curUserPerm, userSettings, users, memberUIDs } = useContext(AppContext);
     const { cache, setCache } = useContext(CacheContext);
     const theme = useTheme();
 
@@ -417,6 +418,19 @@ const Deliveries = () => {
             <DialogContent>
                 <Grid container spacing={2} sx={{ mt: "5px" }}>
                     <Grid item xs={6}>
+                        <UserSelect label={tr("user")} users={[{ ...Object.values(users).find(user => user.userid === tempListParam?.userid) }]} onUpdate={(user) => {
+                            setTempListParam({ ...tempListParam, userid: user?.userid !== undefined ? user?.userid : null });
+                        }} isMulti={false} allowDeselect={true} />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <TextField
+                            label={tr("speed_limit_kmh")}
+                            value={tempListParam.speed_limit}
+                            onChange={(e) => { if (!isNaN(e.target.value)) setTempListParam({ ...tempListParam, speed_limit: e.target.value }); }}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={6}>
                         <TextField select
                             label={tr("order_by")}
                             value={tempListParam.order_by}
@@ -457,14 +471,6 @@ const Deliveries = () => {
                             fullWidth
                         />
                     </Grid>
-                    <Grid item xs={12}>
-                        <TextField
-                            label={tr("speed_limit_kmh")}
-                            value={tempListParam.speed_limit}
-                            onChange={(e) => { if (!isNaN(e.target.value)) setTempListParam({ ...tempListParam, speed_limit: e.target.value }); }}
-                            fullWidth
-                        />
-                    </Grid>
                     <Grid item xs={6}>
                         <TextField select
                             label={tr("game")}
@@ -492,7 +498,10 @@ const Deliveries = () => {
                 </Grid>
             </DialogContent>
             <DialogActions>
-                <Button variant="contained" onClick={() => { setListParam(tempListParam); }}>{tr("update")}</Button>
+                <Box sx={{ width: "100%", padding: "16px", paddingTop: "0", display: "flex", justifyContent: "space-between" }}>
+                    <Button variant="contained" onClick={() => { setDialogOpen(""); }}>{tr("cancel")}</Button>
+                    <Button variant="contained" color="info" onClick={() => { setListParam(tempListParam); }}>{tr("update")}</Button>
+                </Box>
             </DialogActions>
         </Dialog>
         <SpeedDial

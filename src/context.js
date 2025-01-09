@@ -417,7 +417,7 @@ const DEFAULT_CACHE = {
         page: 1,
         pageSize: null,
         totalItems: 1,
-        listParam: { order_by: "logid", order: "desc", after: undefined, before: undefined, game: 0, status: 0 }
+        listParam: { order_by: "logid", order: "desc", after: undefined, before: undefined, game: 0, status: 0, userid: null }
     },
     division: {
         dlog: {
