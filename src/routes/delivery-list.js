@@ -67,18 +67,10 @@ const Deliveries = () => {
 
     const [exportRange, setExportRange] = useState({ start_time: undefined, end_time: undefined });
     const exportDlog = useCallback(async () => {
-        if (isNaN(exportRange.end_time - exportRange.start_time)) {
-            setSnackbarContent(tr("invalid_date_range"));
-            setSnackbarSeverity("error");
-            return;
-        }
-        if (exportRange.end_time - exportRange.start_time > 86400 * 90) {
-            setSnackbarContent(tr("the_date_range_must_be_smaller_than_90_days"));
-            setSnackbarSeverity("error");
-            return;
-        }
         setDialogButtonDisabled(true);
-        let resp = await axios({ url: `${apiPath}/dlog/export?after=${parseInt(exportRange.start_time)}&before=${parseInt(exportRange.end_time)}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let params = { after: exportRange.start_time, before: exportRange.end_time };
+        params = removeNUEValues(params);
+        let resp = await axios({ url: `${apiPath}/dlog/export`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` }, params: params });
         if (resp.status === 200) {
             downloadLocal("export.csv", resp.data);
             setSnackbarContent(tr("success"));
@@ -317,7 +309,6 @@ const Deliveries = () => {
         <Dialog open={dialogOpen === "export"} onClose={() => setDialogOpen("")}>
             <DialogTitle><FontAwesomeIcon icon={faFileExport} />&nbsp;&nbsp;{tr("export_delivery_logs")}</DialogTitle>
             <DialogContent>
-                <Typography variant="body2">{tr("export_delivery_logs_note")}</Typography>
                 <Grid container spacing={2} style={{ marginTop: "3px" }}>
                     <Grid item xs={6}>
                         <DateTimeField
