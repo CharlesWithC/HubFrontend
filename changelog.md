@@ -3,6 +3,7 @@
 ## v3.4.6
 
 1. Added owner option on economy purchase truck
+2. Added first-day-of-week locale support in event calendar
 
 ## v3.4.5
 

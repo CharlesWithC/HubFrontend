@@ -495,12 +495,8 @@ const Economy = () => {
     const [truckOwner, setTruckOwner] = useState({}); // automatic update on truck change
     const [truckAssignee, setTruckAssignee] = useState({}); // automatic update on truck change
     useEffect(() => {
-        if (activeTruck) {
-            setTruckOwner(activeTruck.owner); setTruckAssignee(activeTruck.assignee);
-        } else {
-            setTruckOwner(curUser); setTruckAssignee(curUser);
-        }
-    }, [activeTruck, curUser]);
+        setTruckOwner(activeTruck.owner); setTruckAssignee(activeTruck.assignee);
+    }, [activeTruck]);
     const loadTruck = useCallback(async (truck) => {
         let resp = await axios({ url: `${apiPath}/economy/trucks/${truck.vehicleid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         setActiveTruck({ ...truck, ...resp.data, update: +new Date() });

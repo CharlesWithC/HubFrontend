@@ -29,6 +29,47 @@ function ParseEventImage(events) {
     return events;
 }
 
+const LOCALE_FIRST_DAY = {
+    // Languages
+    'en': 0, // Default English - Sunday
+    'de': 1, // German - Monday
+    'fr': 1, // French - Monday
+    'es': 1, // Spanish - Monday
+    'it': 1, // Italian - Monday
+    'pt': 1, // Portuguese - Monday
+    'ru': 1, // Russian - Monday
+    'ja': 0, // Japanese - Sunday
+    'ko': 0, // Korean - Sunday
+    'zh': 1, // Chinese - Monday
+
+    // Override for specific locales where needed
+    'en-US': 0, // US English - Sunday
+    'en-GB': 1, // British English - Monday
+    'en-CA': 0, // Canadian English - Sunday
+    'zh-CN': 1, // Simplified Chinese - Monday
+    'zh-HK': 0, // Hong Kong Chinese - Sunday
+    'zh-TW': 0, // Taiwan Chinese - Sunday
+    'ar-SA': 6, // Saudi Arabia - Saturday
+    'ar-EG': 6  // Egypt - Saturday
+};
+
+function getFirstDay(language) {
+    if (new Intl.Locale(language).getWeekInfo)
+        return new Intl.Locale(language).getWeekInfo().firstDay;
+    else {
+        const fullLocale = navigator.language;
+        const language = fullLocale.split('-')[0];
+
+        if (LOCALE_FIRST_DAY[fullLocale] !== undefined) {
+            return LOCALE_FIRST_DAY[fullLocale];
+        }
+
+        if (LOCALE_FIRST_DAY[language] !== undefined) {
+            return LOCALE_FIRST_DAY[language];
+        }
+    }
+}
+
 const EventCard = ({ event, eventid, imageUrl, title, creator, description, link, meetupTime, departureTime, departure, destination, distance, votercnt, attendeecnt, points, futureEvent, voters, attendees, voted, onVote, onUnvote, onUpdateAttendees, onEdit, onDelete }) => {
     const { t: tr } = useTranslation();
     const { curUID, curUserPerm, userSettings } = useContext(AppContext);
@@ -422,6 +463,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
                     eventClick={handleEventClick}
                     datesSet={handleDateSet}
                     locale={userSettings.language}
+                    firstDay={getFirstDay(userSettings.language)}
                 />
                 {curMonthCount !== -1 && <Box sx={{ textAlign: 'right' }}>
                     <Typography variant="body2">
