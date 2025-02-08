@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.4.6
+
+1. Added owner option on economy purchase truck
+
 ## v3.4.5
 
 1. Added task plugin

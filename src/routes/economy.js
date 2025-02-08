@@ -495,8 +495,12 @@ const Economy = () => {
     const [truckOwner, setTruckOwner] = useState({}); // automatic update on truck change
     const [truckAssignee, setTruckAssignee] = useState({}); // automatic update on truck change
     useEffect(() => {
-        setTruckOwner(activeTruck.owner); setTruckAssignee(activeTruck.assignee);
-    }, [activeTruck]);
+        if (activeTruck) {
+            setTruckOwner(activeTruck.owner); setTruckAssignee(activeTruck.assignee);
+        } else {
+            setTruckOwner(curUser); setTruckAssignee(curUser);
+        }
+    }, [activeTruck, curUser]);
     const loadTruck = useCallback(async (truck) => {
         let resp = await axios({ url: `${apiPath}/economy/trucks/${truck.vehicleid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         setActiveTruck({ ...truck, ...resp.data, update: +new Date() });
@@ -656,7 +660,11 @@ const Economy = () => {
     const [selectedTruck, setSelectedTruck] = useState({});
     const purchaseTruck = useCallback(async () => {
         setDialogDisabled(true);
-        let resp = await axios({ url: `${apiPath}/economy/trucks/${selectedTruck.truck.id}/purchase`, data: { slotid: truckSlotId }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let owner = truckOwner.userid;
+        if (owner === -1000) owner = "company";
+        else if (owner === curUser.userid) owner = "self";
+        else owner = "user-" + owner;
+        let resp = await axios({ url: `${apiPath}/economy/trucks/${selectedTruck.truck.id}/purchase`, data: { slotid: truckSlotId, owner: owner }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
             setSnackbarContent(tr("truck_purchased"));
             setSnackbarSeverity("success");
@@ -667,7 +675,7 @@ const Economy = () => {
             setSnackbarSeverity("error");
         }
         setDialogDisabled(false);
-    }, [apiPath, selectedTruck, truckSlotId, truckReferer]);
+    }, [apiPath, selectedTruck, truckSlotId, truckReferer, truckOwner]);
 
     const transferFrom = curUser;
     const [transferTo, setTransferTo] = useState({});
@@ -1302,13 +1310,17 @@ const Economy = () => {
                             menuPortalTarget={document.body}
                         />
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item xs={6}>
                         <TextField
                             label={tr("slot_id")}
                             value={truckSlotId}
                             onChange={(e) => setTruckSlotId(e.target.value)}
                             fullWidth sx={{ mt: "5px" }}
                         />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("new_truck_owner")}</Typography>
+                        <Typography variant="body2"><UserSelect users={[truckOwner]} isMulti={false} includeCompany={true} onUpdate={setTruckOwner} /></Typography>
                     </Grid>
                 </Grid>
             </DialogContent>
