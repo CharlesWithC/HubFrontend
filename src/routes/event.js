@@ -223,6 +223,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
 
     const [isInitialLoad, setIsInitialLoad] = useState(true);
     const [curMonthCount, setCurMonthCount] = useState(-1);
+    const [attendedCount, setAttendedCount] = useState(0);
 
     useEffect(() => {
         async function doLoad() {
@@ -398,6 +399,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
         window.loading += 1;
 
         setCurMonthCount(-1);
+        setAttendedCount(-1);
 
         let urls = [
             `${apiPath}/events/list?page_size=250&page=1&meetup_after=${start}&meetup_before=${end}`
@@ -419,13 +421,17 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
         let monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0);
         monthEnd.setHours(23, 59, 59, 999);
 
-        let count = 0;
+        let count = 0, attended = 0;
         for (let i = 0; i < monthEvents.list.length; i++) {
             if (monthEvents.list[i].departure_timestamp * 1000 >= monthStart && monthEvents.list[i].departure_timestamp * 1000 <= monthEnd) {
                 count += 1;
+                if (monthEvents.list[i].attended) {
+                    attended += 1;
+                }
             }
         }
         setCurMonthCount(count);
+        setAttendedCount(attended);
 
         window.loading -= 1;
     }, [apiPath]);
@@ -465,7 +471,12 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
                     locale={userSettings.language}
                     firstDay={getFirstDay(userSettings.language)}
                 />
-                {curMonthCount !== -1 && <Box sx={{ textAlign: 'right' }}>
+                {curMonthCount !== -1 && attendedCount !== -1 && <Box sx={{ textAlign: 'right' }}>
+                    <Typography variant="body2">
+                        {attendedCount}/{curMonthCount} events attended this month
+                    </Typography>
+                </Box>}
+                {curMonthCount !== -1 && attendedCount === -1 && <Box sx={{ textAlign: 'right' }}>
                     <Typography variant="body2">
                         {curMonthCount} events this month
                     </Typography>
