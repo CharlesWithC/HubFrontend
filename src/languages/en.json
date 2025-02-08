@@ -111,6 +111,7 @@
     "audit_log_discord_webhook_alternative": "Audit Log Discord Webhook (Alternative)",
     "authentication": "Authentication",
     "author_icon_url": "Author Icon URL",
+    "automatic_discord_rank_role": "Automatic Discord Rank Role",
     "author_name": "Author Name",
     "authorizaing_with_browser": "Authorizaing with browser...",
     "authorization": "Authorization",

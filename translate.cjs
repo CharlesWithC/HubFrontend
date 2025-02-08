@@ -72,11 +72,11 @@ const code = fs.readFileSync(file, 'utf-8');
 const ast = parser.parse(code, { sourceType: 'module', plugins: ['jsx'] });
 
 // Read the language file
-const languageFile = './src/languages/en.js';
-let languageData = require(languageFile).en;
+const languageFile = './src/languages/en.json';
+let languageData = require(languageFile);
 
 // Skip
-let skips = require("./translate-skips.js").skips;
+let skips = require("./translate-skips.cjs").skips;
 
 // Listen for SIGINT event
 process.on('SIGINT', function () {
@@ -345,13 +345,13 @@ fs.writeFile(file, modifiedCode, err => {
 });
 
 // Write the modified language data back to the file
-fs.writeFile(languageFile, 'const en = ' + JSON.stringify(Object.keys(languageData).sort().reduce((obj, key) => { obj[key] = languageData[key]; return obj; }, {}), null, 4) + ';\nexports.en = en;', err => {
+fs.writeFile(languageFile, JSON.stringify(Object.keys(languageData).sort().reduce((obj, key) => { obj[key] = languageData[key]; return obj; }, {}), null, 4), err => {
     if (err) throw err;
     console.log('The language file has been saved!');
 });
 
 // Write the modified language data back to the file
-fs.writeFile("./translate-skips.js", 'const skips = ' + JSON.stringify(skips.sort(), null, 4) + ';\nexports.skips = skips;', err => {
+fs.writeFile("./translate-skips.cjs", 'const skips = ' + JSON.stringify(skips.sort(), null, 4) + ';\nexports.skips = skips;', err => {
     if (err) throw err;
     console.log('The skips file has been saved!');
 });

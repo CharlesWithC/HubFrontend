@@ -10,7 +10,7 @@ const UpgradeCard = () => {
 
     const bronze = [tr("a_special_discord_role"), tr("a_special_thank_you")];
     const silver = [tr("silver_name"), tr("custom_color_theme"), tr("more_radio_stations")];
-    const gold = [tr("gold_name"), tr("custom_background_image"), tr("custom_profile_theme"), tr("custom_profile_banner"), tr("configurable_display_timezone"), tr("sponsor_support")];
+    const gold = [tr("gold_name"), tr("automatic_discord_rank_role"), tr("custom_background_image"), tr("custom_profile_theme"), tr("custom_profile_banner"), tr("configurable_display_timezone"), tr("sponsor_support")];
     const platinum = [tr("more_name_color"), tr("any_radio_stations_radio_url"), tr("advanced_staff_functions"), tr("early_access_to_all_chub_features"), tr("sponsor_priority_support")];
 
     return (
@@ -82,7 +82,7 @@ const UpgradeCard = () => {
                     <CardContent>
                         <List>
                             {gold.map((feature) => (
-                                <ListItem key={feature}>
+                                <ListItem key={feature} sx={{ color: feature === tr("automatic_discord_rank_role") ? "#ffd700" : undefined }}>
                                     <ListItemText primary={feature} />
                                 </ListItem>
                             ))}

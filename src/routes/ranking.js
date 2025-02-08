@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useCallback, useContext, useMemo } from 'react';
 import { AppContext, CacheContext } from '../context';
+import { useNavigate } from 'react-router-dom';
 
 import { Grid, Card, CardContent, Typography, Snackbar, Alert, SpeedDial, SpeedDialIcon, SpeedDialAction, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, Button, TextField } from '@mui/material';
 import { RefreshRounded, AltRouteRounded, NotificationsRounded } from '@mui/icons-material';
@@ -15,8 +16,10 @@ import DateTimeField from '../components/datetime';
 
 const Ranking = () => {
     const { t: tr } = useTranslation();
-    const { apiConfig, apiPath, allRanks, curUser } = useContext(AppContext);
+    const { userLevel, apiConfig, apiPath, allRanks, curUser } = useContext(AppContext);
     const { cache, setCache } = useContext(CacheContext);
+
+    const navigate = useNavigate();
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -220,6 +223,7 @@ const Ranking = () => {
                             0 {tr("pts")}
                         </Typography>
                         <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>{tr("daily_bonus")}: / {tr("streak")}</Typography>
+                        {userLevel <= 2 && <Typography variant="subtitle2" align="center" sx={{ mt: 1, opacity: 0.25, cursor: "pointer" }} onClick={() => { navigate("/sponsor"); }}>Become CHub sponsor to get rank roles automatically!</Typography>}
                     </CardContent>
                 </Card>
             </Grid>
@@ -273,6 +277,7 @@ const Ranking = () => {
                                 {TSep(userPoints)} {tr("pts")}
                             </Typography>
                             <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>{tr("daily_bonus")}: {bonusStreak} {tr("streak")}</Typography>
+                            {userLevel <= 2 && <Typography variant="subtitle2" align="center" sx={{ mt: 1, opacity: 0.25, cursor: "pointer" }} onClick={() => { navigate("/sponsor"); }}>Become CHub sponsor to get rank roles automatically!</Typography>}
                         </>}
                         {rankIdx <= 0 && <>
                             <Typography variant="h5" align="center" component="div" sx={{ color: "grey" }}>
@@ -282,6 +287,7 @@ const Ranking = () => {
                                 0 {tr("pts")}
                             </Typography>
                             <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>{tr("daily_bonus")}: {bonusStreak} {tr("streak")}</Typography>
+                            {userLevel <= 2 && <Typography variant="subtitle2" align="center" sx={{ mt: 1, opacity: 0.25, cursor: "pointer" }} onClick={() => { navigate("/sponsor"); }}>Become CHub sponsor to get rank roles automatically!</Typography>}
                         </>}
                     </CardContent>
                 </Card>
