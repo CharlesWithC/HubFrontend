@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { AppContext } from '../../context';
 
 import { Card, CardContent, Typography, Grid, Snackbar, Alert, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button, MenuItem, Box, IconButton, useTheme } from '@mui/material';
-import { CloseRounded } from '@mui/icons-material';
+import { CloseRounded, CheckRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
 
 import CustomTable from '../../components/table';
@@ -12,8 +12,9 @@ import TimeDelta from '../../components/timedelta';
 import MarkdownRenderer from '../../components/markdown';
 import SponsorBadge from '../../components/sponsorBadge';
 import UserSelect from '../../components/userselect';
+import StatCard from '../../components/statcard';
 
-import { makeRequestsAuto, customAxios as axios, getAuthToken, getMonthUTC, removeNUEValues } from '../../functions';
+import { makeRequestsAuto, customAxios as axios, getAuthToken, TSep, removeNUEValues } from '../../functions';
 
 const ApplicationTable = memo(({ showDetail, doReload }) => {
     const { t: tr } = useTranslation();
@@ -29,7 +30,11 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
         { id: 'status', label: tr("status") }
     ]), []);
 
-    const [stats, setStats] = useState([]);
+    const [latest, setLatest] = useState({ driver_accepted: 0, driver_declined: 0 });
+    const [delta, setDelta] = useState({ driver_accepted: 0, driver_declined: 0 });
+    const [charts, setCharts] = useState({ driver_accepted: [], driver_declined: [] });
+    const [originalChart, setOriginalChart] = useState({ driver_accepted: [], driver_declined: [] });
+    const [xAxis, setXAxis] = useState([]);
     const [applications, setApplications] = useState([]);
 
     const inited = useRef(false);
@@ -56,19 +61,41 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
 
             let processedParam = removeNUEValues(listParam);
 
-            let [_pending, _accepted, _declined, _respondedM, _respondedAT, _applications] = [{}, {}];
+            let [_stats, _applications] = [{}, {}];
 
             if (!inited.current || +new Date() - doReload <= 1000) {
-                [_pending, _accepted, _declined, _respondedM, _respondedAT, _applications] = await makeRequestsAuto([
-                    { url: `${apiPath}/applications/list?all_user=true&page=1&page_size=1&status=0`, auth: true },
-                    { url: `${apiPath}/applications/list?all_user=true&page=1&page_size=1&status=1`, auth: true },
-                    { url: `${apiPath}/applications/list?all_user=true&page=1&page_size=1&status=2`, auth: true },
-                    { url: `${apiPath}/applications/list?all_user=true&page=1&page_size=1&responded_by=${curUser.userid}&responded_after=${getMonthUTC() / 1000}`, auth: true },
-                    { url: `${apiPath}/applications/list?all_user=true&page=1&page_size=1&responded_by=${curUser.userid}`, auth: true },
+                [_stats, _applications] = await makeRequestsAuto([
+                    { url: `${apiPath}/applications/statistics?interval=604800&range=12&before=${parseInt(+new Date() / 1000)}`, auth: true },
                     { url: `${apiPath}/applications/list?all_user=true&page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
                 ]);
-                setStats([_pending.total_items, _accepted.total_items, _declined.total_items, _respondedM.total_items, _respondedAT.total_items]);
                 inited.current = true;
+
+                for (let i = 0; i < _stats.length; i++) {
+                    if (!_stats[i].data[1]) _stats[i].data[1] = { 1: 0, 2: 0 };
+                    if (!_stats[i].data[1][1]) _stats[i].data[1][1] = 0;
+                    if (!_stats[i].data[1][2]) _stats[i].data[1][2] = 0;
+                }
+
+                let newLatest = { driver_accepted: _stats[_stats.length - 1].data[1][1], driver_declined: _stats[_stats.length - 1].data[1][2] };
+                setLatest(newLatest);
+
+                let newDelta = { driver_accepted: newLatest.driver_accepted - _stats[0].data[1][1], driver_declined: newLatest.driver_declined - _stats[0].data[1][2] };
+                setDelta(newDelta);
+
+                let newCharts = { driver_accepted: [], driver_declined: [] };
+                let newOriginalChart = { driver_accepted: [], driver_declined: [] };
+                let newXAxis = [];
+                for (let i = 0; i < _stats.length; i++) {
+                    newXAxis.push({ startTime: _stats[i].start_time, endTime: _stats[i].end_time });
+                    newOriginalChart.driver_accepted.push(_stats[i].data[1][1]);
+                    newOriginalChart.driver_declined.push(_stats[i].data[1][2]);
+                    // we don't have base data (for summing up) so we use the same data
+                    newCharts.driver_accepted.push(_stats[i].data[1][1]);
+                    newCharts.driver_declined.push(_stats[i].data[1][2]);
+                }
+                setCharts(newCharts);
+                setOriginalChart(newOriginalChart);
+                setXAxis(newXAxis);
             } else {
                 [_applications] = await makeRequestsAuto([
                     { url: `${apiPath}/applications/list?all_user=true&page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
@@ -155,30 +182,12 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
     }
 
     return <>
-        {stats.length !== 0 && <Grid container spacing={2} style={{ marginBottom: "20px" }}>
+        {xAxis.length !== 0 && <Grid container spacing={2} style={{ marginBottom: "20px" }}>
             <Grid item xs={12} sm={12} md={6} lg={6}>
-                <Card>
-                    <CardContent>
-                        <Typography variant="subtitle2" align="center" gutterBottom>{tr("all_applications")}</Typography>
-                        <Typography variant="h5" align="center" component="div">
-                            <span style={{ color: theme.palette.info.main }}>{stats[0]}</span> / <span style={{ color: theme.palette.success.main }}>{stats[1]}</span> / <span style={{ color: theme.palette.error.main }}>{stats[2]}</span>
-                        </Typography>
-                        <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
-                            {STATUS[0]} / {STATUS[1]} / {STATUS[2]}
-                        </Typography>
-                    </CardContent>
-                </Card>
+                <StatCard icon={<CheckRounded />} title={applicationTypes[1].name + " " + tr("accepted")} inputs={charts.driver_accepted} originalInputs={originalChart.driver_accepted} xAxis={xAxis} color={theme.palette.success.main} />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={6}>
-                <Card>
-                    <CardContent>
-                        <Typography variant="subtitle2" align="center" gutterBottom>{tr("handled_by_me")}</Typography>
-                        <Typography variant="h5" align="center" component="div">
-                            {stats[3]} / {stats[4]}
-                        </Typography>
-                        <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>{tr("this_month_all_time")}</Typography>
-                    </CardContent>
-                </Card>
+                <StatCard icon={<CloseRounded />} title={applicationTypes[1].name + " " + tr("declined")} inputs={charts.driver_declined} originalInputs={originalChart.driver_declined} xAxis={xAxis} color={theme.palette.error.main} />
             </Grid>
         </Grid>}
         {applications.length > 0 && <CustomTable page={page} columns={columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} data={applications} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />}

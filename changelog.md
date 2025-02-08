@@ -5,6 +5,7 @@
 1. Added owner option on economy purchase truck
 2. Added first-day-of-week locale support in event calendar
 3. Added user-attended event count (for each month)
+4. Added 12-week driver application statistics chart
 
 ## v3.4.5
 

@@ -11,11 +11,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowTrendDown, faArrowTrendUp } from '@fortawesome/free-solid-svg-icons';
 
 const StatCard = (props) => {
-    let { icon, title, latest, delta, deltaLabel, inputs, originalInputs, xAxis, size, height } = props;
+    let { icon, title, latest, delta, deltaLabel, inputs, originalInputs, xAxis, size, height, color } = props;
 
     deltaLabel = (deltaLabel === undefined ? "" : deltaLabel + " ");
 
     const theme = useTheme();
+    color = color || theme.palette.text.primary;
     const { userSettings } = useContext(AppContext);
 
     if (height === undefined) height = "100%";
@@ -30,9 +31,9 @@ const StatCard = (props) => {
         };
 
         var gradient = ctx.createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(0, theme.palette.text.primary + '75');
-        gradient.addColorStop(0.382, theme.palette.text.primary + '25');
-        gradient.addColorStop(0.618, theme.palette.text.primary + '10');
+        gradient.addColorStop(0, color + '75');
+        gradient.addColorStop(0.382, color + '25');
+        gradient.addColorStop(0.618, color + '10');
 
         const data = {
             labels: generateLabels(),
@@ -41,7 +42,7 @@ const StatCard = (props) => {
                     label: 'Dataset',
                     data: inputs,
                     fill: 'start',
-                    borderColor: theme.palette.text.primary,
+                    borderColor: color,
                     backgroundColor: gradient
                 },
             ],
@@ -118,7 +119,7 @@ const StatCard = (props) => {
         return () => {
             chart.destroy();
         };
-    }, [inputs, theme.palette.text.primary]);
+    }, [inputs, color]);
 
     return (
         <Card>
