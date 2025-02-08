@@ -182,12 +182,12 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
     }
 
     return <>
-        {xAxis.length !== 0 && <Grid container spacing={2} style={{ marginBottom: "20px" }}>
+        {xAxis.length !== 0 && applicationTypes[1]?.name && <Grid container spacing={2} style={{ marginBottom: "20px" }}>
             <Grid item xs={12} sm={12} md={6} lg={6}>
-                <StatCard icon={<CheckRounded />} title={applicationTypes[1].name + " " + tr("accepted")} inputs={charts.driver_accepted} originalInputs={originalChart.driver_accepted} xAxis={xAxis} color={theme.palette.success.main} />
+                <StatCard icon={<CheckRounded />} title={applicationTypes[1]?.name + " " + tr("accepted")} inputs={charts.driver_accepted} originalInputs={originalChart.driver_accepted} xAxis={xAxis} color={theme.palette.success.main} />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={6}>
-                <StatCard icon={<CloseRounded />} title={applicationTypes[1].name + " " + tr("declined")} inputs={charts.driver_declined} originalInputs={originalChart.driver_declined} xAxis={xAxis} color={theme.palette.error.main} />
+                <StatCard icon={<CloseRounded />} title={applicationTypes[1]?.name + " " + tr("declined")} inputs={charts.driver_declined} originalInputs={originalChart.driver_declined} xAxis={xAxis} color={theme.palette.error.main} />
             </Grid>
         </Grid>}
         {applications.length > 0 && <CustomTable page={page} columns={columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} data={applications} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />}
