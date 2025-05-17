@@ -299,6 +299,257 @@ def control():
             print(f"Next snapshot to be taken in {next_snapshot_end_time - int(time.time())} seconds...")
             time.sleep(next_snapshot_end_time - int(time.time()))
 
+# @app.get("/freightmaster/d")
+# async def get_freightmaster_d(request: Request, page: int, page_size: int):
+#     config = r.hgetall("freightmaster:config")
+#     if len(config.keys()) == 0:
+#         config = json.loads(open("./freightmaster-config.json", "r").read())
+#         tconfig = json.loads(json.dumps(config))
+#         tconfig["excluded_vtcs"] = json.dumps(config["excluded_vtcs"])
+#         tconfig["rewards"] = json.dumps(config["rewards"])
+#         r.hset("freightmaster:config", mapping = tconfig)
+#         r.expire("freightmaster:config", 3600)
+#     else:
+#         config["start_time"] = int(config["start_time"])
+#         config["end_time"] = int(config["end_time"])
+#         config["excluded_vtcs"] = json.loads(config["excluded_vtcs"])
+#         config["rewards"] = json.loads(config["rewards"])
+#     data_folder = config["data_folder"]
+    
+#     if r.get("freightmaster:ok:d") is None:
+#         if not os.path.exists(data_folder):
+#             return {"error": "Data folder does not exist"}
+#         if not os.path.exists(data_folder + "/latest") or not os.path.exists(data_folder + "/latest/chub-fmd.json"):
+#             return {"error": "No data available"}
+#     r.set("freightmaster:ok:d", 1)
+    
+#     if request.client.host != "127.0.0.1":
+#         if page_size > 1000:
+#             return {"error": "Page size too large"}
+#         if page_size < 10:
+#             return {"error": "Page size too small"}
+    
+#     allvtcdomains = r.get("freightmaster:allvtcdomains")
+#     cfgs = os.listdir("/var/hub/config")
+#     if allvtcdomains != ",".join(cfgs):
+#         r.delete("freightmaster:allvtcs")
+
+#     allvtcs = r.hgetall("freightmaster:allvtcs")
+#     if len(allvtcs.keys()) == 0:
+#         for cfg in cfgs:
+#             try:
+#                 cfg = json.loads(open(f"/var/hub/config/{cfg}", "r", encoding="utf-8").read())
+#                 if "abbr" in cfg.keys():
+#                     allvtcs[cfg["abbr"]] = cfg["name"]
+#             except:
+#                 pass
+#         r.hset("freightmaster:allvtcs", mapping = allvtcs)
+#         r.set("freightmaster:allvtcdomains", ",".join(cfgs))
+#         r.expire("freightmaster:allvtcs", 3600)
+    
+#     cache = r.hgetall("freightmaster:fmd")
+#     if len(cache.keys()) == 0:
+#         fmd = json.loads(open(data_folder + "/latest/chub-fmd.json", "r", encoding="utf-8").read())
+#         last = -1
+#         rank = 0
+#         for i in range(len(fmd)):
+#             if last != fmd[i]["point"]:
+#                 rank += 1
+#             fmd[i]["rank"] = rank
+#             last = fmd[i]["point"]
+#             if fmd[i]["abbr"] not in allvtcs:
+#                 continue
+#             fmd[i]["vtc"] = allvtcs[fmd[i]["abbr"]]
+#             cache[i] = json.dumps(fmd[i])
+#         r.hset("freightmaster:fmd", mapping = cache)
+#         r.expire("freightmaster:fmd", 600)
+    
+#     # handle deleted rows
+#     fmd = []
+#     cache = [v for k, v in sorted(cache.items(), key=lambda item: int(item[0]))]
+#     for v in cache:
+#         v = json.loads(v)
+#         v["user"]["uid"] = int(v["user"]["uid"])
+#         v["user"]["userid"] = int(v["user"]["userid"])
+#         v["point"] = int(v["point"])
+#         fmd.append(v)
+#     tot = len(fmd)
+    
+#     fmd = fmd[(page - 1) * page_size : page * page_size]
+
+#     return {"list": fmd, "total_items": tot}
+
+# @app.get("/freightmaster/a")
+# async def get_freightmaster_a(request: Request, abbr: str, page: int, page_size: int):
+#     config = r.hgetall("freightmaster:config")
+#     if len(config.keys()) == 0:
+#         config = json.loads(open("./freightmaster-config.json", "r").read())
+#         tconfig = json.loads(json.dumps(config))
+#         tconfig["excluded_vtcs"] = json.dumps(config["excluded_vtcs"])
+#         tconfig["rewards"] = json.dumps(config["rewards"])
+#         r.hset("freightmaster:config", mapping = tconfig)
+#         r.expire("freightmaster:config", 3600)
+#     else:
+#         config["start_time"] = int(config["start_time"])
+#         config["end_time"] = int(config["end_time"])
+#         config["excluded_vtcs"] = json.loads(config["excluded_vtcs"])
+#         config["rewards"] = json.loads(config["rewards"])
+#     data_folder = config["data_folder"]
+    
+#     if r.get(f"freightmaster:ok:{abbr}") is None:
+#         if not os.path.exists(data_folder):
+#             return {"error": "Data folder does not exist"}
+#         if not os.path.exists(data_folder + "/latest") or not os.path.exists(data_folder + "/latest/" + abbr + ".json"):
+#             return {"error": "No data available"}
+#     else:
+#         r.set(f"freightmaster:ok:{abbr}", 1)
+    
+#     if request.client.host != "127.0.0.1":
+#         if page_size > 1000:
+#             return {"error": "Page size too large"}
+#         if page_size < 10:
+#             return {"error": "Page size too small"}
+
+#     cache = r.hgetall(f"freightmaster:fma:{abbr}")
+#     if len(cache.keys()) == 0:
+#         fma = json.loads(open(data_folder + "/latest/" + abbr + ".json", "r", encoding="utf-8").read())["fma"]
+#         last = -1
+#         rank = 0
+#         tot = len(fma)
+#         for i in range(len(fma)):
+#             if last != fma[i]["point"]:
+#                 rank += 1
+#             fma[i]["rank"] = rank
+#             last = fma[i]["point"]
+#             cache[i] = json.dumps(fma[i])
+#         r.hset(f"freightmaster:fma:{abbr}", mapping = cache)
+#         r.expire(f"freightmaster:fma:{abbr}", 600)
+#     else:
+#         fma = []
+#         cache = [v for k, v in sorted(cache.items(), key=lambda item: int(item[0]))]
+#         for v in cache:
+#             v = json.loads(v)
+#             v["user"]["uid"] = int(v["user"]["uid"])
+#             v["user"]["userid"] = int(v["user"]["userid"])
+#             v["point"] = int(v["point"])
+#             fma.append(v)
+#         tot = len(fma)
+
+#     fma = fma[(page - 1) * page_size : page * page_size]
+
+#     return {"list": fma, "total_items": tot}
+
+# @app.get("/freightmaster/position")
+# async def get_frieghtmaster_position(abbr: str, uid: int):
+#     config = r.hgetall("freightmaster:config")
+#     if len(config.keys()) == 0:
+#         config = json.loads(open("./freightmaster-config.json", "r").read())
+#         tconfig = json.loads(json.dumps(config))
+#         tconfig["excluded_vtcs"] = json.dumps(config["excluded_vtcs"])
+#         tconfig["rewards"] = json.dumps(config["rewards"])
+#         r.hset("freightmaster:config", mapping = tconfig)
+#         r.expire("freightmaster:config", 3600)
+#     else:
+#         config["start_time"] = int(config["start_time"])
+#         config["end_time"] = int(config["end_time"])
+#         config["excluded_vtcs"] = json.loads(config["excluded_vtcs"])
+#         config["rewards"] = json.loads(config["rewards"])
+#     season_name = config["season_name"]
+#     start_time = config["start_time"]
+#     end_time = config["end_time"]
+#     data_folder = config["data_folder"]
+    
+#     if r.get("freightmaster:ok:d") is None and r.get(f"freightmaster:ok:{abbr}") is None:
+#         if not os.path.exists(data_folder):
+#             return {"season_name": season_name, "start_time": start_time, "end_time": end_time, "error": "Data folder does not exist"}
+#         if not os.path.exists(data_folder + "/latest") or not os.path.exists(data_folder + "/latest/chub-fmd.json"):
+#             return {"season_name": season_name, "start_time": start_time, "end_time": end_time, "error": "No data available"}
+#         if not os.path.exists(data_folder + "/latest") or not os.path.exists(data_folder + "/latest/" + abbr + ".json"):
+#             return {"season_name": season_name, "start_time": start_time, "end_time": end_time, "error": "No data available"}
+#     else:
+#         r.set("freightmaster:ok:d", 1)
+#         r.set(f"freightmaster:ok:{abbr}", 1)
+
+#     rankd = None
+#     pointd = None
+#     try:
+#         fmd = json.loads(await arequests.get("http://127.0.0.1:8299/freightmaster/d?page=1&page_size=100000").text)["list"]
+#         for i in range(0, len(fmd)):
+#             if fmd[i]["user"]["uid"] == uid and fmd[i]["abbr"] == abbr:
+#                 rankd = i + 1
+#                 pointd = fmd[i]["point"]
+#                 break
+#     except:
+#         pass
+
+#     ranka = None
+#     pointa = None
+#     try:
+#         fma = json.loads(await arequests.get(f"http://127.0.0.1:8299/freightmaster/a?abbr={abbr}&page=1&page_size=100000").text)["list"]
+#         for i in range(0, len(fma)):
+#             if fma[i]["user"]["uid"] == uid:
+#                 ranka = i + 1
+#                 pointa = fma[i]["point"]
+#                 break
+#     except:
+#         pass
+
+#     return {"season_name": season_name, "start_time": start_time, "end_time": end_time, "rankd": rankd, "pointd": pointd, "ranka": ranka, "pointa": pointa}
+
+# @app.get("/freightmaster/rewards")
+# async def get_freightmaster_rewards():
+#     config = r.hgetall("freightmaster:config")
+#     if len(config.keys()) == 0:
+#         config = json.loads(open("./freightmaster-config.json", "r").read())
+#         tconfig = json.loads(json.dumps(config))
+#         tconfig["excluded_vtcs"] = json.dumps(config["excluded_vtcs"])
+#         tconfig["rewards"] = json.dumps(config["rewards"])
+#         r.hset("freightmaster:config", mapping = tconfig)
+#         r.expire("freightmaster:config", 3600)
+#     else:
+#         config["start_time"] = int(config["start_time"])
+#         config["end_time"] = int(config["end_time"])
+#         config["excluded_vtcs"] = json.loads(config["excluded_vtcs"])
+#         config["rewards"] = json.loads(config["rewards"])
+        
+#     return config["rewards"]
+
+# @app.get("/freightmaster/rewards/distributed")
+# async def get_freightmaster_distributed_rewards(abbr: str, uid: Optional[int] = None):
+#     config = r.hgetall("freightmaster:config")
+#     if len(config.keys()) == 0:
+#         config = json.loads(open("./freightmaster-config.json", "r").read())
+#         tconfig = json.loads(json.dumps(config))
+#         tconfig["excluded_vtcs"] = json.dumps(config["excluded_vtcs"])
+#         tconfig["rewards"] = json.dumps(config["rewards"])
+#         r.hset("freightmaster:config", mapping = tconfig)
+#         r.expire("freightmaster:config", 3600)
+#     else:
+#         config["start_time"] = int(config["start_time"])
+#         config["end_time"] = int(config["end_time"])
+#         config["excluded_vtcs"] = json.loads(config["excluded_vtcs"])
+#         config["rewards"] = json.loads(config["rewards"])
+#     data_folder = config["data_folder"]
+
+#     history_rewards = []
+#     if os.path.exists(data_folder + "/latest/chub-fmd-rewards-history.json"):
+#         history_rewards = json.loads(open(data_folder + "/latest/chub-fmd-rewards-history.json", "r", encoding="utf-8").read())
+
+#     current_rewards = []
+#     if os.path.exists(data_folder + "/latest/chub-fmd-rewards.json"):
+#         current_rewards = json.loads(open(data_folder + "/latest/chub-fmd-rewards.json", "r", encoding="utf-8").read())
+
+#     all_rewards = current_rewards + history_rewards
+
+#     ret = []
+#     for reward in all_rewards:
+#         if reward["abbr"] == abbr and (uid is None or uid == reward["uid"]):
+#             ret.append(reward)
+    
+#     ret = sorted(ret, key=lambda x: -int(x["reward"].split("-")[0][3:]))
+
+#     return ret
+
 if __name__ == "__main__":
     cmd = sys.argv[1]
     if cmd == "new-season":

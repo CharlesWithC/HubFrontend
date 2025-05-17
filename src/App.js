@@ -16,7 +16,7 @@ import Deliveries from './routes/delivery-list';
 import Members from './routes/member';
 import Leaderboard from './routes/leaderboard';
 import Ranking from './routes/ranking';
-import FreightMaster from './routes/freightmaster';
+// import FreightMaster from './routes/freightmaster';
 
 // lazy load: auth (just accessed once on login)
 const AuthLogin = lazy(() => import('./routes/auth/login'));
@@ -380,7 +380,7 @@ function App() {
                                         <Route path="/member/:userid" element={<Overview />} />
                                         <Route path="/leaderboard" element={<Leaderboard />}></Route>
                                         <Route path="/ranking" element={<Ranking />}></Route>
-                                        <Route path="/freightmaster" element={<FreightMaster />}></Route>
+                                        {/* <Route path="/freightmaster" element={<FreightMaster />}></Route> */}
                                         <Route path="/application/new" element={<NewApplication />}></Route>
                                         <Route path="/apply" element={<NewApplication />}></Route>
                                         <Route path="/application/my" element={<MyApplication />}></Route>

@@ -65,10 +65,10 @@ const SideBar = (props) => {
                 toRemove = toRemove.filter(item => item !== "gallery");
             }
         } else {
-            menu = [["overview", "statistics", "announcement", "downloads", "poll", "task", "gallery"], ["live_map", "delivery", "challenge", "division", "division_pending", "event", "economy"], ["member", "leaderboard", "ranking", "freightmaster"], ["new_application", "my_application", "all_application"], ["member_list", "external_user", "audit_log", "configuration"]];
+            menu = [["overview", "statistics", "announcement", "downloads", "poll", "task", "gallery"], ["live_map", "delivery", "challenge", "division", "division_pending", "event", "economy"], ["member", "leaderboard", "ranking"], ["new_application", "my_application", "all_application"], ["member_list", "external_user", "audit_log", "configuration"]];
             if (!curUserPerm.includes("administrator")) {
                 if (!curUserPerm.includes("driver") || curUser.userid === -1) {
-                    toRemove = ["downloads", "challenge", "division", "division_pending", "economy", "poll", "task", "member", "leaderboard", "ranking", "freightmaster", "external_user", "audit_log", "configuration"];
+                    toRemove = ["downloads", "challenge", "division", "division_pending", "economy", "poll", "task", "member", "leaderboard", "ranking", "external_user", "audit_log", "configuration"];
                 }
                 if (!curUserPerm.includes("update_config") && !curUserPerm.includes("reload_config")) {
                     toRemove.push("configuration");

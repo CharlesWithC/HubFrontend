@@ -1685,8 +1685,8 @@ const DiscordMessageForm = memo(({ theme, item, onUpdate, roleChange = false, is
                 label={tr("discord_message")}
                 variant="outlined"
                 fullWidth
-                value={item.message}
-                onChange={(e) => { onUpdate({ ...item, message: e.target.value }); }}
+                value={item.content}
+                onChange={(e) => { onUpdate({ ...item, content: e.target.value }); }}
             />
         </Grid>
         <Grid item xs={6} md={4}>
@@ -1826,7 +1826,7 @@ const MemoDiscordSingleForm = memo(({ theme, vars, formConfig, form_key, roleCha
             <div style={{ display: 'flex', alignItems: 'center' }}>
                 <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1 }}>{tr("no_message_create")}</Typography>
                 <IconButton variant="contained" color="success" onClick={() => {
-                    let newItems = [{ id: 1, message: "", channel_id: "", webhook_url: "", role_change: [], embed: { title: "", url: "", description: "", color: 0, timestamp: false, fields: [], author: { name: "", icon_url: "" }, footer: { text: "", icon_url: "" }, thumbnail: { url: "" }, image: { url: "" }, video: { url: "" } } }];
+                    let newItems = [{ id: 1, content: "", channel_id: "", webhook_url: "", role_change: [], embed: { title: "", url: "", description: "", color: 0, timestamp: false, fields: [], author: { name: "", icon_url: "" }, footer: { text: "", icon_url: "" }, thumbnail: { url: "" }, image: { url: "" }, video: { url: "" } } }];
                     formConfig.setState({ ...formConfig.state, [form_key]: newItems });
                 }}><FontAwesomeIcon icon={faPlus} /></IconButton>
             </div>
@@ -1857,7 +1857,7 @@ const MemoDiscordSingleForm = memo(({ theme, vars, formConfig, form_key, roleCha
                                     }
                                 }
                             }
-                            newItems.splice(index + 1, 0, { id: nextId, message: "", channel_id: "", webhook_url: "", role_change: [], embed: { title: "", url: "", description: "", color: 0, timestamp: false, fields: [], author: { name: "", icon_url: "" }, footer: { text: "", icon_url: "" }, thumbnail: { url: "" }, image: { url: "" }, video: { url: "" } } });
+                            newItems.splice(index + 1, 0, { id: nextId, content: "", channel_id: "", webhook_url: "", role_change: [], embed: { title: "", url: "", description: "", color: 0, timestamp: false, fields: [], author: { name: "", icon_url: "" }, footer: { text: "", icon_url: "" }, thumbnail: { url: "" }, image: { url: "" }, video: { url: "" } } });
                             formConfig.setState({ ...formConfig.state, [form_key]: newItems });
                         }}><FontAwesomeIcon icon={faPlus} /></IconButton>
                         <IconButton variant="contained" color="error" onClick={() => {
@@ -2522,8 +2522,8 @@ const ApplicationTypeForm = ({ theme, application_type, onUpdate }) => {
                 label={tr("discord_message")}
                 variant="outlined"
                 fullWidth
-                value={application_type.message}
-                onChange={(e) => { onUpdate({ ...application_type, message: e.target.value }); }}
+                value={application_type.content}
+                onChange={(e) => { onUpdate({ ...application_type, content: e.target.value }); }}
             />
         </Grid>
         <Grid item xs={6} md={4}>
@@ -2593,7 +2593,7 @@ const MemoApplicationTypeForm = memo(({ theme, formConfig }) => {
                     required_all_user_application_type_ids: [],
                     prohibited_either_user_application_type_ids: [],
                     prohibited_all_user_application_type_ids: [],
-                    message: "",
+                    content: "",
                     channel_id: "",
                     webhook_url: ""
                 }];
@@ -2806,8 +2806,8 @@ const DivisionForm = ({ theme, division, onUpdate }) => {
                 label={tr("discord_message")}
                 variant="outlined"
                 fullWidth
-                value={division.message}
-                onChange={(e) => { onUpdate({ ...division, message: e.target.value }); }}
+                value={division.content}
+                onChange={(e) => { onUpdate({ ...division, content: e.target.value }); }}
             />
         </Grid>
         <Grid item xs={6} md={4}>
@@ -2840,7 +2840,7 @@ const MemoDivisionForm = memo(({ theme, formConfig }) => {
         <div style={{ display: 'flex', alignItems: 'center' }}>
             <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1 }}>{tr("no_division_create")}</Typography>
             <IconButton variant="contained" color="success" onClick={() => {
-                let newDivisions = [{ id: 1, name: tr("new_division"), points: { mode: "static", value: 500 }, role_id: allPerms.driver[0], staff_role_ids: [], message: "", channel_id: "", webhook_url: "" }];
+                let newDivisions = [{ id: 1, name: tr("new_division"), points: { mode: "static", value: 500 }, role_id: allPerms.driver[0], staff_role_ids: [], content: "", channel_id: "", webhook_url: "" }];
                 formConfig.setState({ ...formConfig.state, divisions: newDivisions });
             }}><FontAwesomeIcon icon={faPlus} /></IconButton>
         </div>}
@@ -2861,7 +2861,7 @@ const MemoDivisionForm = memo(({ theme, formConfig }) => {
                             while (occupiedIds.includes(nextId)) {
                                 nextId += 1;
                             }
-                            newDivisions.splice(index + 1, 0, { id: nextId, name: tr("new_division"), points: { mode: division.points.mode, value: division.points.value }, role_id: division.role_id, staff_role_ids: [], message: division.message, channel_id: division.channel_id, webhook_url: division.webhook_url });
+                            newDivisions.splice(index + 1, 0, { id: nextId, name: tr("new_division"), points: { mode: division.points.mode, value: division.points.value }, role_id: division.role_id, staff_role_ids: [], content: division.content, channel_id: division.channel_id, webhook_url: division.webhook_url });
                             formConfig.setState({ ...formConfig.state, divisions: newDivisions });
                         }}><FontAwesomeIcon icon={faPlus} /></IconButton>
                         <IconButton variant="contained" color="error" onClick={() => {
