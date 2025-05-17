@@ -322,23 +322,25 @@ const Loader = ({ onLoaderLoaded }) => {
                 //     { url: "https://config.chub.page/freightmaster/rewards", auth: false },
                 //     { url: `https://config.chub.page/freightmaster/rewards/distributed?abbr=${webConfig.abbr}`, auth: false },
                 // ];
-
+                
                 // const [fmRewards, fmRewardsDistributed] = await makeRequestsAuto(urlsBatch3);
-                // if (fmRewards) {
-                //     setFMRewards(fmRewards);
-                // }
-                // let fmrd = {};
-                // if (fmRewardsDistributed) {
-                //     for (let i = 0; i < fmRewardsDistributed.length; i++) {
-                //         let ureward = fmRewardsDistributed[i];
-                //         let uruid = ureward.uid;
-                //         if (fmrd[uruid] === undefined) fmrd[uruid] = [ureward];
-                //         else fmrd[uruid].push(ureward);
-                //     }
-                //     setFMRewardsDistributed(fmrd);
-                // }
 
-                const preloadCache = { specialRoles, specialUsers, patrons, userConfig, apiConfig: config.config, allRoles, allPerms: memberPerms, allRanks: memberRanks /*, fmRewards, fmRewardsDistributed: fmrd */ };
+                const [fmRewards, fmRewardsDistributed] = [[], []];
+                if (fmRewards) {
+                    setFMRewards(fmRewards);
+                }
+                let fmrd = {};
+                if (fmRewardsDistributed) {
+                    for (let i = 0; i < fmRewardsDistributed.length; i++) {
+                        let ureward = fmRewardsDistributed[i];
+                        let uruid = ureward.uid;
+                        if (fmrd[uruid] === undefined) fmrd[uruid] = [ureward];
+                        else fmrd[uruid].push(ureward);
+                    }
+                    setFMRewardsDistributed(fmrd);
+                }
+
+                const preloadCache = { specialRoles, specialUsers, patrons, userConfig, apiConfig: config.config, allRoles, allPerms: memberPerms, allRanks: memberRanks , fmRewards, fmRewardsDistributed: fmrd };
                 writeLS("cache-preload", preloadCache, window.dhhost);
 
                 return preloadCache;
