@@ -1,6 +1,13 @@
 # Drivers Hub: Frontend
 
-Brand new start: V3 with ReactJS!  
+```
+    ____       _                         __  __      __  
+   / __ \_____(_)   _____  __________   / / / /_  __/ /_   
+  / / / / ___/ / | / / _ \/ ___/ ___/  / /_/ / / / / __ \  
+ / /_/ / /  / /| |/ /  __/ /  (__  )  / __  / /_/ / /_/ /  
+/_____/_/  /_/ |___/\___/_/  /____/  /_/ /_/\__,_/_.___/  
+
+```
 
 ## Premium Plan Perks
 
@@ -36,3 +43,18 @@ Brand new start: V3 with ReactJS!
      - Set `discordClientID` in `electron-config.json` and `build-electron/config.json`
      - There will not be a second button
 6. Desktop Notifications
+
+## More Info?
+
+See [openapi.json](./openapi.json) and [wiki](https://wiki.charlws.com/books/chub) for more technical info.
+
+Visit [drivershub.charlws.com](https://drivershub.charlws.com) for more info about the project.  
+
+## License
+
+Copyright &copy; 2022-2025 [CharlesWithC](https://charlws.com).  
+Registered with the Canadian Intellectual Property Office.
+
+This entire repository, including all commits and history, is licensed under the GNU Affero General Public License v3.0.  
+The LICENSE file was added on 2025-12-10 at commit [376cbfa](https://github.com/CharlesWithC/HubFrontend/commit/376cbfa150f82683fed647970b017ee46ad4936d), but applies to all code in this repository regardless of commit date.
+
