@@ -591,7 +591,7 @@ async def getConfig(domain: str, request: Request, response: Response):
     
     config = json.loads(open(f"/var/hub/config/{domain}.json", "r").read())
 
-    config_whitelist = ["abbr", "name", "color", "name_color", "theme_main_color", "theme_background_color", "theme_darken_ratio", "distance_unit", "use_highest_role_color", "domain", "api_host", "plugins", "truckersmp_vtc_id", "logo_key", "banner_key", "bgimage_key", "gallery"]
+    config_whitelist = ["abbr", "name", "plan", "color", "name_color", "theme_main_color", "theme_background_color", "theme_darken_ratio", "distance_unit", "use_highest_role_color", "domain", "api_host", "plugins", "truckersmp_vtc_id", "logo_key", "banner_key", "bgimage_key", "gallery"]
     config_keys = list(config.keys())
     for k in config_keys:
         if k not in config_whitelist:
@@ -705,7 +705,7 @@ async def patchConfig(domain: str, request: Request, response: Response, authori
     
     try:
         newconfig = data["config"]
-        config_whitelist = ["abbr", "name", "color", "name_color", "theme_main_color", "theme_background_color", "theme_darken_ratio", "distance_unit", "use_highest_role_color", "domain", "api_host", "plugins", "logo_key", "banner_key", "bgimage_key", "truckersmp_vtc_id", "gallery"]
+        config_whitelist = ["abbr", "name", "plan", "color", "name_color", "theme_main_color", "theme_background_color", "theme_darken_ratio", "distance_unit", "use_highest_role_color", "domain", "api_host", "plugins", "logo_key", "banner_key", "bgimage_key", "truckersmp_vtc_id", "gallery"]
         toremove = ["abbr", "domain", "api_host", "plugins"]
         for t in toremove:
             if t in newconfig.keys():

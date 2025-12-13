@@ -19,7 +19,7 @@ const TIPS = [
     "All statistics and points are traceable, allowing data fetching of any time range."
 ];
 
-const VTC_LEVEL_MAPPING = { "https://drivershub.charlws.com": 3, "https://drivershub05.charlws.com": 1, "https://drivershub10.charlws.com": 0 };
+const VTC_LEVEL_MAPPING = { "special": 3, "managed": 2, "legacy_premium": 1, "legacy_regular": 0 };
 
 const tip = TIPS[Math.floor(Math.random() * TIPS.length)];
 
@@ -93,8 +93,8 @@ const Loader = ({ onLoaderLoaded }) => {
                 const webConfig = loadedConfig.config; // local webConfig for this function only
                 setWebConfig(loadedConfig.config);
                 setTitle(webConfig.name);
-                setVtcLevel(VTC_LEVEL_MAPPING[webConfig.api_host]);
-                setApiPath(`${webConfig.api_host}/${webConfig.abbr}`);
+                setVtcLevel(VTC_LEVEL_MAPPING[webConfig.plan]);
+                setApiPath(webConfig.plan === "special" ? `https://drivershub.charlws.com/${webConfig.abbr}` : `https://api.chub.page/${webConfig.abbr}`);
 
                 setLoadMessage(tr("loading"));
                 localStorage.setItem("cache-title", webConfig.name);
@@ -106,15 +106,15 @@ const Loader = ({ onLoaderLoaded }) => {
             if (cachedWebConfig === null) {
                 try {
                     webConfig = await loadWebConfig(domain);
-                    apiPath = `${webConfig.api_host}/${webConfig.abbr}`; // local api path
-                    vtcLevel = VTC_LEVEL_MAPPING[webConfig.api_host];
+                    vtcLevel = VTC_LEVEL_MAPPING[webConfig.plan];
+                    apiPath = webConfig.plan === "special" ? `https://drivershub.charlws.com/${webConfig.abbr}` : `https://api.chub.page/${webConfig.abbr}`;
                 } catch {
                     return;
                 }
             } else {
                 webConfig = cachedWebConfig;
-                apiPath = `${webConfig.api_host}/${webConfig.abbr}`; // local api path
-                vtcLevel = VTC_LEVEL_MAPPING[webConfig.api_host];
+                vtcLevel = VTC_LEVEL_MAPPING[webConfig.plan];
+                apiPath = webConfig.plan === "special" ? `https://drivershub.charlws.com/${webConfig.abbr}` : `https://api.chub.page/${webConfig.abbr}`;
                 setWebConfig(webConfig);
                 setTitle(webConfig.name);
                 setVtcLevel(vtcLevel);
@@ -322,7 +322,7 @@ const Loader = ({ onLoaderLoaded }) => {
                 //     { url: "https://config.chub.page/freightmaster/rewards", auth: false },
                 //     { url: `https://config.chub.page/freightmaster/rewards/distributed?abbr=${webConfig.abbr}`, auth: false },
                 // ];
-                
+
                 // const [fmRewards, fmRewardsDistributed] = await makeRequestsAuto(urlsBatch3);
 
                 const [fmRewards, fmRewardsDistributed] = [[], []];
@@ -340,7 +340,7 @@ const Loader = ({ onLoaderLoaded }) => {
                     setFMRewardsDistributed(fmrd);
                 }
 
-                const preloadCache = { specialRoles, specialUsers, patrons, userConfig, apiConfig: config.config, allRoles, allPerms: memberPerms, allRanks: memberRanks , fmRewards, fmRewardsDistributed: fmrd };
+                const preloadCache = { specialRoles, specialUsers, patrons, userConfig, apiConfig: config.config, allRoles, allPerms: memberPerms, allRanks: memberRanks, fmRewards, fmRewardsDistributed: fmrd };
                 writeLS("cache-preload", preloadCache, window.dhhost);
 
                 return preloadCache;
