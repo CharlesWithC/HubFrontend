@@ -337,6 +337,8 @@ async def validateTicket(domain: str, authorization: str, response: Response, pe
     config = json.loads(open(f"/var/hub/config/{domain}.json", "r").read())
     abbr = config["abbr"]
     api_host = config["api_host"]
+    if "drivershub05" in api_host or "drivershub10" in api_host:
+        api_host = "https://api.chub.page"
 
     # Authorization
     if authorization is None:
@@ -349,7 +351,7 @@ async def validateTicket(domain: str, authorization: str, response: Response, pe
         return (401, {"error": "Invalid Authorization Header"})
     token = authorization.split(" ")[1]
 
-    if not api_host.endswith("charlws.com"):
+    if not api_host.endswith(".charlws.com") and not api_host.endswith(".chub.page"):
         return (400, {"error": "Invalid API Domain"})
 
     ok = False
