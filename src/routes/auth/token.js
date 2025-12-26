@@ -1,11 +1,11 @@
-import { useState, useEffect, useContext } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { AppContext, ThemeContext } from '../../context';
+import { useState, useEffect, useContext } from "react";
+import { useTranslation } from "react-i18next";
+import { useLocation, useNavigate } from "react-router-dom";
+import { AppContext, ThemeContext } from "../../context";
 
-import { Card, CardContent, CardActions, Button } from '@mui/material';
+import { Card, CardContent, CardActions, Button } from "@mui/material";
 
-import { FetchProfile, customAxios as axios, setAuthToken } from '../../functions';
+import { FetchProfile, customAxios as axios, setAuthToken } from "../../functions";
 
 const TokenAuth = () => {
     const { t: tr } = useTranslation();
@@ -16,7 +16,7 @@ const TokenAuth = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
-    const token = searchParams.get('token');
+    const token = searchParams.get("token");
 
     const [message, setMessage] = useState(tr("checking_token"));
     const [allowContinue, setContinue] = useState(false);
@@ -24,7 +24,7 @@ const TokenAuth = () => {
     useEffect(() => {
         async function validateToken() {
             try {
-                let resp = await axios({ url: `${apiPath}/token`, headers: { "Authorization": `Bearer ${token}` }, method: `PATCH` });
+                let resp = await axios({ url: `${apiPath}/token`, headers: { Authorization: `Bearer ${token}` }, method: `PATCH` });
                 if (resp.status === 200) {
                     setAuthToken(resp.data.token);
                     setMessage(tr("you_are_authorized"));
@@ -34,7 +34,9 @@ const TokenAuth = () => {
                     appContext.loadLanguages();
                     appContext.loadADPlugins();
                     setContinue(true);
-                    setTimeout(function () { navigate('/'); }, 500);
+                    setTimeout(function () {
+                        navigate("/");
+                    }, 500);
                 } else if (resp.status === 401) {
                     setMessage(tr("invalid_token"));
                     setContinue(true);
@@ -57,29 +59,33 @@ const TokenAuth = () => {
     }, [apiPath, token]);
 
     function handleContinue() {
-        navigate('/');
+        navigate("/");
     }
 
     return (
-        <div style={{
-            backgroundImage: `url(${themeSettings.bg_image})`,
-            backgroundPosition: 'center',
-            backgroundSize: 'cover',
-            backgroundRepeat: 'no-repeat',
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-        }}>
-            <Card sx={{ width: 350, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+        <div
+            style={{
+                backgroundImage: `url(${themeSettings.bg_image})`,
+                backgroundPosition: "center",
+                backgroundSize: "cover",
+                backgroundRepeat: "no-repeat",
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+            }}>
+            <Card sx={{ width: 350, position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}>
                 <CardContent>
                     <h2>Authorization</h2>
-                    <div><p>{message}</p></div>
+                    <div>
+                        <p>{message}</p>
+                    </div>
                 </CardContent>
                 <CardActions>
-                    <Button variant="contained" color="primary" sx={{ ml: 'auto' }}
-                        onClick={handleContinue} disabled={!allowContinue}>{tr("continue")}</Button>
+                    <Button variant="contained" color="primary" sx={{ ml: "auto" }} onClick={handleContinue} disabled={!allowContinue}>
+                        {tr("continue")}
+                    </Button>
                 </CardActions>
             </Card>
         </div>

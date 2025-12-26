@@ -1,12 +1,12 @@
-import { useState, useCallback, useContext, useEffect, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import { AppContext } from '../../context';
+import { useState, useCallback, useContext, useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import { AppContext } from "../../context";
 
-import { Grid, Card, CardContent, Typography, TextField, RadioGroup, FormControl, FormLabel, FormControlLabel, MenuItem, Radio, Checkbox, Button, Box, Snackbar, Alert, useTheme } from '@mui/material';
-import Portal from '@mui/material/Portal';
+import { Grid, Card, CardContent, Typography, TextField, RadioGroup, FormControl, FormLabel, FormControlLabel, MenuItem, Radio, Checkbox, Button, Box, Snackbar, Alert, useTheme } from "@mui/material";
+import Portal from "@mui/material/Portal";
 
-import { customAxios as axios, getAuthToken } from '../../functions';
+import { customAxios as axios, getAuthToken } from "../../functions";
 
 // [
 //     {
@@ -88,8 +88,7 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
 
                 if (config[i].type === "date") {
                     ret[config[i].label] = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
-                }
-                else if (config[i].type === "datetime") {
+                } else if (config[i].type === "datetime") {
                     ret[config[i].label] = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
                 } else if (config[i].type === "checkbox") {
                     if (config[i].choices !== undefined && config[i].choices.length !== 0) {
@@ -119,7 +118,8 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
         let modified = false;
         let newFormData = {}; // we set it to empty and redo it - so questions are kept in correct order
 
-        let toDelete = [], toAdd = [];
+        let toDelete = [],
+            toAdd = [];
         for (let i = 0; i < config.length; i++) {
             let field = config[i];
             if (formData[field.label] !== undefined) {
@@ -138,7 +138,9 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
             }
         }
 
-        toDelete = toDelete.reduce((acc, cur) => { return (!toAdd.includes(cur) ? [...acc, cur] : acc); }, []);
+        toDelete = toDelete.reduce((acc, cur) => {
+            return !toAdd.includes(cur) ? [...acc, cur] : acc;
+        }, []);
 
         for (let i = 0; i < toDelete.length; i++) {
             if (formData[toDelete[i]] !== undefined) {
@@ -152,57 +154,62 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
         }
     }, [formData, config]);
 
-    const handleChange = useCallback((e) => {
-        // this handles changes on user input, but this does not check condition of whether the response should be recorded
-        // aka this does not check x_must_be to filter response fields
+    const handleChange = useCallback(
+        e => {
+            // this handles changes on user input, but this does not check condition of whether the response should be recorded
+            // aka this does not check x_must_be to filter response fields
 
-        const { name, value } = e.target;
-        setFormData(data => {
-            // first calculate submit-disabled, then write data
-            const newFormData = { ...data, [name]: value };
-            const formKeys = Object.keys(newFormData);
-            let allOk = true;
-            for (let i = 0; i < formKeys.length; i++) {
-                // double check if field is shown (this should be handled by form composition though)
-                let field = fieldReq[formKeys[i]];
-                if (field !== undefined) {
-                    if (field.must_input === true) { // check input, so it may be undefined (though it shouldn't happen)
-                        if (newFormData[formKeys[i]] === undefined || newFormData[formKeys[i]].replaceAll(" ", "") === "") {
-                            setSubmitDisabled(true);
-                            allOk = false;
-                            break;
-                        }
-                    }
-                    if (newFormData[formKeys[i]] !== undefined) { // ensure it's not undefined for length/value check
-                        if (field.min_length !== undefined) {
-                            if (newFormData[formKeys[i]].length < field.min_length) {
+            const { name, value } = e.target;
+            setFormData(data => {
+                // first calculate submit-disabled, then write data
+                const newFormData = { ...data, [name]: value };
+                const formKeys = Object.keys(newFormData);
+                let allOk = true;
+                for (let i = 0; i < formKeys.length; i++) {
+                    // double check if field is shown (this should be handled by form composition though)
+                    let field = fieldReq[formKeys[i]];
+                    if (field !== undefined) {
+                        if (field.must_input === true) {
+                            // check input, so it may be undefined (though it shouldn't happen)
+                            if (newFormData[formKeys[i]] === undefined || newFormData[formKeys[i]].replaceAll(" ", "") === "") {
                                 setSubmitDisabled(true);
                                 allOk = false;
                                 break;
                             }
                         }
-                        if (field.min_value !== undefined) {
-                            if (newFormData[formKeys[i]] < field.min_value) {
-                                setSubmitDisabled(true);
-                                allOk = false;
-                                break;
+                        if (newFormData[formKeys[i]] !== undefined) {
+                            // ensure it's not undefined for length/value check
+                            if (field.min_length !== undefined) {
+                                if (newFormData[formKeys[i]].length < field.min_length) {
+                                    setSubmitDisabled(true);
+                                    allOk = false;
+                                    break;
+                                }
                             }
-                        }
-                        if (field.max_value !== undefined) {
-                            if (newFormData[formKeys[i]] > field.max_value) {
-                                setSubmitDisabled(true);
-                                allOk = false;
-                                break;
+                            if (field.min_value !== undefined) {
+                                if (newFormData[formKeys[i]] < field.min_value) {
+                                    setSubmitDisabled(true);
+                                    allOk = false;
+                                    break;
+                                }
+                            }
+                            if (field.max_value !== undefined) {
+                                if (newFormData[formKeys[i]] > field.max_value) {
+                                    setSubmitDisabled(true);
+                                    allOk = false;
+                                    break;
+                                }
                             }
                         }
                     }
                 }
-            }
-            if (allOk) setSubmitDisabled(false);
+                if (allOk) setSubmitDisabled(false);
 
-            return { ...data, [name]: value };
-        });
-    }, [fieldReq]);
+                return { ...data, [name]: value };
+            });
+        },
+        [fieldReq]
+    );
 
     const handleCheckboxChange = useCallback((choice, fieldLabel) => {
         setFormData(prev => {
@@ -215,12 +222,12 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
 
             return {
                 ...prev,
-                [fieldLabel]: updated
+                [fieldLabel]: updated,
             };
         });
     }, []);
 
-    const handleCheckboxYNChange = useCallback((fieldLabel) => {
+    const handleCheckboxYNChange = useCallback(fieldLabel => {
         setFormData(prev => {
             let updated = prev[fieldLabel];
             if (updated === tr("yes")) {
@@ -231,7 +238,7 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
 
             return {
                 ...prev,
-                [fieldLabel]: updated
+                [fieldLabel]: updated,
             };
         });
     }, []);
@@ -240,213 +247,165 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
 
     return (
         <form>
-            {formData !== null && <Grid container spacing={2}>
-                {config.map(field => {
-                    if (field.x_must_be !== undefined) {
-                        if (formData[field.x_must_be.label] !== field.x_must_be.value) {
-                            return <></>;
+            {formData !== null && (
+                <Grid container spacing={2}>
+                    {config.map(field => {
+                        if (field.x_must_be !== undefined) {
+                            if (formData[field.x_must_be.label] !== field.x_must_be.value) {
+                                return <></>;
+                            }
                         }
-                    }
-                    let ret = <></>;
-                    if (formData[field.label] === undefined) formData[field.label] = "";
-                    switch (field.type) {
-                        case 'info':
-                            ret = (
-                                <Typography key={field.label}>
-                                    {field.text}
-                                </Typography>
-                            );
-                            break;
+                        let ret = <></>;
+                        if (formData[field.label] === undefined) formData[field.label] = "";
+                        switch (field.type) {
+                            case "info":
+                                ret = <Typography key={field.label}>{field.text}</Typography>;
+                                break;
 
-                        case 'text':
-                            ret = (
-                                <>
-                                    <Typography variant="body2" sx={{ mb: "5px" }}>
-                                        {field.label}
-                                    </Typography>
-                                    <TextField
-                                        key={field.label}
-                                        name={field.label}
-                                        onChange={handleChange}
-                                        placeholder={field.placeholder}
-                                        sx={{ width: "100%", '& .MuiFormHelperText-root': { color: theme.palette.error.main } }}
-                                        error={field.min_length !== undefined && formData[field.label] !== "" && formData[field.label].length <= field.min_length}
-                                        helperText={field.min_length !== undefined && formData[field.label] !== "" && formData[field.label].length <= field.min_length ? tr("input_at_least", { value: field.min_length }) : ""}
-                                    />
-                                </>
-                            );
-                            break;
+                            case "text":
+                                ret = (
+                                    <>
+                                        <Typography variant="body2" sx={{ mb: "5px" }}>
+                                            {field.label}
+                                        </Typography>
+                                        <TextField key={field.label} name={field.label} onChange={handleChange} placeholder={field.placeholder} sx={{ "width": "100%", "& .MuiFormHelperText-root": { color: theme.palette.error.main } }} error={field.min_length !== undefined && formData[field.label] !== "" && formData[field.label].length <= field.min_length} helperText={field.min_length !== undefined && formData[field.label] !== "" && formData[field.label].length <= field.min_length ? tr("input_at_least", { value: field.min_length }) : ""} />
+                                    </>
+                                );
+                                break;
 
-                        case 'textarea':
-                            ret = (
-                                <>
-                                    <Typography variant="body2" sx={{ mb: "5px" }}>
-                                        {field.label}
-                                    </Typography>
-                                    <TextField
-                                        multiline
-                                        key={field.label}
-                                        name={field.label}
-                                        onChange={handleChange}
-                                        rows={field.rows}
-                                        placeholder={field.placeholder}
-                                        sx={{ width: "100%", '& .MuiFormHelperText-root': { color: theme.palette.error.main } }}
-                                        error={field.min_length !== undefined && formData[field.label] !== "" && formData[field.label].length <= field.min_length}
-                                        helperText={field.min_length !== undefined && formData[field.label] !== "" && formData[field.label].length <= field.min_length ? `Input at least ${field.min_length} characters` : ""}
-                                        InputProps={{
-                                            inputComponent: 'textarea',
-                                            inputProps: {
-                                                style: {
-                                                    resize: 'vertical',
-                                                    overflow: 'auto'
-                                                }
-                                            }
-                                        }}
-                                    />
-                                </>
-                            );
-                            break;
+                            case "textarea":
+                                ret = (
+                                    <>
+                                        <Typography variant="body2" sx={{ mb: "5px" }}>
+                                            {field.label}
+                                        </Typography>
+                                        <TextField
+                                            multiline
+                                            key={field.label}
+                                            name={field.label}
+                                            onChange={handleChange}
+                                            rows={field.rows}
+                                            placeholder={field.placeholder}
+                                            sx={{ "width": "100%", "& .MuiFormHelperText-root": { color: theme.palette.error.main } }}
+                                            error={field.min_length !== undefined && formData[field.label] !== "" && formData[field.label].length <= field.min_length}
+                                            helperText={field.min_length !== undefined && formData[field.label] !== "" && formData[field.label].length <= field.min_length ? `Input at least ${field.min_length} characters` : ""}
+                                            InputProps={{
+                                                inputComponent: "textarea",
+                                                inputProps: {
+                                                    style: {
+                                                        resize: "vertical",
+                                                        overflow: "auto",
+                                                    },
+                                                },
+                                            }}
+                                        />
+                                    </>
+                                );
+                                break;
 
-                        case 'number':
-                            ret = (
-                                <>
-                                    <Typography variant="body2" sx={{ mb: "5px" }}>
-                                        {field.label}
-                                    </Typography>
-                                    <TextField
-                                        key={field.label}
-                                        name={field.label}
-                                        onChange={(e) => { if (!isNaN(e.target.value)) handleChange(e); }}
-                                        type="text"
-                                        sx={{ width: "100%", '& .MuiFormHelperText-root': { color: theme.palette.error.main } }}
-                                        error={field.min_value !== undefined && formData[field.label] < field.min_value || field.max_value !== undefined && formData[field.label] > field.max_value}
-                                        helperText={field.min_value !== undefined && formData[field.label] < field.min_value ? `Minimum value ${field.min_value}` : (field.max_value !== undefined && formData[field.label] < field.max_value ? `Maximum value ${field.max_value}` : "")}
-                                    />
-                                </>
-                            );
-                            break;
+                            case "number":
+                                ret = (
+                                    <>
+                                        <Typography variant="body2" sx={{ mb: "5px" }}>
+                                            {field.label}
+                                        </Typography>
+                                        <TextField
+                                            key={field.label}
+                                            name={field.label}
+                                            onChange={e => {
+                                                if (!isNaN(e.target.value)) handleChange(e);
+                                            }}
+                                            type="text"
+                                            sx={{ "width": "100%", "& .MuiFormHelperText-root": { color: theme.palette.error.main } }}
+                                            error={(field.min_value !== undefined && formData[field.label] < field.min_value) || (field.max_value !== undefined && formData[field.label] > field.max_value)}
+                                            helperText={field.min_value !== undefined && formData[field.label] < field.min_value ? `Minimum value ${field.min_value}` : field.max_value !== undefined && formData[field.label] < field.max_value ? `Maximum value ${field.max_value}` : ""}
+                                        />
+                                    </>
+                                );
+                                break;
 
-                        case 'date':
-                            ret = (
-                                <>
-                                    <Typography variant="body2" sx={{ mb: "5px" }}>
-                                        {field.label}
-                                    </Typography>
-                                    <TextField
-                                        key={field.label}
-                                        name={field.label}
-                                        onChange={handleChange}
-                                        type="date"
-                                    />
-                                </>
-                            );
-                            break;
+                            case "date":
+                                ret = (
+                                    <>
+                                        <Typography variant="body2" sx={{ mb: "5px" }}>
+                                            {field.label}
+                                        </Typography>
+                                        <TextField key={field.label} name={field.label} onChange={handleChange} type="date" />
+                                    </>
+                                );
+                                break;
 
-                        case 'datetime':
-                            ret = (
-                                <>
-                                    <Typography variant="body2" sx={{ mb: "5px" }}>
-                                        {field.label}
-                                    </Typography>
-                                    <TextField
-                                        key={field.label}
-                                        name={field.label}
-                                        onChange={handleChange}
-                                        type="datetime-local"
-                                    />
-                                </>
-                            );
-                            break;
+                            case "datetime":
+                                ret = (
+                                    <>
+                                        <Typography variant="body2" sx={{ mb: "5px" }}>
+                                            {field.label}
+                                        </Typography>
+                                        <TextField key={field.label} name={field.label} onChange={handleChange} type="datetime-local" />
+                                    </>
+                                );
+                                break;
 
-                        case 'dropdown':
-                            ret = (
-                                <>
-                                    <Typography variant="body2" sx={{ mb: "5px" }}>
-                                        {field.label}
-                                    </Typography>
-                                    <TextField select
-                                        key={field.label}
-                                        name={field.label}
-                                        value={formData[field.label]}
-                                        onChange={handleChange}
-                                        size="small" fullWidth
-                                    >
-                                        {field.choices.map(choice => (
-                                            <MenuItem key={choice} value={choice}>{choice}</MenuItem>
-                                        ))}
-                                    </TextField>
-                                </>
-                            );
-                            break;
+                            case "dropdown":
+                                ret = (
+                                    <>
+                                        <Typography variant="body2" sx={{ mb: "5px" }}>
+                                            {field.label}
+                                        </Typography>
+                                        <TextField select key={field.label} name={field.label} value={formData[field.label]} onChange={handleChange} size="small" fullWidth>
+                                            {field.choices.map(choice => (
+                                                <MenuItem key={choice} value={choice}>
+                                                    {choice}
+                                                </MenuItem>
+                                            ))}
+                                        </TextField>
+                                    </>
+                                );
+                                break;
 
-                        case 'radio':
-                            ret = (
-                                <FormControl component="fieldset">
-                                    <FormLabel component="legend">{field.label}</FormLabel>
-                                    <RadioGroup
-                                        name={field.label}
-                                        label={field.label}
-                                        value={formData[field.label]}
-                                        onChange={handleChange}
-                                    >
-                                        {field.choices.map(choice => (
-                                            <FormControlLabel
-                                                key={choice}
-                                                value={choice}
-                                                control={<Radio />}
-                                                label={choice}
-                                            />
-                                        ))}
-                                    </RadioGroup>
-                                </FormControl>
-                            );
-                            break;
-
-                        case 'checkbox':
-                            if (field.choices !== undefined && field.choices.length !== 0) {
+                            case "radio":
                                 ret = (
                                     <FormControl component="fieldset">
                                         <FormLabel component="legend">{field.label}</FormLabel>
-                                        {field.choices.map(choice => (
-                                            <FormControlLabel
-                                                key={choice}
-                                                control={
-                                                    <Checkbox
-                                                        name={field.label}
-                                                        checked={formData[field.label].includes(choice)}
-                                                        onChange={() => handleCheckboxChange(choice, field.label)}
-                                                    />
-                                                }
-                                                label={choice}
-                                            />
-                                        ))}
+                                        <RadioGroup name={field.label} label={field.label} value={formData[field.label]} onChange={handleChange}>
+                                            {field.choices.map(choice => (
+                                                <FormControlLabel key={choice} value={choice} control={<Radio />} label={choice} />
+                                            ))}
+                                        </RadioGroup>
                                     </FormControl>
                                 );
-                            } else {
-                                ret = (
-                                    <FormControl component="fieldset">
-                                        <FormControlLabel
-                                            key={field.label}
-                                            control={
-                                                <Checkbox
-                                                    name={field.label}
-                                                    checked={formData[field.label] === tr("yes")}
-                                                    onChange={() => handleCheckboxYNChange(field.label)}
-                                                />
-                                            }
-                                            label={field.label}
-                                        />
-                                    </FormControl>
-                                );
-                            }
-                            break;
+                                break;
 
-                        default:
-                            ret = null;
-                    }
-                    return <Grid key={field.label} size={12}>{ret}</Grid>;
-                })}
-            </Grid>}
+                            case "checkbox":
+                                if (field.choices !== undefined && field.choices.length !== 0) {
+                                    ret = (
+                                        <FormControl component="fieldset">
+                                            <FormLabel component="legend">{field.label}</FormLabel>
+                                            {field.choices.map(choice => (
+                                                <FormControlLabel key={choice} control={<Checkbox name={field.label} checked={formData[field.label].includes(choice)} onChange={() => handleCheckboxChange(choice, field.label)} />} label={choice} />
+                                            ))}
+                                        </FormControl>
+                                    );
+                                } else {
+                                    ret = (
+                                        <FormControl component="fieldset">
+                                            <FormControlLabel key={field.label} control={<Checkbox name={field.label} checked={formData[field.label] === tr("yes")} onChange={() => handleCheckboxYNChange(field.label)} />} label={field.label} />
+                                        </FormControl>
+                                    );
+                                }
+                                break;
+
+                            default:
+                                ret = null;
+                        }
+                        return (
+                            <Grid key={field.label} size={12}>
+                                {ret}
+                            </Grid>
+                        );
+                    })}
+                </Grid>
+            )}
         </form>
     );
 };
@@ -514,7 +473,7 @@ const NewApplication = () => {
             await axios({ url: `${apiPath}/user/notification/settings/application/enable`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         }
 
-        let resp = await axios({ url: `${apiPath}/applications`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "type": selectedType, "application": modFormData } });
+        let resp = await axios({ url: `${apiPath}/applications`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { type: selectedType, application: modFormData } });
         if (resp.status === 200) {
             setSnackbarContent(tr("application_submitted"));
             setSnackbarSeverity("success");
@@ -528,57 +487,59 @@ const NewApplication = () => {
         setSubmitDisabled(false);
     }, [apiPath, enableNotifications, formData, selectedType]);
 
-    return <Card sx={{ padding: "20px" }}>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Typography variant="h5" sx={{ flexGrow: 1 }}>{tr("new_application")}</Typography>
-            {applicationTypes !== null && <TextField select
-                key={tr("application_type")}
-                name={tr("application_type")}
-                value={selectedType}
-                onChange={(e) => { setSelectedType(e.target.value); setSubmitDisabled(true); setFormData(null); }}
-                sx={{ marginTop: "6px", height: "30px" }}
-                size="small"
-            >
-                {Object.values(applicationTypes).map(type => (
-                    <MenuItem key={type.id} value={type.id}>{type.name}</MenuItem>
-                ))}
-            </TextField>}
-        </div>
-        {applicationTypes !== null && <CardContent>
-            <CustomForm theme={theme} config={selectedType !== null ? modifiedConfig : undefined} formData={formData} setFormData={setFormData} setSubmitDisabled={setSubmitDisabled} />
-            {((selectedType !== null ? applicationTypes[selectedType].form : undefined) !== undefined) &&
-                <Box sx={{ display: 'grid', justifyItems: 'end' }}>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <FormControl component="fieldset">
-                            <FormControlLabel
-                                key="enable-notifications"
-                                control={
-                                    <Checkbox
-                                        name={tr("enable_notifications")}
-                                        checked={enableNotifications}
-                                        onChange={() => setEnableNotifications(!enableNotifications)}
-                                    />
-                                }
-                                label={tr("enable_notifications")}
-                            />
-                        </FormControl>
-                        <Button onClick={handleSubmit} variant="contained" color="info" disabled={submitDisabled}>{tr("submit")}</Button>
-                    </div>
-                </Box>}
-        </CardContent>}
-        <Portal>
-            <Snackbar
-                open={!!snackbarContent}
-                autoHideDuration={5000}
-                onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            >
-                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
-                    {snackbarContent}
-                </Alert>
-            </Snackbar>
-        </Portal>
-    </Card>;
+    return (
+        <Card sx={{ padding: "20px" }}>
+            <div style={{ display: "flex", alignItems: "center" }}>
+                <Typography variant="h5" sx={{ flexGrow: 1 }}>
+                    {tr("new_application")}
+                </Typography>
+                {applicationTypes !== null && (
+                    <TextField
+                        select
+                        key={tr("application_type")}
+                        name={tr("application_type")}
+                        value={selectedType}
+                        onChange={e => {
+                            setSelectedType(e.target.value);
+                            setSubmitDisabled(true);
+                            setFormData(null);
+                        }}
+                        sx={{ marginTop: "6px", height: "30px" }}
+                        size="small">
+                        {Object.values(applicationTypes).map(type => (
+                            <MenuItem key={type.id} value={type.id}>
+                                {type.name}
+                            </MenuItem>
+                        ))}
+                    </TextField>
+                )}
+            </div>
+            {applicationTypes !== null && (
+                <CardContent>
+                    <CustomForm theme={theme} config={selectedType !== null ? modifiedConfig : undefined} formData={formData} setFormData={setFormData} setSubmitDisabled={setSubmitDisabled} />
+                    {(selectedType !== null ? applicationTypes[selectedType].form : undefined) !== undefined && (
+                        <Box sx={{ display: "grid", justifyItems: "end" }}>
+                            <div style={{ display: "flex", alignItems: "center" }}>
+                                <FormControl component="fieldset">
+                                    <FormControlLabel key="enable-notifications" control={<Checkbox name={tr("enable_notifications")} checked={enableNotifications} onChange={() => setEnableNotifications(!enableNotifications)} />} label={tr("enable_notifications")} />
+                                </FormControl>
+                                <Button onClick={handleSubmit} variant="contained" color="info" disabled={submitDisabled}>
+                                    {tr("submit")}
+                                </Button>
+                            </div>
+                        </Box>
+                    )}
+                </CardContent>
+            )}
+            <Portal>
+                <Snackbar open={!!snackbarContent} autoHideDuration={5000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
+                    <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
+                        {snackbarContent}
+                    </Alert>
+                </Snackbar>
+            </Portal>
+        </Card>
+    );
 };
 
 export default NewApplication;

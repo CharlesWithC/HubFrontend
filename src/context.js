@@ -1,67 +1,107 @@
-import { useState, useEffect, useMemo, useCallback, createContext } from 'react';
-import _ from 'lodash';
+import { useState, useEffect, useMemo, useCallback, createContext } from "react";
+import _ from "lodash";
 
 import { makeRequestsAuto, makeRequestsWithAuth, getTodayUTC, readLS, writeLS } from "./functions";
 
 export const AppContext = createContext({
-    apiPath: "", setApiPath: () => { },
-    apiVersion: "", setApiVersion: () => { },
+    apiPath: "",
+    setApiPath: () => {},
+    apiVersion: "",
+    setApiVersion: () => {},
 
-    vtcLogo: localStorage.getItem("cache-logo"), setVtcLogo: () => { },
-    vtcBanner: localStorage.getItem("cache-banner"), setVtcBanner: () => { },
-    vtcBackground: localStorage.getItem("cache-background"), setVtcBackground: () => { },
-    customBackground: (localStorage.getItem("custom-background") !== null ? localStorage.getItem("custom-background") : ""), setCustomBackground: () => { },
+    vtcLogo: localStorage.getItem("cache-logo"),
+    setVtcLogo: () => {},
+    vtcBanner: localStorage.getItem("cache-banner"),
+    setVtcBanner: () => {},
+    vtcBackground: localStorage.getItem("cache-background"),
+    setVtcBackground: () => {},
+    customBackground: localStorage.getItem("custom-background") !== null ? localStorage.getItem("custom-background") : "",
+    setCustomBackground: () => {},
 
     // chub team / supporter etc
-    specialRoles: {}, setSpecialRoles: () => { }, // {role: [users]}
-    specialUsers: {}, setSpecialUsers: () => { }, // {user[discordid]: [roles]}
-    patrons: {}, setPatrons: () => { },
-    curUserPatreonID: null, setCurUserPatreonID: () => { },
-    fmRewards: [], setFMRewards: () => { },
-    fmRewardsDistributed: {}, setFMRewardsDistributed: () => { }, // freightmaster rewards (uid: [rewards])
-    userConfig: {}, setUserConfig: () => { }, // all users
+    specialRoles: {},
+    setSpecialRoles: () => {}, // {role: [users]}
+    specialUsers: {},
+    setSpecialUsers: () => {}, // {user[discordid]: [roles]}
+    patrons: {},
+    setPatrons: () => {},
+    curUserPatreonID: null,
+    setCurUserPatreonID: () => {},
+    fmRewards: [],
+    setFMRewards: () => {},
+    fmRewardsDistributed: {},
+    setFMRewardsDistributed: () => {}, // freightmaster rewards (uid: [rewards])
+    userConfig: {},
+    setUserConfig: () => {}, // all users
 
-    vtcLevel: 0, setVtcLevel: () => { }, // 0: regular / 1: premium / 3: special
-    userLevel: -1, setUserLevel: () => { },
+    vtcLevel: 0,
+    setVtcLevel: () => {}, // 0: regular / 1: premium / 3: special
+    userLevel: -1,
+    setUserLevel: () => {},
 
-    apiConfig: null, setApiConfig: () => { },
-    webConfig: null, setWebConfig: () => { },
-    adPlugins: null, setADPlugins: () => { }, loadADPlugins: () => { },
-    languages: [], setLanguages: () => { }, loadLanguages: () => { },
-    allRoles: {}, setAllRoles: () => { },
-    allPerms: {}, setAllPerms: () => { },
-    allRanks: {}, setAllRanks: () => { },
+    apiConfig: null,
+    setApiConfig: () => {},
+    webConfig: null,
+    setWebConfig: () => {},
+    adPlugins: null,
+    setADPlugins: () => {},
+    loadADPlugins: () => {},
+    languages: [],
+    setLanguages: () => {},
+    loadLanguages: () => {},
+    allRoles: {},
+    setAllRoles: () => {},
+    allPerms: {},
+    setAllPerms: () => {},
+    allRanks: {},
+    setAllRanks: () => {},
 
-    users: {}, setUsers: () => { },
-    userProfiles: {}, setUserProfiles: () => { },
-    memberUIDs: [], setMemberUIDs: () => { },
+    users: {},
+    setUsers: () => {},
+    userProfiles: {},
+    setUserProfiles: () => {},
+    memberUIDs: [],
+    setMemberUIDs: () => {},
 
-    curUID: null, setCurUID: () => { },
-    curUser: {}, setCurUser: () => { },
-    curUserPerm: [], setCurUserPerm: () => { },
-    curUserBanner: { name: "", role: "", avatar: "" }, setCurUserBanner: () => { },
+    curUID: null,
+    setCurUID: () => {},
+    curUser: {},
+    setCurUser: () => {},
+    curUserPerm: [],
+    setCurUserPerm: () => {},
+    curUserBanner: { name: "", role: "", avatar: "" },
+    setCurUserBanner: () => {},
 
-    testRoleMode: false, setTestRoleMode: () => { },
-    userSettings: { "notification_refresh_interval": 30, "unit": "metric", "radio": "disabled", "radio_type": "tfm", "radio_volume": 100, "display_timezone": Intl.DateTimeFormat().resolvedOptions().timeZone, "data_saver": false, "font_size": "regular", "default_row_per_page": 10, "language": null, "presence": "full", "streamer_mode": false }, setUserSettings: () => { },
+    testRoleMode: false,
+    setTestRoleMode: () => {},
+    userSettings: { notification_refresh_interval: 30, unit: "metric", radio: "disabled", radio_type: "tfm", radio_volume: 100, display_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, data_saver: false, font_size: "regular", default_row_per_page: 10, language: null, presence: "full", streamer_mode: false },
+    setUserSettings: () => {},
     // radio: enabled / disabled / auto-play (enabled)
     // radio-type: tfm / simhit / {url}
 
-    announcementTypes: null, setAnnouncementTypes: () => { },
-    applicationTypes: null, setApplicationTypes: () => { },
-    divisions: null, setDivisions: () => { },
+    announcementTypes: null,
+    setAnnouncementTypes: () => {},
+    applicationTypes: null,
+    setApplicationTypes: () => {},
+    divisions: null,
+    setDivisions: () => {},
 
-    dlogDetailsCache: {}, setDlogDetailsCache: () => { }, // dlogDetails from ATM database
-    economyCache: { config: null, trucks: [], garagesMap: {}, merchMap: {} }, setEconomyCache: () => { },
-    allUsersCache: [], setAllUsersCache: () => { }, // only loaded to purge inactive
-    allDiscordMembers: [], setAllDiscordMembers: () => { },
+    dlogDetailsCache: {},
+    setDlogDetailsCache: () => {}, // dlogDetails from ATM database
+    economyCache: { config: null, trucks: [], garagesMap: {}, merchMap: {} },
+    setEconomyCache: () => {},
+    allUsersCache: [],
+    setAllUsersCache: () => {}, // only loaded to purge inactive
+    allDiscordMembers: [],
+    setAllDiscordMembers: () => {},
 
-    loadMemberUIDs: async () => { },
-    loadAnnouncementTypes: async () => { },
-    loadApplicationTypes: async () => { },
-    loadDivisions: async () => { },
-    loadDlogDetails: async () => { },
-    loadAllUsers: async () => { },
-    loadAllDiscordMembers: async () => { },
+    loadMemberUIDs: async () => {},
+    loadAnnouncementTypes: async () => {},
+    loadApplicationTypes: async () => {},
+    loadDivisions: async () => {},
+    loadDlogDetails: async () => {},
+    loadAllUsers: async () => {},
+    loadAllDiscordMembers: async () => {},
 });
 
 export const AppContextProvider = ({ children }) => {
@@ -102,7 +142,7 @@ export const AppContextProvider = ({ children }) => {
     const [curUserBanner, setCurUserBanner] = useState({ name: "", role: "", avatar: "" });
 
     const [testRoleMode, setTestRoleMode] = useState(false);
-    const [userSettings, setUserSettings] = useState({ "notification_refresh_interval": 30, "unit": "metric", "radio": "disabled", "radio_type": "tfm", "radio_volume": 100, "display_timezone": Intl.DateTimeFormat().resolvedOptions().timeZone, "data_saver": false, "font_size": "regular", "default_row_per_page": 10, "language": null, "presence": "full", "streamer_mode": false });
+    const [userSettings, setUserSettings] = useState({ notification_refresh_interval: 30, unit: "metric", radio: "disabled", radio_type: "tfm", radio_volume: 100, display_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, data_saver: false, font_size: "regular", default_row_per_page: 10, language: null, presence: "full", streamer_mode: false });
 
     const [announcementTypes, setAnnouncementTypes] = useState(null);
     const [applicationTypes, setApplicationTypes] = useState(null);
@@ -165,7 +205,9 @@ export const AppContextProvider = ({ children }) => {
     const loadMemberUIDs = useCallback(async () => {
         if (memberUIDs.length > 0) return;
 
-        const orderedRoles = Object.values(allRoles).sort((a, b) => a.order_id - b.order_id).map(role => role.id);
+        const orderedRoles = Object.values(allRoles)
+            .sort((a, b) => a.order_id - b.order_id)
+            .map(role => role.id);
 
         let allMembers = [];
 
@@ -191,7 +233,7 @@ export const AppContextProvider = ({ children }) => {
             setUsers(prevUsers => ({ ...prevUsers, [allMembers[i].uid]: allMembers[i] }));
         }
 
-        let allMemberUIDs = allMembers.map((member) => member.uid);
+        let allMemberUIDs = allMembers.map(member => member.uid);
         setMemberUIDs(allMemberUIDs);
         return allMemberUIDs;
     }, [allRoles, apiPath]);
@@ -293,68 +335,114 @@ export const AppContextProvider = ({ children }) => {
         const [divisions] = await makeRequestsAuto([{ url: `${apiPath}/divisions/list`, auth: false }]);
         if (divisions) {
             const divisionsMap = {};
-            for (let i = 0; i < divisions.length; i++)
-                divisionsMap[divisions[i].id] = divisions[i];
+            for (let i = 0; i < divisions.length; i++) divisionsMap[divisions[i].id] = divisions[i];
             setDivisions(divisionsMap);
             return divisionsMap;
         }
         return null;
     }, [apiPath]);
 
-    const value = useMemo(() => ({
-        apiPath, setApiPath,
-        apiVersion, setApiVersion,
+    const value = useMemo(
+        () => ({
+            apiPath,
+            setApiPath,
+            apiVersion,
+            setApiVersion,
 
-        vtcLogo, setVtcLogo,
-        vtcBanner, setVtcBanner,
-        vtcBackground, setVtcBackground,
-        customBackground, setCustomBackground,
+            vtcLogo,
+            setVtcLogo,
+            vtcBanner,
+            setVtcBanner,
+            vtcBackground,
+            setVtcBackground,
+            customBackground,
+            setCustomBackground,
 
-        specialRoles, setSpecialRoles,
-        specialUsers, setSpecialUsers,
-        patrons, setPatrons,
-        curUserPatreonID, setCurUserPatreonID,
-        fmRewards, setFMRewards,
-        fmRewardsDistributed, setFMRewardsDistributed,
-        userConfig, setUserConfig,
+            specialRoles,
+            setSpecialRoles,
+            specialUsers,
+            setSpecialUsers,
+            patrons,
+            setPatrons,
+            curUserPatreonID,
+            setCurUserPatreonID,
+            fmRewards,
+            setFMRewards,
+            fmRewardsDistributed,
+            setFMRewardsDistributed,
+            userConfig,
+            setUserConfig,
 
-        userLevel, setUserLevel,
-        vtcLevel, setVtcLevel,
+            userLevel,
+            setUserLevel,
+            vtcLevel,
+            setVtcLevel,
 
-        apiConfig, setApiConfig,
-        webConfig, setWebConfig,
-        adPlugins, setADPlugins, loadADPlugins,
-        languages, setLanguages, loadLanguages,
-        allRoles, setAllRoles,
-        allPerms, setAllPerms,
-        allRanks, setAllRanks,
+            apiConfig,
+            setApiConfig,
+            webConfig,
+            setWebConfig,
+            adPlugins,
+            setADPlugins,
+            loadADPlugins,
+            languages,
+            setLanguages,
+            loadLanguages,
+            allRoles,
+            setAllRoles,
+            allPerms,
+            setAllPerms,
+            allRanks,
+            setAllRanks,
 
-        users, setUsers,
-        userProfiles, setUserProfiles,
-        memberUIDs, setMemberUIDs, loadMemberUIDs,
+            users,
+            setUsers,
+            userProfiles,
+            setUserProfiles,
+            memberUIDs,
+            setMemberUIDs,
+            loadMemberUIDs,
 
-        curUID, setCurUID, curUser, setCurUser,
-        curUserPerm, setCurUserPerm,
-        curUserBanner, setCurUserBanner,
+            curUID,
+            setCurUID,
+            curUser,
+            setCurUser,
+            curUserPerm,
+            setCurUserPerm,
+            curUserBanner,
+            setCurUserBanner,
 
-        testRoleMode, setTestRoleMode,
-        userSettings, setUserSettings,
+            testRoleMode,
+            setTestRoleMode,
+            userSettings,
+            setUserSettings,
 
-        announcementTypes, setAnnouncementTypes, loadAnnouncementTypes,
-        applicationTypes, setApplicationTypes, loadApplicationTypes,
-        divisions, setDivisions, loadDivisions,
+            announcementTypes,
+            setAnnouncementTypes,
+            loadAnnouncementTypes,
+            applicationTypes,
+            setApplicationTypes,
+            loadApplicationTypes,
+            divisions,
+            setDivisions,
+            loadDivisions,
 
-        dlogDetailsCache, setDlogDetailsCache, loadDlogDetails,
-        economyCache, setEconomyCache,
-        allUsersCache, setAllUsersCache, loadAllUsers,
-        allDiscordMembers, setAllDiscordMembers, loadAllDiscordMembers
-    }), [apiPath, apiVersion, apiConfig, vtcLogo, vtcBanner, vtcBackground, customBackground, specialRoles, specialUsers, patrons, curUserPatreonID, userConfig, userLevel, vtcLevel, webConfig, adPlugins, languages, allRoles, allPerms, allRanks, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, testRoleMode, userSettings, announcementTypes, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache, allDiscordMembers]);
-
-    return (
-        <AppContext.Provider value={value}>
-            {children}
-        </AppContext.Provider>
+            dlogDetailsCache,
+            setDlogDetailsCache,
+            loadDlogDetails,
+            economyCache,
+            setEconomyCache,
+            allUsersCache,
+            setAllUsersCache,
+            loadAllUsers,
+            allDiscordMembers,
+            setAllDiscordMembers,
+            loadAllDiscordMembers,
+        }),
+        [apiPath, apiVersion, apiConfig, vtcLogo, vtcBanner, vtcBackground, customBackground, specialRoles, specialUsers, patrons, curUserPatreonID, userConfig, userLevel, vtcLevel, webConfig, adPlugins, languages, allRoles, allPerms, allRanks, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, testRoleMode, userSettings, announcementTypes, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache, allDiscordMembers]
     );
+
+    return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };
 
 export const ThemeContext = createContext({
@@ -364,8 +452,8 @@ export const ThemeContext = createContext({
         theme_background: null,
         theme_main: null,
         theme_darken_ratio: null,
-        bg_image: null
-    }
+        bg_image: null,
+    },
 });
 
 export const ThemeContextProvider = ({ children }) => {
@@ -375,29 +463,25 @@ export const ThemeContextProvider = ({ children }) => {
         theme_background: null,
         theme_main: null,
         theme_darken_ratio: null,
-        bg_image: null
+        bg_image: null,
     });
 
     const value = useMemo(() => ({ themeSettings, setThemeSettings }), [themeSettings]);
 
-    return (
-        <ThemeContext.Provider value={value}>
-            {children}
-        </ThemeContext.Provider>
-    );
+    return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };
 
 const DEFAULT_CACHE = {
     announcement: {
         announcements: [],
         page: 1,
-        totalPages: 1
+        totalPages: 1,
     },
     audit_log: {
         auditList: [],
         page: 1,
         pageSize: null,
-        totalPages: 1
+        totalPages: 1,
     },
     challenge: {
         challengeList: [],
@@ -409,7 +493,7 @@ const DEFAULT_CACHE = {
         listParam: { order_by: "challengeid", order: "desc" },
         rawUpcomingChallenges: [],
         rawActiveChallenges: [],
-        rawChallengeList: []
+        rawChallengeList: [],
     },
     delivery_list: {
         detailStats: "loading",
@@ -417,7 +501,7 @@ const DEFAULT_CACHE = {
         page: 1,
         pageSize: null,
         totalItems: 1,
-        listParam: { order_by: "logid", order: "desc", after: undefined, before: undefined, game: 0, status: 0, userid: null }
+        listParam: { order_by: "logid", order: "desc", after: undefined, before: undefined, game: 0, status: 0, userid: null },
     },
     division: {
         dlog: {
@@ -432,17 +516,17 @@ const DEFAULT_CACHE = {
             pageSize: null,
             totalItems: 1,
         },
-        listParam: { after: undefined, before: undefined }
+        listParam: { after: undefined, before: undefined },
     },
     downloads: {
         downloadableItems: [],
         page: 1,
-        totalPages: 1
+        totalPages: 1,
     },
     event: {
         upcomingEvents: [],
         calendarEvents: [],
-        allEvents: []
+        allEvents: [],
     },
     external_user: {
         userList: [],
@@ -457,7 +541,7 @@ const DEFAULT_CACHE = {
         banPageSize: null,
         banTotalItems: 1,
         banSearch: "",
-        banListParam: { order_by: "uid", order: "desc" }
+        banListParam: { order_by: "uid", order: "desc" },
     },
     leaderboard: {
         monthly: [],
@@ -466,7 +550,7 @@ const DEFAULT_CACHE = {
         totalItems: 1,
         page: 1,
         pageSize: null,
-        listParam: { after: undefined, before: undefined, game: 0, point_types: ["bonus", "distance", "challenge", "division", "event"], users: [] }
+        listParam: { after: undefined, before: undefined, game: 0, point_types: ["bonus", "distance", "challenge", "division", "event"], users: [] },
     },
     member_list: {
         userList: [],
@@ -474,7 +558,7 @@ const DEFAULT_CACHE = {
         pageSize: null,
         totalItems: 1,
         search: "",
-        listParam: { order_by: "userid", order: "asc" }
+        listParam: { order_by: "userid", order: "asc" },
     },
     overview: {
         latest: { driver: 0, job: 0, distance: 0, fuel: 0, profit_euro: 0, profit_dollar: 0 },
@@ -483,12 +567,12 @@ const DEFAULT_CACHE = {
         leaderboard: [],
         recentVisitors: [],
         newestMember: null,
-        latestDelivery: null
+        latestDelivery: null,
     },
     poll: {
         polls: [],
         page: 1,
-        totalPages: 1
+        totalPages: 1,
     },
     statistics: {
         startTime: getTodayUTC() / 1000 - 86400 * 7,
@@ -499,13 +583,13 @@ const DEFAULT_CACHE = {
         charts: { driver: [], job: [], distance: [], fuel: [], profit_euro: [], profit_dollar: [] },
         originalChart: { driver: [], job: [], distance: [], fuel: [], profit_euro: [], profit_dollar: [] },
         xAxis: [],
-        detailStats: {}
+        detailStats: {},
     },
     ranking: {
         userPoints: 0,
         detailedPoints: { distance: 0, challenge: 0, event: 0, division: 0, bonus: 0 },
         bonusStreak: "/",
-        curRankTypeId: null
+        curRankTypeId: null,
     },
     freightmaster: {
         seasonName: "Unknown Season",
@@ -518,13 +602,13 @@ const DEFAULT_CACHE = {
         page: 1,
         pageSize: 10,
         totalItems: 0,
-        fMode: "d"
-    }
+        fMode: "d",
+    },
 };
 
 export const CacheContext = createContext({
     cache: DEFAULT_CACHE,
-    setCache: () => { }
+    setCache: () => {},
 });
 
 export const CacheContextProvider = ({ children }) => {
@@ -546,21 +630,7 @@ export const CacheContextProvider = ({ children }) => {
         const initialListParamCache = readLS("cache-list-param", window.dhhost) || {};
 
         // Check if any listParam values have changed
-        const listParamPaths = [
-            'challenge.listParam',
-            'delivery_list.listParam',
-            'external_user.userListParam',
-            'external_user.banListParam',
-            'leaderboard.listParam',
-            'member_list.listParam',
-            'ranking.detailedPoints',
-            'ranking.curRankTypeId',
-            'division.listParam',
-            'delivery_list.detailStats',
-            'overview.latest',
-            'overview.delta',
-            'overview.charts',
-        ];
+        const listParamPaths = ["challenge.listParam", "delivery_list.listParam", "external_user.userListParam", "external_user.banListParam", "leaderboard.listParam", "member_list.listParam", "ranking.detailedPoints", "ranking.curRankTypeId", "division.listParam", "delivery_list.detailStats", "overview.latest", "overview.delta", "overview.charts"];
 
         const listParamCache = listParamPaths.reduce((acc, path) => {
             const listParamValue = _.get(cache, path);
@@ -576,9 +646,5 @@ export const CacheContextProvider = ({ children }) => {
         }
     }, [cache]);
 
-    return (
-        <CacheContext.Provider value={value}>
-            {children}
-        </CacheContext.Provider>
-    );
+    return <CacheContext.Provider value={value}>{children}</CacheContext.Provider>;
 };

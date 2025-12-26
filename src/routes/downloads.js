@@ -1,46 +1,46 @@
-import { useEffect, useState, useCallback, useContext, useRef, memo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { AppContext, CacheContext } from '../context';
+import { useEffect, useState, useCallback, useContext, useRef, memo } from "react";
+import { useTranslation } from "react-i18next";
+import { AppContext, CacheContext } from "../context";
 
-import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, TextField, Snackbar, Alert, Pagination, IconButton, Checkbox, Box } from '@mui/material';
-import { DownloadRounded, EditNoteRounded, RefreshRounded, EditRounded, DeleteRounded, PeopleAltRounded, CloseRounded } from '@mui/icons-material';
-import Portal from '@mui/material/Portal';
+import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, TextField, Snackbar, Alert, Pagination, IconButton, Checkbox, Box } from "@mui/material";
+import { DownloadRounded, EditNoteRounded, RefreshRounded, EditRounded, DeleteRounded, PeopleAltRounded, CloseRounded } from "@mui/icons-material";
+import Portal from "@mui/material/Portal";
 
-import UserCard from '../components/usercard';
-import MarkdownRenderer from '../components/markdown';
-import TimeDelta from '../components/timedelta';
+import UserCard from "../components/usercard";
+import MarkdownRenderer from "../components/markdown";
+import TimeDelta from "../components/timedelta";
 
-import { makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios, checkPerm, downloadFile, getAuthToken } from '../functions';
+import { makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios, checkPerm, downloadFile, getAuthToken } from "../functions";
 
 const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }) => {
     const { t: tr } = useTranslation();
     const { curUID, curUserPerm } = useContext(AppContext);
 
     const showButtons = onEdit !== undefined;
-    const showControls = (onEdit !== undefined) && (curUID !== null && checkUserPerm(curUserPerm, ["administrator", "manage_downloads"]));
+    const showControls = onEdit !== undefined && curUID !== null && checkUserPerm(curUserPerm, ["administrator", "manage_downloads"]);
 
     const [isShiftPressed, setIsShiftPressed] = useState(false);
     const [downloading, setDownloading] = useState(false);
 
     useEffect(() => {
-        const handleKeyDown = (event) => {
+        const handleKeyDown = event => {
             if (event.keyCode === 16) {
                 setIsShiftPressed(true);
             }
         };
 
-        const handleKeyUp = (event) => {
+        const handleKeyUp = event => {
             if (event.keyCode === 16) {
                 setIsShiftPressed(false);
             }
         };
 
-        window.addEventListener('keydown', handleKeyDown);
-        window.addEventListener('keyup', handleKeyUp);
+        window.addEventListener("keydown", handleKeyDown);
+        window.addEventListener("keyup", handleKeyUp);
 
         return () => {
-            window.removeEventListener('keydown', handleKeyDown);
-            window.removeEventListener('keyup', handleKeyUp);
+            window.removeEventListener("keydown", handleKeyDown);
+            window.removeEventListener("keyup", handleKeyUp);
         };
     }, []);
 
@@ -73,28 +73,46 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
                     xs: 12,
                     sm: 12,
                     md: 6,
-                    lg: 6
+                    lg: 6,
                 }}>
                 <Card>
                     <CardContent>
-                        <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
+                        <div style={{ marginBottom: "10px", display: "flex", alignItems: "center" }}>
                             <Typography variant="h5" sx={{ flexGrow: 1 }}>
-                                <div style={{ display: 'flex', alignItems: 'center' }}>
-                                    {downloadableItem.title}
-                                </div>
+                                <div style={{ display: "flex", alignItems: "center" }}>{downloadableItem.title}</div>
                             </Typography>
-                            {(showButtons) && <div>
-                                <IconButton size="small" aria-label={tr("download")} onClick={handleDownload} disabled={downloading}><DownloadRounded /></IconButton >
-                            </div>}
-                            {(showControls && showButtons) && <div>
-                                <IconButton size="small" aria-label={tr("edit")} onClick={handleEdit}><EditRounded /></IconButton >
-                                <IconButton size="small" aria-label={tr("delete")} onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
-                            </div>}
+                            {showButtons && (
+                                <div>
+                                    <IconButton size="small" aria-label={tr("download")} onClick={handleDownload} disabled={downloading}>
+                                        <DownloadRounded />
+                                    </IconButton>
+                                </div>
+                            )}
+                            {showControls && showButtons && (
+                                <div>
+                                    <IconButton size="small" aria-label={tr("edit")} onClick={handleEdit}>
+                                        <EditRounded />
+                                    </IconButton>
+                                    <IconButton size="small" aria-label={tr("delete")} onClick={handleDelete}>
+                                        <DeleteRounded sx={{ color: "red" }} />
+                                    </IconButton>
+                                </div>
+                            )}
                         </div>
-                        <Typography variant="body2"><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
+                        <Typography variant="body2">
+                            <MarkdownRenderer>{description}</MarkdownRenderer>
+                        </Typography>
                     </CardContent>
                     <CardContent>
-                        <Typography variant="caption"><UserCard user={downloadableItem.creator} inline={true} />{downloadableItem.timestamp !== 0 && <> | <TimeDelta key={`${+new Date()}`} timestamp={downloadableItem.timestamp * 1000} /></>}</Typography>
+                        <Typography variant="caption">
+                            <UserCard user={downloadableItem.creator} inline={true} />
+                            {downloadableItem.timestamp !== 0 && (
+                                <>
+                                    {" "}
+                                    | <TimeDelta key={`${+new Date()}`} timestamp={downloadableItem.timestamp * 1000} />
+                                </>
+                            )}
+                        </Typography>
                     </CardContent>
                 </Card>
             </Grid>
@@ -107,28 +125,46 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
                     xs: 12,
                     sm: 12,
                     md: 12,
-                    lg: 12
+                    lg: 12,
                 }}>
                 <Card>
                     <CardContent>
-                        <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
+                        <div style={{ marginBottom: "10px", display: "flex", alignItems: "center" }}>
                             <Typography variant="h5" sx={{ flexGrow: 1 }}>
-                                <div style={{ display: 'flex', alignItems: 'center' }}>
-                                    {downloadableItem.title}
-                                </div>
+                                <div style={{ display: "flex", alignItems: "center" }}>{downloadableItem.title}</div>
                             </Typography>
-                            {(showButtons) && <div>
-                                <IconButton size="small" aria-label={tr("download")} onClick={handleDownload} disabled={downloading}><DownloadRounded /></IconButton >
-                            </div>}
-                            {(showControls && showButtons) && <div>
-                                <IconButton size="small" aria-label={tr("edit")} onClick={handleEdit}><EditRounded /></IconButton >
-                                <IconButton size="small" aria-label={tr("delete")} onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
-                            </div>}
+                            {showButtons && (
+                                <div>
+                                    <IconButton size="small" aria-label={tr("download")} onClick={handleDownload} disabled={downloading}>
+                                        <DownloadRounded />
+                                    </IconButton>
+                                </div>
+                            )}
+                            {showControls && showButtons && (
+                                <div>
+                                    <IconButton size="small" aria-label={tr("edit")} onClick={handleEdit}>
+                                        <EditRounded />
+                                    </IconButton>
+                                    <IconButton size="small" aria-label={tr("delete")} onClick={handleDelete}>
+                                        <DeleteRounded sx={{ color: "red" }} />
+                                    </IconButton>
+                                </div>
+                            )}
                         </div>
-                        <Typography variant="body2"><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
+                        <Typography variant="body2">
+                            <MarkdownRenderer>{description}</MarkdownRenderer>
+                        </Typography>
                     </CardContent>
                     <CardContent>
-                        <Typography variant="caption"><UserCard user={downloadableItem.creator} inline={true} />{downloadableItem.timestamp !== 0 && <> | <TimeDelta key={`${+new Date()}`} timestamp={downloadableItem.timestamp * 1000} /></>}</Typography>
+                        <Typography variant="caption">
+                            <UserCard user={downloadableItem.creator} inline={true} />
+                            {downloadableItem.timestamp !== 0 && (
+                                <>
+                                    {" "}
+                                    | <TimeDelta key={`${+new Date()}`} timestamp={downloadableItem.timestamp * 1000} />
+                                </>
+                            )}
+                        </Typography>
                     </CardContent>
                 </Card>
             </Grid>
@@ -141,7 +177,7 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
                     xs: 12,
                     sm: 12,
                     md: 12,
-                    lg: 12
+                    lg: 12,
                 }}>
                 <Grid container spacing={2}>
                     <Grid
@@ -149,38 +185,56 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
                             xs: 12,
                             sm: 12,
                             md: 6,
-                            lg: 6
+                            lg: 6,
                         }}>
-                        <img src={downloadableItem.image} alt="" style={{ width: '100%', border: 'none' }} />
+                        <img src={downloadableItem.image} alt="" style={{ width: "100%", border: "none" }} />
                     </Grid>
                     <Grid
-                        style={{ display: 'flex' }}
+                        style={{ display: "flex" }}
                         size={{
                             xs: 12,
                             sm: 12,
                             md: 6,
-                            lg: 6
+                            lg: 6,
                         }}>
-                        <Card style={{ display: 'flex', flexDirection: 'column' }}>
+                        <Card style={{ display: "flex", flexDirection: "column" }}>
                             <CardContent>
-                                <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
+                                <div style={{ marginBottom: "10px", display: "flex", alignItems: "center" }}>
                                     <Typography variant="h5" sx={{ flexGrow: 1 }}>
-                                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                                            {downloadableItem.title}
-                                        </div>
+                                        <div style={{ display: "flex", alignItems: "center" }}>{downloadableItem.title}</div>
                                     </Typography>
-                                    {(showButtons) && <div>
-                                        <IconButton size="small" aria-label={tr("download")} onClick={handleDownload} disabled={downloading}><DownloadRounded /></IconButton >
-                                    </div>}
-                                    {(showControls && showButtons) && <div>
-                                        <IconButton size="small" aria-label={tr("edit")} onClick={handleEdit}><EditRounded /></IconButton >
-                                        <IconButton size="small" aria-label={tr("delete")} onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
-                                    </div>}
+                                    {showButtons && (
+                                        <div>
+                                            <IconButton size="small" aria-label={tr("download")} onClick={handleDownload} disabled={downloading}>
+                                                <DownloadRounded />
+                                            </IconButton>
+                                        </div>
+                                    )}
+                                    {showControls && showButtons && (
+                                        <div>
+                                            <IconButton size="small" aria-label={tr("edit")} onClick={handleEdit}>
+                                                <EditRounded />
+                                            </IconButton>
+                                            <IconButton size="small" aria-label={tr("delete")} onClick={handleDelete}>
+                                                <DeleteRounded sx={{ color: "red" }} />
+                                            </IconButton>
+                                        </div>
+                                    )}
                                 </div>
-                                <Typography variant="body2"><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
+                                <Typography variant="body2">
+                                    <MarkdownRenderer>{description}</MarkdownRenderer>
+                                </Typography>
                             </CardContent>
                             <CardContent>
-                                <Typography variant="caption"><UserCard user={downloadableItem.creator} inline={true} />{downloadableItem.timestamp !== 0 && <> | <TimeDelta key={`${+new Date()}`} timestamp={downloadableItem.timestamp * 1000} /></>}</Typography>
+                                <Typography variant="caption">
+                                    <UserCard user={downloadableItem.creator} inline={true} />
+                                    {downloadableItem.timestamp !== 0 && (
+                                        <>
+                                            {" "}
+                                            | <TimeDelta key={`${+new Date()}`} timestamp={downloadableItem.timestamp * 1000} />
+                                        </>
+                                    )}
+                                </Typography>
                             </CardContent>
                         </Card>
                     </Grid>
@@ -195,37 +249,55 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
                     xs: 12,
                     sm: 12,
                     md: 12,
-                    lg: 12
+                    lg: 12,
                 }}>
                 <Grid container spacing={2}>
                     <Grid
-                        style={{ display: 'flex' }}
+                        style={{ display: "flex" }}
                         size={{
                             xs: 12,
                             sm: 12,
                             md: 6,
-                            lg: 6
+                            lg: 6,
                         }}>
-                        <Card style={{ display: 'flex', flexDirection: 'column' }}>
+                        <Card style={{ display: "flex", flexDirection: "column" }}>
                             <CardContent>
-                                <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
+                                <div style={{ marginBottom: "10px", display: "flex", alignItems: "center" }}>
                                     <Typography variant="h5" sx={{ flexGrow: 1 }}>
-                                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                                            {downloadableItem.title}
-                                        </div>
+                                        <div style={{ display: "flex", alignItems: "center" }}>{downloadableItem.title}</div>
                                     </Typography>
-                                    {(showButtons) && <div>
-                                        <IconButton size="small" aria-label={tr("download")} onClick={handleDownload} disabled={downloading}><DownloadRounded /></IconButton >
-                                    </div>}
-                                    {(showControls && showButtons) && <div>
-                                        <IconButton size="small" aria-label={tr("edit")} onClick={handleEdit}><EditRounded /></IconButton >
-                                        <IconButton size="small" aria-label={tr("delete")} onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
-                                    </div>}
+                                    {showButtons && (
+                                        <div>
+                                            <IconButton size="small" aria-label={tr("download")} onClick={handleDownload} disabled={downloading}>
+                                                <DownloadRounded />
+                                            </IconButton>
+                                        </div>
+                                    )}
+                                    {showControls && showButtons && (
+                                        <div>
+                                            <IconButton size="small" aria-label={tr("edit")} onClick={handleEdit}>
+                                                <EditRounded />
+                                            </IconButton>
+                                            <IconButton size="small" aria-label={tr("delete")} onClick={handleDelete}>
+                                                <DeleteRounded sx={{ color: "red" }} />
+                                            </IconButton>
+                                        </div>
+                                    )}
                                 </div>
-                                <Typography variant="body2"><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
+                                <Typography variant="body2">
+                                    <MarkdownRenderer>{description}</MarkdownRenderer>
+                                </Typography>
                             </CardContent>
                             <CardContent>
-                                <Typography variant="caption"><UserCard user={downloadableItem.creator} inline={true} />{downloadableItem.timestamp !== 0 && <> | <TimeDelta key={`${+new Date()}`} timestamp={downloadableItem.timestamp * 1000} /></>}</Typography>
+                                <Typography variant="caption">
+                                    <UserCard user={downloadableItem.creator} inline={true} />
+                                    {downloadableItem.timestamp !== 0 && (
+                                        <>
+                                            {" "}
+                                            | <TimeDelta key={`${+new Date()}`} timestamp={downloadableItem.timestamp * 1000} />
+                                        </>
+                                    )}
+                                </Typography>
                             </CardContent>
                         </Card>
                     </Grid>
@@ -234,9 +306,9 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
                             xs: 12,
                             sm: 12,
                             md: 6,
-                            lg: 6
+                            lg: 6,
                         }}>
-                        <img src={downloadableItem.image} alt="" style={{ width: '100%', border: 'none' }} />
+                        <img src={downloadableItem.image} alt="" style={{ width: "100%", border: "none" }} />
                     </Grid>
                 </Grid>
             </Grid>
@@ -244,61 +316,56 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
     }
 };
 
-const DownloadableItemGrid = memo(({ downloadableItems, lastUpdate, onEdit, onDelete, onDownload }) => {
-    let halfCnt = 0;
-    return (
-        <Grid container spacing={3}>
-            {downloadableItems.map((downloadableItem, index) => {
-                downloadableItem.display = 'half-width';
+const DownloadableItemGrid = memo(
+    ({ downloadableItems, lastUpdate, onEdit, onDelete, onDownload }) => {
+        let halfCnt = 0;
+        return (
+            <Grid container spacing={3}>
+                {downloadableItems.map((downloadableItem, index) => {
+                    downloadableItem.display = "half-width";
 
-                const hasImage = /^\[Image src="(.+)" loc="(.+)"\]/.test(downloadableItem.description);
+                    const hasImage = /^\[Image src="(.+)" loc="(.+)"\]/.test(downloadableItem.description);
 
-                if (hasImage) {
-                    const re = downloadableItem.description.match(/^\[Image src="(.+)" loc="(.+)"\]/);
-                    const link = re[1];
-                    const loc = re[2];
-                    downloadableItem.image = link;
-                    downloadableItem.display = 'with-image-' + loc;
-                    halfCnt = 0;
-                } else {
-                    if (index + 1 < downloadableItems.length) {
-                        const nextDownloadableItem = downloadableItems[index + 1];
-                        const nextHasImage = /^\[Image src="(.+)" loc="(.+)"\]/.test(nextDownloadableItem.description);
+                    if (hasImage) {
+                        const re = downloadableItem.description.match(/^\[Image src="(.+)" loc="(.+)"\]/);
+                        const link = re[1];
+                        const loc = re[2];
+                        downloadableItem.image = link;
+                        downloadableItem.display = "with-image-" + loc;
+                        halfCnt = 0;
+                    } else {
+                        if (index + 1 < downloadableItems.length) {
+                            const nextDownloadableItem = downloadableItems[index + 1];
+                            const nextHasImage = /^\[Image src="(.+)" loc="(.+)"\]/.test(nextDownloadableItem.description);
 
-                        if (nextHasImage) {
-                            if (halfCnt % 2 === 1) {
-                                downloadableItem.display = 'half-width';
-                                halfCnt += 1;
+                            if (nextHasImage) {
+                                if (halfCnt % 2 === 1) {
+                                    downloadableItem.display = "half-width";
+                                    halfCnt += 1;
+                                } else {
+                                    downloadableItem.display = "full-width";
+                                    halfCnt = 0;
+                                }
                             } else {
-                                downloadableItem.display = 'full-width';
-                                halfCnt = 0;
+                                downloadableItem.display = "half-width";
+                                halfCnt += 1;
                             }
-                        } else {
-                            downloadableItem.display = 'half-width';
-                            halfCnt += 1;
                         }
                     }
-                }
 
-                return (
-                    <DownloadableItemCard
-                        downloadableItem={downloadableItem}
-                        key={downloadableItem.downloadsid}
-                        onEdit={onEdit}
-                        onDelete={onDelete}
-                        onDownload={onDownload}
-                    />
-                );
-            })}
-        </Grid>
-    );
-}, (prevProps, nextProps) => {
-    return prevProps.lastUpdate === nextProps.lastUpdate;
-});
+                    return <DownloadableItemCard downloadableItem={downloadableItem} key={downloadableItem.downloadsid} onEdit={onEdit} onDelete={onDelete} onDownload={onDownload} />;
+                })}
+            </Grid>
+        );
+    },
+    (prevProps, nextProps) => {
+        return prevProps.lastUpdate === nextProps.lastUpdate;
+    }
+);
 
 const DownloadableItemManagers = memo(() => {
     const { allPerms, users, memberUIDs } = useContext(AppContext);
-    const allMembers = memberUIDs.map((uid) => users[uid]);
+    const allMembers = memberUIDs.map(uid => users[uid]);
 
     let managers = [];
     for (let i = 0; i < allMembers.length; i++) {
@@ -307,11 +374,13 @@ const DownloadableItemManagers = memo(() => {
         }
     }
 
-    return <>{
-        managers.map((user) => (
-            <UserCard user={user} useChip={true} inline={true} />
-        ))
-    }</>;
+    return (
+        <>
+            {managers.map(user => (
+                <UserCard user={user} useChip={true} inline={true} />
+            ))}
+        </>
+    );
 });
 
 const DownloadableItem = () => {
@@ -353,16 +422,16 @@ const DownloadableItem = () => {
     const [dialogManagers, setDialogManagers] = useState(false);
 
     const [editId, setEditId] = useState(null);
-    const [title, setTitle] = useState('');
-    const [description, setContent] = useState('');
-    const [link, setLink] = useState('');
+    const [title, setTitle] = useState("");
+    const [description, setContent] = useState("");
+    const [link, setLink] = useState("");
     const [orderId, setOrderId] = useState(0);
     const [isPinned, setIsPinned] = useState(false);
 
     const clearModal = useCallback(() => {
-        setTitle('');
-        setContent('');
-        setLink('');
+        setTitle("");
+        setContent("");
+        setLink("");
         setOrderId(0);
         setIsPinned(false);
     }, []);
@@ -374,13 +443,9 @@ const DownloadableItem = () => {
 
         let [newDowns] = [null];
         if (curUID !== null) {
-            [newDowns] = await makeRequestsWithAuth([
-                url
-            ]);
+            [newDowns] = await makeRequestsWithAuth([url]);
         } else {
-            [newDowns] = await makeRequests([
-                url
-            ]);
+            [newDowns] = await makeRequests([url]);
         }
 
         if (pageRef.current === page) {
@@ -392,47 +457,53 @@ const DownloadableItem = () => {
         window.loading -= 1;
     }, [apiPath, page]);
 
-    const handleSubmit = useCallback(async (e) => {
-        e.preventDefault();
-        setSubmitLoading(true);
-        if (editId === null) {
-            let resp = await axios({ url: `${apiPath}/downloads`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "description": description, "link": link, "orderid": parseInt(orderId), "is_pinned": isPinned } });
-            if (resp.status === 200) {
-                doLoad();
-                setSnackbarContent(tr("downloadable_item_posted"));
-                setSnackbarSeverity("success");
-                clearModal();
-                setDialogOpen(false);
+    const handleSubmit = useCallback(
+        async e => {
+            e.preventDefault();
+            setSubmitLoading(true);
+            if (editId === null) {
+                let resp = await axios({ url: `${apiPath}/downloads`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { title: title, description: description, link: link, orderid: parseInt(orderId), is_pinned: isPinned } });
+                if (resp.status === 200) {
+                    doLoad();
+                    setSnackbarContent(tr("downloadable_item_posted"));
+                    setSnackbarSeverity("success");
+                    clearModal();
+                    setDialogOpen(false);
+                } else {
+                    setSnackbarContent(resp.data.error);
+                    setSnackbarSeverity("error");
+                }
             } else {
-                setSnackbarContent(resp.data.error);
-                setSnackbarSeverity("error");
+                let resp = await axios({ url: `${apiPath}/downloads/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { title: title, description: description, link: link, orderid: parseInt(orderId), is_pinned: isPinned } });
+                if (resp.status === 204) {
+                    doLoad();
+                    setSnackbarContent(tr("downloadable_item_updated"));
+                    setSnackbarSeverity("success");
+                    clearModal();
+                    setDialogOpen(false);
+                    setEditId(null);
+                } else {
+                    setSnackbarContent(resp.data.error);
+                    setSnackbarSeverity("error");
+                }
             }
-        } else {
-            let resp = await axios({ url: `${apiPath}/downloads/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "description": description, "link": link, "orderid": parseInt(orderId), "is_pinned": isPinned } });
-            if (resp.status === 204) {
-                doLoad();
-                setSnackbarContent(tr("downloadable_item_updated"));
-                setSnackbarSeverity("success");
-                clearModal();
-                setDialogOpen(false);
-                setEditId(null);
-            } else {
-                setSnackbarContent(resp.data.error);
-                setSnackbarSeverity("error");
-            }
-        }
-        setSubmitLoading(false);
-    }, [apiPath, title, description, link, editId, isPinned, orderId]);
+            setSubmitLoading(false);
+        },
+        [apiPath, title, description, link, editId, isPinned, orderId]
+    );
 
-    const doDownload = useCallback(async (downloadableItem) => {
-        let resp = await axios({ url: `${apiPath}/downloads/${downloadableItem.downloadsid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
-        if (resp.status === 200) {
-            downloadFile(`${apiPath}/downloads/redirect/${resp.data.secret}`);
-        } else {
-            setSnackbarContent(resp.data.error);
-            setSnackbarSeverity("error");
-        }
-    }, [apiPath]);
+    const doDownload = useCallback(
+        async downloadableItem => {
+            let resp = await axios({ url: `${apiPath}/downloads/${downloadableItem.downloadsid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            if (resp.status === 200) {
+                downloadFile(`${apiPath}/downloads/redirect/${resp.data.secret}`);
+            } else {
+                setSnackbarContent(resp.data.error);
+                setSnackbarSeverity("error");
+            }
+        },
+        [apiPath]
+    );
 
     const createDownloadableItem = useCallback(() => {
         if (editId !== null) {
@@ -444,7 +515,7 @@ const DownloadableItem = () => {
         setDialogOpen(true);
     }, [editId]);
 
-    const editDownloadableItem = useCallback((downloadableItem) => {
+    const editDownloadableItem = useCallback(downloadableItem => {
         clearModal();
 
         setTitle(downloadableItem.title);
@@ -460,26 +531,29 @@ const DownloadableItem = () => {
         setDialogOpen(true);
     }, []);
 
-    const deleteDownloadableItem = useCallback(async (downloadableItem, isShiftPressed) => {
-        if (isShiftPressed === true || downloadableItem.confirmed === true) {
-            setSubmitLoading(true);
-            let resp = await axios({ url: `${apiPath}/downloads/${downloadableItem.downloadsid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
-            if (resp.status === 204) {
-                doLoad();
-                setSnackbarContent(tr("downloadable_item_deleted"));
-                setSnackbarSeverity("success");
-                setDialogDelete(false);
-                setToDelete(null);
+    const deleteDownloadableItem = useCallback(
+        async (downloadableItem, isShiftPressed) => {
+            if (isShiftPressed === true || downloadableItem.confirmed === true) {
+                setSubmitLoading(true);
+                let resp = await axios({ url: `${apiPath}/downloads/${downloadableItem.downloadsid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                if (resp.status === 204) {
+                    doLoad();
+                    setSnackbarContent(tr("downloadable_item_deleted"));
+                    setSnackbarSeverity("success");
+                    setDialogDelete(false);
+                    setToDelete(null);
+                } else {
+                    setSnackbarContent(resp.data.error);
+                    setSnackbarSeverity("error");
+                }
+                setSubmitLoading(false);
             } else {
-                setSnackbarContent(resp.data.error);
-                setSnackbarSeverity("error");
+                setDialogDelete(true);
+                setToDelete(downloadableItem);
             }
-            setSubmitLoading(false);
-        } else {
-            setDialogDelete(true);
-            setToDelete(downloadableItem);
-        }
-    }, [apiPath]);
+        },
+        [apiPath]
+    );
 
     useEffect(() => {
         doLoad();
@@ -488,12 +562,11 @@ const DownloadableItem = () => {
     return (
         <>
             <DownloadableItemGrid downloadableItems={downloadableItems} lastUpdate={lastUpdate} onEdit={editDownloadableItem} onDelete={deleteDownloadableItem} onDownload={doDownload} />
-            {downloadableItems.length !== 0 && <Pagination count={totalPages} onChange={handlePagination}
-                sx={{ display: "flex", justifyContent: "flex-end", marginTop: "10px", marginRight: "10px" }} />}
+            {downloadableItems.length !== 0 && <Pagination count={totalPages} onChange={handlePagination} sx={{ display: "flex", justifyContent: "flex-end", marginTop: "10px", marginRight: "10px" }} />}
             <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
                 <DialogTitle>
                     {dialogTitle}
-                    <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogOpen(false)}>
+                    <IconButton style={{ position: "absolute", right: "10px", top: "10px" }} onClick={() => setDialogOpen(false)}>
                         <CloseRounded />
                     </IconButton>
                 </DialogTitle>
@@ -501,30 +574,13 @@ const DownloadableItem = () => {
                     <form onSubmit={handleSubmit} style={{ marginTop: "5px" }}>
                         <Grid container spacing={2}>
                             <Grid size={12}>
-                                <TextField
-                                    label={tr("title")}
-                                    value={title}
-                                    onChange={(e) => setTitle(e.target.value)}
-                                    fullWidth
-                                />
+                                <TextField label={tr("title")} value={title} onChange={e => setTitle(e.target.value)} fullWidth />
                             </Grid>
                             <Grid size={12}>
-                                <TextField
-                                    label={tr("content_markdown")}
-                                    multiline
-                                    value={description}
-                                    onChange={(e) => setContent(e.target.value)}
-                                    fullWidth
-                                    minRows={4}
-                                />
+                                <TextField label={tr("content_markdown")} multiline value={description} onChange={e => setContent(e.target.value)} fullWidth minRows={4} />
                             </Grid>
                             <Grid size={12}>
-                                <TextField
-                                    label={tr("download_link")}
-                                    value={link}
-                                    onChange={(e) => setLink(e.target.value)}
-                                    fullWidth
-                                />
+                                <TextField label={tr("download_link")} value={link} onChange={e => setLink(e.target.value)} fullWidth />
                             </Grid>
                             <Grid size={12}>
                                 <Grid container spacing={2}>
@@ -533,24 +589,17 @@ const DownloadableItem = () => {
                                             <TextField
                                                 label={tr("order_id")}
                                                 value={orderId}
-                                                onChange={(e) => { let f = e.target.value.startsWith("-"); setOrderId((f ? "-" : "") + e.target.value.replace(/[^0-9]/g, "")); }}
+                                                onChange={e => {
+                                                    let f = e.target.value.startsWith("-");
+                                                    setOrderId((f ? "-" : "") + e.target.value.replace(/[^0-9]/g, ""));
+                                                }}
                                                 fullWidth
                                             />
                                         </FormControl>
                                     </Grid>
                                     <Grid size={6}>
                                         <FormControl component="fieldset" sx={{ mb: "10px" }}>
-                                            <FormControlLabel
-                                                key="pin"
-                                                control={
-                                                    <Checkbox
-                                                        name={tr("pin")}
-                                                        checked={isPinned}
-                                                        onChange={() => setIsPinned(!isPinned)}
-                                                    />
-                                                }
-                                                label={tr("pin")}
-                                            />
+                                            <FormControlLabel key="pin" control={<Checkbox name={tr("pin")} checked={isPinned} onChange={() => setIsPinned(!isPinned)} />} label={tr("pin")} />
                                         </FormControl>
                                     </Grid>
                                 </Grid>
@@ -561,13 +610,17 @@ const DownloadableItem = () => {
                 <DialogActions>
                     <Grid container justifyContent="space-between" padding="10px">
                         <Grid>
-                            <Box sx={{ display: 'flex', gap: '10px' }}>
-                                <Button variant="contained" onClick={clearModal}>{tr("clear")}</Button>
+                            <Box sx={{ display: "flex", gap: "10px" }}>
+                                <Button variant="contained" onClick={clearModal}>
+                                    {tr("clear")}
+                                </Button>
                             </Box>
                         </Grid>
                         <Grid>
-                            <Box sx={{ display: 'flex', gap: '10px' }}>
-                                <Button variant="contained" color="info" onClick={handleSubmit} disabled={submitLoading}>{dialogButton}</Button>
+                            <Box sx={{ display: "flex", gap: "10px" }}>
+                                <Button variant="contained" color="info" onClick={handleSubmit} disabled={submitLoading}>
+                                    {dialogButton}
+                                </Button>
                             </Box>
                         </Grid>
                     </Grid>
@@ -576,32 +629,49 @@ const DownloadableItem = () => {
             <Dialog open={dialogDelete} onClose={() => setDialogDelete(false)}>
                 <DialogTitle>
                     Delete Downloadable Item
-                    <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogDelete(false)}>
+                    <IconButton style={{ position: "absolute", right: "10px", top: "10px" }} onClick={() => setDialogDelete(false)}>
                         <CloseRounded />
                     </IconButton>
                 </DialogTitle>
                 <DialogContent>
-                    <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>{tr("delete_downloads_confirm")}</Typography>
+                    <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>
+                        {tr("delete_downloads_confirm")}
+                    </Typography>
                     <DownloadableItemCard downloadableItem={toDelete !== null ? toDelete : {}} />
                 </DialogContent>
                 <DialogActions>
                     <Grid container justifyContent="space-between" padding="10px">
                         <Grid>
-                            <Box sx={{ display: 'flex', gap: '10px' }}>
-                                <Button variant="contained" onClick={() => { setDialogDelete(false); }}>{tr("cancel")}</Button>
+                            <Box sx={{ display: "flex", gap: "10px" }}>
+                                <Button
+                                    variant="contained"
+                                    onClick={() => {
+                                        setDialogDelete(false);
+                                    }}>
+                                    {tr("cancel")}
+                                </Button>
                             </Box>
                         </Grid>
                         <Grid>
-                            <Box sx={{ display: 'flex', gap: '10px' }}>
-                                <Button variant="contained" color="error" onClick={() => { deleteDownloadableItem({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>{tr("delete")}</Button>
+                            <Box sx={{ display: "flex", gap: "10px" }}>
+                                <Button
+                                    variant="contained"
+                                    color="error"
+                                    onClick={() => {
+                                        deleteDownloadableItem({ ...toDelete, confirmed: true });
+                                    }}
+                                    disabled={submitLoading}>
+                                    {tr("delete")}
+                                </Button>
                             </Box>
                         </Grid>
                     </Grid>
                 </DialogActions>
             </Dialog>
             <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
-                <DialogTitle>{tr("downloads_managers")}
-                    <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogOpen(false)}>
+                <DialogTitle>
+                    {tr("downloads_managers")}
+                    <IconButton style={{ position: "absolute", right: "10px", top: "10px" }} onClick={() => setDialogOpen(false)}>
                         <CloseRounded />
                     </IconButton>
                 </DialogTitle>
@@ -609,40 +679,22 @@ const DownloadableItem = () => {
                     <DownloadableItemManagers />
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="contained" onClick={() => { setDialogManagers(false); }}>{tr("close")}</Button>
+                    <Button
+                        variant="contained"
+                        onClick={() => {
+                            setDialogManagers(false);
+                        }}>
+                        {tr("close")}
+                    </Button>
                 </DialogActions>
             </Dialog>
-            <SpeedDial
-                ariaLabel={tr("controls")}
-                sx={{ position: 'fixed', bottom: 20, right: 20 }}
-                icon={<SpeedDialIcon />}
-            >
-                {checkUserPerm(curUserPerm, ["administrator", "manage_downloads"]) && <SpeedDialAction
-                    key="create"
-                    icon={<EditNoteRounded />}
-                    tooltipTitle={tr("create")}
-                    onClick={() => createDownloadableItem()}
-                />}
-                {curUser.userid !== -1 && <SpeedDialAction
-                    key="managers"
-                    icon={<PeopleAltRounded />}
-                    tooltipTitle={tr("managers")}
-                    onClick={() => setDialogManagers(true)}
-                />}
-                <SpeedDialAction
-                    key="refresh"
-                    icon={<RefreshRounded />}
-                    tooltipTitle={tr("refresh")}
-                    onClick={() => doLoad()}
-                />
+            <SpeedDial ariaLabel={tr("controls")} sx={{ position: "fixed", bottom: 20, right: 20 }} icon={<SpeedDialIcon />}>
+                {checkUserPerm(curUserPerm, ["administrator", "manage_downloads"]) && <SpeedDialAction key="create" icon={<EditNoteRounded />} tooltipTitle={tr("create")} onClick={() => createDownloadableItem()} />}
+                {curUser.userid !== -1 && <SpeedDialAction key="managers" icon={<PeopleAltRounded />} tooltipTitle={tr("managers")} onClick={() => setDialogManagers(true)} />}
+                <SpeedDialAction key="refresh" icon={<RefreshRounded />} tooltipTitle={tr("refresh")} onClick={() => doLoad()} />
             </SpeedDial>
             <Portal>
-                <Snackbar
-                    open={!!snackbarContent}
-                    autoHideDuration={5000}
-                    onClose={handleCloseSnackbar}
-                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                >
+                <Snackbar open={!!snackbarContent} autoHideDuration={5000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
                     <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
                         {snackbarContent}
                     </Alert>

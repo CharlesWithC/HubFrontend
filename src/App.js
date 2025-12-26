@@ -1,36 +1,36 @@
-import { useMemo, useState, useEffect, useCallback, useContext, Suspense, lazy } from 'react';
-import { useLocation, Routes, Route, Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import i18n from './i18n';
-import { AppContext, ThemeContext } from './context';
+import { useMemo, useState, useEffect, useCallback, useContext, Suspense, lazy } from "react";
+import { useLocation, Routes, Route, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import i18n from "./i18n";
+import { AppContext, ThemeContext } from "./context";
 
-import { Card, CardContent, Typography, Button, Grid, Dialog, DialogActions, DialogTitle, DialogContent, useTheme, useMediaQuery, createTheme, ThemeProvider, CssBaseline } from '@mui/material';
+import { Card, CardContent, Typography, Button, Grid, Dialog, DialogActions, DialogTitle, DialogContent, useTheme, useMediaQuery, createTheme, ThemeProvider, CssBaseline } from "@mui/material";
 
-import Loader from './components/loader';
-import Redirect from './components/redirect';
-import BrowserAuth from './components/browserAuth.js';
+import Loader from "./components/loader";
+import Redirect from "./components/redirect";
+import BrowserAuth from "./components/browserAuth.js";
 
-import Overview from './routes/overview';
-import Statistics from './routes/statistics';
-import Deliveries from './routes/delivery-list';
-import Members from './routes/member';
-import Leaderboard from './routes/leaderboard';
-import Ranking from './routes/ranking';
+import Overview from "./routes/overview";
+import Statistics from "./routes/statistics";
+import Deliveries from "./routes/delivery-list";
+import Members from "./routes/member";
+import Leaderboard from "./routes/leaderboard";
+import Ranking from "./routes/ranking";
 // import FreightMaster from './routes/freightmaster';
 
 // lazy load: auth (just accessed once on login)
-const AuthLogin = lazy(() => import('./routes/auth/login'));
-const TokenAuth = lazy(() => import('./routes/auth/token'));
-const DiscordAuth = lazy(() => import('./routes/auth/discord/callback'));
-const SteamAuth = lazy(() => import('./routes/auth/steam/callback'));
-const PatreonAuth = lazy(() => import('./routes/auth/patreon/callback'));
-const MfaAuth = lazy(() => import('./routes/auth/mfa'));
-const EmailAuth = lazy(() => import('./routes/auth/email'));
+const AuthLogin = lazy(() => import("./routes/auth/login"));
+const TokenAuth = lazy(() => import("./routes/auth/token"));
+const DiscordAuth = lazy(() => import("./routes/auth/discord/callback"));
+const SteamAuth = lazy(() => import("./routes/auth/steam/callback"));
+const PatreonAuth = lazy(() => import("./routes/auth/patreon/callback"));
+const MfaAuth = lazy(() => import("./routes/auth/mfa"));
+const EmailAuth = lazy(() => import("./routes/auth/email"));
 
 // lazy load: plugins
-const NewApplication = lazy(() => import('./routes/application/new'));
-const MyApplication = lazy(() => import('./routes/application/my'));
-const AllApplication = lazy(() => import('./routes/application/all'));
+const NewApplication = lazy(() => import("./routes/application/new"));
+const MyApplication = lazy(() => import("./routes/application/my"));
+const AllApplication = lazy(() => import("./routes/application/all"));
 const Announcement = lazy(() => import("./routes/announcement"));
 const Challenges = lazy(() => import("./routes/challenge"));
 const Divisions = lazy(() => import("./routes/division"));
@@ -48,8 +48,8 @@ const Configuration = lazy(() => import("./routes/config"));
 const Settings = lazy(() => import("./routes/settings"));
 
 // lazy load: limited access
-const MemberList = lazy(() => import('./routes/member-list'));
-const ExternalUsers = lazy(() => import('./routes/external-user'));
+const MemberList = lazy(() => import("./routes/member-list"));
+const ExternalUsers = lazy(() => import("./routes/external-user"));
 const AuditLog = lazy(() => import("./routes/audit-log"));
 
 // lazy load: seldomly accessed
@@ -59,19 +59,19 @@ const Badges = lazy(() => import("./routes/badges"));
 const Supporters = lazy(() => import("./routes/supporters"));
 const UpgradeCard = lazy(() => import("./routes/sponsor"));
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLink, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faLink, faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
 
-import { getDesignTokens } from './designs';
-import './App.css';
+import { getDesignTokens } from "./designs";
+import "./App.css";
 
-import SimpleBar from 'simplebar-react';
-import 'simplebar-react/dist/simplebar.min.css';
+import SimpleBar from "simplebar-react";
+import "simplebar-react/dist/simplebar.min.css";
 
-import TopBar from './components/topbar';
-import SideBar from './components/sidebar';
+import TopBar from "./components/topbar";
+import SideBar from "./components/sidebar";
 
-import { readLS } from './functions.js';
+import { readLS } from "./functions.js";
 
 const drivershub = `    ____       _                         __  __      __
    / __ \\_____(_)   _____  __________   / / / /_  __/ /_
@@ -79,7 +79,7 @@ const drivershub = `    ____       _                         __  __      __
  / /_/ / /  / /| |/ /  __/ /  (__  )  / __  / /_/ / /_/ /
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/
                                                       `;
-const CONNECTIONS = { "email": "email", "discord": "Discord", "steam": "Steam", "truckersmp": "TruckersMP" };
+const CONNECTIONS = { email: "email", discord: "Discord", steam: "Steam", truckersmp: "TruckersMP" };
 
 const SuspenseLoadingTrigger = () => {
     // used in Suspense fallback
@@ -88,7 +88,9 @@ const SuspenseLoadingTrigger = () => {
         window.loading = (window.loading || 0) + 1;
 
         return () => {
-            setTimeout(function () { window.loading -= 1; }, 200); // prevent flickering
+            setTimeout(function () {
+                window.loading -= 1;
+            }, 200); // prevent flickering
         };
     }, []);
 
@@ -106,31 +108,22 @@ function App() {
         console.log(`Copyright (C) 2022-2025 CharlesWithC All rights reserved.`);
     }, []);
 
-    const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-    const themeMode = useMemo(
-        () => (themeSettings.theme === "auto" ? (prefersDarkMode ? 'dark' : 'light') : themeSettings.theme),
-        [themeSettings]
-    );
-    const muiTheme = { "dark": "dark", "light": "light", "halloween": "dark" };
-    const designTokens = useMemo(
-        () => (getDesignTokens({ vtcBackground, customBackground, vtcLevel, userLevel, webConfig }, { themeSettings, setThemeSettings }, themeMode, muiTheme[themeMode], themeSettings.use_custom_theme, themeSettings.theme_background, themeSettings.theme_main, themeSettings.theme_darken_ratio, themeSettings.font_size)),
-        [vtcBackground, customBackground, themeSettings, webConfig]
-    );
-    const theme = useMemo(
-        () => createTheme(designTokens, muiTheme[themeMode]),
-        [designTokens, themeMode],
-    );
+    const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+    const themeMode = useMemo(() => (themeSettings.theme === "auto" ? (prefersDarkMode ? "dark" : "light") : themeSettings.theme), [themeSettings]);
+    const muiTheme = { dark: "dark", light: "light", halloween: "dark" };
+    const designTokens = useMemo(() => getDesignTokens({ vtcBackground, customBackground, vtcLevel, userLevel, webConfig }, { themeSettings, setThemeSettings }, themeMode, muiTheme[themeMode], themeSettings.use_custom_theme, themeSettings.theme_background, themeSettings.theme_main, themeSettings.theme_darken_ratio, themeSettings.font_size), [vtcBackground, customBackground, themeSettings, webConfig]);
+    const theme = useMemo(() => createTheme(designTokens, muiTheme[themeMode]), [designTokens, themeMode]);
     const uTheme = useTheme();
-    const isMd = useMediaQuery(uTheme.breakpoints.up('md'));
+    const isMd = useMediaQuery(uTheme.breakpoints.up("md"));
 
     const [buildhash, setBuildHash] = useState("drgn.dev");
     useEffect(() => {
-        const scripts = document.getElementsByTagName('script');
+        const scripts = document.getElementsByTagName("script");
         const mainScript = Array.from(scripts).find(script => script.src);
 
         if (mainScript) {
-            const filename = mainScript.src.split('/').pop().replace('.js', '');
-            if (filename === 'client') setBuildHash("drgn.dev");
+            const filename = mainScript.src.split("/").pop().replace(".js", "");
+            if (filename === "client") setBuildHash("drgn.dev");
             else setBuildHash("drgn." + (filename.substring(0, 8) || "dev"));
         }
     }, []);
@@ -138,9 +131,11 @@ function App() {
     const [showSurveyCard, setShowSurveyCard] = useState(+new Date() <= 1710806399000 && (localStorage.getItem("survey-202402") === null || parseInt(localStorage.getItem("survey-202402")) <= +new Date()));
 
     if (window.location.hostname === "localhost" && window.location.pathname === "/auth/complete") {
-        return <ThemeProvider theme={theme}>
-            <BrowserAuth completed={true} />
-        </ThemeProvider>;
+        return (
+            <ThemeProvider theme={theme}>
+                <BrowserAuth completed={true} />
+            </ThemeProvider>
+        );
     }
 
     if (isElectron && window.location.pathname === "/wait") {
@@ -179,7 +174,9 @@ function App() {
     const [loaded, setRerender] = useState(false);
 
     const runRerender = () => {
-        setTimeout(function () { setRerender(true); }, 500);
+        setTimeout(function () {
+            setRerender(true);
+        }, 500);
     };
 
     const [aboutCHubModal, setAboutCHubModal] = useState(false);
@@ -205,32 +202,34 @@ function App() {
             }
         };
         handle();
-        window.addEventListener('resize', handle);
+        window.addEventListener("resize", handle);
         return () => {
-            window.removeEventListener('resize', handle);
+            window.removeEventListener("resize", handle);
         };
     }, [location.pathname]);
 
     const [cookieSettings, setCookieSettings] = useState(localStorage.getItem("cookie-settings"));
-    const updateCookieSettings = useCallback((settings) => {
+    const updateCookieSettings = useCallback(settings => {
         setCookieSettings(settings);
         localStorage.setItem("cookie-settings", settings);
     }, []);
     useEffect(() => {
         if (cookieSettings === "analytical" || window.isElectron) {
-            const script = document.createElement('script');
-            script.src = 'https://www.googletagmanager.com/gtag/js?id=G-SLZ5TY9MVN';
+            const script = document.createElement("script");
+            script.src = "https://www.googletagmanager.com/gtag/js?id=G-SLZ5TY9MVN";
             script.async = true;
             document.head.appendChild(script);
 
             window.dataLayer = window.dataLayer || [];
-            function gtag() { window.dataLayer.push(arguments); }
-            gtag('js', new Date());
-            gtag('config', 'G-SLZ5TY9MVN');
+            function gtag() {
+                window.dataLayer.push(arguments);
+            }
+            gtag("js", new Date());
+            gtag("config", "G-SLZ5TY9MVN");
         }
     }, [cookieSettings]);
 
-    const hasSpeedDial = (["/announcement", "/gallery", "/challenge", "/delivery", "/division", "/downloads", "/event", "/leaderboard", "/poll", "/task", "/ranking", "/member-list", "/external-user"].includes(location.pathname) || location.pathname.startsWith("/delivery"));
+    const hasSpeedDial = ["/announcement", "/gallery", "/challenge", "/delivery", "/division", "/downloads", "/event", "/leaderboard", "/poll", "/task", "/ranking", "/member-list", "/external-user"].includes(location.pathname) || location.pathname.startsWith("/delivery");
 
     if (window.isElectron && webConfig !== null) {
         window.electron.ipcRenderer.send("presence-settings", userSettings.presence);
@@ -248,9 +247,9 @@ function App() {
                 startTimestamp: new Date(),
                 instance: false,
                 buttons: [
-                    { label: 'Visit Drivers Hub', url: `https://${window.dhhost}${window.location.pathname}` },
-                    { label: 'Powered by CHub', url: "https://drivershub.charlws.com/" }
-                ]
+                    { label: "Visit Drivers Hub", url: `https://${window.dhhost}${window.location.pathname}` },
+                    { label: "Powered by CHub", url: "https://drivershub.charlws.com/" },
+                ],
             });
         }
     }
@@ -260,115 +259,179 @@ function App() {
             <ThemeProvider theme={theme}>
                 <CssBaseline />
                 <Loader onLoaderLoaded={runRerender} />
-            </ThemeProvider>)
-            ;
+            </ThemeProvider>
+        );
     } else {
         return (
             <ThemeProvider theme={theme}>
                 {/* createTheme - opacity controls whether image will be shown*/}
-                <div style={{
-                    backgroundImage: `url(${themeSettings.bg_image})`,
-                    backgroundPosition: 'center',
-                    backgroundSize: 'cover',
-                    backgroundRepeat: 'no-repeat',
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    overflow: 'hidden'
-                }}>
+                <div
+                    style={{
+                        backgroundImage: `url(${themeSettings.bg_image})`,
+                        backgroundPosition: "center",
+                        backgroundSize: "cover",
+                        backgroundRepeat: "no-repeat",
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        height: "100%",
+                        overflow: "hidden",
+                    }}>
                     <CssBaseline />
-                    {!topbarHidden &&
-                        <TopBar sidebarWidth={260}></TopBar>
-                    }
-                    {!sidebarForceHidden &&
-                        <SideBar width={260}></SideBar>
-                    }
+                    {!topbarHidden && <TopBar sidebarWidth={260}></TopBar>}
+                    {!sidebarForceHidden && <SideBar width={260}></SideBar>}
                     {/* For mobile view, use a "menu button" on topbar, click it to show a full-width sidebar, without banner on top and with a close button on top */}
-                    <div style={(!sidebarHidden && { position: "relative", left: "260px", top: !topbarHidden ? "80px" : "0", width: "calc(100vw - 260px)", height: !topbarHidden ? "calc(100vh - 80px)" : "100vh", overflow: "hidden" })
-                        || (sidebarHidden && { position: "relative", left: "0", top: !topbarHidden ? "80px" : "0", width: "calc(100vw)", height: !topbarHidden ? "calc(100vh - 80px)" : "100vh", overflow: "hidden" })}>
-                        {!window.isElectron && cookieSettings === null && !sidebarForceHidden && <>
-                            <Card sx={{ position: "fixed", zIndex: 100000, bottom: "10px", right: "10px", width: window.innerWidth <= 420 ? "calc(100vw - 20px) !important" : "400px" }}>
-                                <CardContent>
-                                    <Typography variant="h6" fontWeight="bold">{tr("we_value_your_privacy")}</Typography>
-                                    <Typography variant="body2" sx={{ marginBottom: "10px" }}>{tr("we_use_necessary_cookies_for")}<br />{tr("by_clicking_accept_you_consent")}</Typography>
-                                    <Grid container spacing={2}>
-                                        <Grid
-                                            size={{
-                                                xs: 12,
-                                                sm: 12,
-                                                md: 6,
-                                                lg: 6
-                                            }}>
-                                            <Button onClick={() => { updateCookieSettings("analytical"); }} variant="contained" color="success" sx={{ width: "100%" }}>{tr("accept")}</Button>
+                    <div style={(!sidebarHidden && { position: "relative", left: "260px", top: !topbarHidden ? "80px" : "0", width: "calc(100vw - 260px)", height: !topbarHidden ? "calc(100vh - 80px)" : "100vh", overflow: "hidden" }) || (sidebarHidden && { position: "relative", left: "0", top: !topbarHidden ? "80px" : "0", width: "calc(100vw)", height: !topbarHidden ? "calc(100vh - 80px)" : "100vh", overflow: "hidden" })}>
+                        {!window.isElectron && cookieSettings === null && !sidebarForceHidden && (
+                            <>
+                                <Card sx={{ position: "fixed", zIndex: 100000, bottom: "10px", right: "10px", width: window.innerWidth <= 420 ? "calc(100vw - 20px) !important" : "400px" }}>
+                                    <CardContent>
+                                        <Typography variant="h6" fontWeight="bold">
+                                            {tr("we_value_your_privacy")}
+                                        </Typography>
+                                        <Typography variant="body2" sx={{ marginBottom: "10px" }}>
+                                            {tr("we_use_necessary_cookies_for")}
+                                            <br />
+                                            {tr("by_clicking_accept_you_consent")}
+                                        </Typography>
+                                        <Grid container spacing={2}>
+                                            <Grid
+                                                size={{
+                                                    xs: 12,
+                                                    sm: 12,
+                                                    md: 6,
+                                                    lg: 6,
+                                                }}>
+                                                <Button
+                                                    onClick={() => {
+                                                        updateCookieSettings("analytical");
+                                                    }}
+                                                    variant="contained"
+                                                    color="success"
+                                                    sx={{ width: "100%" }}>
+                                                    {tr("accept")}
+                                                </Button>
+                                            </Grid>
+                                            <Grid
+                                                size={{
+                                                    xs: 12,
+                                                    sm: 12,
+                                                    md: 6,
+                                                    lg: 6,
+                                                }}>
+                                                <Button
+                                                    onClick={() => {
+                                                        updateCookieSettings("essential");
+                                                    }}
+                                                    variant="contained"
+                                                    color="secondary"
+                                                    sx={{ width: "100%" }}>
+                                                    {tr("decline")}
+                                                </Button>
+                                            </Grid>
                                         </Grid>
-                                        <Grid
-                                            size={{
-                                                xs: 12,
-                                                sm: 12,
-                                                md: 6,
-                                                lg: 6
-                                            }}>
-                                            <Button onClick={() => { updateCookieSettings("essential"); }} variant="contained" color="secondary" sx={{ width: "100%" }}>{tr("decline")}</Button>
+                                    </CardContent>
+                                </Card>
+                            </>
+                        )}
+                        {showSurveyCard && !(!window.isElectron && cookieSettings === null) && !sidebarForceHidden && (
+                            <>
+                                <Card sx={{ position: "fixed", zIndex: 100000, bottom: "10px", right: "10px", width: window.innerWidth <= 420 ? "calc(100vw - 20px) !important" : "400px" }}>
+                                    <CardContent>
+                                        <Typography variant="h6" fontWeight="bold">
+                                            CHub Community Survey
+                                        </Typography>
+                                        <Typography variant="body2" sx={{ marginBottom: "10px" }}>
+                                            Share your feedback for a chance to win a <b>$10 Steam Giftcard</b>!
+                                        </Typography>
+                                        <Grid container spacing={2}>
+                                            <Grid
+                                                size={{
+                                                    xs: 12,
+                                                    sm: 12,
+                                                    md: localStorage.getItem("survey-202402") !== null ? 12 : 6,
+                                                    lg: localStorage.getItem("survey-202402") !== null ? 12 : 6,
+                                                }}>
+                                                <Button
+                                                    onClick={() => {
+                                                        localStorage.setItem("survey-202402", "1710806400000");
+                                                        setShowSurveyCard(false);
+                                                        window.open("https://go.charlws.com/survey");
+                                                    }}
+                                                    variant="contained"
+                                                    color="success"
+                                                    sx={{ width: "100%" }}>
+                                                    Join
+                                                </Button>
+                                            </Grid>
+                                            {localStorage.getItem("survey-202402") !== null && (
+                                                <Grid
+                                                    size={{
+                                                        xs: 12,
+                                                        sm: 12,
+                                                        md: 6,
+                                                        lg: 6,
+                                                    }}>
+                                                    <Button
+                                                        onClick={() => {
+                                                            localStorage.setItem("survey-202402", "1710806400000");
+                                                            setShowSurveyCard(false);
+                                                        }}
+                                                        variant="contained"
+                                                        color="secondary"
+                                                        sx={{ width: "100%" }}>
+                                                        Not interested
+                                                    </Button>
+                                                </Grid>
+                                            )}
+                                            <Grid
+                                                size={{
+                                                    xs: 12,
+                                                    sm: 12,
+                                                    md: 6,
+                                                    lg: 6,
+                                                }}>
+                                                <Button
+                                                    onClick={() => {
+                                                        localStorage.setItem("survey-202402", String(+new Date() + 86400000));
+                                                        setShowSurveyCard(false);
+                                                    }}
+                                                    variant="contained"
+                                                    color="secondary"
+                                                    sx={{ width: "100%" }}>
+                                                    Remind me later
+                                                </Button>
+                                            </Grid>
                                         </Grid>
-                                    </Grid>
-                                </CardContent>
-                            </Card>
-                        </>}
-                        {showSurveyCard && !(!window.isElectron && cookieSettings === null) && !sidebarForceHidden && <>
-                            <Card sx={{ position: "fixed", zIndex: 100000, bottom: "10px", right: "10px", width: window.innerWidth <= 420 ? "calc(100vw - 20px) !important" : "400px" }}>
-                                <CardContent>
-                                    <Typography variant="h6" fontWeight="bold">CHub Community Survey</Typography>
-                                    <Typography variant="body2" sx={{ marginBottom: "10px" }}>Share your feedback for a chance to win a <b>$10 Steam Giftcard</b>!</Typography>
-                                    <Grid container spacing={2}>
-                                        <Grid
-                                            size={{
-                                                xs: 12,
-                                                sm: 12,
-                                                md: localStorage.getItem("survey-202402") !== null ? 12 : 6,
-                                                lg: localStorage.getItem("survey-202402") !== null ? 12 : 6
-                                            }}>
-                                            <Button onClick={() => { localStorage.setItem("survey-202402", "1710806400000"); setShowSurveyCard(false); window.open("https://go.charlws.com/survey"); }} variant="contained" color="success" sx={{ width: "100%" }}>Join</Button>
-                                        </Grid>
-                                        {localStorage.getItem("survey-202402") !== null && <Grid
-                                            size={{
-                                                xs: 12,
-                                                sm: 12,
-                                                md: 6,
-                                                lg: 6
-                                            }}>
-                                            <Button onClick={() => { localStorage.setItem("survey-202402", "1710806400000"); setShowSurveyCard(false); }} variant="contained" color="secondary" sx={{ width: "100%" }}>Not interested</Button>
-                                        </Grid>}
-                                        <Grid
-                                            size={{
-                                                xs: 12,
-                                                sm: 12,
-                                                md: 6,
-                                                lg: 6
-                                            }}>
-                                            <Button onClick={() => { localStorage.setItem("survey-202402", String(+new Date() + 86400000)); setShowSurveyCard(false); }} variant="contained" color="secondary" sx={{ width: "100%" }}>Remind me later</Button>
-                                        </Grid>
-                                    </Grid>
-                                </CardContent>
-                            </Card>
-                        </>}
-                        <SimpleBar style={{ padding: "20px", height: "100%", backgroundColor: theme.palette.background.default }} >
+                                    </CardContent>
+                                </Card>
+                            </>
+                        )}
+                        <SimpleBar style={{ padding: "20px", height: "100%", backgroundColor: theme.palette.background.default }}>
                             <div style={{ display: "flex", flexDirection: "column", minHeight: "calc(100vh - 120px)" }}>
-                                {!sidebarForceHidden && curUser.userid === null && [false, ...apiConfig.required_connections].reduce((res, conn) => (res || curUser[conn + (conn !== "email" ? "id" : "")] === null)) && <Grid container>
-                                    <Grid sx={{ mb: "15px" }} size={12}>
-                                        <Card>
-                                            <CardContent>
-                                                <Typography variant="h5">
-                                                    <FontAwesomeIcon icon={faLink} />&nbsp;Connect Accounts
-                                                </Typography>
-                                                <Typography variant="body2">
-                                                    You have to connect your {[[], ...apiConfig.required_connections].reduce((res, conn) => (curUser[conn + (conn !== "email" ? "id" : "")] === null ? [...res, conn] : res)).map(connection => CONNECTIONS[connection]).join(", ")} account to become a member. Simply complete this in <Link to="/settings">settings</Link>.
-                                                </Typography>
-                                            </CardContent>
-                                        </Card>
+                                {!sidebarForceHidden && curUser.userid === null && [false, ...apiConfig.required_connections].reduce((res, conn) => res || curUser[conn + (conn !== "email" ? "id" : "")] === null) && (
+                                    <Grid container>
+                                        <Grid sx={{ mb: "15px" }} size={12}>
+                                            <Card>
+                                                <CardContent>
+                                                    <Typography variant="h5">
+                                                        <FontAwesomeIcon icon={faLink} />
+                                                        &nbsp;Connect Accounts
+                                                    </Typography>
+                                                    <Typography variant="body2">
+                                                        You have to connect your{" "}
+                                                        {[[], ...apiConfig.required_connections]
+                                                            .reduce((res, conn) => (curUser[conn + (conn !== "email" ? "id" : "")] === null ? [...res, conn] : res))
+                                                            .map(connection => CONNECTIONS[connection])
+                                                            .join(", ")}{" "}
+                                                        account to become a member. Simply complete this in <Link to="/settings">settings</Link>.
+                                                    </Typography>
+                                                </CardContent>
+                                            </Card>
+                                        </Grid>
                                     </Grid>
-                                </Grid>}
+                                )}
                                 <Suspense fallback={<SuspenseLoadingTrigger />}>
                                     <Routes>
                                         <Route path="/" exact element={<Overview />}></Route>
@@ -437,21 +500,42 @@ function App() {
                                         </Typography>
                                         <br />
                                         <Typography variant="body2">
-                                            CHub unveils itself as a Software as a Service (SaaS) marvel, inviting you to subscribe and forge your own Drivers Hub. Immerse yourself in the essence of our creation by exploring our <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">sanctuary (drivershub.charlws.com)</a>.
+                                            CHub unveils itself as a Software as a Service (SaaS) marvel, inviting you to subscribe and forge your own Drivers Hub. Immerse yourself in the essence of our creation by exploring our{" "}
+                                            <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">
+                                                sanctuary (drivershub.charlws.com)
+                                            </a>
+                                            .
                                         </Typography>
                                         <br />
                                         <Typography variant="body2">
                                             <b>Wander through these portals:</b>&nbsp;&nbsp;
-                                            <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">Website</a>&nbsp;&nbsp;
-                                            <a href="https://wiki.charlws.com/books/chub" target="_blank" rel="noreferrer">Wiki</a>&nbsp;&nbsp;
-                                            <a href="https://discord.gg/KRFsymnVKm" target="_blank" rel="noreferrer">Discord</a>&nbsp;&nbsp;
-                                            <a href="https://twitter.com/CHub_DH" target="_blank" rel="noreferrer">Twitter</a>
+                                            <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">
+                                                Website
+                                            </a>
+                                            &nbsp;&nbsp;
+                                            <a href="https://wiki.charlws.com/books/chub" target="_blank" rel="noreferrer">
+                                                Wiki
+                                            </a>
+                                            &nbsp;&nbsp;
+                                            <a href="https://discord.gg/KRFsymnVKm" target="_blank" rel="noreferrer">
+                                                Discord
+                                            </a>
+                                            &nbsp;&nbsp;
+                                            <a href="https://twitter.com/CHub_DH" target="_blank" rel="noreferrer">
+                                                Twitter
+                                            </a>
                                             <br />
                                         </Typography>
                                         <Typography variant="body2">
                                             <b>Our cosmic partners:</b>&nbsp;&nbsp;
-                                            <a href="https://truckyapp.com/" target="_blank" rel="noreferrer">Trucky</a>&nbsp;&nbsp;
-                                            <a href="https://discord.gg/trucksim" target="_blank" rel="noreferrer">/r/trucksim</a>&nbsp;&nbsp;
+                                            <a href="https://truckyapp.com/" target="_blank" rel="noreferrer">
+                                                Trucky
+                                            </a>
+                                            &nbsp;&nbsp;
+                                            <a href="https://discord.gg/trucksim" target="_blank" rel="noreferrer">
+                                                /r/trucksim
+                                            </a>
+                                            &nbsp;&nbsp;
                                         </Typography>
                                         <br />
                                         <Typography variant="body2" fontWeight="bold">
@@ -461,53 +545,81 @@ function App() {
                                             <Grid
                                                 size={{
                                                     xs: 12,
-                                                    md: 6
+                                                    md: 6,
                                                 }}>
-                                                <Typography variant="body2">
-                                                    Client: 3.4.6 (build.{buildhash})
-                                                </Typography>
+                                                <Typography variant="body2">Client: 3.4.6 (build.{buildhash})</Typography>
                                             </Grid>
                                             <Grid
                                                 size={{
                                                     xs: 12,
-                                                    md: 6
+                                                    md: 6,
                                                 }}>
-                                                <Typography variant="body2">
-                                                    Server: {apiVersion}
-                                                </Typography>
+                                                <Typography variant="body2">Server: {apiVersion}</Typography>
                                             </Grid>
                                         </Grid>
                                         <br />
-                                        <Typography variant="body2">
-                                            Gratitude for embarking on this celestial exploration. As the modal curtain falls, let the harmonies of Drivers Hub serenade your digital travels!
-                                        </Typography>
+                                        <Typography variant="body2">Gratitude for embarking on this celestial exploration. As the modal curtain falls, let the harmonies of Drivers Hub serenade your digital travels!</Typography>
                                     </DialogContent>
                                     <DialogActions>
-                                        <Button variant="primary" onClick={() => { setAboutCHubModal(false); }}>{tr("close")}</Button>
+                                        <Button
+                                            variant="primary"
+                                            onClick={() => {
+                                                setAboutCHubModal(false);
+                                            }}>
+                                            {tr("close")}
+                                        </Button>
                                     </DialogActions>
                                 </Dialog>
                                 <footer style={{ display: ["/auth", "/auth/login", "/auth/email", "/auth/discord/callback", "/auth/discord/redirect", "/auth/steam/callback", "/auth/steam/redirect", "/auth/patreon/callback", "/auth/mfa"].includes(location.pathname) ? "none" : "block", marginTop: "auto", fontSize: "0.9em" }}>
-                                    {isMd && <div style={{ display: 'flex', alignItems: 'center', marginTop: "20px", color: theme.palette.text.secondary }}>
-                                        <Typography variant="body2" sx={{ flexGrow: 1, fontWeight: 800 }}>
-                                            &copy; 2022-2025 <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a>
-                                        </Typography>
-                                        <Typography variant="body2" sx={{ marginLeft: "auto", alignSelf: 'flex-end', textAlign: "right", fontWeight: 800, marginRight: hasSpeedDial ? "70px" : 0 }}>
-                                            <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">The Drivers Hub Project (CHub)</a>  <FontAwesomeIcon icon={faQuestionCircle} onClick={() => { setAboutCHubModal(true); }} style={{ cursor: "pointer" }} />
-                                        </Typography>
-                                    </div>}
-                                    {!isMd && <div style={{ alignItems: 'center', marginTop: "20px", color: theme.palette.text.secondary }}>
-                                        <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                            &copy; 2022-2025 <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a>
-                                            <br />
-                                            <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">The Drivers Hub Project (CHub)</a>  <FontAwesomeIcon icon={faQuestionCircle} onClick={() => { setAboutCHubModal(true); }} style={{ cursor: "pointer" }} />
-                                        </Typography>
-                                    </div>}
+                                    {isMd && (
+                                        <div style={{ display: "flex", alignItems: "center", marginTop: "20px", color: theme.palette.text.secondary }}>
+                                            <Typography variant="body2" sx={{ flexGrow: 1, fontWeight: 800 }}>
+                                                &copy; 2022-2025{" "}
+                                                <a href="https://charlws.com/" target="_blank" rel="noreferrer">
+                                                    CharlesWithC
+                                                </a>
+                                            </Typography>
+                                            <Typography variant="body2" sx={{ marginLeft: "auto", alignSelf: "flex-end", textAlign: "right", fontWeight: 800, marginRight: hasSpeedDial ? "70px" : 0 }}>
+                                                <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">
+                                                    The Drivers Hub Project (CHub)
+                                                </a>{" "}
+                                                <FontAwesomeIcon
+                                                    icon={faQuestionCircle}
+                                                    onClick={() => {
+                                                        setAboutCHubModal(true);
+                                                    }}
+                                                    style={{ cursor: "pointer" }}
+                                                />
+                                            </Typography>
+                                        </div>
+                                    )}
+                                    {!isMd && (
+                                        <div style={{ alignItems: "center", marginTop: "20px", color: theme.palette.text.secondary }}>
+                                            <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                                &copy; 2022-2025{" "}
+                                                <a href="https://charlws.com/" target="_blank" rel="noreferrer">
+                                                    CharlesWithC
+                                                </a>
+                                                <br />
+                                                <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">
+                                                    The Drivers Hub Project (CHub)
+                                                </a>{" "}
+                                                <FontAwesomeIcon
+                                                    icon={faQuestionCircle}
+                                                    onClick={() => {
+                                                        setAboutCHubModal(true);
+                                                    }}
+                                                    style={{ cursor: "pointer" }}
+                                                />
+                                            </Typography>
+                                        </div>
+                                    )}
                                 </footer>
                             </div>
                         </SimpleBar>
                     </div>
                 </div>
-            </ThemeProvider >
+            </ThemeProvider>
         );
     }
 }

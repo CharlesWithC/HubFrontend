@@ -1,16 +1,16 @@
-import { useContext, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { AppContext } from '../context';
+import { useContext, useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { AppContext } from "../context";
 
-import { Card, CardContent, Typography, Avatar, Grid, Tooltip } from '@mui/material';
+import { Card, CardContent, Typography, Avatar, Grid, Tooltip } from "@mui/material";
 
-import UserCard from '../components/usercard';
+import UserCard from "../components/usercard";
 
 const LargeUserCard = ({ user, color }) => {
     const { userSettings } = useContext(AppContext);
     return (
         <Card sx={{ minWidth: 150 }}>
-            <Avatar src={!userSettings.data_saver ? user.avatar : ""} sx={{ width: 100, height: 100, margin: 'auto', marginTop: 3, border: `solid ${color}` }} />
+            <Avatar src={!userSettings.data_saver ? user.avatar : ""} sx={{ width: 100, height: 100, margin: "auto", marginTop: 3, border: `solid ${color}` }} />
             <CardContent>
                 <Typography variant="h6" align="center" sx={{ overflow: "hidden", textOverflow: "ellipsis" }}>
                     <UserCard user={user} textOnly={true} />
@@ -23,7 +23,7 @@ const LargeUserCard = ({ user, color }) => {
 const Members = () => {
     const { t: tr } = useTranslation();
     const { allRoles, users, memberUIDs } = useContext(AppContext);
-    const allMembers = useMemo(() => memberUIDs.map((uid) => users[uid]), [memberUIDs, users]);
+    const allMembers = useMemo(() => memberUIDs.map(uid => users[uid]), [memberUIDs, users]);
 
     const roles = useMemo(() => {
         let roles = Object.values(allRoles);
@@ -34,11 +34,7 @@ const Members = () => {
                 roles[i].display_order_id = parseInt(roles[i].display_order_id);
             }
         }
-        roles.sort((a, b) =>
-            a.display_order_id - b.display_order_id ||
-            a.order_id - b.order_id ||
-            a.id - b.id
-        );
+        roles.sort((a, b) => a.display_order_id - b.display_order_id || a.order_id - b.order_id || a.id - b.id);
         return roles;
     }, [allRoles]);
 
@@ -54,7 +50,7 @@ const Members = () => {
                 }
             }
             if (group.length !== 0) {
-                groups.push({ "group": roles[i].name, "color": roles[i].color, "description": roles[i].description, "uids": group });
+                groups.push({ group: roles[i].name, color: roles[i].color, description: roles[i].description, uids: group });
             }
         }
         for (let i = 0; i < allMembers.length; i++) {
@@ -63,41 +59,40 @@ const Members = () => {
             }
         }
         if (norole_group.length > 0) {
-            groups.push({ "group": tr("no_role"), "description": tr("these_users_have_no_role_assigned"), "uids": norole_group });
+            groups.push({ group: tr("no_role"), description: tr("these_users_have_no_role_assigned"), uids: norole_group });
         }
         return groups;
     }, [roles, allMembers]);
 
     return (
         <div style={{ width: "100%" }}>
-            {groups.map((group) => (<div key={group.group}>
-                <Tooltip placement="top" arrow title={group.description !== undefined ? group.description : tr("no_description")}
-                    PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-                    <Typography variant="h5" align="center" sx={{ margin: '16px 0' }}>
-                        <b style={group.color !== undefined ? { color: group.color } : {}}>{group.group}</b>
-                    </Typography>
-                </Tooltip>
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                    <Grid container spacing={2} justifyContent="center">
-                        {group.uids.map((uid) => (
-                            <Grid
-                                key={`${group.group}-${uid}`}
-                                sx={{ minWidth: 150 }}
-                                size={{
-                                    xs: 6,
-                                    sm: 6,
-                                    md: 4,
-                                    lg: 2
-                                }}>
-                                <LargeUserCard user={users[uid]} />
-                            </Grid>
-                        ))}
-                    </Grid>
-                </div >
-            </div>
-            ))
-            }
-        </div >
+            {groups.map(group => (
+                <div key={group.group}>
+                    <Tooltip placement="top" arrow title={group.description !== undefined ? group.description : tr("no_description")} PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                        <Typography variant="h5" align="center" sx={{ margin: "16px 0" }}>
+                            <b style={group.color !== undefined ? { color: group.color } : {}}>{group.group}</b>
+                        </Typography>
+                    </Tooltip>
+                    <div style={{ display: "flex", justifyContent: "center" }}>
+                        <Grid container spacing={2} justifyContent="center">
+                            {group.uids.map(uid => (
+                                <Grid
+                                    key={`${group.group}-${uid}`}
+                                    sx={{ minWidth: 150 }}
+                                    size={{
+                                        xs: 6,
+                                        sm: 6,
+                                        md: 4,
+                                        lg: 2,
+                                    }}>
+                                    <LargeUserCard user={users[uid]} />
+                                </Grid>
+                            ))}
+                        </Grid>
+                    </div>
+                </div>
+            ))}
+        </div>
     );
 };
 

@@ -1,9 +1,9 @@
-import axios from 'axios';
-import axiosRetry from 'axios-retry';
-import LZString from 'lz-string';
-import CryptoJS from 'crypto-js';
+import axios from "axios";
+import axiosRetry from "axios-retry";
+import LZString from "lz-string";
+import CryptoJS from "crypto-js";
 
-import i18n from './i18n';
+import i18n from "./i18n";
 
 let cache = "";
 let cacheExp = 0;
@@ -13,33 +13,33 @@ let cacheAExp = 0;
 async function gck(ua, au, ts) {
     const te = new TextEncoder();
     let km = te.encode(ts.toString());
-    let k = await window.crypto.subtle.importKey(
-        "raw", km, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+    let k = await window.crypto.subtle.importKey("raw", km, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
     let d = te.encode(ua);
     let sig = await window.crypto.subtle.sign("HMAC", k, d);
 
     if (au) {
         km = te.encode(au);
-        k = await window.crypto.subtle.importKey(
-            "raw", km, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+        k = await window.crypto.subtle.importKey("raw", km, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
         d = new Uint8Array(sig);
         sig = await window.crypto.subtle.sign("HMAC", k, d);
     }
 
-    return Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('');
+    return Array.from(new Uint8Array(sig))
+        .map(b => b.toString(16).padStart(2, "0"))
+        .join("");
 }
 
 const customAxios = axios.create();
 axiosRetry(customAxios, {
     retries: 3,
-    retryDelay: (retryCount) => {
+    retryDelay: retryCount => {
         return retryCount * 1000;
     },
-    retryCondition: (error) => {
+    retryCondition: error => {
         return error.response === undefined && error.response.status in [429, 503];
     },
 });
-customAxios.interceptors.request.use(async (config) => {
+customAxios.interceptors.request.use(async config => {
     if (config.fetchOnly) {
         config.adapter = async () => {
             const response = await fetch(config.url, {
@@ -63,33 +63,35 @@ customAxios.interceptors.request.use(async (config) => {
         };
     }
 
-    if (config.headers['Authorization']) {
+    if (config.headers["Authorization"]) {
         if (cacheAExp > +new Date()) {
-            config.headers['Client-Key'] = cacheA;
+            config.headers["Client-Key"] = cacheA;
             return config;
         }
     } else {
         if (cacheExp > +new Date()) {
-            config.headers['Client-Key'] = cache;
+            config.headers["Client-Key"] = cache;
             return config;
         }
     }
     const ts = parseInt(+new Date() / 1000 / 60);
-    const au = config.headers['Authorization'];
+    const au = config.headers["Authorization"];
     const hmac = await gck(navigator.userAgent, au, ts);
-    config.headers['Client-Key'] = hmac;
-    if (config.headers['Authorization']) {
-        cacheA = hmac; cacheAExp = +new Date() + 60000;
+    config.headers["Client-Key"] = hmac;
+    if (config.headers["Authorization"]) {
+        cacheA = hmac;
+        cacheAExp = +new Date() + 60000;
     } else {
-        cache = hmac; cacheExp = +new Date() + 60000;
+        cache = hmac;
+        cacheExp = +new Date() + 60000;
     }
     return config;
 });
 customAxios.interceptors.response.use(
-    (response) => {
+    response => {
         return response;
     },
-    (error) => {
+    error => {
         const errorResponse = error.response;
 
         if (errorResponse && (errorResponse.status === 429 || errorResponse.status === 503)) {
@@ -103,32 +105,32 @@ customAxios.interceptors.response.use(
 
 export { customAxios };
 
-export const makeRequests = async (urls) => {
+export const makeRequests = async urls => {
     const responses = await Promise.all(
-        urls.map((url) =>
+        urls.map(url =>
             customAxios({
                 url,
             })
         )
     );
-    return responses.map((response) => response.data);
+    return responses.map(response => response.data);
 };
 
-export const makeRequestsWithAuth = async (urls) => {
+export const makeRequestsWithAuth = async urls => {
     const responses = await Promise.all(
-        urls.map((url) =>
+        urls.map(url =>
             customAxios({
                 url,
                 headers: {
-                    Authorization: `Bearer ${getAuthToken()}`
-                }
+                    Authorization: `Bearer ${getAuthToken()}`,
+                },
             })
         )
     );
-    return responses.map((response) => response.data);
+    return responses.map(response => response.data);
 };
 
-export const makeRequestsAuto = async (urls) => {
+export const makeRequestsAuto = async urls => {
     const responses = await Promise.all(
         urls.map(async ({ url, auth, fetchOnly }) => {
             if (fetchOnly) {
@@ -140,16 +142,19 @@ export const makeRequestsAuto = async (urls) => {
             if (auth === false || (auth === true && getAuthToken() !== null) || auth === "prefer") {
                 return await customAxios({
                     url,
-                    headers: auth === true || auth === "prefer" && getAuthToken() !== null ? {
-                        Authorization: `Bearer ${getAuthToken()}`
-                    } : null,
+                    headers:
+                        auth === true || (auth === "prefer" && getAuthToken() !== null)
+                            ? {
+                                  Authorization: `Bearer ${getAuthToken()}`,
+                              }
+                            : null,
                 });
             } else {
                 return { data: {} };
             }
         })
     );
-    return responses.map((response) => response ? (response.error || response.data) : {});
+    return responses.map(response => (response ? response.error || response.data : {}));
 };
 
 export function writeLS(key, data, secretKey) {
@@ -192,14 +197,14 @@ export function getAuthToken() {
     data = readLS("token", window.dhhost);
     if (data === null) return null;
     else return data.token;
-};
+}
 
 export async function FetchProfile({ apiPath, specialUsers, patrons, setUserLevel, webConfig, setCurUserPatreonID, setUsers, setCurUID, setCurUser, setCurUserPerm, setCurUserBanner, setUserSettings }, isLogin = false) {
     // accept a whole appContext OR those separate vars as first argument
     // this handles login/session validation and logout data update
     const bearerToken = getAuthToken();
     if (bearerToken !== null) {
-        let resp = await customAxios({ url: `${apiPath}/user/profile`, headers: { "Authorization": `Bearer ${bearerToken}` } });
+        let resp = await customAxios({ url: `${apiPath}/user/profile`, headers: { Authorization: `Bearer ${bearerToken}` } });
         if (resp.status === 200) {
             const curUser = resp.data;
             let userLevel = -1;
@@ -217,26 +222,29 @@ export async function FetchProfile({ apiPath, specialUsers, patrons, setUserLeve
             } else if (curUser.avatar.startsWith("https://static.truckersmp.com/")) {
                 sync_to = "truckersmp";
             }
-            sync_to === undefined ? sync_to = "" : sync_to = `?sync_to_${sync_to}=true`;
+            sync_to === undefined ? (sync_to = "") : (sync_to = `?sync_to_${sync_to}=true`);
             if (sync_to !== "") {
                 let avatarOk = true;
                 fetch(curUser.avatar, {
-                    method: 'HEAD',
-                    mode: 'no-cors'
-                }).then(response => {
-                    if (!response.ok) {
-                        avatarOk = false;
-                    }
-                }).catch(error => {
-                    avatarOk = false;
-                }).finally(async () => {
-                    if (!avatarOk) {
-                        let resp = await customAxios({ url: `${apiPath}/user/profile${sync_to}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
-                        if (resp.status === 200) {
-                            setUsers(users => ({ ...users, [curUser.uid]: resp.data }));
+                    method: "HEAD",
+                    mode: "no-cors",
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            avatarOk = false;
                         }
-                    }
-                });
+                    })
+                    .catch(error => {
+                        avatarOk = false;
+                    })
+                    .finally(async () => {
+                        if (!avatarOk) {
+                            let resp = await customAxios({ url: `${apiPath}/user/profile${sync_to}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                            if (resp.status === 200) {
+                                setUsers(users => ({ ...users, [curUser.uid]: resp.data }));
+                            }
+                        }
+                    });
             }
 
             let tiers = ["platinum", "gold", "silver", "bronze"];
@@ -255,7 +263,7 @@ export async function FetchProfile({ apiPath, specialUsers, patrons, setUserLeve
 
             if (curUser.discordid !== null && curUser.discordid !== undefined && Object.keys(specialUsers).includes(curUser.discordid) && specialUsers[curUser.discordid] !== undefined) {
                 for (let i = 0; i < specialUsers[curUser.discordid].length; i++) {
-                    if (['lead_developer', 'project_manager', 'community_manager', 'development_team', 'support_leader', 'marketing_leader', 'graphic_leader', 'support_team', 'marketing_team', 'graphic_team', 'platinum_access'].includes(specialUsers[curUser.discordid][i].role)) {
+                    if (["lead_developer", "project_manager", "community_manager", "development_team", "support_leader", "marketing_leader", "graphic_leader", "support_team", "marketing_team", "graphic_team", "platinum_access"].includes(specialUsers[curUser.discordid][i].role)) {
                         // Team member get Platinum Perks
                         userLevel = 4;
                         break;
@@ -275,35 +283,34 @@ export async function FetchProfile({ apiPath, specialUsers, patrons, setUserLeve
 
             setUserLevel(userLevel);
 
-            customAxios({ url: `${apiPath}/user/language`, headers: { "Authorization": `Bearer ${bearerToken}` } })
-                .then(resp => {
-                    if (resp.status === 200) {
-                        setUserSettings(userSettings => ({ ...userSettings, language: resp.data.language }));
-                        i18n.changeLanguage(resp.data.language);
-                    }
-                });
+            customAxios({ url: `${apiPath}/user/language`, headers: { Authorization: `Bearer ${bearerToken}` } }).then(resp => {
+                if (resp.status === 200) {
+                    setUserSettings(userSettings => ({ ...userSettings, language: resp.data.language }));
+                    i18n.changeLanguage(resp.data.language);
+                }
+            });
 
             if (curUser.userid !== undefined && curUser.userid !== null && curUser.userid !== -1) {
                 if (isLogin) {
                     // just patch, don't wait
-                    customAxios({ url: `${apiPath}/user/timezone`, method: "PATCH", data: { timezone: Intl.DateTimeFormat().resolvedOptions().timeZone }, headers: { "Authorization": `Bearer ${bearerToken}` } });
+                    customAxios({ url: `${apiPath}/user/timezone`, method: "PATCH", data: { timezone: Intl.DateTimeFormat().resolvedOptions().timeZone }, headers: { Authorization: `Bearer ${bearerToken}` } });
                 }
 
-                return { "ok": true, "member": true };
+                return { ok: true, member: true };
             } else {
-                return { "ok": true, "member": false };
+                return { ok: true, member: false };
             }
         } else if (resp.status === 401) {
             localStorage.removeItem("token");
             setCurUserBanner({ name: "Login", role: "", avatar: "https://charlws.com/me.gif" });
-            return { "ok": false, "member": false };
+            return { ok: false, member: false };
         }
     } else {
         setCurUID(null);
         setCurUser({});
         setCurUserPerm([]);
         setCurUserBanner({ name: "Login", role: "", avatar: "https://charlws.com/me.gif" });
-        return { "ok": false, "member": false };
+        return { ok: false, member: false };
     }
 }
 
@@ -337,7 +344,7 @@ export function zfill(number, width) {
     if (paddingWidth <= 0) {
         return numberString;
     }
-    const paddingZeros = '0'.repeat(paddingWidth);
+    const paddingZeros = "0".repeat(paddingWidth);
     return paddingZeros + numberString;
 }
 
@@ -353,16 +360,16 @@ export function CalcInterval(start_time, end_time) {
 export const loadImageAsBase64 = async (imageUrl, fallback = "") => {
     try {
         let response = await customAxios.get(imageUrl, {
-            responseType: 'blob' // Set the response type to blob
+            responseType: "blob", // Set the response type to blob
         });
 
         if (response.status === 404) {
             if (fallback !== "") {
                 response = await customAxios.get(fallback, {
-                    responseType: 'blob' // Set the response type to blob
+                    responseType: "blob", // Set the response type to blob
                 });
             } else {
-                throw new Error('Image not found');
+                throw new Error("Image not found");
             }
         }
 
@@ -374,12 +381,12 @@ export const loadImageAsBase64 = async (imageUrl, fallback = "") => {
                 if (reader.result) {
                     resolve(reader.result);
                 } else {
-                    reject('Failed to convert image to base64');
+                    reject("Failed to convert image to base64");
                 }
             };
 
             reader.onerror = () => {
-                reject('Error occurred while converting image to base64');
+                reject("Error occurred while converting image to base64");
             };
 
             reader.readAsDataURL(blob); // Read the blob as data URL (base64)
@@ -436,28 +443,15 @@ export function getRankName(points, allRanks) {
 
 export function getCurrentMonthName() {
     const date = new Date();
-    const months = [
-        'January',
-        'February',
-        'March',
-        'April',
-        'May',
-        'June',
-        'July',
-        'August',
-        'September',
-        'October',
-        'November',
-        'December'
-    ];
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
     return months[date.getMonth()];
 }
 
-export function getTimezoneOffset(timezone, compareWith = 'UTC') {
+export function getTimezoneOffset(timezone, compareWith = "UTC") {
     const date = new Date();
-    const baseDate = new Date(date.toLocaleString('en-US', { timeZone: compareWith }));
-    const tzDate = new Date(date.toLocaleString('en-US', { timeZone: timezone }));
+    const baseDate = new Date(date.toLocaleString("en-US", { timeZone: compareWith }));
+    const tzDate = new Date(date.toLocaleString("en-US", { timeZone: timezone }));
     return (baseDate - tzDate) / (1000 * 60);
 }
 
@@ -476,17 +470,17 @@ export function getFormattedDate(display_timezone, date, preformattedDate = fals
     }
 
     const localizedFullDateTime = date.toLocaleString(undefined, {
-        dateStyle: 'full',
-        timeStyle: 'short'
+        dateStyle: "full",
+        timeStyle: "short",
     });
     const localizedLongDate = date.toLocaleDateString(undefined, {
-        dateStyle: 'full'
+        dateStyle: "full",
     });
     const localizedShortDate = date.toLocaleDateString(undefined, {
-        dateStyle: 'short'
+        dateStyle: "short",
     });
     const localizedTime = date.toLocaleTimeString(undefined, {
-        timeStyle: 'short'
+        timeStyle: "short",
     });
 
     if (longForm) {
@@ -571,13 +565,13 @@ export function checkUserPerm(userPerm, perms) {
 
 export function downloadFile(url) {
     // Create an anchor element
-    var link = document.createElement('a');
+    var link = document.createElement("a");
 
     // Set the href to the provided URL
     link.href = url;
 
     // Fetch the final URL after following redirects
-    fetch(link.href, { method: 'HEAD', redirect: 'follow' })
+    fetch(link.href, { method: "HEAD", redirect: "follow" })
         .then(response => {
             // Extract the final URL
             var finalUrl = response.url;
@@ -585,7 +579,7 @@ export function downloadFile(url) {
             // Check if the final URL is a real file
             if (/\.[^/.]+$/.test(finalUrl)) {
                 // Extract the file name from the URL
-                var fileName = finalUrl.substring(finalUrl.lastIndexOf('/') + 1);
+                var fileName = finalUrl.substring(finalUrl.lastIndexOf("/") + 1);
 
                 // Set the download attribute and file name
                 link.download = fileName;
@@ -594,20 +588,20 @@ export function downloadFile(url) {
                 link.click();
             } else {
                 // Open the link in a new tab
-                window.open(finalUrl, '_blank');
+                window.open(finalUrl, "_blank");
             }
         })
         .catch(error => {
-            console.error('Error fetching the file:', error);
+            console.error("Error fetching the file:", error);
         });
 }
 
 export function downloadLocal(fileName, fileContent) {
     // Creating a Blob with the content
-    const blob = new Blob([fileContent], { type: 'text/plain' });
+    const blob = new Blob([fileContent], { type: "text/plain" });
 
     // Creating a link element
-    const link = document.createElement('a');
+    const link = document.createElement("a");
 
     // Setting the href attribute to the Blob URL
     link.href = URL.createObjectURL(blob);
@@ -623,7 +617,7 @@ export function downloadLocal(fileName, fileContent) {
 
     // Removing the link from the document
     document.body.removeChild(link);
-};
+}
 
 export function b62decode(num62) {
     let flag = 1;
@@ -665,26 +659,27 @@ export function removeNullValues(obj) {
     }
 
     return newObj;
-};
+}
 
-export function removeNUEValues(obj) { // NUE => null + nan + undefined + empty string
+export function removeNUEValues(obj) {
+    // NUE => null + nan + undefined + empty string
     const newObj = {};
 
     for (const key in obj) {
         if (obj.hasOwnProperty(key) && obj[key] !== null && obj[key] !== undefined && obj[key] !== "" && !Number.isNaN(obj[key])) {
             newObj[key] = obj[key];
         }
-        if (typeof (newObj[key]) === "object") {
+        if (typeof newObj[key] === "object") {
             newObj[key] = newObj[key].join(","); // lists are converted to comma separated strings
         }
     }
 
     return newObj;
-};
+}
 
 export function compareVersions(version1, version2) {
-    const v1 = version1.replace('.dev', '').split('.').map(Number);
-    const v2 = version2.replace('.dev', '').split('.').map(Number);
+    const v1 = version1.replace(".dev", "").split(".").map(Number);
+    const v2 = version2.replace(".dev", "").split(".").map(Number);
 
     for (let i = 0; i < v1.length; i++) {
         if (v1[i] < v2[i]) {
@@ -701,7 +696,7 @@ export function setCookie(name, value, days) {
     let expires = "";
     if (days) {
         let date = new Date();
-        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
         expires = "; expires=" + date.toUTCString();
     }
     document.cookie = name + "=" + (value || "") + expires + "; path=/";
@@ -709,21 +704,17 @@ export function setCookie(name, value, days) {
 
 export function getCookie(name) {
     let nameEQ = name + "=";
-    let ca = document.cookie.split(';');
+    let ca = document.cookie.split(";");
     for (let i = 0; i < ca.length; i++) {
         let c = ca[i];
-        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+        while (c.charAt(0) == " ") c = c.substring(1, c.length);
         if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
     }
     return null;
 }
 
-export function eraseCookie(name, path = '/', domain = '') {
-    document.cookie = name + '=; ' +
-        'expires=Thu, 01 Jan 1970 00:00:00 GMT; ' +
-        'path=' + path + '; ' +
-        (domain ? 'domain=' + domain + '; ' : '') +
-        'max-age=0';
+export function eraseCookie(name, path = "/", domain = "") {
+    document.cookie = name + "=; " + "expires=Thu, 01 Jan 1970 00:00:00 GMT; " + "path=" + path + "; " + (domain ? "domain=" + domain + "; " : "") + "max-age=0";
 }
 
 export function setAuthMode(name, value = "") {
@@ -746,24 +737,17 @@ export function eraseAuthMode() {
 
 export function toLocalISOString(date) {
     var tzo = -date.getTimezoneOffset(),
-        dif = tzo >= 0 ? '+' : '-',
+        dif = tzo >= 0 ? "+" : "-",
         pad = function (num) {
             var norm = Math.floor(Math.abs(num));
-            return (norm < 10 ? '0' : '') + norm;
+            return (norm < 10 ? "0" : "") + norm;
         };
-    return date.getFullYear() +
-        '-' + pad(date.getMonth() + 1) +
-        '-' + pad(date.getDate()) +
-        'T' + pad(date.getHours()) +
-        ':' + pad(date.getMinutes()) +
-        ':' + pad(date.getSeconds()) +
-        dif + pad(tzo / 60) +
-        ':' + pad(tzo % 60);
+    return date.getFullYear() + "-" + pad(date.getMonth() + 1) + "-" + pad(date.getDate()) + "T" + pad(date.getHours()) + ":" + pad(date.getMinutes()) + ":" + pad(date.getSeconds()) + dif + pad(tzo / 60) + ":" + pad(tzo % 60);
 }
 
 export function convertLocalTimeToUTC(time) {
     // Extract hours and minutes from the input time
-    const [hours, minutes] = time.split(':').map(Number);
+    const [hours, minutes] = time.split(":").map(Number);
 
     // Create a Date object for today with the specified local time
     const localDate = new Date();
@@ -774,15 +758,151 @@ export function convertLocalTimeToUTC(time) {
     const utcMinutes = localDate.getUTCMinutes();
 
     // Format the UTC time as HH:MM
-    const formattedUTCTime = `${utcHours.toString().padStart(2, '0')}:${utcMinutes.toString().padStart(2, '0')}`;
+    const formattedUTCTime = `${utcHours.toString().padStart(2, "0")}:${utcMinutes.toString().padStart(2, "0")}`;
 
     return formattedUTCTime;
 }
 
-export const DEFAULT_ROLES = [{ 'id': 0, 'name': 'Owner', 'order_id': 0, 'discord_role_id': '' }, { 'id': 10, 'name': 'Leadership', 'order_id': 10, 'discord_role_id': '' }, { 'id': 20, 'name': 'Human Resources Manager', 'order_id': 20, 'discord_role_id': '' }, { 'id': 21, 'name': 'Human Resources Staff', 'order_id': 21, 'discord_role_id': '' }, { 'id': 30, 'name': 'Events Manager', 'order_id': 30, 'discord_role_id': '' }, { 'id': 31, 'name': 'Events Staff', 'order_id': 31, 'discord_role_id': '' }, { 'id': 40, 'name': 'Convoy Supervisor', 'order_id': 40, 'discord_role_id': '' }, { 'id': 41, 'name': 'Convoy Control', 'order_id': 41, 'discord_role_id': '' }, { 'id': 70, 'name': 'Division Manager', 'order_id': 70, 'discord_role_id': '' }, { 'id': 71, 'name': 'Division Supervisor', 'order_id': 71, 'discord_role_id': '' }, { 'id': 80, 'name': 'Community Manager', 'order_id': 80, 'discord_role_id': '' }, { 'id': 81, 'name': 'Community Team', 'order_id': 81, 'discord_role_id': '' }, { 'id': 99, 'name': 'Trial Staff', 'order_id': 99, 'discord_role_id': '' }, { 'id': 100, 'name': 'Driver', 'order_id': 100, 'discord_role_id': '' }, { 'id': 200, 'name': 'Staff of the Month', 'order_id': 200, 'discord_role_id': '', 'display_order_id': '-100' }, { 'id': 201, 'name': 'Driver of the Month', 'order_id': 201, 'discord_role_id': '', 'display_order_id': '-100' }, { 'id': 202, 'name': 'Leave of absence', 'order_id': 202, 'discord_role_id': '', 'display_order_id': '-1' }];
+export const DEFAULT_ROLES = [
+    { id: 0, name: "Owner", order_id: 0, discord_role_id: "" },
+    { id: 10, name: "Leadership", order_id: 10, discord_role_id: "" },
+    { id: 20, name: "Human Resources Manager", order_id: 20, discord_role_id: "" },
+    { id: 21, name: "Human Resources Staff", order_id: 21, discord_role_id: "" },
+    { id: 30, name: "Events Manager", order_id: 30, discord_role_id: "" },
+    { id: 31, name: "Events Staff", order_id: 31, discord_role_id: "" },
+    { id: 40, name: "Convoy Supervisor", order_id: 40, discord_role_id: "" },
+    { id: 41, name: "Convoy Control", order_id: 41, discord_role_id: "" },
+    { id: 70, name: "Division Manager", order_id: 70, discord_role_id: "" },
+    { id: 71, name: "Division Supervisor", order_id: 71, discord_role_id: "" },
+    { id: 80, name: "Community Manager", order_id: 80, discord_role_id: "" },
+    { id: 81, name: "Community Team", order_id: 81, discord_role_id: "" },
+    { id: 99, name: "Trial Staff", order_id: 99, discord_role_id: "" },
+    { id: 100, name: "Driver", order_id: 100, discord_role_id: "" },
+    { id: 200, name: "Staff of the Month", order_id: 200, discord_role_id: "", display_order_id: "-100" },
+    { id: 201, name: "Driver of the Month", order_id: 201, discord_role_id: "", display_order_id: "-100" },
+    { id: 202, name: "Leave of absence", order_id: 202, discord_role_id: "", display_order_id: "-1" },
+];
 
-export const DEFAULT_PERMS = { 'administrator': [0, 10], 'update_config': [], 'reload_config': [], 'restart_service': [], 'accept_members': [20, 21], 'dismiss_members': [20, 21], 'update_roles': [20, 21], 'update_points': [20, 21], 'update_connections': [20, 21], 'disable_mfa': [20], 'delete_notifications': [20], 'manage_profiles': [20, 21], 'view_sensitive_profile': [20, 21], 'view_privacy_protected_data': [20, 21], 'view_global_note': [20, 21], 'update_global_note': [20, 21], 'view_external_user_list': [20, 21], 'ban_users': [20, 21], 'delete_users': [20, 21], 'import_dlogs': [20], 'delete_dlogs': [20], 'view_audit_log': [20, 21], 'manage_announcements': [20], 'manage_applications': [20, 21, 70, 71], 'delete_applications': [20], 'manage_challenges': [20, 80, 81], 'manage_divisions': [70, 71], 'manage_downloads': [], 'manage_economy': [], 'manage_economy_balance': [], 'manage_economy_truck': [], 'manage_economy_garage': [], 'manage_economy_merch': [], 'manage_events': [40, 41], 'manage_polls': [], 'driver': [100], 'staff_of_the_month': [200], 'driver_of_the_month': [201] };
+export const DEFAULT_PERMS = { administrator: [0, 10], update_config: [], reload_config: [], restart_service: [], accept_members: [20, 21], dismiss_members: [20, 21], update_roles: [20, 21], update_points: [20, 21], update_connections: [20, 21], disable_mfa: [20], delete_notifications: [20], manage_profiles: [20, 21], view_sensitive_profile: [20, 21], view_privacy_protected_data: [20, 21], view_global_note: [20, 21], update_global_note: [20, 21], view_external_user_list: [20, 21], ban_users: [20, 21], delete_users: [20, 21], import_dlogs: [20], delete_dlogs: [20], view_audit_log: [20, 21], manage_announcements: [20], manage_applications: [20, 21, 70, 71], delete_applications: [20], manage_challenges: [20, 80, 81], manage_divisions: [70, 71], manage_downloads: [], manage_economy: [], manage_economy_balance: [], manage_economy_truck: [], manage_economy_garage: [], manage_economy_merch: [], manage_events: [40, 41], manage_polls: [], driver: [100], staff_of_the_month: [200], driver_of_the_month: [201] };
 
-export const DEFAULT_RANKS = [{ 'name': 'Trainee', 'color': '#24ad88', 'discord_role_id': '', 'points': 0, 'daily_bonus': { 'type': 'streak', 'base': 50, 'streak_type': 'algo', 'streak_value': 1.01, 'algo_offset': 15 }, 'distance_bonus': { 'min_distance': 500, 'max_distance': -1, 'probability': 1, 'type': 'fixed_percentage', 'value': 0.025 } }, { 'name': 'Rookie', 'color': '#80e8dd', 'discord_role_id': '', 'points': 2000, 'daily_bonus': { 'type': 'streak', 'base': 75, 'streak_type': 'algo', 'streak_value': 1.015, 'algo_offset': 15 }, 'distance_bonus': { 'min_distance': 500, 'max_distance': -1, 'probability': 1, 'type': 'fixed_percentage', 'value': 0.035 } }, { 'name': 'Driver', 'color': '#f47b60', 'discord_role_id': '', 'points': 10000, 'daily_bonus': { 'type': 'streak', 'base': 100, 'streak_type': 'algo', 'streak_value': 1.02, 'algo_offset': 15 }, 'distance_bonus': { 'min_distance': 500, 'max_distance': -1, 'probability': 1, 'type': 'fixed_percentage', 'value': 0.045 } }, { 'name': 'Experienced Driver', 'color': '#008080', 'discord_role_id': '', 'points': 15000, 'daily_bonus': { 'type': 'streak', 'base': 125, 'streak_type': 'algo', 'streak_value': 1.025, 'algo_offset': 15 }, 'distance_bonus': { 'min_distance': 500, 'max_distance': -1, 'probability': 1, 'type': 'fixed_percentage', 'value': 0.055 } }, { 'name': 'Enthusiast Driver', 'color': '#2d687a', 'discord_role_id': '', 'points': 25000, 'daily_bonus': { 'type': 'streak', 'base': 150, 'streak_type': 'algo', 'streak_value': 1.03, 'algo_offset': 15 }, 'distance_bonus': { 'min_distance': 500, 'max_distance': -1, 'probability': 1, 'type': 'fixed_percentage', 'value': 0.065 } }, { 'name': 'Master Driver', 'color': '#317fa0', 'discord_role_id': '', 'points': 40000, 'daily_bonus': { 'type': 'streak', 'base': 175, 'streak_type': 'algo', 'streak_value': 1.035, 'algo_offset': 15 }, 'distance_bonus': { 'min_distance': 500, 'max_distance': -1, 'probability': 1, 'type': 'fixed_percentage', 'value': 0.075 } }, { 'name': 'Veteran Driver', 'color': '#3a5f0b', 'discord_role_id': '', 'points': 75000, 'daily_bonus': { 'type': 'streak', 'base': 225, 'streak_type': 'algo', 'streak_value': 1.045, 'algo_offset': 15 }, 'distance_bonus': { 'min_distance': 500, 'max_distance': -1, 'probability': 1, 'type': 'fixed_percentage', 'value': 0.095 } }, { 'name': 'Elite Driver', 'color': '#920931', 'discord_role_id': '', 'points': 80000, 'daily_bonus': { 'type': 'streak', 'base': 250, 'streak_type': 'algo', 'streak_value': 1.05, 'algo_offset': 15 }, 'distance_bonus': { 'min_distance': 500, 'max_distance': -1, 'probability': 1, 'type': 'fixed_percentage', 'value': 0.105 } }, { 'name': 'Ultimate Driver', 'color': '#d81438', 'discord_role_id': '', 'points': 100000, 'daily_bonus': { 'type': 'streak', 'base': 275, 'streak_type': 'algo', 'streak_value': 1.055, 'algo_offset': 15 }, 'distance_bonus': { 'min_distance': 500, 'max_distance': -1, 'probability': 1, 'type': 'fixed_percentage', 'value': 0.115 } }];
+export const DEFAULT_RANKS = [
+    { name: "Trainee", color: "#24ad88", discord_role_id: "", points: 0, daily_bonus: { type: "streak", base: 50, streak_type: "algo", streak_value: 1.01, algo_offset: 15 }, distance_bonus: { min_distance: 500, max_distance: -1, probability: 1, type: "fixed_percentage", value: 0.025 } },
+    { name: "Rookie", color: "#80e8dd", discord_role_id: "", points: 2000, daily_bonus: { type: "streak", base: 75, streak_type: "algo", streak_value: 1.015, algo_offset: 15 }, distance_bonus: { min_distance: 500, max_distance: -1, probability: 1, type: "fixed_percentage", value: 0.035 } },
+    { name: "Driver", color: "#f47b60", discord_role_id: "", points: 10000, daily_bonus: { type: "streak", base: 100, streak_type: "algo", streak_value: 1.02, algo_offset: 15 }, distance_bonus: { min_distance: 500, max_distance: -1, probability: 1, type: "fixed_percentage", value: 0.045 } },
+    { name: "Experienced Driver", color: "#008080", discord_role_id: "", points: 15000, daily_bonus: { type: "streak", base: 125, streak_type: "algo", streak_value: 1.025, algo_offset: 15 }, distance_bonus: { min_distance: 500, max_distance: -1, probability: 1, type: "fixed_percentage", value: 0.055 } },
+    { name: "Enthusiast Driver", color: "#2d687a", discord_role_id: "", points: 25000, daily_bonus: { type: "streak", base: 150, streak_type: "algo", streak_value: 1.03, algo_offset: 15 }, distance_bonus: { min_distance: 500, max_distance: -1, probability: 1, type: "fixed_percentage", value: 0.065 } },
+    { name: "Master Driver", color: "#317fa0", discord_role_id: "", points: 40000, daily_bonus: { type: "streak", base: 175, streak_type: "algo", streak_value: 1.035, algo_offset: 15 }, distance_bonus: { min_distance: 500, max_distance: -1, probability: 1, type: "fixed_percentage", value: 0.075 } },
+    { name: "Veteran Driver", color: "#3a5f0b", discord_role_id: "", points: 75000, daily_bonus: { type: "streak", base: 225, streak_type: "algo", streak_value: 1.045, algo_offset: 15 }, distance_bonus: { min_distance: 500, max_distance: -1, probability: 1, type: "fixed_percentage", value: 0.095 } },
+    { name: "Elite Driver", color: "#920931", discord_role_id: "", points: 80000, daily_bonus: { type: "streak", base: 250, streak_type: "algo", streak_value: 1.05, algo_offset: 15 }, distance_bonus: { min_distance: 500, max_distance: -1, probability: 1, type: "fixed_percentage", value: 0.105 } },
+    { name: "Ultimate Driver", color: "#d81438", discord_role_id: "", points: 100000, daily_bonus: { type: "streak", base: 275, streak_type: "algo", streak_value: 1.055, algo_offset: 15 }, distance_bonus: { min_distance: 500, max_distance: -1, probability: 1, type: "fixed_percentage", value: 0.115 } },
+];
 
-export const DEFAULT_APPLICATIONS = [{ 'id': 1, 'name': 'Driver', 'message': '<@&role-id>', 'channel_id': '', 'webhook_url': '', 'staff_role_ids': [20, 21], 'required_connections': ['steam'], 'required_member_state': 0, 'required_either_user_role_ids': [], 'required_all_user_role_ids': [], 'prohibited_either_user_role_ids': [], 'prohibited_all_user_role_ids': [], 'cooldown_hours': 2, 'form': [{ 'type': 'date', 'label': 'What is your birthday?', 'must_input': true }, { 'type': 'textarea', 'label': 'How did you find us?', 'rows': '3', 'placeholder': 'Enter a short answer', 'min_length': 10 }, { 'type': 'radio', 'label': 'Are you currently in another VTC?', 'choices': ['Yes', 'No'], 'must_input': true }, { 'type': 'textarea', 'label': 'What are your interests?', 'rows': '5', 'placeholder': 'Tell us a little bit about yourself', 'min_length': 150 }, { 'type': 'textarea', 'label': 'Why do you want to be a part of our VTC?', 'rows': '5', 'placeholder': "Why would you like to join us? This doesn't need to be complicated.", 'min_length': 150 }, { 'type': 'checkbox', 'label': 'By joining the VTC, you agree to follow both discord and VTC rules at all times? Do you agree to our terms?', 'must_input': true, 'choices': [] }], 'discord_role_change': ['+role-id', '-role-id'], 'allow_multiple_pending': false }, { 'id': 2, 'name': 'Staff', 'message': '<@&role-id>', 'channel_id': '', 'webhook_url': '', 'staff_role_ids': [20, 21], 'required_connections': ['steam'], 'required_member_state': -1, 'required_either_user_role_ids': [], 'required_all_user_role_ids': [], 'prohibited_either_user_role_ids': [], 'prohibited_all_user_role_ids': [], 'cooldown_hours': 2, 'form': [{ 'type': 'date', 'label': 'What is your birthdate?' }, { 'type': 'textarea', 'label': 'What country do you live in? Also include your Time Zone', 'placeholder': 'US, Canada, UK, etc', 'rows': '3', 'min_length': 10 }, { 'type': 'dropdown', 'label': 'Which position are your applying for?', 'choices': ['Events Team'], 'must_input': true }, { 'type': 'textarea', 'label': 'Please provide a summary about yourself.', 'placeholder': 'You may include hobbies, work positions, or any unique facts about yourself!', 'rows': '5', 'min_length': 150 }, { 'type': 'textarea', 'label': 'Why are you interested in joining the position you are applying for? What do you want to achieve?', 'placeholder': 'Explain why does that position interest you and what do you want to achieve.', 'rows': '5', 'min_length': 150 }, { 'type': 'textarea', 'label': 'Do you have a lot of time to dedicate to this position?', 'placeholder': 'Explain your time availability.', 'rows': '3', 'min_length': 150 }, { 'type': 'checkbox', 'label': 'By joining the VTC, you agree to follow both discord and VTC rules at all times? Do you agree to our terms?', 'must_input': true, 'choices': [] }], 'discord_role_change': ['+role-id', '-role-id'], 'allow_multiple_pending': false }, { 'id': 3, 'name': 'LOA', 'message': ' <@&role-id>', 'channel_id': '', 'webhook_url': '', 'staff_role_ids': [20, 21], 'required_connections': [], 'required_member_state': 1, 'required_either_user_role_ids': [], 'required_all_user_role_ids': [], 'prohibited_either_user_role_ids': [], 'prohibited_all_user_role_ids': [], 'cooldown_hours': 2, 'form': [{ 'type': 'date', 'label': 'Start Date' }, { 'type': 'date', 'label': 'End Date' }, { 'type': 'textarea', 'label': 'Reason for LOA', 'rows': '3', 'min_length': 150, 'placeholder': '' }, { 'type': 'checkbox', 'label': 'I will leave the staff position' }, { 'type': 'checkbox', 'label': 'I will leave the VTC' }], 'discord_role_change': ['+role-id', '-role-id'], 'allow_multiple_pending': false }, { 'id': 4, 'name': 'Division', 'message': ' <@&role-id>', 'channel_id': '', 'webhook_url': '', 'staff_role_ids': [70, 71], 'required_connections': [], 'required_member_state': 1, 'required_either_user_role_ids': [], 'required_all_user_role_ids': [], 'prohibited_either_user_role_ids': [], 'prohibited_all_user_role_ids': [], 'cooldown_hours': 336, 'form': [{ 'type': 'dropdown', 'label': 'Choose a division', 'choices': ['Agricultural', 'Chilled', 'Construction', 'Hazmat'], 'must_input': true }, { 'type': 'radio', 'label': 'Have you read the Construction Division Handbook?', 'choices': ['Yes', 'No'], 'must_input': true, 'x_must_be': { 'label': 'Choose a division', 'value': 'Construction' } }, { 'type': 'text', 'label': 'Why do you want to join the Construction Division?', 'must_input': true, 'x_must_be': { 'label': 'Choose a division', 'value': 'Construction' }, 'min_length': 0, 'placeholder': '' }, { 'type': 'radio', 'label': 'In the Construction Division, you are required to complete 5 deliveries of 125+ miles / 201+ km with construction loads per month. Do you agree to meet the monthly requirement?', 'choices': ['Yes', 'No'], 'must_input': true, 'x_must_be': { 'label': 'Choose a division', 'value': 'Construction' } }, { 'type': 'radio', 'label': 'Have you read the Chilled Division Handbook?', 'choices': ['Yes', 'No'], 'must_input': true, 'x_must_be': { 'label': 'Choose a division', 'value': 'Chilled' } }, { 'type': 'text', 'label': 'Why do you want to join the Chilled Division?', 'must_input': true, 'x_must_be': { 'label': 'Choose a division', 'value': 'Chilled' } }, { 'type': 'radio', 'label': 'In the Chilled Division, you are required to meet a certain requirement to remain in the Division. Do you agree to meet the monthly requirement?', 'choices': ['Yes', 'No'], 'must_input': true, 'x_must_be': { 'label': 'Choose a division', 'value': 'Chilled' } }, { 'type': 'radio', 'label': 'Have you read the Hazmat Division Handbook?', 'choices': ['Yes', 'No'], 'must_input': true, 'x_must_be': { 'label': 'Choose a division', 'value': 'Hazmat' } }, { 'type': 'text', 'label': 'Why do you want to join the Hazmat Division?', 'must_input': true, 'x_must_be': { 'label': 'Choose a division', 'value': 'Hazmat' } }, { 'type': 'radio', 'label': 'In the Hazmat Division, you are required to meet a certain requirement to remain in the Division. Do you agree to meet the monthly requirement?', 'choices': ['Yes', 'No'], 'must_input': true, 'x_must_be': { 'label': 'Choose a division', 'value': 'Hazmat' } }, { 'type': 'radio', 'label': 'Have you read the Agricultural Division Handbook?', 'choices': ['Yes', 'No'], 'must_input': true, 'x_must_be': { 'label': 'Choose a division', 'value': 'Agricultural' } }, { 'type': 'text', 'label': 'Why do you want to join the Agricultural Division?', 'must_input': true, 'x_must_be': { 'label': 'Choose a division', 'value': 'Agricultural' } }, { 'type': 'radio', 'label': 'In the Agricultural Division, you are required to meet a certain requirement to remain in the Division. Do you agree to meet the monthly requirement?', 'choices': ['Yes', 'No'], 'must_input': true, 'x_must_be': { 'label': 'Choose a division', 'value': 'Agricultural' } }], 'discord_role_change': ['+role-id', '-role-id'], 'allow_multiple_pending': false }];
+export const DEFAULT_APPLICATIONS = [
+    {
+        id: 1,
+        name: "Driver",
+        message: "<@&role-id>",
+        channel_id: "",
+        webhook_url: "",
+        staff_role_ids: [20, 21],
+        required_connections: ["steam"],
+        required_member_state: 0,
+        required_either_user_role_ids: [],
+        required_all_user_role_ids: [],
+        prohibited_either_user_role_ids: [],
+        prohibited_all_user_role_ids: [],
+        cooldown_hours: 2,
+        form: [
+            { type: "date", label: "What is your birthday?", must_input: true },
+            { type: "textarea", label: "How did you find us?", rows: "3", placeholder: "Enter a short answer", min_length: 10 },
+            { type: "radio", label: "Are you currently in another VTC?", choices: ["Yes", "No"], must_input: true },
+            { type: "textarea", label: "What are your interests?", rows: "5", placeholder: "Tell us a little bit about yourself", min_length: 150 },
+            { type: "textarea", label: "Why do you want to be a part of our VTC?", rows: "5", placeholder: "Why would you like to join us? This doesn't need to be complicated.", min_length: 150 },
+            { type: "checkbox", label: "By joining the VTC, you agree to follow both discord and VTC rules at all times? Do you agree to our terms?", must_input: true, choices: [] },
+        ],
+        discord_role_change: ["+role-id", "-role-id"],
+        allow_multiple_pending: false,
+    },
+    {
+        id: 2,
+        name: "Staff",
+        message: "<@&role-id>",
+        channel_id: "",
+        webhook_url: "",
+        staff_role_ids: [20, 21],
+        required_connections: ["steam"],
+        required_member_state: -1,
+        required_either_user_role_ids: [],
+        required_all_user_role_ids: [],
+        prohibited_either_user_role_ids: [],
+        prohibited_all_user_role_ids: [],
+        cooldown_hours: 2,
+        form: [
+            { type: "date", label: "What is your birthdate?" },
+            { type: "textarea", label: "What country do you live in? Also include your Time Zone", placeholder: "US, Canada, UK, etc", rows: "3", min_length: 10 },
+            { type: "dropdown", label: "Which position are your applying for?", choices: ["Events Team"], must_input: true },
+            { type: "textarea", label: "Please provide a summary about yourself.", placeholder: "You may include hobbies, work positions, or any unique facts about yourself!", rows: "5", min_length: 150 },
+            { type: "textarea", label: "Why are you interested in joining the position you are applying for? What do you want to achieve?", placeholder: "Explain why does that position interest you and what do you want to achieve.", rows: "5", min_length: 150 },
+            { type: "textarea", label: "Do you have a lot of time to dedicate to this position?", placeholder: "Explain your time availability.", rows: "3", min_length: 150 },
+            { type: "checkbox", label: "By joining the VTC, you agree to follow both discord and VTC rules at all times? Do you agree to our terms?", must_input: true, choices: [] },
+        ],
+        discord_role_change: ["+role-id", "-role-id"],
+        allow_multiple_pending: false,
+    },
+    {
+        id: 3,
+        name: "LOA",
+        message: " <@&role-id>",
+        channel_id: "",
+        webhook_url: "",
+        staff_role_ids: [20, 21],
+        required_connections: [],
+        required_member_state: 1,
+        required_either_user_role_ids: [],
+        required_all_user_role_ids: [],
+        prohibited_either_user_role_ids: [],
+        prohibited_all_user_role_ids: [],
+        cooldown_hours: 2,
+        form: [
+            { type: "date", label: "Start Date" },
+            { type: "date", label: "End Date" },
+            { type: "textarea", label: "Reason for LOA", rows: "3", min_length: 150, placeholder: "" },
+            { type: "checkbox", label: "I will leave the staff position" },
+            { type: "checkbox", label: "I will leave the VTC" },
+        ],
+        discord_role_change: ["+role-id", "-role-id"],
+        allow_multiple_pending: false,
+    },
+    {
+        id: 4,
+        name: "Division",
+        message: " <@&role-id>",
+        channel_id: "",
+        webhook_url: "",
+        staff_role_ids: [70, 71],
+        required_connections: [],
+        required_member_state: 1,
+        required_either_user_role_ids: [],
+        required_all_user_role_ids: [],
+        prohibited_either_user_role_ids: [],
+        prohibited_all_user_role_ids: [],
+        cooldown_hours: 336,
+        form: [
+            { type: "dropdown", label: "Choose a division", choices: ["Agricultural", "Chilled", "Construction", "Hazmat"], must_input: true },
+            { type: "radio", label: "Have you read the Construction Division Handbook?", choices: ["Yes", "No"], must_input: true, x_must_be: { label: "Choose a division", value: "Construction" } },
+            { type: "text", label: "Why do you want to join the Construction Division?", must_input: true, x_must_be: { label: "Choose a division", value: "Construction" }, min_length: 0, placeholder: "" },
+            { type: "radio", label: "In the Construction Division, you are required to complete 5 deliveries of 125+ miles / 201+ km with construction loads per month. Do you agree to meet the monthly requirement?", choices: ["Yes", "No"], must_input: true, x_must_be: { label: "Choose a division", value: "Construction" } },
+            { type: "radio", label: "Have you read the Chilled Division Handbook?", choices: ["Yes", "No"], must_input: true, x_must_be: { label: "Choose a division", value: "Chilled" } },
+            { type: "text", label: "Why do you want to join the Chilled Division?", must_input: true, x_must_be: { label: "Choose a division", value: "Chilled" } },
+            { type: "radio", label: "In the Chilled Division, you are required to meet a certain requirement to remain in the Division. Do you agree to meet the monthly requirement?", choices: ["Yes", "No"], must_input: true, x_must_be: { label: "Choose a division", value: "Chilled" } },
+            { type: "radio", label: "Have you read the Hazmat Division Handbook?", choices: ["Yes", "No"], must_input: true, x_must_be: { label: "Choose a division", value: "Hazmat" } },
+            { type: "text", label: "Why do you want to join the Hazmat Division?", must_input: true, x_must_be: { label: "Choose a division", value: "Hazmat" } },
+            { type: "radio", label: "In the Hazmat Division, you are required to meet a certain requirement to remain in the Division. Do you agree to meet the monthly requirement?", choices: ["Yes", "No"], must_input: true, x_must_be: { label: "Choose a division", value: "Hazmat" } },
+            { type: "radio", label: "Have you read the Agricultural Division Handbook?", choices: ["Yes", "No"], must_input: true, x_must_be: { label: "Choose a division", value: "Agricultural" } },
+            { type: "text", label: "Why do you want to join the Agricultural Division?", must_input: true, x_must_be: { label: "Choose a division", value: "Agricultural" } },
+            { type: "radio", label: "In the Agricultural Division, you are required to meet a certain requirement to remain in the Division. Do you agree to meet the monthly requirement?", choices: ["Yes", "No"], must_input: true, x_must_be: { label: "Choose a division", value: "Agricultural" } },
+        ],
+        discord_role_change: ["+role-id", "-role-id"],
+        allow_multiple_pending: false,
+    },
+];

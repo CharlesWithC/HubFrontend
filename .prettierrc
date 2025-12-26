@@ -1,0 +1,42 @@
+{
+    "printWidth": 9999,
+    "tabWidth": 4,
+    "useTabs": false,
+    "semi": true,
+    "singleQuote": false,
+    "quoteProps": "consistent",
+    "jsxSingleQuote": false,
+    "trailingComma": "es5",
+    "bracketSpacing": true,
+    "bracketSameLine": true,
+    "arrowParens": "avoid",
+    "proseWrap": "preserve",
+    "htmlWhitespaceSensitivity": "css",
+    "vueIndentScriptAndStyle": false,
+    "endOfLine": "lf",
+    "embeddedLanguageFormatting": "auto",
+    "singleAttributePerLine": false,
+    "overrides": [
+        {
+            "files": [
+                "*.jsx",
+                "*.tsx"
+            ],
+            "options": {
+                "tabWidth": 2
+            }
+        },
+        {
+            "files": [
+                "src/archive/**/*",
+                "src/components/**/*",
+                "src/routes/**/*",
+                "src/routes/**/**/*",
+                "src/*"
+            ],
+            "options": {
+                "tabWidth": 2
+            }
+        }
+    ]
+}

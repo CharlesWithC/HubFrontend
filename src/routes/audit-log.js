@@ -1,15 +1,15 @@
-import { useRef, useEffect, useState, useContext } from 'react';
-import { useTranslation } from 'react-i18next';
-import { AppContext, CacheContext } from '../context';
+import { useRef, useEffect, useState, useContext } from "react";
+import { useTranslation } from "react-i18next";
+import { AppContext, CacheContext } from "../context";
 
-import { useTheme } from '@mui/material';
-import { VerifiedUserRounded } from '@mui/icons-material';
+import { useTheme } from "@mui/material";
+import { VerifiedUserRounded } from "@mui/icons-material";
 
-import TimeDelta from '../components/timedelta';
+import TimeDelta from "../components/timedelta";
 import CustomTable from "../components/table";
-import { makeRequestsAuto } from '../functions';
-import MarkdownRenderer from '../components/markdown';
-import UserCard from '../components/usercard';
+import { makeRequestsAuto } from "../functions";
+import MarkdownRenderer from "../components/markdown";
+import UserCard from "../components/usercard";
 
 const AuditLog = () => {
     const { t: tr } = useTranslation();
@@ -17,7 +17,7 @@ const AuditLog = () => {
     const { cache, setCache } = useContext(CacheContext);
     const theme = useTheme();
 
-    const CATEGORIES = { "announcement": tr("announcement"), "application": tr("application"), "auth": tr("authentication"), "challenge": tr("challenge"), "division": tr("division"), "dlog": tr("deliveries"), "downloads": tr("downloads"), "economy": tr("economy"), "event": tr("event"), "member": tr("member"), "poll": tr("poll"), "system": tr("system"), "tracker": tr("tracker"), "user": tr("user"), "legacy": tr("legacy") };
+    const CATEGORIES = { announcement: tr("announcement"), application: tr("application"), auth: tr("authentication"), challenge: tr("challenge"), division: tr("division"), dlog: tr("deliveries"), downloads: tr("downloads"), economy: tr("economy"), event: tr("event"), member: tr("member"), poll: tr("poll"), system: tr("system"), tracker: tr("tracker"), user: tr("user"), legacy: tr("legacy") };
 
     const [auditList, setAuditList] = useState(cache.audit_log.auditList);
     const [totalItems, setTotalItems] = useState(cache.audit_log.totalItems);
@@ -51,9 +51,7 @@ const AuditLog = () => {
                 }
             }
 
-            const [_auditList] = await makeRequestsAuto([
-                { url: `${apiPath}/audit/list?order=desc&order_by=uid&page=${page}&page_size=${pageSize}&operation=${localSearchOp}${uid !== -1 ? `&uid=${uid}` : ``}`, auth: true },
-            ]);
+            const [_auditList] = await makeRequestsAuto([{ url: `${apiPath}/audit/list?order=desc&order_by=uid&page=${page}&page_size=${pageSize}&operation=${localSearchOp}${uid !== -1 ? `&uid=${uid}` : ``}`, auth: true }]);
 
             let newUserList = [];
             for (let i = 0; i < _auditList.list.length; i++) {
@@ -71,16 +69,36 @@ const AuditLog = () => {
         doLoad();
     }, [apiPath, page, pageSize, searchOp, theme]);
 
-    return <>
-        <CustomTable name={<><VerifiedUserRounded />&nbsp;&nbsp;{tr("audit_log")}</>}
-            onSearch={(content) => { setPage(1); setSearchOp(content); }} searchHint={tr("search_by_operation")}
-            columns={[
-                { id: 'user', label: tr("user") },
-                { id: 'category', label: tr("category") },
-                { id: 'operation', label: tr("operation") },
-                { id: 'time', label: tr("time") },
-            ]} data={auditList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} page={page} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} />
-    </>;
+    return (
+        <>
+            <CustomTable
+                name={
+                    <>
+                        <VerifiedUserRounded />
+                        &nbsp;&nbsp;{tr("audit_log")}
+                    </>
+                }
+                onSearch={content => {
+                    setPage(1);
+                    setSearchOp(content);
+                }}
+                searchHint={tr("search_by_operation")}
+                columns={[
+                    { id: "user", label: tr("user") },
+                    { id: "category", label: tr("category") },
+                    { id: "operation", label: tr("operation") },
+                    { id: "time", label: tr("time") },
+                ]}
+                data={auditList}
+                totalItems={totalItems}
+                rowsPerPageOptions={[10, 25, 50, 100, 250]}
+                page={page}
+                defaultRowsPerPage={pageSize}
+                onPageChange={setPage}
+                onRowsPerPageChange={setPageSize}
+            />
+        </>
+    );
 };
 
 export default AuditLog;

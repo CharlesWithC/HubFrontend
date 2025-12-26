@@ -1,26 +1,26 @@
 import "./init";
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { BrowserRouter, createRoutesFromChildren, matchRoutes, useLocation, useNavigationType } from 'react-router-dom';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter, createRoutesFromChildren, matchRoutes, useLocation, useNavigationType } from "react-router-dom";
 
-import './index.css';
-import './fonts/opensans/opensans.css';
-import './fonts/orbitron/orbitron.css';
+import "./index.css";
+import "./fonts/opensans/opensans.css";
+import "./fonts/orbitron/orbitron.css";
 
-import App from './App';
-import { AppContextProvider, CacheContextProvider, ThemeContextProvider } from './context';
+import App from "./App";
+import { AppContextProvider, CacheContextProvider, ThemeContextProvider } from "./context";
 
-import { I18nextProvider } from 'react-i18next';
-import i18n from './i18n';
+import { I18nextProvider } from "react-i18next";
+import i18n from "./i18n";
 
 import Crashed from "./components/crashed";
-import { setAuthMode } from './functions';
+import { setAuthMode } from "./functions";
 
 import * as Sentry from "@sentry/react";
 
 window.loading = 0;
 
-window.isElectron = (typeof window !== 'undefined' && typeof window.process === 'object' && window.process.type === 'renderer' || typeof process !== 'undefined' && typeof process.versions === 'object' && !!process.versions.electron || typeof navigator === 'object' && typeof navigator.userAgent === 'string' && navigator.userAgent.indexOf('Electron') >= 0);
+window.isElectron = (typeof window !== "undefined" && typeof window.process === "object" && window.process.type === "renderer") || (typeof process !== "undefined" && typeof process.versions === "object" && !!process.versions.electron) || (typeof navigator === "object" && typeof navigator.userAgent === "string" && navigator.userAgent.indexOf("Electron") >= 0);
 
 if (window.isElectron) {
     if (window.host !== undefined) window.dhhost = window.host;
@@ -43,8 +43,8 @@ if (searchParams.get("auth_mode") !== null && searchParams.get("auth_redirect") 
     setAuthMode(searchParams.get("auth_mode"), searchParams.get("auth_redirect"));
 }
 
-if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost') {
-    window.location.href = window.location.href.replace('http', 'https');
+if (window.location.protocol === "http:" && window.location.hostname !== "localhost") {
+    window.location.href = window.location.href.replace("http", "https");
 }
 
 if (window.isElectron || window.location.hostname !== "localhost") {
@@ -56,9 +56,9 @@ if (window.isElectron || window.location.hostname !== "localhost") {
                 useLocation,
                 useNavigationType,
                 createRoutesFromChildren,
-                matchRoutes
+                matchRoutes,
             }),
-            Sentry.replayIntegration()
+            Sentry.replayIntegration(),
         ],
         tracePropagationTargets: ["localhost", /https:\/\/drivershub\.charlws\.com/, /https:\/\/drivershub05\.charlws\.com/, /https:\/\/drivershub10\.charlws\.com/],
         tracesSampleRate: 0.2,
@@ -67,7 +67,7 @@ if (window.isElectron || window.location.hostname !== "localhost") {
     });
 }
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById("root"));
 class ErrorBoundary extends React.Component {
     constructor(props) {
         super(props);
@@ -90,7 +90,11 @@ class ErrorBoundary extends React.Component {
 
     render() {
         if (this.state.hasError) {
-            return <I18nextProvider i18n={i18n}><Crashed /></I18nextProvider>;
+            return (
+                <I18nextProvider i18n={i18n}>
+                    <Crashed />
+                </I18nextProvider>
+            );
         }
         return this.props.children;
     }
@@ -100,14 +104,18 @@ root.render(
         <ThemeContextProvider>
             <CacheContextProvider>
                 <I18nextProvider i18n={i18n}>
-                    {(window.isElectron || window.location.hostname !== "localhost") &&
+                    {(window.isElectron || window.location.hostname !== "localhost") && (
                         <ErrorBoundary>
-                            <BrowserRouter><App /></BrowserRouter>
+                            <BrowserRouter>
+                                <App />
+                            </BrowserRouter>
                         </ErrorBoundary>
-                    }
-                    {(!window.isElectron && window.location.hostname === "localhost") &&
-                        <BrowserRouter><App /></BrowserRouter>
-                    }
+                    )}
+                    {!window.isElectron && window.location.hostname === "localhost" && (
+                        <BrowserRouter>
+                            <App />
+                        </BrowserRouter>
+                    )}
                 </I18nextProvider>
             </CacheContextProvider>
         </ThemeContextProvider>

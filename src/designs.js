@@ -18,7 +18,7 @@ export function darkenColor(hex, factor = 0.2, use_custom_theme) {
     b = Math.round(b * (1 - clampedFactor));
 
     // Convert back to hex format
-    let darkenedHex = `#${(r << 16 | g << 8 | b).toString(16).padStart(6, '0')}`;
+    let darkenedHex = `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, "0")}`;
     if (opacity !== "") {
         darkenedHex += opacity;
     }
@@ -31,57 +31,54 @@ export function customSelectStyles(theme) {
             ...base,
             backgroundColor: "transparent",
             borderColor: theme.palette.text.secondary + "88",
-            opacity: state.isDisabled ? 0.4 : 1
+            opacity: state.isDisabled ? 0.4 : 1,
         }),
         option: (base, state) => ({
             ...base,
-            color: state.isDisabled ? 'grey' : theme.palette.text.primary,
+            color: state.isDisabled ? "grey" : theme.palette.text.primary,
             backgroundColor: state.isFocused && !state.isDisabled ? theme.palette.background.paper.substring(0, 7) : theme.palette.background.default.substring(0, 7),
         }),
-        menu: (base) => ({
+        menu: base => ({
             ...base,
             zIndex: 100005,
-            backgroundColor: theme.palette.background.default.substring(0, 7)
+            backgroundColor: theme.palette.background.default.substring(0, 7),
         }),
-        menuPortal: (base) => ({
+        menuPortal: base => ({
             ...base,
-            zIndex: 100005
+            zIndex: 100005,
         }),
-        input: (base) => ({
+        input: base => ({
             ...base,
-            color: theme.palette.text.primary
+            color: theme.palette.text.primary,
         }),
-        singleValue: (base) => ({
+        singleValue: base => ({
             ...base,
-            color: theme.palette.text.primary
+            color: theme.palette.text.primary,
         }),
         multiValue: (base, state) => {
-            return state.data.isFixed ? { ...base, backgroundColor: 'gray' } : base;
+            return state.data.isFixed ? { ...base, backgroundColor: "gray" } : base;
         },
         multiValueLabel: (base, state) => {
-            return state.data.isFixed
-                ? { ...base, fontWeight: 'bold', color: 'white', paddingRight: 6 }
-                : base;
+            return state.data.isFixed ? { ...base, fontWeight: "bold", color: "white", paddingRight: 6 } : base;
         },
         multiValueRemove: (base, state) => {
-            return state.data.isFixed ? { ...base, display: 'none' } : base;
-        }
+            return state.data.isFixed ? { ...base, display: "none" } : base;
+        },
     };
-};
+}
 
 function intToHex(intValue) {
-    const scaledInt = Math.floor(intValue * 255 / 100);
+    const scaledInt = Math.floor((intValue * 255) / 100);
     let hexValue = scaledInt.toString(16);
-    if (hexValue.length === 1) hexValue = '0' + hexValue;
+    if (hexValue.length === 1) hexValue = "0" + hexValue;
     return hexValue;
 }
 
 export function getDesignTokens({ vtcBackground, customBackground, vtcLevel, userLevel, webConfig }, { themeSettings, setThemeSettings }, customMode, mode, use_custom_theme = false, theme_background = null, theme_main = null, darken_ratio = null, font_size = "regular") {
     if (use_custom_theme === true) {
-        if (userLevel < 2)
-            use_custom_theme = false;
+        if (userLevel < 2) use_custom_theme = false;
     } else if (use_custom_theme !== false) {
-        if (use_custom_theme.startsWith("vtc") && vtcLevel < 1 || !use_custom_theme.startsWith("vtc") && userLevel < 3) {
+        if ((use_custom_theme.startsWith("vtc") && vtcLevel < 1) || (!use_custom_theme.startsWith("vtc") && userLevel < 3)) {
             use_custom_theme = false;
         }
     }
@@ -101,7 +98,8 @@ export function getDesignTokens({ vtcBackground, customBackground, vtcLevel, use
         }
         theme_background = theme_background.substring(0, 7) + intToHex(darken_ratio * 100);
         theme_main = theme_main.substring(0, 7) + intToHex(darken_ratio * 100);
-        if (setThemeSettings !== undefined && themeSettings.bg_image !== vtcBackground) { // ensure called from <App>
+        if (setThemeSettings !== undefined && themeSettings.bg_image !== vtcBackground) {
+            // ensure called from <App>
             setThemeSettings(prev_settings => ({ ...prev_settings, bg_image: vtcBackground }));
             return; // we know there'll be a re-render
         }
@@ -117,7 +115,8 @@ export function getDesignTokens({ vtcBackground, customBackground, vtcLevel, use
         }
         theme_background = theme_background.substring(0, 7) + intToHex(darken_ratio * 100);
         theme_main = theme_main.substring(0, 7) + intToHex(darken_ratio * 100);
-        if (setThemeSettings !== undefined && themeSettings.bg_image !== customBackground) { // ensure called from <App>
+        if (setThemeSettings !== undefined && themeSettings.bg_image !== customBackground) {
+            // ensure called from <App>
             setThemeSettings(prev_settings => ({ ...prev_settings, bg_image: customBackground }));
             return; // we know there'll be a re-render
         }
@@ -129,35 +128,35 @@ export function getDesignTokens({ vtcBackground, customBackground, vtcLevel, use
     if (theme_main === null) theme_main = "#2F3136";
     let bgBase = {
         light: {
-            default: '#fafafa',
-            paper: '#f0f0f0',
+            default: "#fafafa",
+            paper: "#f0f0f0",
         },
         dark: {
-            default: '#2F3136',
-            paper: '#212529',
+            default: "#2F3136",
+            paper: "#212529",
         },
         halloween: {
-            default: '#DF5120',
-            paper: '#C33922',
+            default: "#DF5120",
+            paper: "#C33922",
         },
         custom: {
             default: theme_background,
-            paper: theme_main
+            paper: theme_main,
         },
     };
     let darkenRatio = {
         light: 0.05,
         dark: 0.5,
         halloween: 0.2,
-        custom: darken_ratio
+        custom: darken_ratio,
     };
 
     let compoBase = {
         MuiOutlinedInput: {
             styleOverrides: {
                 root: {
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'rgba(64, 64, 64, 0.5)',
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "rgba(64, 64, 64, 0.5)",
                     },
                 },
             },
@@ -165,97 +164,97 @@ export function getDesignTokens({ vtcBackground, customBackground, vtcLevel, use
         MuiTypography: {
             styleOverrides: {
                 h1: {
-                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
+                    fontSize: font_size === "larger" ? "1.1em" : font_size === "smaller" ? "0.9em !important" : undefined,
                 },
                 h2: {
-                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
+                    fontSize: font_size === "larger" ? "1.1em" : font_size === "smaller" ? "0.9em !important" : undefined,
                 },
                 h3: {
-                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
+                    fontSize: font_size === "larger" ? "1.1em" : font_size === "smaller" ? "0.9em !important" : undefined,
                 },
                 h4: {
-                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
+                    fontSize: font_size === "larger" ? "1.1em" : font_size === "smaller" ? "0.9em !important" : undefined,
                 },
                 h5: {
-                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
+                    fontSize: font_size === "larger" ? "1.1em" : font_size === "smaller" ? "0.9em !important" : undefined,
                 },
                 h6: {
-                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
+                    fontSize: font_size === "larger" ? "1.1em" : font_size === "smaller" ? "0.9em !important" : undefined,
                 },
                 subtitle1: {
-                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
+                    fontSize: font_size === "larger" ? "1.1em" : font_size === "smaller" ? "0.9em !important" : undefined,
                 },
                 subtitle2: {
-                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
+                    fontSize: font_size === "larger" ? "1.1em" : font_size === "smaller" ? "0.9em !important" : undefined,
                 },
                 body1: {
-                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
+                    fontSize: font_size === "larger" ? "1.1em" : font_size === "smaller" ? "0.9em !important" : undefined,
                 },
                 body2: {
-                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
+                    fontSize: font_size === "larger" ? "1.1em" : font_size === "smaller" ? "0.9em !important" : undefined,
                 },
                 button: {
-                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
+                    fontSize: font_size === "larger" ? "1.1em" : font_size === "smaller" ? "0.9em !important" : undefined,
                 },
                 caption: {
-                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
+                    fontSize: font_size === "larger" ? "1.1em" : font_size === "smaller" ? "0.9em !important" : undefined,
                 },
                 overline: {
-                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
+                    fontSize: font_size === "larger" ? "1.1em" : font_size === "smaller" ? "0.9em !important" : undefined,
                 },
                 root: {
-                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
-                }
-            }
+                    fontSize: font_size === "larger" ? "1.1em" : font_size === "smaller" ? "0.9em !important" : undefined,
+                },
+            },
         },
         MuiButton: {
             styleOverrides: {
                 root: {
-                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
-                }
-            }
+                    fontSize: font_size === "larger" ? "1.1em" : font_size === "smaller" ? "0.9em !important" : undefined,
+                },
+            },
         },
         MuiTab: {
             styleOverrides: {
                 root: {
-                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
-                }
-            }
+                    fontSize: font_size === "larger" ? "1.1em" : font_size === "smaller" ? "0.9em !important" : undefined,
+                },
+            },
         },
         MuiTableCell: {
             styleOverrides: {
                 root: {
-                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
-                }
-            }
+                    fontSize: font_size === "larger" ? "1.1em" : font_size === "smaller" ? "0.9em !important" : undefined,
+                },
+            },
         },
         MuiSvgIcon: {
             styleOverrides: {
                 root: {
-                    fontSize: (font_size === "larger" ? "1.5em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
-                }
-            }
+                    fontSize: font_size === "larger" ? "1.5em" : font_size === "smaller" ? "0.9em !important" : undefined,
+                },
+            },
         },
         MuiDialog: {
             styleOverrides: {
                 paper: {
-                    backgroundColor: bgBase[customMode].default.substring(0, 7) // no opacity
-                }
-            }
+                    backgroundColor: bgBase[customMode].default.substring(0, 7), // no opacity
+                },
+            },
         },
         MuiMenu: {
             styleOverrides: {
                 list: {
-                    backgroundColor: bgBase[customMode].default.substring(0, 7) // no opacity
-                }
-            }
+                    backgroundColor: bgBase[customMode].default.substring(0, 7), // no opacity
+                },
+            },
         },
         MuiDialogTitle: {
             styleOverrides: {
                 root: {
-                    fontWeight: "800"
-                }
-            }
+                    fontWeight: "800",
+                },
+            },
         },
         MuiTooltip: {
             styleOverrides: {
@@ -264,17 +263,17 @@ export function getDesignTokens({ vtcBackground, customBackground, vtcLevel, use
                 },
                 arrow: {
                     marginTop: 5,
-                }
+                },
             },
         },
         MuiListItemButton: {
             styleOverrides: {
                 root: {
-                    borderRadius: '5px',
-                    '&.Mui-selected': {
+                    "borderRadius": "5px",
+                    "&.Mui-selected": {
                         backgroundColor: darkenColor(bgBase[customMode].default, Math.max(darkenRatio[customMode], 0.2), use_custom_theme),
                     },
-                    '&.Mui-selected:hover': {
+                    "&.Mui-selected:hover": {
                         backgroundColor: darkenColor(bgBase[customMode].default, Math.max(darkenRatio[customMode], 0.2), use_custom_theme),
                     },
                 },
@@ -284,20 +283,20 @@ export function getDesignTokens({ vtcBackground, customBackground, vtcLevel, use
             styleOverrides: {
                 root: {
                     backgroundColor: bgBase[customMode].paper,
-                }
-            }
+                },
+            },
         },
         MuiCard: {
             styleOverrides: {
                 root: {
                     backgroundColor: darkenColor(bgBase[customMode].paper, darkenRatio[customMode], use_custom_theme),
-                }
-            }
+                },
+            },
         },
         MuiToolbar: {
             styleOverrides: {
                 root: {
-                    '& .user-profile:hover': {
+                    "& .user-profile:hover": {
                         backgroundColor: darkenColor(bgBase[customMode].default, 0.15, use_custom_theme),
                     },
                 },
@@ -308,110 +307,114 @@ export function getDesignTokens({ vtcBackground, customBackground, vtcLevel, use
                 paper: {
                     backgroundColor: bgBase[customMode].paper,
                     backgroundImage: `linear-gradient(${bgBase[customMode].paper}, ${bgBase[customMode].paper})`,
-                }
-            }
-        }
+                },
+            },
+        },
     };
 
     return {
         typography: {
-            fontFamily: 'Open Sans, sans-serif',
+            fontFamily: "Open Sans, sans-serif",
         },
         darkenRatio: darkenRatio[customMode],
         mode: mode,
         palette: {
-            mode, ...(mode === 'light'
+            mode,
+            ...(mode === "light"
                 ? {
-                    primary: {
-                        main: '#fafafa',
-                    },
-                    secondary: {
-                        main: '#dadada',
-                    },
-                    background: bgBase[customMode],
-                    text: {
-                        primary: '#3c3c3c',
-                        secondary: '#606060',
-                    },
-                }
+                      primary: {
+                          main: "#fafafa",
+                      },
+                      secondary: {
+                          main: "#dadada",
+                      },
+                      background: bgBase[customMode],
+                      text: {
+                          primary: "#3c3c3c",
+                          secondary: "#606060",
+                      },
+                  }
                 : {
-                    primary: {
-                        main: '#2F3136'
-                    },
-                    secondary: {
-                        main: '#212529'
-                    },
-                    background: bgBase[customMode],
-                    text: {
-                        primary: '#fafafa',
-                        secondary: '#efefef'
-                    },
-                })
-        }, components: {
-            mode, ...(customMode === 'light'
+                      primary: {
+                          main: "#2F3136",
+                      },
+                      secondary: {
+                          main: "#212529",
+                      },
+                      background: bgBase[customMode],
+                      text: {
+                          primary: "#fafafa",
+                          secondary: "#efefef",
+                      },
+                  }),
+        },
+        components: {
+            mode,
+            ...(customMode === "light"
                 ? {
-                    ...compoBase,
-                    MuiFormLabel: {
-                        styleOverrides: {
-                            root: {
-                                '&.Mui-focused': {
-                                    color: '#606060',
-                                },
-                            },
-                        },
-                    },
-                    MuiRadio: {
-                        styleOverrides: {
-                            root: {
-                                color: '#606060',
-                                '&.Mui-checked': {
-                                    color: '#3c3c3c',
-                                },
-                            },
-                        },
-                    },
-                    MuiCheckbox: {
-                        styleOverrides: {
-                            root: {
-                                color: '#606060',
-                                '&.Mui-checked': {
-                                    color: '#3c3c3c',
-                                },
-                            },
-                        },
-                    },
-                } : {
-                    ...compoBase,
-                    MuiFormLabel: {
-                        styleOverrides: {
-                            root: {
-                                '&.Mui-focused': {
-                                    color: '#bbbbbb',
-                                },
-                            },
-                        },
-                    },
-                    MuiRadio: {
-                        styleOverrides: {
-                            root: {
-                                color: '#efefef',
-                                '&.Mui-checked': {
-                                    color: '#fafafa',
-                                },
-                            },
-                        },
-                    },
-                    MuiCheckbox: {
-                        styleOverrides: {
-                            root: {
-                                color: '#efefef',
-                                '&.Mui-checked': {
-                                    color: '#fafafa',
-                                },
-                            },
-                        },
-                    },
-                })
+                      ...compoBase,
+                      MuiFormLabel: {
+                          styleOverrides: {
+                              root: {
+                                  "&.Mui-focused": {
+                                      color: "#606060",
+                                  },
+                              },
+                          },
+                      },
+                      MuiRadio: {
+                          styleOverrides: {
+                              root: {
+                                  "color": "#606060",
+                                  "&.Mui-checked": {
+                                      color: "#3c3c3c",
+                                  },
+                              },
+                          },
+                      },
+                      MuiCheckbox: {
+                          styleOverrides: {
+                              root: {
+                                  "color": "#606060",
+                                  "&.Mui-checked": {
+                                      color: "#3c3c3c",
+                                  },
+                              },
+                          },
+                      },
+                  }
+                : {
+                      ...compoBase,
+                      MuiFormLabel: {
+                          styleOverrides: {
+                              root: {
+                                  "&.Mui-focused": {
+                                      color: "#bbbbbb",
+                                  },
+                              },
+                          },
+                      },
+                      MuiRadio: {
+                          styleOverrides: {
+                              root: {
+                                  "color": "#efefef",
+                                  "&.Mui-checked": {
+                                      color: "#fafafa",
+                                  },
+                              },
+                          },
+                      },
+                      MuiCheckbox: {
+                          styleOverrides: {
+                              root: {
+                                  "color": "#efefef",
+                                  "&.Mui-checked": {
+                                      color: "#fafafa",
+                                  },
+                              },
+                          },
+                      },
+                  }),
         },
     };
-};
+}
