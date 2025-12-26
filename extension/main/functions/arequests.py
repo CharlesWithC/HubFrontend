@@ -18,7 +18,7 @@ class AResponse:
 class arequests:
     @classmethod
     async def request(cls, method, url, **kwargs):
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(trust_env=True) as session:
             async with session.request(method, url, **kwargs) as response:
                 content = await response.read()
                 return AResponse(response.status, response.headers, content)

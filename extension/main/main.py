@@ -1,6 +1,7 @@
 # Drivers Hub: Frontend (Extension)
 # Author: @CharlesWithC
 
+import asyncio
 import base64
 import hashlib
 import hmac
@@ -8,11 +9,9 @@ import json
 import os
 import sqlite3
 import threading
-import asyncio
 import time
-import urllib
 import uuid
-from typing import Optional
+from urllib.parse import urlparse
 
 import redis
 import uvicorn
@@ -129,8 +128,8 @@ async def getRoles():
 
 @app.get("/proxy")
 async def getTruckersMPProxy(request: Request, url: str):
-    domain = urllib.parse.urlparse(url).netloc
-    if domain not in ["api.truckersmp.com", "drivershub.charlws.com", "drivershub05.charlws.com", "drivershub10.charlws.com"]:
+    domain = urlparse(url).netloc
+    if domain not in ["api.truckersmp.com", "drivershub.charlws.com", "api.chub.page"]:
         return Response(status_code=403)
     headers = { "User-Agent": "The Drivers Hub Project (CHub)" }
     r = await arequests.get(url, headers=headers)
@@ -559,7 +558,7 @@ async def getManifest(request: Request, response: Response):
     if referer is None:
         return DEFAULT_MANIFEST
     else:
-        domain = urllib.parse.urlparse(referer).netloc
+        domain = urlparse(referer).netloc
     
     if not os.path.exists(f"/var/hub/config/{domain}.json"):
         return DEFAULT_MANIFEST
