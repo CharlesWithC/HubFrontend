@@ -68,27 +68,37 @@ const Members = () => {
         return groups;
     }, [roles, allMembers]);
 
-    return (<div style={{ width: "100%" }}>
-        {groups.map((group) => (<div key={group.group}>
-            <Tooltip placement="top" arrow title={group.description !== undefined ? group.description : tr("no_description")}
-                PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-                <Typography variant="h5" align="center" sx={{ margin: '16px 0' }}>
-                    <b style={group.color !== undefined ? { color: group.color } : {}}>{group.group}</b>
-                </Typography>
-            </Tooltip>
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <Grid container spacing={2} justifyContent="center">
-                    {group.uids.map((uid) => (
-                        <Grid item key={`${group.group}-${uid}`} xs={6} sm={6} md={4} lg={2} sx={{ minWidth: 150 }}>
-                            <LargeUserCard user={users[uid]} />
-                        </Grid>
-                    ))}
-                </Grid>
-            </div >
-        </div>
-        ))
-        }
-    </div >);
+    return (
+        <div style={{ width: "100%" }}>
+            {groups.map((group) => (<div key={group.group}>
+                <Tooltip placement="top" arrow title={group.description !== undefined ? group.description : tr("no_description")}
+                    PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                    <Typography variant="h5" align="center" sx={{ margin: '16px 0' }}>
+                        <b style={group.color !== undefined ? { color: group.color } : {}}>{group.group}</b>
+                    </Typography>
+                </Tooltip>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <Grid container spacing={2} justifyContent="center">
+                        {group.uids.map((uid) => (
+                            <Grid
+                                key={`${group.group}-${uid}`}
+                                sx={{ minWidth: 150 }}
+                                size={{
+                                    xs: 6,
+                                    sm: 6,
+                                    md: 4,
+                                    lg: 2
+                                }}>
+                                <LargeUserCard user={users[uid]} />
+                            </Grid>
+                        ))}
+                    </Grid>
+                </div >
+            </div>
+            ))
+            }
+        </div >
+    );
 };
 
 export default Members;

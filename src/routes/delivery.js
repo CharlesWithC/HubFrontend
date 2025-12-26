@@ -6,7 +6,7 @@ import { AppContext } from '../context';
 import { Grid, Chip, Card, CardContent, Typography, LinearProgress, IconButton, SpeedDial, SpeedDialAction, SpeedDialIcon, Button, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, TextareaAutosize, Radio, RadioGroup, FormControlLabel, MenuItem, TextField, Snackbar, Alert, useTheme, Tooltip } from '@mui/material';
 import { Timeline, TimelineItem, TimelineSeparator, TimelineConnector, TimelineContent, TimelineDot } from '@mui/lab';
 import { LocalShippingRounded, InfoRounded, ChecklistRounded, FlagRounded, CloseRounded, GavelRounded, TollRounded, DirectionsBoatRounded, TrainRounded, CarCrashRounded, BuildRounded, LocalGasStationRounded, FlightTakeoffRounded, SpeedRounded, RefreshRounded, WarehouseRounded, DeleteRounded, Verified, VerifiedOutlined } from '@mui/icons-material';
-import { Portal } from '@mui/base';
+import Portal from '@mui/material/Portal';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStamp } from '@fortawesome/free-solid-svg-icons';
@@ -396,163 +396,194 @@ const DeliveryDetail = memo(({ divisions, userDivisionIDs, doReload, divisionMet
         doLoad();
     }, [apiPath, logid, theme, doReload, divisions]);
 
-    return (<>
-        {dlog.logid === undefined &&
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="h5" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                    <LocalShippingRounded sx={{ mt: "3px" }} />&nbsp;&nbsp;<>{tr("delivery")}</> #{logid}
-                </Typography>
-            </div>}
-        {dlog.logid !== undefined && <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="h5" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                    <LocalShippingRounded sx={{ mt: "3px" }} />&nbsp;&nbsp;<>{tr("delivery")}</> #{logid}&nbsp;
-                    {divisionMeta !== null && divisionMeta.status !== undefined && divisionMeta.status !== 2 ? <Tooltip placement="top" arrow title={divisionMeta.status === 1 ? tr("validated_division_delivery") : tr("pending_division_delivery")}
-                        PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-                        <VerifiedOutlined sx={{ color: divisionMeta.status === 1 ? theme.palette.info.main : theme.palette.grey[400], fontSize: "1.2em", mt: "3px" }} />
-                    </Tooltip> : <></>}&nbsp;
-                    {dlog.challenge.length !== 0 ? <Tooltip placement="top" arrow title={`Challenge Delivery (${dlog.challenge.map((challenge) => (`#${challenge.challengeid} ${challenge.name}`)).join(", ")})`}
-                        PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-                        <FontAwesomeIcon icon={faStamp} style={{ color: theme.palette.warning.main, fontSize: "1em", marginTop: "3px" }} />
-                    </Tooltip> : <></>}
-                </Typography>
-                <Typography variant="h5"><UserCard user={dlog.user} inline={true} /></Typography>
-            </div>
-            <div style={{ display: 'flex', marginTop: "10px" }}>
-                <Grid container spacing={2}>
-                    <Grid item xs={12} sm={12} md={3} lg={3}>
-                        <Card>
-                            <CardContent style={{ textAlign: 'center' }}>
-                                <Typography variant="h6" component="div">
-                                    <b>{dlogDetail.source_company.name}</b>
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary" component="div">
-                                    {dlogDetail.source_city.name}
-                                </Typography>
-                            </CardContent>
-                        </Card>
-                    </Grid>
+    return (
+        <>
+            {dlog.logid === undefined &&
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography variant="h5" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
+                        <LocalShippingRounded sx={{ mt: "3px" }} />&nbsp;&nbsp;<>{tr("delivery")}</> #{logid}
+                    </Typography>
+                </div>}
+            {dlog.logid !== undefined && <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography variant="h5" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
+                        <LocalShippingRounded sx={{ mt: "3px" }} />&nbsp;&nbsp;<>{tr("delivery")}</> #{logid}&nbsp;
+                        {divisionMeta !== null && divisionMeta.status !== undefined && divisionMeta.status !== 2 ? <Tooltip placement="top" arrow title={divisionMeta.status === 1 ? tr("validated_division_delivery") : tr("pending_division_delivery")}
+                            PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                            <VerifiedOutlined sx={{ color: divisionMeta.status === 1 ? theme.palette.info.main : theme.palette.grey[400], fontSize: "1.2em", mt: "3px" }} />
+                        </Tooltip> : <></>}&nbsp;
+                        {dlog.challenge.length !== 0 ? <Tooltip placement="top" arrow title={`Challenge Delivery (${dlog.challenge.map((challenge) => (`#${challenge.challengeid} ${challenge.name}`)).join(", ")})`}
+                            PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                            <FontAwesomeIcon icon={faStamp} style={{ color: theme.palette.warning.main, fontSize: "1em", marginTop: "3px" }} />
+                        </Tooltip> : <></>}
+                    </Typography>
+                    <Typography variant="h5"><UserCard user={dlog.user} inline={true} /></Typography>
+                </div>
+                <div style={{ display: 'flex', marginTop: "10px" }}>
+                    <Grid container spacing={2}>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                sm: 12,
+                                md: 3,
+                                lg: 3
+                            }}>
+                            <Card>
+                                <CardContent style={{ textAlign: 'center' }}>
+                                    <Typography variant="h6" component="div">
+                                        <b>{dlogDetail.source_company.name}</b>
+                                    </Typography>
+                                    <Typography variant="body2" color="textSecondary" component="div">
+                                        {dlogDetail.source_city.name}
+                                    </Typography>
+                                </CardContent>
+                            </Card>
+                        </Grid>
 
-                    <Grid item xs={12} sm={12} md={6} lg={6}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-                            <Typography variant="body1" component="div" sx={{ marginTop: "4px" }}>
-                                {`${dlogDetail.cargo.name} (${ConvertUnit(userSettings.unit, "kg", dlogDetail.cargo.mass)})`}
-                            </Typography>
-
-                            <LinearProgress
-                                variant="determinate"
-                                value={0}
-                                color="primary"
-                                sx={{
-                                    width: '90%',
-                                    margin: '4px',
-                                    backgroundColor: theme.palette.text.secondary
-                                }}
-                            />
-
-                            <Typography variant="body2" component="div" style={{ textAlign: 'center' }}>
-                                {ConvertUnit(userSettings.unit, "km", dlogDetail.driven_distance)}<br />
-                                {CalcInterval(new Date(dlogDetail.start_time), new Date(dlogDetail.stop_time))}
-                            </Typography>
-                        </div>
-                    </Grid>
-
-                    <Grid item xs={12} sm={12} md={3} lg={3}>
-                        <Card>
-                            <CardContent style={{ textAlign: 'center' }}>
-                                <Typography variant="h6" component="div">
-                                    <b>{dlogDetail.destination_company.name}</b>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                sm: 12,
+                                md: 6,
+                                lg: 6
+                            }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+                                <Typography variant="body1" component="div" sx={{ marginTop: "4px" }}>
+                                    {`${dlogDetail.cargo.name} (${ConvertUnit(userSettings.unit, "kg", dlogDetail.cargo.mass)})`}
                                 </Typography>
-                                <Typography variant="body2" color="textSecondary" component="div">
-                                    {dlogDetail.destination_city.name}
+
+                                <LinearProgress
+                                    variant="determinate"
+                                    value={0}
+                                    color="primary"
+                                    sx={{
+                                        width: '90%',
+                                        margin: '4px',
+                                        backgroundColor: theme.palette.text.secondary
+                                    }}
+                                />
+
+                                <Typography variant="body2" component="div" style={{ textAlign: 'center' }}>
+                                    {ConvertUnit(userSettings.unit, "km", dlogDetail.driven_distance)}<br />
+                                    {CalcInterval(new Date(dlogDetail.start_time), new Date(dlogDetail.stop_time))}
                                 </Typography>
-                            </CardContent>
-                        </Card>
+                            </div>
+                        </Grid>
+
+                        <Grid
+                            size={{
+                                xs: 12,
+                                sm: 12,
+                                md: 3,
+                                lg: 3
+                            }}>
+                            <Card>
+                                <CardContent style={{ textAlign: 'center' }}>
+                                    <Typography variant="h6" component="div">
+                                        <b>{dlogDetail.destination_company.name}</b>
+                                    </Typography>
+                                    <Typography variant="body2" color="textSecondary" component="div">
+                                        {dlogDetail.destination_city.name}
+                                    </Typography>
+                                </CardContent>
+                            </Card>
+                        </Grid>
                     </Grid>
-                </Grid>
-            </div>
-            <div style={{ display: 'flex', marginTop: "20px" }}>
-                <Grid container spacing={2}>
-                    <Grid item xs={12} sm={12} md={6} lg={8}>
-                        {dlogMap !== null && <TileMap title={dlogRoute !== undefined && dlogRoute !== null && dlogRoute.length !== 0 ? tr("delivery_route") : <><span style={{ color: theme.palette.error.main }}>{tr("delivery_route_not_available")}</span>{dlog.telemetry === "" && <><br />{tr("you_may_try_to_reload_it_in_detailed_info_modal")}</>}</>} tilesUrl={dlogMap} route={dlogRoute} style={{ height: "100%", minHeight: "380px" }} />}
-                    </Grid>
-                    <Grid item xs={12} sm={12} md={6} lg={4}>
-                        <Card sx={{ paddingBottom: "15px" }}>
-                            <CardContent style={{ textAlign: 'center' }}>
-                                <Typography variant="h5" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                                    <ChecklistRounded />&nbsp;&nbsp;{tr("events")}</Typography>
-                            </CardContent>
-                            <SimpleBar style={{ minHeight: "380px", height: "calc(100vh - 360px)" }}>
-                                <Timeline position="alternate">
-                                    {dlogDetail.events.map((e, idx) => {
-                                        let desc = null;
-                                        if (e.type === "fine") {
-                                            desc = <>{FINE_DESC[e.meta.offence]}</>;
-                                            if (e.meta.offence === "speeding" || e.meta.offence === "speeding_camera") {
-                                                desc = <>{desc}<br /><>{tr("speed")}</>: {ConvertUnit(userSettings.unit, "km", e.meta.speed * 3.6)}/h<br /><>{tr("limit")}</>: {ConvertUnit(userSettings.unit, "km", e.meta.speed_limit * 3.6)}/h</>;
+                </div>
+                <div style={{ display: 'flex', marginTop: "20px" }}>
+                    <Grid container spacing={2}>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                sm: 12,
+                                md: 6,
+                                lg: 8
+                            }}>
+                            {dlogMap !== null && <TileMap title={dlogRoute !== undefined && dlogRoute !== null && dlogRoute.length !== 0 ? tr("delivery_route") : <><span style={{ color: theme.palette.error.main }}>{tr("delivery_route_not_available")}</span>{dlog.telemetry === "" && <><br />{tr("you_may_try_to_reload_it_in_detailed_info_modal")}</>}</>} tilesUrl={dlogMap} route={dlogRoute} style={{ height: "100%", minHeight: "380px" }} />}
+                        </Grid>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                sm: 12,
+                                md: 6,
+                                lg: 4
+                            }}>
+                            <Card sx={{ paddingBottom: "15px" }}>
+                                <CardContent style={{ textAlign: 'center' }}>
+                                    <Typography variant="h5" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
+                                        <ChecklistRounded />&nbsp;&nbsp;{tr("events")}</Typography>
+                                </CardContent>
+                                <SimpleBar style={{ minHeight: "380px", height: "calc(100vh - 360px)" }}>
+                                    <Timeline position="alternate">
+                                        {dlogDetail.events.map((e, idx) => {
+                                            let desc = null;
+                                            if (e.type === "fine") {
+                                                desc = <>{FINE_DESC[e.meta.offence]}</>;
+                                                if (e.meta.offence === "speeding" || e.meta.offence === "speeding_camera") {
+                                                    desc = <>{desc}<br /><>{tr("speed")}</>: {ConvertUnit(userSettings.unit, "km", e.meta.speed * 3.6)}/h<br /><>{tr("limit")}</>: {ConvertUnit(userSettings.unit, "km", e.meta.speed_limit * 3.6)}/h</>;
+                                                }
+                                                desc = <>{desc}<br />{tr("paid")}{CURRENTY_ICON[dlogDetail.game.short_name]}{e.meta.amount}</>;
+                                            } else if (e.type === "tollgate") {
+                                                desc = <>{tr("paid")}{CURRENTY_ICON[dlogDetail.game.short_name]}{e.meta.cost}</>;
+                                            } else if (e.type === "ferry" || e.type === "train") {
+                                                desc = <>{tr("from")}{e.meta.source_name}<br />{tr("to")}{e.meta.target_name}<br />{tr("paid")}{CURRENTY_ICON[dlogDetail.game.short_name]}{e.meta.cost}</>;
+                                            } else if (e.type === "refuel") {
+                                                desc = <>{tr("paid")}{CURRENTY_ICON[dlogDetail.game.short_name]}{parseInt(e.meta.amount)}</>;
+                                            } else if (e.type === "speeding") {
+                                                desc = <><>{tr("max_speed")}</>: {ConvertUnit(userSettings.unit, "km", e.meta.max_speed * 3.6)}/h<br /><>{tr("limit")}</>: {ConvertUnit(userSettings.unit, "km", e.meta.speed_limit * 3.6)}/h</>;
                                             }
-                                            desc = <>{desc}<br />{tr("paid")}{CURRENTY_ICON[dlogDetail.game.short_name]}{e.meta.amount}</>;
-                                        } else if (e.type === "tollgate") {
-                                            desc = <>{tr("paid")}{CURRENTY_ICON[dlogDetail.game.short_name]}{e.meta.cost}</>;
-                                        } else if (e.type === "ferry" || e.type === "train") {
-                                            desc = <>{tr("from")}{e.meta.source_name}<br />{tr("to")}{e.meta.target_name}<br />{tr("paid")}{CURRENTY_ICON[dlogDetail.game.short_name]}{e.meta.cost}</>;
-                                        } else if (e.type === "refuel") {
-                                            desc = <>{tr("paid")}{CURRENTY_ICON[dlogDetail.game.short_name]}{parseInt(e.meta.amount)}</>;
-                                        } else if (e.type === "speeding") {
-                                            desc = <><>{tr("max_speed")}</>: {ConvertUnit(userSettings.unit, "km", e.meta.max_speed * 3.6)}/h<br /><>{tr("limit")}</>: {ConvertUnit(userSettings.unit, "km", e.meta.speed_limit * 3.6)}/h</>;
-                                        }
-                                        return (
-                                            <TimelineItem key={idx}>
-                                                <TimelineSeparator>
-                                                    <TimelineConnector />
-                                                    <TimelineDot variant="outlined" sx={{ color: EVENT_COLOR[e.type] }}>
-                                                        {EVENT_ICON[e.type]}
-                                                    </TimelineDot>
-                                                    <TimelineConnector />
-                                                </TimelineSeparator>
-                                                <TimelineContent sx={{ py: '12px', px: 2 }}>
-                                                    <Typography variant="h6" component="span">
-                                                        {EVENT_NAME[e.type]}
-                                                    </Typography>
-                                                    <Typography>{desc !== null ? <>{desc}<br /></> : <></>}<span style={{ color: "grey" }}>{CalcInterval(new Date(dlogDetail.events[0].real_time), new Date(e.real_time))}</span></Typography>
-                                                </TimelineContent>
-                                            </TimelineItem>
-                                        );
-                                    })}
-                                </Timeline>
-                            </SimpleBar>
-                        </Card>
+                                            return (
+                                                <TimelineItem key={idx}>
+                                                    <TimelineSeparator>
+                                                        <TimelineConnector />
+                                                        <TimelineDot variant="outlined" sx={{ color: EVENT_COLOR[e.type] }}>
+                                                            {EVENT_ICON[e.type]}
+                                                        </TimelineDot>
+                                                        <TimelineConnector />
+                                                    </TimelineSeparator>
+                                                    <TimelineContent sx={{ py: '12px', px: 2 }}>
+                                                        <Typography variant="h6" component="span">
+                                                            {EVENT_NAME[e.type]}
+                                                        </Typography>
+                                                        <Typography>{desc !== null ? <>{desc}<br /></> : <></>}<span style={{ color: "grey" }}>{CalcInterval(new Date(dlogDetail.events[0].real_time), new Date(e.real_time))}</span></Typography>
+                                                    </TimelineContent>
+                                                </TimelineItem>
+                                            );
+                                        })}
+                                    </Timeline>
+                                </SimpleBar>
+                            </Card>
+                        </Grid>
                     </Grid>
-                </Grid>
-            </div>
-            {listModalItems.length !== 0 && <ListModal title={tr("delivery_log")} items={listModalItems} data={dlogDetail} open={listModalOpen} onClose={handleCloseDetail} />}
-        </div>}
-        <SpeedDial
-            ariaLabel={tr("controls")}
-            sx={{ position: 'fixed', bottom: 20, right: 20 }}
-            icon={<SpeedDialIcon />}
-        >
-            {dlog.logid !== undefined &&
-                <SpeedDialAction
-                    key="details"
-                    tooltipTitle={tr("details")}
-                    icon={<InfoRounded />}
-                    onClick={handleDetail} />}
-            {dlog.logid !== undefined && divisionMeta !== null && ((checkUserPerm(curUserPerm, ["administrator", "manage_divisions"]) && localDivisionStatus !== -1) || (dlog.user.userid === curUser.userid && userDivisionIDs.length !== 0)) && <SpeedDialAction
-                key="division"
-                tooltipTitle={tr("division")}
-                icon={<WarehouseRounded />}
-                onClick={handleDivision}
-            />}
-            {(checkUserPerm(curUserPerm, ["administrator", "delete_dlogs"])) &&
-                <SpeedDialAction
-                    key="delete"
-                    tooltipTitle={tr("delete")}
-                    icon={<DeleteRounded />}
-                    onClick={handleDeleteOpen}
+                </div>
+                {listModalItems.length !== 0 && <ListModal title={tr("delivery_log")} items={listModalItems} data={dlogDetail} open={listModalOpen} onClose={handleCloseDetail} />}
+            </div>}
+            <SpeedDial
+                ariaLabel={tr("controls")}
+                sx={{ position: 'fixed', bottom: 20, right: 20 }}
+                icon={<SpeedDialIcon />}
+            >
+                {dlog.logid !== undefined &&
+                    <SpeedDialAction
+                        key="details"
+                        tooltipTitle={tr("details")}
+                        icon={<InfoRounded />}
+                        onClick={handleDetail} />}
+                {dlog.logid !== undefined && divisionMeta !== null && ((checkUserPerm(curUserPerm, ["administrator", "manage_divisions"]) && localDivisionStatus !== -1) || (dlog.user.userid === curUser.userid && userDivisionIDs.length !== 0)) && <SpeedDialAction
+                    key="division"
+                    tooltipTitle={tr("division")}
+                    icon={<WarehouseRounded />}
+                    onClick={handleDivision}
                 />}
-        </SpeedDial>
-    </>
+                {(checkUserPerm(curUserPerm, ["administrator", "delete_dlogs"])) &&
+                    <SpeedDialAction
+                        key="delete"
+                        tooltipTitle={tr("delete")}
+                        icon={<DeleteRounded />}
+                        onClick={handleDeleteOpen}
+                    />}
+            </SpeedDial>
+        </>
     );
 });
 

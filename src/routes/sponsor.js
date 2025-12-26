@@ -15,7 +15,7 @@ const UpgradeCard = () => {
 
     return (
         <Grid container spacing={2} justifyContent="center">
-            <Grid item xs={12}>
+            <Grid size={12}>
                 <Card>
                     <CardHeader
                         title={tr("become_a_sponsor")}
@@ -25,7 +25,13 @@ const UpgradeCard = () => {
                     />
                 </Card>
             </Grid>
-            <Grid item xs={12} sm={12} md={6} lg={3}>
+            <Grid
+                size={{
+                    xs: 12,
+                    sm: 12,
+                    md: 6,
+                    lg: 3
+                }}>
                 <Card>
                     <CardHeader
                         title={tr("bronze_sponsor")}
@@ -48,7 +54,13 @@ const UpgradeCard = () => {
                     </CardContent>
                 </Card>
             </Grid>
-            <Grid item xs={12} sm={12} md={6} lg={3}>
+            <Grid
+                size={{
+                    xs: 12,
+                    sm: 12,
+                    md: 6,
+                    lg: 3
+                }}>
                 <Card>
                     <CardHeader
                         title={tr("silver_sponsor")}
@@ -71,7 +83,13 @@ const UpgradeCard = () => {
                     </CardContent>
                 </Card>
             </Grid>
-            <Grid item xs={12} sm={12} md={6} lg={3}>
+            <Grid
+                size={{
+                    xs: 12,
+                    sm: 12,
+                    md: 6,
+                    lg: 3
+                }}>
                 <Card>
                     <CardHeader
                         title={tr("gold_sponsor")}
@@ -97,7 +115,13 @@ const UpgradeCard = () => {
                     </CardContent>
                 </Card>
             </Grid>
-            <Grid item xs={12} sm={12} md={6} lg={3}>
+            <Grid
+                size={{
+                    xs: 12,
+                    sm: 12,
+                    md: 6,
+                    lg: 3
+                }}>
                 <Card>
                     <CardHeader
                         title={tr("platinum_sponsor")}

@@ -29,7 +29,7 @@ import { AppContext } from '../context';
 
 import { Avatar, Chip, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions, Button, Snackbar, Alert, Grid, TextField, Typography, ListItemIcon, Box, ButtonGroup, Divider, FormControl, FormLabel, Popover, Card, CardContent, CardMedia, IconButton, Tooltip, Tabs, Tab, useTheme } from "@mui/material";
 import { RouteRounded, LocalGasStationRounded, EuroRounded, AttachMoneyRounded, VerifiedOutlined } from "@mui/icons-material";
-import { Portal } from '@mui/base';
+import Portal from '@mui/material/Portal';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUserSlash, faTrashCan, faBan, faCircleCheck, faUserCheck, faTruck, faBarsStaggered, faHashtag, faComment, faNoteSticky, faPencil, faScrewdriverWrench, faCrown, faClover, faAt, faFingerprint, faEarthAmericas, faInfoCircle, faClockRotateLeft, faRoad, faStamp } from '@fortawesome/free-solid-svg-icons';
@@ -925,7 +925,7 @@ const UserCard = (props) => {
                                 </Typography>
                             </>}
                             <Grid container sx={{ mt: "10px" }}>
-                                <Grid item xs={6}>
+                                <Grid size={6}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>
                                         {user.userid !== null && user.userid !== -1 ? `MEMBER` : `USER`} {tr("since").toUpperCase()}
                                     </Typography>
@@ -933,7 +933,7 @@ const UserCard = (props) => {
                                         <TimeDelta timestamp={users[user.uid].join_timestamp * 1000} rough={true} />
                                     </Typography>}
                                 </Grid>
-                                <Grid item xs={6}>
+                                <Grid size={6}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>
                                         {tr("tracker").toUpperCase()}
                                     </Typography>
@@ -1002,7 +1002,13 @@ const UserCard = (props) => {
                             <Divider />
                             <Box sx={{ mt: "10px" }}>
                                 <Grid container spacing={2}>
-                                    {user.email !== undefined && user.email !== null && <Grid item xs={12} sm={12} md={6} lg={6}>
+                                    {user.email !== undefined && user.email !== null && <Grid
+                                        size={{
+                                            xs: 12,
+                                            sm: 12,
+                                            md: 6,
+                                            lg: 6
+                                        }}>
                                         <a href={`mailto:${user.email}`} target="_blank" rel="noreferrer"><Chip
                                             avatar={<Tooltip placement="top" arrow title={tr("email")}
                                                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><FontAwesomeIcon icon={faAt} /></Tooltip>}
@@ -1022,7 +1028,13 @@ const UserCard = (props) => {
                                             }}
                                         /></a>
                                     </Grid>}
-                                    {user.discordid !== undefined && user.discordid !== null && <Grid item xs={12} sm={12} md={6} lg={6}>
+                                    {user.discordid !== undefined && user.discordid !== null && <Grid
+                                        size={{
+                                            xs: 12,
+                                            sm: 12,
+                                            md: 6,
+                                            lg: 6
+                                        }}>
                                         <a href={`https://discord.com/users/${user.discordid}`} target="_blank" rel="noreferrer"><Chip
                                             avatar={<Tooltip placement="top" arrow title="Discord"
                                                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><FontAwesomeIcon icon={faDiscord} /></Tooltip>}
@@ -1042,7 +1054,13 @@ const UserCard = (props) => {
                                             }}
                                         /></a>
                                     </Grid>}
-                                    {user.steamid !== undefined && user.steamid !== null && <Grid item xs={12} sm={12} md={6} lg={6}>
+                                    {user.steamid !== undefined && user.steamid !== null && <Grid
+                                        size={{
+                                            xs: 12,
+                                            sm: 12,
+                                            md: 6,
+                                            lg: 6
+                                        }}>
                                         <a href={`https://steamcommunity.com/profiles/${user.steamid}`} target="_blank" rel="noreferrer"><Chip
                                             avatar={<Tooltip placement="top" arrow title="Steam"
                                                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><FontAwesomeIcon icon={faSteam} /></Tooltip>}
@@ -1062,7 +1080,13 @@ const UserCard = (props) => {
                                             }}
                                         /></a>
                                     </Grid>}
-                                    {user.truckersmpid !== undefined && user.truckersmpid !== null && <Grid item xs={12} sm={12} md={6} lg={6}>
+                                    {user.truckersmpid !== undefined && user.truckersmpid !== null && <Grid
+                                        size={{
+                                            xs: 12,
+                                            sm: 12,
+                                            md: 6,
+                                            lg: 6
+                                        }}>
                                         <a href={`https://truckersmp.com/user/${user.truckersmpid}`} target="_blank" rel="noreferrer"><Chip
                                             avatar={<Tooltip placement="top" arrow title="TruckersMP"
                                                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><img src="data:image/webp;base64,UklGRugCAABXRUJQVlA4TNwCAAAvH8AHEK/CMADQJIDd/f9XXtG6zQJ5g5UkSaZ6Fs/m6d7x36+tGYdtJClSbx/zPeWf1WfB/wvSDTittm1Znt8VJzvJvXliABpTMAwD0J1GdEkOAxDdXQMAAPAnIpDCn38xAEACwCh8rewUqmCXX+/KrgNAVHGDOh52b6q6J/lxDborLlOBZtX1+z1kxpg08Iizm8v5YzFaikk8QF66zAFYmO/vZJFdsDfeyX/AvWn5yaH+2c4miHpe5LXzl12uB9gV/Nohq8BKgnkj7BehcDAdP/mNEFYwCXF9EVU3o4sv6Nrzd6hun8Y9cezrq0yXPRL1sd8NAtPaUKCMwh6haeqh05pir6+RYlqsacjlL7raXJ7MCd82m1h1IXJZIU2np+t86LQpT/GehuOVFPux24tA6Pimzoz9PQAIsm2nbb6sMJNSxjDJDGFmpv2vxRQ5O4joPwO3bRtJ3bfvfJ+AZyVPrpCnqnNb9rlRJPP1/8TIn/kpN6jseRR5KTRFWaTUYw28lEVJoJTyvLeaKYi0nG+IlPcCgdBbQym/hJJVyRMEAp986zMC4MJD/ZYbL1nIumHW4KfcSAEh3nlp8W/2IcQTJAuxilIIAIFHDSsDP3LzFbIAj5qH+QiGU1WlErb7YCCScr9350rAykClSeVCPPP69VMs/FV4h2CNspGUnQFJEqnQrDZbVFSq738idQCRc3fzpyiKLEuU8qIkOj64LLmaWA8bBaH09/v7V7EH1HG7lFIXe854L9yHuqYZ84+aQpnCspP7bWNky2n3kiJKDCGdW6icNjmZTlQOb0rNOkNIjDDS09vuoLu+aQjPF3OGgQHCanrcux1ug8kBYcQ0pmPUvfRuOtJu3YOBMMfSAm/Hqy7CyNhN1ggzDRtYjfd3hoV+6KdU9hT2vVF0OjparGbj8NDosAQSDEGkt7pNjrteFAJ+lz6XhAAQuA6Hs1HvCsTrb0rAt1/uHYFlSgA=" /></Tooltip>}
@@ -1091,79 +1115,199 @@ const UserCard = (props) => {
                         </TabPanel>
                         <TabPanel value={tab} index={1}>
                             {chartStats && <Grid container spacing={2}>
-                                <Grid item xs={12} sm={12} md={6} lg={6}>
+                                <Grid
+                                    size={{
+                                        xs: 12,
+                                        sm: 12,
+                                        md: 6,
+                                        lg: 6
+                                    }}>
                                     <StatCard icon={<RouteRounded />} title={tr("distance")} inputs={chartStats.distance} size="small" height="75px" />
                                 </Grid>
-                                <Grid item xs={12} sm={12} md={6} lg={6}>
+                                <Grid
+                                    size={{
+                                        xs: 12,
+                                        sm: 12,
+                                        md: 6,
+                                        lg: 6
+                                    }}>
                                     <StatCard icon={<LocalGasStationRounded />} title={tr("fuel")} inputs={chartStats.fuel} size="small" height="75px" />
                                 </Grid>
-                                <Grid item xs={12} sm={12} md={6} lg={6}>
+                                <Grid
+                                    size={{
+                                        xs: 12,
+                                        sm: 12,
+                                        md: 6,
+                                        lg: 6
+                                    }}>
                                     <StatCard icon={<EuroRounded />} title={tr("profit_ets2")} inputs={chartStats.profit_euro} size="small" height="75px" />
                                 </Grid>
-                                <Grid item xs={12} sm={12} md={6} lg={6}>
+                                <Grid
+                                    size={{
+                                        xs: 12,
+                                        sm: 12,
+                                        md: 6,
+                                        lg: 6
+                                    }}>
                                     <StatCard icon={<AttachMoneyRounded />} title={tr("profit_ats")} inputs={chartStats.profit_dollar} size="small" height="75px" />
                                 </Grid>
                             </Grid>}
                             {overallStats && overallStats.job && <Grid container spacing={2} sx={{ mt: "5px" }}>
-                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                <Grid
+                                    size={{
+                                        xs: 4,
+                                        sm: 4,
+                                        md: 4,
+                                        lg: 4
+                                    }}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("total_jobs_submitted")}</Typography>
                                     <Typography variant="body2">{TSep(overallStats.job.all.sum.tot)}</Typography>
                                 </Grid>
-                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                <Grid
+                                    size={{
+                                        xs: 4,
+                                        sm: 4,
+                                        md: 4,
+                                        lg: 4
+                                    }}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("ets2")}</Typography>
                                     <Typography variant="body2">{TSep(overallStats.job.all.ets2.tot)}</Typography>
                                 </Grid>
-                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                <Grid
+                                    size={{
+                                        xs: 4,
+                                        sm: 4,
+                                        md: 4,
+                                        lg: 4
+                                    }}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("ats")}</Typography>
                                     <Typography variant="body2">{TSep(overallStats.job.all.ats.tot)}</Typography>
                                 </Grid>
-                                <Grid item xs={4} sm={4} md={4} lg={4}></Grid>
-                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                <Grid
+                                    size={{
+                                        xs: 4,
+                                        sm: 4,
+                                        md: 4,
+                                        lg: 4
+                                    }}></Grid>
+                                <Grid
+                                    size={{
+                                        xs: 4,
+                                        sm: 4,
+                                        md: 4,
+                                        lg: 4
+                                    }}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("delivered")}</Typography>
                                     <Typography variant="body2">{TSep(overallStats.job.delivered.sum.tot)}</Typography>
                                 </Grid>
-                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                <Grid
+                                    size={{
+                                        xs: 4,
+                                        sm: 4,
+                                        md: 4,
+                                        lg: 4
+                                    }}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("cancelled")}</Typography>
                                     <Typography variant="body2">{TSep(overallStats.job.cancelled.sum.tot)}</Typography>
                                 </Grid>
-                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                <Grid
+                                    size={{
+                                        xs: 4,
+                                        sm: 4,
+                                        md: 4,
+                                        lg: 4
+                                    }}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("total_distance_driven")}</Typography>
                                     <Typography variant="body2">{ConvertUnit(userSettings.unit, "km", overallStats.distance.all.sum.tot)}</Typography>
                                 </Grid>
-                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                <Grid
+                                    size={{
+                                        xs: 4,
+                                        sm: 4,
+                                        md: 4,
+                                        lg: 4
+                                    }}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("ets2")}</Typography>
                                     <Typography variant="body2">{ConvertUnit(userSettings.unit, "km", overallStats.distance.all.ets2.tot)}</Typography>
                                 </Grid>
-                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                <Grid
+                                    size={{
+                                        xs: 4,
+                                        sm: 4,
+                                        md: 4,
+                                        lg: 4
+                                    }}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("ats")}</Typography>
                                     <Typography variant="body2">{ConvertUnit(userSettings.unit, "km", overallStats.distance.all.ats.tot)}</Typography>
                                 </Grid>
-                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                <Grid
+                                    size={{
+                                        xs: 4,
+                                        sm: 4,
+                                        md: 4,
+                                        lg: 4
+                                    }}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("total_fuel_consumed")}</Typography>
                                     <Typography variant="body2">{ConvertUnit(userSettings.unit, "l", overallStats.fuel.all.sum.tot)}</Typography>
                                 </Grid>
-                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                <Grid
+                                    size={{
+                                        xs: 4,
+                                        sm: 4,
+                                        md: 4,
+                                        lg: 4
+                                    }}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("ets2")}</Typography>
                                     <Typography variant="body2">{ConvertUnit(userSettings.unit, "l", overallStats.fuel.all.ets2.tot)}</Typography>
                                 </Grid>
-                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                <Grid
+                                    size={{
+                                        xs: 4,
+                                        sm: 4,
+                                        md: 4,
+                                        lg: 4
+                                    }}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("ats")}</Typography>
                                     <Typography variant="body2">{ConvertUnit(userSettings.unit, "l", overallStats.fuel.all.ats.tot)}</Typography>
                                 </Grid>
-                                <Grid item xs={6} sm={6} md={6} lg={6}>
+                                <Grid
+                                    size={{
+                                        xs: 6,
+                                        sm: 6,
+                                        md: 6,
+                                        lg: 6
+                                    }}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("ets2_profit")}</Typography>
                                     <Typography variant="body2">{"€" + TSep(overallStats.profit.all.tot.euro)}</Typography>
                                 </Grid>
-                                <Grid item xs={6} sm={6} md={6} lg={6}>
+                                <Grid
+                                    size={{
+                                        xs: 6,
+                                        sm: 6,
+                                        md: 6,
+                                        lg: 6
+                                    }}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("ats_profit")}</Typography>
                                     <Typography variant="body2">{"$" + TSep(overallStats.profit.all.tot.dollar)}</Typography>
                                 </Grid>
                                 {detailStats && detailStats.truck.length >= 1 && detailStats.cargo.length >= 1 && <>
-                                    <Grid item xs={6} sm={6} md={6} lg={6}>
+                                    <Grid
+                                        size={{
+                                            xs: 6,
+                                            sm: 6,
+                                            md: 6,
+                                            lg: 6
+                                        }}>
                                         <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("most_driven_truck")}</Typography>
                                         <Typography variant="body2">{detailStats.truck[0].name} ({detailStats.truck[0].count} <>{tr("times")}</>)</Typography>
                                     </Grid>
-                                    <Grid item xs={6} sm={6} md={6} lg={6}>
+                                    <Grid
+                                        size={{
+                                            xs: 6,
+                                            sm: 6,
+                                            md: 6,
+                                            lg: 6
+                                        }}>
                                         <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("most_delivered_cargo")}</Typography>
                                         <Typography variant="body2">{detailStats.cargo[0].name} ({detailStats.cargo[0].count} <>{tr("times")}</>)</Typography>
                                     </Grid>
@@ -1171,27 +1315,63 @@ const UserCard = (props) => {
                             </Grid>}
                             {pointStats && <Divider sx={{ mt: "12px", mb: "12px" }} />}
                             {pointStats && <Grid container spacing={2}>
-                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                <Grid
+                                    size={{
+                                        xs: 4,
+                                        sm: 4,
+                                        md: 4,
+                                        lg: 4
+                                    }}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("total_points")}</Typography>
                                     <Typography variant="body2">{TSep(pointStats.total)}</Typography>
                                 </Grid>
-                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                <Grid
+                                    size={{
+                                        xs: 4,
+                                        sm: 4,
+                                        md: 4,
+                                        lg: 4
+                                    }}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("distance")}</Typography>
                                     <Typography variant="body2">{TSep(pointStats.distance)}</Typography>
                                 </Grid>
-                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                <Grid
+                                    size={{
+                                        xs: 4,
+                                        sm: 4,
+                                        md: 4,
+                                        lg: 4
+                                    }}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("challenge")}</Typography>
                                     <Typography variant="body2">{TSep(pointStats.challenge)}</Typography>
                                 </Grid>
-                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                <Grid
+                                    size={{
+                                        xs: 4,
+                                        sm: 4,
+                                        md: 4,
+                                        lg: 4
+                                    }}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("bonus")}</Typography>
                                     <Typography variant="body2">{TSep(pointStats.bonus)}</Typography>
                                 </Grid>
-                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                <Grid
+                                    size={{
+                                        xs: 4,
+                                        sm: 4,
+                                        md: 4,
+                                        lg: 4
+                                    }}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("event")}</Typography>
                                     <Typography variant="body2">{TSep(pointStats.event)}</Typography>
                                 </Grid>
-                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                <Grid
+                                    size={{
+                                        xs: 4,
+                                        sm: 4,
+                                        md: 4,
+                                        lg: 4
+                                    }}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("division")}</Typography>
                                     <Typography variant="body2">{TSep(pointStats.division)}</Typography>
                                 </Grid>
@@ -1249,7 +1429,7 @@ const UserCard = (props) => {
                 avatar={textOnly ? undefined : <Avatar alt="" src={!userSettings.data_saver ? user.avatar : ""} />}
                 label={user.name}
                 variant="outlined"
-                sx={{ margin: "3px", cursor: "pointer", ...specialColor !== null ? { color: specialColor } : {}, ...style }}
+                sx={{ margin: "3px", cursor: "pointer", ...(specialColor !== null ? { color: specialColor } : {}), ...style }}
                 onDelete={onDelete} onClick={handleClick} onContextMenu={handleContextMenu} ref={userCardRef}
             />
         </>}
@@ -1289,7 +1469,11 @@ const UserCard = (props) => {
                         <Typography variant="body2">{tr("custom_profile_may_be_set")}</Typography>
                         <Typography variant="body2">{tr("alternatively_sync_to_discord_steam")}</Typography>
                         <Grid container spacing={2} sx={{ mt: "5px" }}>
-                            <Grid item xs={12} md={6}>
+                            <Grid
+                                size={{
+                                    xs: 12,
+                                    md: 6
+                                }}>
                                 <TextField
                                     label={tr("name")}
                                     value={newProfile.name}
@@ -1297,10 +1481,14 @@ const UserCard = (props) => {
                                     fullWidth disabled={dialogBtnDisabled}
                                 />
                             </Grid>
-                            <Grid item xs={12} md={6}>
+                            <Grid
+                                size={{
+                                    xs: 12,
+                                    md: 6
+                                }}>
                                 <DateTimeField label={tr("member_since")} defaultValue={newProfile.join_timestamp} onChange={(timestamp) => setNewProfile({ ...newProfile, join_timestamp: timestamp })} disabled={dialogBtnDisabled || !checkUserPerm(curUserPerm, ["administrator", "manage_profiles"])} fullWidth />
                             </Grid>
-                            <Grid item xs={12}>
+                            <Grid size={12}>
                                 <TextField
                                     label={tr("avatar_url")}
                                     value={newProfile.avatar}
@@ -1395,7 +1583,11 @@ const UserCard = (props) => {
                         <Typography variant="body2">{tr("bonus_points_could_be_given")}</Typography>
                         <Typography variant="body2">{tr("use_negative_number_to_remove")}</Typography>
                         <Grid container spacing={2} sx={{ mt: "5px" }}>
-                            <Grid item xs={12} md={4}>
+                            <Grid
+                                size={{
+                                    xs: 12,
+                                    md: 4
+                                }}>
                                 <TextField
                                     label={tr("distance_km")}
                                     value={newPoints.distance}
@@ -1403,7 +1595,11 @@ const UserCard = (props) => {
                                     fullWidth
                                 />
                             </Grid>
-                            <Grid item xs={12} md={8}>
+                            <Grid
+                                size={{
+                                    xs: 12,
+                                    md: 8
+                                }}>
                                 <TextField
                                     label={tr("distance_note")}
                                     value={newPoints.distance_note}
@@ -1411,7 +1607,11 @@ const UserCard = (props) => {
                                     fullWidth
                                 />
                             </Grid>
-                            <Grid item xs={12} md={4}>
+                            <Grid
+                                size={{
+                                    xs: 12,
+                                    md: 4
+                                }}>
                                 <TextField
                                     label={tr("bonus_points")}
                                     value={newPoints.bonus}
@@ -1419,7 +1619,11 @@ const UserCard = (props) => {
                                     fullWidth
                                 />
                             </Grid>
-                            <Grid item xs={12} md={8}>
+                            <Grid
+                                size={{
+                                    xs: 12,
+                                    md: 8
+                                }}>
                                 <TextField
                                     label={tr("bonus_note")}
                                     value={newPoints.bonus_note}
@@ -1582,7 +1786,7 @@ const UserCard = (props) => {
                         <Typography variant="body2">{tr("remember_that_all_users_have")}</Typography>
                         <Typography variant="body2">{tr("deleting_connections_will_only_delete")}</Typography>
                         <Grid container spacing={2} sx={{ mt: "5px" }}>
-                            <Grid item xs={6}>
+                            <Grid size={6}>
                                 <TextField
                                     label={tr("email")}
                                     value={newConnections.email}
@@ -1590,7 +1794,7 @@ const UserCard = (props) => {
                                     fullWidth disabled={dialogBtnDisabled}
                                 />
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid size={6}>
                                 <TextField
                                     label={tr("discord_id")}
                                     value={newConnections.discordid}
@@ -1598,7 +1802,7 @@ const UserCard = (props) => {
                                     fullWidth disabled={dialogBtnDisabled}
                                 />
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid size={6}>
                                 <TextField
                                     label={tr("steam_id")}
                                     value={newConnections.steamid}
@@ -1606,7 +1810,7 @@ const UserCard = (props) => {
                                     fullWidth disabled={dialogBtnDisabled}
                                 />
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid size={6}>
                                 <TextField
                                     label={tr("truckersmp_id")}
                                     value={newConnections.truckersmpid}
@@ -1675,7 +1879,7 @@ const UserCard = (props) => {
                     <DialogTitle>{tr("ban_user")}<>|</>{user.name} ({user.userid !== null ? tr("user_id") + ": " + user.userid + " / " : ""}<>UID</>: {user.uid})</DialogTitle>
                     <DialogContent>
                         <Grid container spacing={2} sx={{ mt: "5px" }}>
-                            <Grid item xs={6}>
+                            <Grid size={6}>
                                 <DateTimeField
                                     label={tr("expire_datetime")}
                                     defaultValue={newBan.expire}
@@ -1683,7 +1887,7 @@ const UserCard = (props) => {
                                     fullWidth
                                 />
                             </Grid>
-                            <Grid item xs={12}>
+                            <Grid size={12}>
                                 <TextField
                                     label={tr("reason")}
                                     value={newBan.reason}
@@ -1790,7 +1994,7 @@ const UserCard = (props) => {
                                 </Typography>
                             </>}
                             <Grid container sx={{ mt: "10px" }}>
-                                <Grid item xs={6}>
+                                <Grid size={6}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>
                                         {user.userid !== null && user.userid !== -1 ? `MEMBER` : `USER`} {tr("since").toUpperCase()}
                                     </Typography>
@@ -1798,7 +2002,7 @@ const UserCard = (props) => {
                                         <TimeDelta timestamp={users[user.uid].join_timestamp * 1000} rough={true} />
                                     </Typography>}
                                 </Grid>
-                                <Grid item xs={6}>
+                                <Grid size={6}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>
                                         {tr("tracker").toUpperCase()}
                                     </Typography>

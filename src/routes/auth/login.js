@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { AppContext, ThemeContext } from '../../context';
 
 import { Button, Card, Grid, Typography, TextField, CardContent, ButtonGroup, Box, IconButton, Dialog, DialogTitle, DialogContent, Snackbar, Alert, useMediaQuery } from '@mui/material';
-import { Portal } from '@mui/base';
+import Portal from '@mui/material/Portal';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClose, faRobot } from '@fortawesome/free-solid-svg-icons';
@@ -108,7 +108,13 @@ const AuthLogin = () => {
             <Card sx={{ width: { xs: "100%", sm: "80%", md: "80%", lg: "60%" }, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
                 <CardContent sx={{ padding: { xs: "20px", sm: "30px", md: "40px", lg: "40px" }, mb: "20px" }}>
                     <Grid container spacing={2}>
-                        <Grid item xs={12} sm={12} md={8} lg={8}>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                sm: 12,
+                                md: 8,
+                                lg: 8
+                            }}>
                             <Typography variant="h3" sx={{ fontWeight: 800 }}>{tr("welcome_back")}<IconButton variant="contained" color="primary" onClick={() => { navigate("/"); }}><FontAwesomeIcon icon={faClose} /></IconButton></Typography>
                             <TextField label={tr("email")} variant="outlined" fullWidth margin="normal" value={email} onChange={(e) => { setEmail(e.target.value); }} />
                             <TextField label={tr("password")} variant="outlined" fullWidth margin="normal" type="password" value={password} onChange={(e) => { setPassword(e.target.value); }} onKeyDown={(e) => { if (e.key === tr("enter")) { setAction("login"); setModalCaptcha(true); } }} />
@@ -120,7 +126,13 @@ const AuthLogin = () => {
                             </ButtonGroup>
                         </Grid>
 
-                        <Grid item xs={12} sm={12} md={4} lg={4}>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                sm: 12,
+                                md: 4,
+                                lg: 4
+                            }}>
                             <Box sx={{ display: { xs: "none", sm: "none", md: "block", lg: "block" }, margin: 0, height: "210px", maxHeight: "210px", width: "100%" }} >
                                 <img src={`https://cdn.chub.page/assets/${webConfig.abbr}/banner.png?${webConfig.banner_key !== undefined ? webConfig.banner_key : ""}`} alt="" style={{ width: "100%" }} />
                             </Box>

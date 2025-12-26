@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { Grid, Card, CardContent, Typography, Snackbar, Alert, SpeedDial, SpeedDialIcon, SpeedDialAction, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, Button, TextField } from '@mui/material';
 import { RefreshRounded, AltRouteRounded, NotificationsRounded } from '@mui/icons-material';
-import { Portal } from '@mui/base';
+import Portal from '@mui/material/Portal';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAnglesDown, faAnglesUp, faCoins } from '@fortawesome/free-solid-svg-icons';
@@ -197,232 +197,277 @@ const Ranking = () => {
         }
     }, [notificationTime]);
 
-    return <>
-        {(userPoints === null || rankIdx === null) && <Grid container spacing={2} sx={{ marginBottom: "20px" }}>
-            <Grid item xs={12} sm={12} md={4} lg={4}>
-                <Card>
-                    <CardContent>
-                        <Typography variant="subtitle2" align="center" gutterBottom>{tr("previous_rank")}</Typography>
-                        <Typography variant="h5" align="center" component="div" sx={{ color: "grey" }}>
-                            N/A
-                        </Typography>
-                        <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
-                            0 {tr("pts")} | -0 {tr("pts")}
-                        </Typography>
-                    </CardContent>
-                </Card>
-            </Grid>
-            <Grid item xs={12} sm={12} md={4} lg={4}>
-                <Card>
-                    <CardContent>
-                        <Typography variant="subtitle2" align="center" gutterBottom>{tr("current_rank")}</Typography>
-                        <Typography variant="h5" align="center" component="div" sx={{ color: "grey" }}>
-                            N/A
-                        </Typography>
-                        <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
-                            0 {tr("pts")}
-                        </Typography>
-                        <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>{tr("daily_bonus")}: / {tr("streak")}</Typography>
-                        {userLevel <= 2 && <Typography variant="subtitle2" align="center" sx={{ mt: 1, opacity: 0.25, cursor: "pointer" }} onClick={() => { navigate("/sponsor"); }}>Become CHub sponsor to get rank roles automatically!</Typography>}
-                    </CardContent>
-                </Card>
-            </Grid>
-            <Grid item xs={12} sm={12} md={4} lg={4}>
-                <Card>
-                    <CardContent>
-                        <Typography variant="subtitle2" align="center" gutterBottom>{tr("next_rank")}</Typography>
-                        <Typography variant="h5" align="center" component="div" sx={{ color: "grey" }}>
-                            N/A
-                        </Typography>
-                        <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
-                            0 {tr("pts")} | +0 {tr("pts")}
-                        </Typography>
-                    </CardContent>
-                </Card>
-            </Grid>
-        </Grid>}
-        {userPoints !== null && rankIdx !== null && <Grid container spacing={2} sx={{ marginBottom: "20px" }}>
-            <Grid item xs={12} sm={12} md={4} lg={4}>
-                <Card>
-                    <CardContent>
-                        <Typography variant="subtitle2" align="center" gutterBottom>{tr("previous_rank")}</Typography>
-                        {rankIdx >= 1 && <>
-                            <Typography variant="h5" align="center" component="div" sx={{ color: curRankRoles[rankIdx - 1]?.color }}>
-                                {curRankRoles[rankIdx - 1]?.name}
-                            </Typography>
-                            <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
-                                {TSep(curRankRoles[rankIdx - 1]?.points || 0)} {tr("pts")} | -{TSep(userPoints - curRankRoles[rankIdx - 1]?.points || 0)} {tr("pts")}
-                            </Typography>
-                        </>}
-                        {rankIdx <= 0 && <>
+    return (
+        <>
+            {(userPoints === null || rankIdx === null) && <Grid container spacing={2} sx={{ marginBottom: "20px" }}>
+                <Grid
+                    size={{
+                        xs: 12,
+                        sm: 12,
+                        md: 4,
+                        lg: 4
+                    }}>
+                    <Card>
+                        <CardContent>
+                            <Typography variant="subtitle2" align="center" gutterBottom>{tr("previous_rank")}</Typography>
                             <Typography variant="h5" align="center" component="div" sx={{ color: "grey" }}>
                                 N/A
                             </Typography>
                             <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
-                                0 {tr("pts")} | -{TSep(userPoints)} {tr("pts")}
+                                0 {tr("pts")} | -0 {tr("pts")}
                             </Typography>
-                        </>}
-                    </CardContent>
-                </Card>
-            </Grid>
-            <Grid item xs={12} sm={12} md={4} lg={4}>
-                <Card>
-                    <CardContent>
-                        <Typography variant="subtitle2" align="center" gutterBottom>{tr("current_rank")}</Typography>
-                        {rankIdx >= 0 && <>
-                            <Typography variant="h5" align="center" component="div" sx={{ color: curRankRoles[rankIdx]?.color, cursor: "pointer" }} onClick={getDiscordRole}>
-                                {rankChange > 0 ? <FontAwesomeIcon icon={faAnglesUp} /> : (rankChange < 0 ? <FontAwesomeIcon icon={faAnglesDown} /> : <></>)} {curRankRoles[rankIdx]?.name} {rankChange > 0 ? <FontAwesomeIcon icon={faAnglesUp} /> : (rankChange < 0 ? <FontAwesomeIcon icon={faAnglesDown} /> : <></>)}
-                            </Typography>
-                            <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
-                                {TSep(userPoints)} {tr("pts")}
-                            </Typography>
-                            <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>{tr("daily_bonus")}: {bonusStreak} {tr("streak")}</Typography>
-                            {userLevel <= 2 && <Typography variant="subtitle2" align="center" sx={{ mt: 1, opacity: 0.25, cursor: "pointer" }} onClick={() => { navigate("/sponsor"); }}>Become CHub sponsor to get rank roles automatically!</Typography>}
-                        </>}
-                        {rankIdx <= 0 && <>
+                        </CardContent>
+                    </Card>
+                </Grid>
+                <Grid
+                    size={{
+                        xs: 12,
+                        sm: 12,
+                        md: 4,
+                        lg: 4
+                    }}>
+                    <Card>
+                        <CardContent>
+                            <Typography variant="subtitle2" align="center" gutterBottom>{tr("current_rank")}</Typography>
                             <Typography variant="h5" align="center" component="div" sx={{ color: "grey" }}>
                                 N/A
                             </Typography>
                             <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
                                 0 {tr("pts")}
                             </Typography>
-                            <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>{tr("daily_bonus")}: {bonusStreak} {tr("streak")}</Typography>
+                            <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>{tr("daily_bonus")}: / {tr("streak")}</Typography>
                             {userLevel <= 2 && <Typography variant="subtitle2" align="center" sx={{ mt: 1, opacity: 0.25, cursor: "pointer" }} onClick={() => { navigate("/sponsor"); }}>Become CHub sponsor to get rank roles automatically!</Typography>}
-                        </>}
-                    </CardContent>
-                </Card>
-            </Grid>
-            <Grid item xs={12} sm={12} md={4} lg={4}>
-                <Card>
-                    <CardContent>
-                        <Typography variant="subtitle2" align="center" gutterBottom>{tr("next_rank")}</Typography>
-                        {rankIdx + 1 <= curRankRoles.length - 1 && <>
-                            <Typography variant="h5" align="center" component="div" sx={{ color: curRankRoles[rankIdx + 1]?.color }}>
-                                {curRankRoles[rankIdx + 1]?.name}
-                            </Typography>
-                            <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
-                                {TSep(curRankRoles[rankIdx + 1]?.points || 0)} {tr("pts")} | +{TSep((curRankRoles[rankIdx + 1]?.points || 0) - userPoints)} {tr("pts")}
-                            </Typography>
-                        </>}
-                        {rankIdx + 1 > curRankRoles.length - 1 && <>
+                        </CardContent>
+                    </Card>
+                </Grid>
+                <Grid
+                    size={{
+                        xs: 12,
+                        sm: 12,
+                        md: 4,
+                        lg: 4
+                    }}>
+                    <Card>
+                        <CardContent>
+                            <Typography variant="subtitle2" align="center" gutterBottom>{tr("next_rank")}</Typography>
                             <Typography variant="h5" align="center" component="div" sx={{ color: "grey" }}>
                                 N/A
                             </Typography>
                             <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
-                                ∞ {tr("pts")} | +∞ {tr("pts")}
-                            </Typography>
-                        </>}
-                    </CardContent>
-                </Card>
-            </Grid >
-        </Grid >}
-        <Grid container spacing={2}>
-            {curRankRoles.map((rank, idx) => (
-                <Grid item xs={12} sm={12} md={4} lg={4} key={`rank-${idx}`}>
-                    <Card>
-                        <CardContent>
-                            <Typography variant="h5" align="center" component="div" sx={{ ...rank.points < userPoints ? { textDecoration: "line-through" } : {}, color: rank?.color }}>
-                                {rank.name}
-                            </Typography>
-                            <Typography variant="subtitle2" align="center" sx={{ ...rank.points < userPoints ? { color: "grey" } : {}, mt: 1 }}>
-                                {TSep(rank.points)} {tr("pts")}
+                                0 {tr("pts")} | +0 {tr("pts")}
                             </Typography>
                         </CardContent>
                     </Card>
+                </Grid>
+            </Grid>}
+            {userPoints !== null && rankIdx !== null && <Grid container spacing={2} sx={{ marginBottom: "20px" }}>
+                <Grid
+                    size={{
+                        xs: 12,
+                        sm: 12,
+                        md: 4,
+                        lg: 4
+                    }}>
+                    <Card>
+                        <CardContent>
+                            <Typography variant="subtitle2" align="center" gutterBottom>{tr("previous_rank")}</Typography>
+                            {rankIdx >= 1 && <>
+                                <Typography variant="h5" align="center" component="div" sx={{ color: curRankRoles[rankIdx - 1]?.color }}>
+                                    {curRankRoles[rankIdx - 1]?.name}
+                                </Typography>
+                                <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
+                                    {TSep(curRankRoles[rankIdx - 1]?.points || 0)} {tr("pts")} | -{TSep(userPoints - curRankRoles[rankIdx - 1]?.points || 0)} {tr("pts")}
+                                </Typography>
+                            </>}
+                            {rankIdx <= 0 && <>
+                                <Typography variant="h5" align="center" component="div" sx={{ color: "grey" }}>
+                                    N/A
+                                </Typography>
+                                <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
+                                    0 {tr("pts")} | -{TSep(userPoints)} {tr("pts")}
+                                </Typography>
+                            </>}
+                        </CardContent>
+                    </Card>
+                </Grid>
+                <Grid
+                    size={{
+                        xs: 12,
+                        sm: 12,
+                        md: 4,
+                        lg: 4
+                    }}>
+                    <Card>
+                        <CardContent>
+                            <Typography variant="subtitle2" align="center" gutterBottom>{tr("current_rank")}</Typography>
+                            {rankIdx >= 0 && <>
+                                <Typography variant="h5" align="center" component="div" sx={{ color: curRankRoles[rankIdx]?.color, cursor: "pointer" }} onClick={getDiscordRole}>
+                                    {rankChange > 0 ? <FontAwesomeIcon icon={faAnglesUp} /> : (rankChange < 0 ? <FontAwesomeIcon icon={faAnglesDown} /> : <></>)} {curRankRoles[rankIdx]?.name} {rankChange > 0 ? <FontAwesomeIcon icon={faAnglesUp} /> : (rankChange < 0 ? <FontAwesomeIcon icon={faAnglesDown} /> : <></>)}
+                                </Typography>
+                                <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
+                                    {TSep(userPoints)} {tr("pts")}
+                                </Typography>
+                                <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>{tr("daily_bonus")}: {bonusStreak} {tr("streak")}</Typography>
+                                {userLevel <= 2 && <Typography variant="subtitle2" align="center" sx={{ mt: 1, opacity: 0.25, cursor: "pointer" }} onClick={() => { navigate("/sponsor"); }}>Become CHub sponsor to get rank roles automatically!</Typography>}
+                            </>}
+                            {rankIdx <= 0 && <>
+                                <Typography variant="h5" align="center" component="div" sx={{ color: "grey" }}>
+                                    N/A
+                                </Typography>
+                                <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
+                                    0 {tr("pts")}
+                                </Typography>
+                                <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>{tr("daily_bonus")}: {bonusStreak} {tr("streak")}</Typography>
+                                {userLevel <= 2 && <Typography variant="subtitle2" align="center" sx={{ mt: 1, opacity: 0.25, cursor: "pointer" }} onClick={() => { navigate("/sponsor"); }}>Become CHub sponsor to get rank roles automatically!</Typography>}
+                            </>}
+                        </CardContent>
+                    </Card>
+                </Grid>
+                <Grid
+                    size={{
+                        xs: 12,
+                        sm: 12,
+                        md: 4,
+                        lg: 4
+                    }}>
+                    <Card>
+                        <CardContent>
+                            <Typography variant="subtitle2" align="center" gutterBottom>{tr("next_rank")}</Typography>
+                            {rankIdx + 1 <= curRankRoles.length - 1 && <>
+                                <Typography variant="h5" align="center" component="div" sx={{ color: curRankRoles[rankIdx + 1]?.color }}>
+                                    {curRankRoles[rankIdx + 1]?.name}
+                                </Typography>
+                                <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
+                                    {TSep(curRankRoles[rankIdx + 1]?.points || 0)} {tr("pts")} | +{TSep((curRankRoles[rankIdx + 1]?.points || 0) - userPoints)} {tr("pts")}
+                                </Typography>
+                            </>}
+                            {rankIdx + 1 > curRankRoles.length - 1 && <>
+                                <Typography variant="h5" align="center" component="div" sx={{ color: "grey" }}>
+                                    N/A
+                                </Typography>
+                                <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
+                                    ∞ {tr("pts")} | +∞ {tr("pts")}
+                                </Typography>
+                            </>}
+                        </CardContent>
+                    </Card>
                 </Grid >
-            ))}
-        </Grid>
-        <Dialog open={modalCRTOpen} onClose={() => { setModalCRTOpen(false); }}>
-            <DialogTitle>
-                <Typography variant="h6" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", minWidth: "300px" }}>
-                    <AltRouteRounded />&nbsp;&nbsp;{tr("change_rank_type")}</Typography>
-            </DialogTitle>
-            <DialogContent>
-                <TextField select
-                    label={tr("rank_type")}
-                    value={`${curRankTypeId}`}
-                    onChange={handleRankTypeIdChange}
-                    sx={{ marginTop: "6px", height: "30px" }}
-                    fullWidth size="small"
-                >
-                    {allRanks.map((ranktype, index) => (
-                        <MenuItem value={`${ranktype.id}`} key={index}>{ranktype.name}</MenuItem>
-                    ))}
-                </TextField>
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={() => { setModalCRTOpen(false); }} variant="contained" color="secondary" sx={{ ml: 'auto' }}>{tr("close")}</Button>
-            </DialogActions>
-        </Dialog>
-        <Dialog open={modalNotificationsOpen} onClose={() => { setModalNotificationsOpen(false); }}>
-            <DialogTitle>
-                <Typography variant="h6" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", minWidth: "300px" }}>
-                    <NotificationsRounded />&nbsp;&nbsp;Daily Bonus Notification Settings</Typography>
-            </DialogTitle>
-            <DialogContent>
-                {notificationTime !== null && <DateTimeField
-                    label="Alert me at"
-                    defaultValue={notificationTime}
-                    onChange={(time) => { setNotificationTime(time); }}
-                    fullWidth noDate
-                    sx={{ mt: "5px" }}
-                />}
-            </DialogContent>
-            <DialogActions sx={{ mb: "5px" }}>
-                <Button onClick={() => { setModalNotificationsOpen(false); }} variant="contained" color="secondary" sx={{ ml: 'auto' }}>{tr("close")}</Button>
-                <Button onClick={() => { setNotificationTime(""); updateNotificationSettings(); }} variant="contained" color="warning" sx={{ ml: 'auto' }}>{tr("clear")}</Button>
-                <Button onClick={() => { updateNotificationSettings(); }} variant="contained" color="info" sx={{ ml: 'auto' }}>{tr("update")}</Button>
-            </DialogActions>
-        </Dialog>
-        <SpeedDial
-            ariaLabel={tr("controls")}
-            sx={{ position: 'fixed', bottom: 20, right: 20 }}
-            icon={<SpeedDialIcon />}
-        >
-            <SpeedDialAction
-                key="refresh"
-                icon={<RefreshRounded />}
-                tooltipTitle={tr("refresh")}
-                onClick={() => doLoad()}
-            />
-            <SpeedDialAction
-                key="rank_type"
-                icon={<AltRouteRounded />}
-                tooltipTitle={tr("change_rank_type")}
-                onClick={() => setModalCRTOpen(true)}
-            />
-            <SpeedDialAction
-                key="notifications"
-                icon={<NotificationsRounded />}
-                tooltipTitle="Daily Bonus Notification Settings"
-                onClick={() => { setModalNotificationsOpen(true); }}
-            />
-            <SpeedDialAction
-                key="bonus"
-                icon={<FontAwesomeIcon icon={faCoins} />}
-                tooltipTitle={tr("claim_daily_bonus")}
-                onClick={() => claimDailyBonus()}
-            />
-            <SpeedDialAction
-                key="discord"
-                icon={<FontAwesomeIcon icon={faDiscord} />}
-                tooltipTitle={tr("get_discord_role")}
-                onClick={() => getDiscordRole()}
-            />
-        </SpeedDial>
-        <Portal>
-            <Snackbar
-                open={!!snackbarContent}
-                autoHideDuration={5000}
-                onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            </Grid >}
+            <Grid container spacing={2}>
+                {curRankRoles.map((rank, idx) => (
+                    <Grid
+                        key={`rank-${idx}`}
+                        size={{
+                            xs: 12,
+                            sm: 12,
+                            md: 4,
+                            lg: 4
+                        }}>
+                        <Card>
+                            <CardContent>
+                                <Typography variant="h5" align="center" component="div" sx={{ ...(rank.points < userPoints ? { textDecoration: "line-through" } : {}), color: rank?.color }}>
+                                    {rank.name}
+                                </Typography>
+                                <Typography variant="subtitle2" align="center" sx={{ ...(rank.points < userPoints ? { color: "grey" } : {}), mt: 1 }}>
+                                    {TSep(rank.points)} {tr("pts")}
+                                </Typography>
+                            </CardContent>
+                        </Card>
+                    </Grid >
+                ))}
+            </Grid>
+            <Dialog open={modalCRTOpen} onClose={() => { setModalCRTOpen(false); }}>
+                <DialogTitle>
+                    <Typography variant="h6" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", minWidth: "300px" }}>
+                        <AltRouteRounded />&nbsp;&nbsp;{tr("change_rank_type")}</Typography>
+                </DialogTitle>
+                <DialogContent>
+                    <TextField select
+                        label={tr("rank_type")}
+                        value={`${curRankTypeId}`}
+                        onChange={handleRankTypeIdChange}
+                        sx={{ marginTop: "6px", height: "30px" }}
+                        fullWidth size="small"
+                    >
+                        {allRanks.map((ranktype, index) => (
+                            <MenuItem value={`${ranktype.id}`} key={index}>{ranktype.name}</MenuItem>
+                        ))}
+                    </TextField>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => { setModalCRTOpen(false); }} variant="contained" color="secondary" sx={{ ml: 'auto' }}>{tr("close")}</Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog open={modalNotificationsOpen} onClose={() => { setModalNotificationsOpen(false); }}>
+                <DialogTitle>
+                    <Typography variant="h6" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", minWidth: "300px" }}>
+                        <NotificationsRounded />&nbsp;&nbsp;Daily Bonus Notification Settings</Typography>
+                </DialogTitle>
+                <DialogContent>
+                    {notificationTime !== null && <DateTimeField
+                        label="Alert me at"
+                        defaultValue={notificationTime}
+                        onChange={(time) => { setNotificationTime(time); }}
+                        fullWidth noDate
+                        sx={{ mt: "5px" }}
+                    />}
+                </DialogContent>
+                <DialogActions sx={{ mb: "5px" }}>
+                    <Button onClick={() => { setModalNotificationsOpen(false); }} variant="contained" color="secondary" sx={{ ml: 'auto' }}>{tr("close")}</Button>
+                    <Button onClick={() => { setNotificationTime(""); updateNotificationSettings(); }} variant="contained" color="warning" sx={{ ml: 'auto' }}>{tr("clear")}</Button>
+                    <Button onClick={() => { updateNotificationSettings(); }} variant="contained" color="info" sx={{ ml: 'auto' }}>{tr("update")}</Button>
+                </DialogActions>
+            </Dialog>
+            <SpeedDial
+                ariaLabel={tr("controls")}
+                sx={{ position: 'fixed', bottom: 20, right: 20 }}
+                icon={<SpeedDialIcon />}
             >
-                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
-                    {snackbarContent}
-                </Alert>
-            </Snackbar>
-        </Portal>
-    </>;
+                <SpeedDialAction
+                    key="refresh"
+                    icon={<RefreshRounded />}
+                    tooltipTitle={tr("refresh")}
+                    onClick={() => doLoad()}
+                />
+                <SpeedDialAction
+                    key="rank_type"
+                    icon={<AltRouteRounded />}
+                    tooltipTitle={tr("change_rank_type")}
+                    onClick={() => setModalCRTOpen(true)}
+                />
+                <SpeedDialAction
+                    key="notifications"
+                    icon={<NotificationsRounded />}
+                    tooltipTitle="Daily Bonus Notification Settings"
+                    onClick={() => { setModalNotificationsOpen(true); }}
+                />
+                <SpeedDialAction
+                    key="bonus"
+                    icon={<FontAwesomeIcon icon={faCoins} />}
+                    tooltipTitle={tr("claim_daily_bonus")}
+                    onClick={() => claimDailyBonus()}
+                />
+                <SpeedDialAction
+                    key="discord"
+                    icon={<FontAwesomeIcon icon={faDiscord} />}
+                    tooltipTitle={tr("get_discord_role")}
+                    onClick={() => getDiscordRole()}
+                />
+            </SpeedDial>
+            <Portal>
+                <Snackbar
+                    open={!!snackbarContent}
+                    autoHideDuration={5000}
+                    onClose={handleCloseSnackbar}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                >
+                    <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
+                        {snackbarContent}
+                    </Alert>
+                </Snackbar>
+            </Portal>
+        </>
+    );
 };
 
 export default Ranking;

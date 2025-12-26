@@ -4,7 +4,7 @@ import { AppContext, CacheContext } from '../context';
 
 import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, TextField, Snackbar, Alert, Pagination, IconButton, Checkbox, Box } from '@mui/material';
 import { DownloadRounded, EditNoteRounded, RefreshRounded, EditRounded, DeleteRounded, PeopleAltRounded, CloseRounded } from '@mui/icons-material';
-import { Portal } from '@mui/base';
+import Portal from '@mui/material/Portal';
 
 import UserCard from '../components/usercard';
 import MarkdownRenderer from '../components/markdown';
@@ -67,7 +67,14 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
 
     if (downloadableItem.display === "half-width") {
         return (
-            <Grid item xs={12} sm={12} md={6} lg={6} key={downloadableItem.downloadsid}>
+            <Grid
+                key={downloadableItem.downloadsid}
+                size={{
+                    xs: 12,
+                    sm: 12,
+                    md: 6,
+                    lg: 6
+                }}>
                 <Card>
                     <CardContent>
                         <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
@@ -94,7 +101,14 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
         );
     } else if (downloadableItem.display === "full-width") {
         return (
-            <Grid item xs={12} sm={12} md={12} lg={12} key={downloadableItem.downloadsid}>
+            <Grid
+                key={downloadableItem.downloadsid}
+                size={{
+                    xs: 12,
+                    sm: 12,
+                    md: 12,
+                    lg: 12
+                }}>
                 <Card>
                     <CardContent>
                         <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
@@ -121,12 +135,32 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
         );
     } else if (downloadableItem.display === "with-image-left") {
         return (
-            <Grid item xs={12} sm={12} md={12} lg={12} key={downloadableItem.downloadsid}>
+            <Grid
+                key={downloadableItem.downloadsid}
+                size={{
+                    xs: 12,
+                    sm: 12,
+                    md: 12,
+                    lg: 12
+                }}>
                 <Grid container spacing={2}>
-                    <Grid item xs={12} sm={12} md={6} lg={6}>
+                    <Grid
+                        size={{
+                            xs: 12,
+                            sm: 12,
+                            md: 6,
+                            lg: 6
+                        }}>
                         <img src={downloadableItem.image} alt="" style={{ width: '100%', border: 'none' }} />
                     </Grid>
-                    <Grid item xs={12} sm={12} md={6} lg={6} style={{ display: 'flex' }}>
+                    <Grid
+                        style={{ display: 'flex' }}
+                        size={{
+                            xs: 12,
+                            sm: 12,
+                            md: 6,
+                            lg: 6
+                        }}>
                         <Card style={{ display: 'flex', flexDirection: 'column' }}>
                             <CardContent>
                                 <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
@@ -155,9 +189,23 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
         );
     } else if (downloadableItem.display === "with-image-right") {
         return (
-            <Grid item xs={12} sm={12} md={12} lg={12} key={downloadableItem.downloadsid}>
+            <Grid
+                key={downloadableItem.downloadsid}
+                size={{
+                    xs: 12,
+                    sm: 12,
+                    md: 12,
+                    lg: 12
+                }}>
                 <Grid container spacing={2}>
-                    <Grid item xs={12} sm={12} md={6} lg={6} style={{ display: 'flex' }}>
+                    <Grid
+                        style={{ display: 'flex' }}
+                        size={{
+                            xs: 12,
+                            sm: 12,
+                            md: 6,
+                            lg: 6
+                        }}>
                         <Card style={{ display: 'flex', flexDirection: 'column' }}>
                             <CardContent>
                                 <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
@@ -181,7 +229,13 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
                             </CardContent>
                         </Card>
                     </Grid>
-                    <Grid item xs={12} sm={12} md={6} lg={6}>
+                    <Grid
+                        size={{
+                            xs: 12,
+                            sm: 12,
+                            md: 6,
+                            lg: 6
+                        }}>
                         <img src={downloadableItem.image} alt="" style={{ width: '100%', border: 'none' }} />
                     </Grid>
                 </Grid>
@@ -192,50 +246,52 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
 
 const DownloadableItemGrid = memo(({ downloadableItems, lastUpdate, onEdit, onDelete, onDownload }) => {
     let halfCnt = 0;
-    return <Grid container spacing={3}>
-        {downloadableItems.map((downloadableItem, index) => {
-            downloadableItem.display = 'half-width';
+    return (
+        <Grid container spacing={3}>
+            {downloadableItems.map((downloadableItem, index) => {
+                downloadableItem.display = 'half-width';
 
-            const hasImage = /^\[Image src="(.+)" loc="(.+)"\]/.test(downloadableItem.description);
+                const hasImage = /^\[Image src="(.+)" loc="(.+)"\]/.test(downloadableItem.description);
 
-            if (hasImage) {
-                const re = downloadableItem.description.match(/^\[Image src="(.+)" loc="(.+)"\]/);
-                const link = re[1];
-                const loc = re[2];
-                downloadableItem.image = link;
-                downloadableItem.display = 'with-image-' + loc;
-                halfCnt = 0;
-            } else {
-                if (index + 1 < downloadableItems.length) {
-                    const nextDownloadableItem = downloadableItems[index + 1];
-                    const nextHasImage = /^\[Image src="(.+)" loc="(.+)"\]/.test(nextDownloadableItem.description);
+                if (hasImage) {
+                    const re = downloadableItem.description.match(/^\[Image src="(.+)" loc="(.+)"\]/);
+                    const link = re[1];
+                    const loc = re[2];
+                    downloadableItem.image = link;
+                    downloadableItem.display = 'with-image-' + loc;
+                    halfCnt = 0;
+                } else {
+                    if (index + 1 < downloadableItems.length) {
+                        const nextDownloadableItem = downloadableItems[index + 1];
+                        const nextHasImage = /^\[Image src="(.+)" loc="(.+)"\]/.test(nextDownloadableItem.description);
 
-                    if (nextHasImage) {
-                        if (halfCnt % 2 === 1) {
+                        if (nextHasImage) {
+                            if (halfCnt % 2 === 1) {
+                                downloadableItem.display = 'half-width';
+                                halfCnt += 1;
+                            } else {
+                                downloadableItem.display = 'full-width';
+                                halfCnt = 0;
+                            }
+                        } else {
                             downloadableItem.display = 'half-width';
                             halfCnt += 1;
-                        } else {
-                            downloadableItem.display = 'full-width';
-                            halfCnt = 0;
                         }
-                    } else {
-                        downloadableItem.display = 'half-width';
-                        halfCnt += 1;
                     }
                 }
-            }
 
-            return (
-                <DownloadableItemCard
-                    downloadableItem={downloadableItem}
-                    key={downloadableItem.downloadsid}
-                    onEdit={onEdit}
-                    onDelete={onDelete}
-                    onDownload={onDownload}
-                />
-            );
-        })}
-    </Grid>;
+                return (
+                    <DownloadableItemCard
+                        downloadableItem={downloadableItem}
+                        key={downloadableItem.downloadsid}
+                        onEdit={onEdit}
+                        onDelete={onDelete}
+                        onDownload={onDownload}
+                    />
+                );
+            })}
+        </Grid>
+    );
 }, (prevProps, nextProps) => {
     return prevProps.lastUpdate === nextProps.lastUpdate;
 });
@@ -444,7 +500,7 @@ const DownloadableItem = () => {
                 <DialogContent>
                     <form onSubmit={handleSubmit} style={{ marginTop: "5px" }}>
                         <Grid container spacing={2}>
-                            <Grid item xs={12}>
+                            <Grid size={12}>
                                 <TextField
                                     label={tr("title")}
                                     value={title}
@@ -452,7 +508,7 @@ const DownloadableItem = () => {
                                     fullWidth
                                 />
                             </Grid>
-                            <Grid item xs={12}>
+                            <Grid size={12}>
                                 <TextField
                                     label={tr("content_markdown")}
                                     multiline
@@ -462,7 +518,7 @@ const DownloadableItem = () => {
                                     minRows={4}
                                 />
                             </Grid>
-                            <Grid item xs={12}>
+                            <Grid size={12}>
                                 <TextField
                                     label={tr("download_link")}
                                     value={link}
@@ -470,9 +526,9 @@ const DownloadableItem = () => {
                                     fullWidth
                                 />
                             </Grid>
-                            <Grid item xs={12}>
+                            <Grid size={12}>
                                 <Grid container spacing={2}>
-                                    <Grid item xs={6}>
+                                    <Grid size={6}>
                                         <FormControl component="fieldset">
                                             <TextField
                                                 label={tr("order_id")}
@@ -482,7 +538,7 @@ const DownloadableItem = () => {
                                             />
                                         </FormControl>
                                     </Grid>
-                                    <Grid item xs={6}>
+                                    <Grid size={6}>
                                         <FormControl component="fieldset" sx={{ mb: "10px" }}>
                                             <FormControlLabel
                                                 key="pin"
@@ -504,12 +560,12 @@ const DownloadableItem = () => {
                 </DialogContent>
                 <DialogActions>
                     <Grid container justifyContent="space-between" padding="10px">
-                        <Grid item>
+                        <Grid>
                             <Box sx={{ display: 'flex', gap: '10px' }}>
                                 <Button variant="contained" onClick={clearModal}>{tr("clear")}</Button>
                             </Box>
                         </Grid>
-                        <Grid item>
+                        <Grid>
                             <Box sx={{ display: 'flex', gap: '10px' }}>
                                 <Button variant="contained" color="info" onClick={handleSubmit} disabled={submitLoading}>{dialogButton}</Button>
                             </Box>
@@ -530,12 +586,12 @@ const DownloadableItem = () => {
                 </DialogContent>
                 <DialogActions>
                     <Grid container justifyContent="space-between" padding="10px">
-                        <Grid item>
+                        <Grid>
                             <Box sx={{ display: 'flex', gap: '10px' }}>
                                 <Button variant="contained" onClick={() => { setDialogDelete(false); }}>{tr("cancel")}</Button>
                             </Box>
                         </Grid>
-                        <Grid item>
+                        <Grid>
                             <Box sx={{ display: 'flex', gap: '10px' }}>
                                 <Button variant="contained" color="error" onClick={() => { deleteDownloadableItem({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>{tr("delete")}</Button>
                             </Box>

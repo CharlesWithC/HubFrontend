@@ -43,7 +43,7 @@ const Badges = () => {
 
     return (
         <Grid container spacing={2}>
-            <Grid item xs={12}>
+            <Grid size={12}>
                 <Card>
                     <CardHeader
                         title={
@@ -67,7 +67,14 @@ const Badges = () => {
                 </Card>
             </Grid>
             {badgeData.map((badge) => (
-                <Grid item key={badge.title} xs={12} sm={12} md={6} lg={6}>
+                <Grid
+                    key={badge.title}
+                    size={{
+                        xs: 12,
+                        sm: 12,
+                        md: 6,
+                        lg: 6
+                    }}>
                     <Card>
                         <CardContent>
                             <Typography

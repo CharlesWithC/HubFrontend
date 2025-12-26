@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../context';
 
 import { ImageList, ImageListItem, SpeedDial, SpeedDialIcon, SpeedDialAction, Dialog, DialogTitle, DialogContent, DialogActions, Card, CardContent, CardActions, Button, Typography, IconButton, Grid, Snackbar, Alert, TextField, useTheme, useMediaQuery } from '@mui/material';
-import { Portal } from '@mui/base';
+import Portal from '@mui/material/Portal';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGears, faPlus, faMinus, faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
@@ -148,7 +148,11 @@ const Gallery = () => {
                                 </div>
                             </div>
                             <Grid container spacing={2}>
-                                <Grid item xs={12} md={6}>
+                                <Grid
+                                    size={{
+                                        xs: 12,
+                                        md: 6
+                                    }}>
                                     <TextField
                                         label={tr("url")}
                                         value={images[index].url}
@@ -160,7 +164,11 @@ const Gallery = () => {
                                         fullWidth
                                     />
                                 </Grid>
-                                <Grid item xs={6} md={3}>
+                                <Grid
+                                    size={{
+                                        xs: 6,
+                                        md: 3
+                                    }}>
                                     <TextField
                                         label={tr("cols")}
                                         defaultValue={1}
@@ -174,7 +182,11 @@ const Gallery = () => {
                                         fullWidth
                                     />
                                 </Grid>
-                                <Grid item xs={6} md={3}>
+                                <Grid
+                                    size={{
+                                        xs: 6,
+                                        md: 3
+                                    }}>
                                     <TextField
                                         label={tr("rows")}
                                         defaultValue={1}

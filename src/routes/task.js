@@ -4,7 +4,7 @@ import { AppContext } from '../context';
 
 import { Card, CardContent, Typography, Grid, Snackbar, Alert, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button, IconButton, useTheme, Divider, SpeedDial, SpeedDialIcon, SpeedDialAction, Box, MenuItem, FormControlLabel, Checkbox } from '@mui/material';
 import { CloseRounded, DeleteRounded, EditNoteRounded, EditRounded, PeopleAltRounded } from '@mui/icons-material';
-import { Portal } from '@mui/base';
+import Portal from '@mui/material/Portal';
 
 import CustomTable from '../components/table';
 import UserCard from '../components/usercard';
@@ -135,50 +135,70 @@ const TaskTable = memo(({ showDetail, reload }) => {
         showDetail(data.task);
     }
 
-    return <>
-        {due.length === 0 && <Grid container spacing={2} sx={{ marginBottom: "20px" }}>
-            <Grid item xs={12} sm={12} md={12} lg={12}>
-                <Card>
-                    <CardContent>
-                        <Typography variant="body2" gutterBottom>{tr("no_pending_tasks")}</Typography>
-                        <Typography variant="h5" component="div">{tr("all_tasks_completed")}</Typography>
-                        <Typography variant="body2" sx={{ mt: 1 }}>{tr("it_looks_like_a_great_day_to_rest_relax_and")}</Typography>
-                    </CardContent>
-                </Card>
-            </Grid>
-        </Grid>}
-        {due.length !== 0 && <Grid container spacing={2} sx={{ marginBottom: "20px" }}>
-            <Grid item xs={12} sm={12} md={due.length === 2 ? 6 : 12} lg={due.length === 2 ? 6 : 12}>
-                <Card>
-                    <CardContent>
-                        <Typography variant="body2" gutterBottom>{tr("todo_1")}</Typography>
-                        <Typography variant="h5" component="div">
-                            {due[0].title}
-                        </Typography>
-                        <Typography variant="body2" sx={{ mt: 1 }}>
-                            <>{tr("due")}</>: <TimeDelta key={`${+new Date()}`} timestamp={due[0].due_timestamp * 1000} />
-                        </Typography>
-                    </CardContent>
-                </Card>
-            </Grid>
-            {due.length === 2 &&
-                <Grid item xs={12} sm={12} md={6} lg={6}>
+    return (
+        <>
+            {due.length === 0 && <Grid container spacing={2} sx={{ marginBottom: "20px" }}>
+                <Grid
+                    size={{
+                        xs: 12,
+                        sm: 12,
+                        md: 12,
+                        lg: 12
+                    }}>
                     <Card>
                         <CardContent>
-                            <Typography variant="body2" gutterBottom>{tr("todo_2")}</Typography>
+                            <Typography variant="body2" gutterBottom>{tr("no_pending_tasks")}</Typography>
+                            <Typography variant="h5" component="div">{tr("all_tasks_completed")}</Typography>
+                            <Typography variant="body2" sx={{ mt: 1 }}>{tr("it_looks_like_a_great_day_to_rest_relax_and")}</Typography>
+                        </CardContent>
+                    </Card>
+                </Grid>
+            </Grid>}
+            {due.length !== 0 && <Grid container spacing={2} sx={{ marginBottom: "20px" }}>
+                <Grid
+                    size={{
+                        xs: 12,
+                        sm: 12,
+                        md: due.length === 2 ? 6 : 12,
+                        lg: due.length === 2 ? 6 : 12
+                    }}>
+                    <Card>
+                        <CardContent>
+                            <Typography variant="body2" gutterBottom>{tr("todo_1")}</Typography>
                             <Typography variant="h5" component="div">
-                                {due[1].title}
+                                {due[0].title}
                             </Typography>
                             <Typography variant="body2" sx={{ mt: 1 }}>
-                                <>{tr("due")}</>: <TimeDelta key={`${+new Date()}`} timestamp={due[1].due_timestamp * 1000} />
+                                <>{tr("due")}</>: <TimeDelta key={`${+new Date()}`} timestamp={due[0].due_timestamp * 1000} />
                             </Typography>
                         </CardContent>
                     </Card>
                 </Grid>
-            }
-        </Grid>}
-        {tasks !== null && <CustomTable page={page} columns={columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} data={tasks} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />}
-    </>;
+                {due.length === 2 &&
+                    <Grid
+                        size={{
+                            xs: 12,
+                            sm: 12,
+                            md: 6,
+                            lg: 6
+                        }}>
+                        <Card>
+                            <CardContent>
+                                <Typography variant="body2" gutterBottom>{tr("todo_2")}</Typography>
+                                <Typography variant="h5" component="div">
+                                    {due[1].title}
+                                </Typography>
+                                <Typography variant="body2" sx={{ mt: 1 }}>
+                                    <>{tr("due")}</>: <TimeDelta key={`${+new Date()}`} timestamp={due[1].due_timestamp * 1000} />
+                                </Typography>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                }
+            </Grid>}
+            {tasks !== null && <CustomTable page={page} columns={columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} data={tasks} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />}
+        </>
+    );
 });
 
 const TaskManagers = memo(() => {
@@ -360,256 +380,322 @@ const Task = () => {
         window.loading -= 1;
     }, [apiPath, detailTask, confirmNote, bonusControl]);
 
-    return <>
-        <TaskTable showDetail={showDetail} reload={reload}></TaskTable>
-        {detailTask !== null && <Dialog open={dialogAction === "detail"} onClose={() => setDialogAction("")} >
-            <DialogTitle sx={{ alignItems: "center" }}>
-                {detailTask.title}
-                {isTaskManager && <>
-                    <IconButton size="small" aria-label={tr("edit")} sx={{ marginLeft: "10px", marginTop: "-3px" }} onClick={() => { setEditId(detailTask.taskid); setTaskForm(detailTask); setDialogAction("edit"); setAssignToTmp(detailTask.assign_mode === 1 ? detailTask.assign_to.map(userid => membersMapping[userid]) : (detailTask.assign_mode === 0 ? [curUser.userid] : [])); }}><EditRounded /></IconButton >
-                    <IconButton size="small" aria-label={tr("delete")} sx={{ marginTop: "-3px" }}><DeleteRounded sx={{ "color": "red" }} onClick={() => { setDialogAction("delete"); }} /></IconButton >
-                </>}
-                <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogAction("")}>
-                    <CloseRounded />
-                </IconButton>
-            </DialogTitle>
-            <DialogContent sx={{ minWidth: "550px" }}>
-                <Typography variant="body2" gutterBottom><MarkdownRenderer>{detailTask.description}</MarkdownRenderer></Typography>
-                <br />
-                <Typography variant="body2" gutterBottom><b>{tr("priority")}</b>: <span style={{ color: PRIORITY_COLOR[detailTask.priority] }}>{PRIORITY_STRING[detailTask.priority]}</span></Typography>
-                <Typography variant="body2" gutterBottom><b>{tr("due")}</b>: <TimeDelta key={`${+new Date()}`} timestamp={detailTask.due_timestamp * 1000} /></Typography>
-                <Typography variant="body2" gutterBottom><b>{tr("creator")}</b>: <UserCard user={detailTask.creator} /></Typography>
-                <Typography variant="body2" gutterBottom><b>{tr("assigned_to")}</b>:&nbsp;
-                    {detailTask.assign_mode === 0 && <UserCard user={detailTask.creator} />}
-                    {detailTask.assign_mode === 1 && detailTask.assign_to.map((userid, index) => (<><UserCard key={index} user={membersMapping[userid]} />&nbsp;</>))}
-                    {detailTask.assign_mode === 2 && detailTask.assign_to.map((role, index) => (<>{allRoles[role].name}{index !== detailTask.assign_to.length - 1 ? ", " : ""}</>))}
-                </Typography>
-                <Typography variant="body2" gutterBottom><b>{tr("status")}</b>: {STATUS[STATUS_CONVERT[+detailTask.mark_completed][+detailTask.confirm_completed]]} {detailTask.mark_completed && !detailTask.confirm_completed && detailTask.mark_timestamp && <>(<TimeDelta timestamp={detailTask.mark_timestamp * 1000} lower={true} />)</>} {detailTask.confirm_completed && detailTask.confirm_timestamp && <>({tr("accepted")} <TimeDelta timestamp={detailTask.confirm_timestamp * 1000} lower={true} />)</>}</Typography>
-                {detailTask.mark_note !== "" && <Typography variant="body2" gutterBottom><b>{tr("assignee_note")}</b>: {detailTask.mark_note}</Typography>}
-                {detailTask.confirm_note !== "" && <Typography variant="body2" gutterBottom><b>{tr("manager_note")}</b>: {detailTask.confirm_note}</Typography>}
-                <br />
-                {isTaskAssignee && <>
-                    <Typography variant="body2" gutterBottom><b>{tr("mark_status")}</b></Typography>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6} md={6} lg={8}>
-                            <TextField
-                                label={tr("note")}
-                                value={markNote}
-                                onChange={(e) => setMarkNote(e.target.value)}
-                                fullWidth size="small"
-                            />
+    return (
+        <>
+            <TaskTable showDetail={showDetail} reload={reload}></TaskTable>
+            {detailTask !== null && <Dialog open={dialogAction === "detail"} onClose={() => setDialogAction("")} >
+                <DialogTitle sx={{ alignItems: "center" }}>
+                    {detailTask.title}
+                    {isTaskManager && <>
+                        <IconButton size="small" aria-label={tr("edit")} sx={{ marginLeft: "10px", marginTop: "-3px" }} onClick={() => { setEditId(detailTask.taskid); setTaskForm(detailTask); setDialogAction("edit"); setAssignToTmp(detailTask.assign_mode === 1 ? detailTask.assign_to.map(userid => membersMapping[userid]) : (detailTask.assign_mode === 0 ? [curUser.userid] : [])); }}><EditRounded /></IconButton >
+                        <IconButton size="small" aria-label={tr("delete")} sx={{ marginTop: "-3px" }}><DeleteRounded sx={{ "color": "red" }} onClick={() => { setDialogAction("delete"); }} /></IconButton >
+                    </>}
+                    <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogAction("")}>
+                        <CloseRounded />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent sx={{ minWidth: "550px" }}>
+                    <Typography variant="body2" gutterBottom><MarkdownRenderer>{detailTask.description}</MarkdownRenderer></Typography>
+                    <br />
+                    <Typography variant="body2" gutterBottom><b>{tr("priority")}</b>: <span style={{ color: PRIORITY_COLOR[detailTask.priority] }}>{PRIORITY_STRING[detailTask.priority]}</span></Typography>
+                    <Typography variant="body2" gutterBottom><b>{tr("due")}</b>: <TimeDelta key={`${+new Date()}`} timestamp={detailTask.due_timestamp * 1000} /></Typography>
+                    <Typography variant="body2" gutterBottom><b>{tr("creator")}</b>: <UserCard user={detailTask.creator} /></Typography>
+                    <Typography variant="body2" gutterBottom><b>{tr("assigned_to")}</b>:&nbsp;
+                        {detailTask.assign_mode === 0 && <UserCard user={detailTask.creator} />}
+                        {detailTask.assign_mode === 1 && detailTask.assign_to.map((userid, index) => (<><UserCard key={index} user={membersMapping[userid]} />&nbsp;</>))}
+                        {detailTask.assign_mode === 2 && detailTask.assign_to.map((role, index) => (<>{allRoles[role].name}{index !== detailTask.assign_to.length - 1 ? ", " : ""}</>))}
+                    </Typography>
+                    <Typography variant="body2" gutterBottom><b>{tr("status")}</b>: {STATUS[STATUS_CONVERT[+detailTask.mark_completed][+detailTask.confirm_completed]]} {detailTask.mark_completed && !detailTask.confirm_completed && detailTask.mark_timestamp && <>(<TimeDelta timestamp={detailTask.mark_timestamp * 1000} lower={true} />)</>} {detailTask.confirm_completed && detailTask.confirm_timestamp && <>({tr("accepted")} <TimeDelta timestamp={detailTask.confirm_timestamp * 1000} lower={true} />)</>}</Typography>
+                    {detailTask.mark_note !== "" && <Typography variant="body2" gutterBottom><b>{tr("assignee_note")}</b>: {detailTask.mark_note}</Typography>}
+                    {detailTask.confirm_note !== "" && <Typography variant="body2" gutterBottom><b>{tr("manager_note")}</b>: {detailTask.confirm_note}</Typography>}
+                    <br />
+                    {isTaskAssignee && <>
+                        <Typography variant="body2" gutterBottom><b>{tr("mark_status")}</b></Typography>
+                        <Grid container spacing={2}>
+                            <Grid
+                                size={{
+                                    xs: 12,
+                                    sm: 6,
+                                    md: 6,
+                                    lg: 8
+                                }}>
+                                <TextField
+                                    label={tr("note")}
+                                    value={markNote}
+                                    onChange={(e) => setMarkNote(e.target.value)}
+                                    fullWidth size="small"
+                                />
+                            </Grid>
+                            <Grid
+                                size={{
+                                    xs: 12,
+                                    sm: 6,
+                                    md: 6,
+                                    lg: 4
+                                }}>
+                                {!detailTask.mark_completed && <Button variant="contained" color="info" onClick={() => { markAsCompleted(1); }} disabled={buttonDisabled} fullWidth>{tr("completed")}</Button>}
+                                {detailTask.mark_completed && <Button variant="contained" color="warning" onClick={() => { markAsCompleted(0); }} disabled={buttonDisabled} fullWidth>{tr("uncompleted")}</Button>}
+                            </Grid>
                         </Grid>
-                        <Grid item xs={12} sm={6} md={6} lg={4}>
-                            {!detailTask.mark_completed && <Button variant="contained" color="info" onClick={() => { markAsCompleted(1); }} disabled={buttonDisabled} fullWidth>{tr("completed")}</Button>}
-                            {detailTask.mark_completed && <Button variant="contained" color="warning" onClick={() => { markAsCompleted(0); }} disabled={buttonDisabled} fullWidth>{tr("uncompleted")}</Button>}
+                    </>}
+                    {isTaskAssignee && isTaskManager && <Divider sx={{ margin: "15px 0 10px 0" }} />}
+                    {isTaskManager && <>
+                        <Typography variant="body2" gutterBottom><b>{tr("manager_status")}</b></Typography>
+                        <Grid container spacing={2} rowSpacing={-2}>
+                            <Grid
+                                size={{
+                                    xs: 12,
+                                    sm: 6,
+                                    md: 6,
+                                    lg: 8
+                                }}>
+                                <TextField
+                                    label={tr("note")}
+                                    value={confirmNote}
+                                    onChange={(e) => setConfirmNote(e.target.value)}
+                                    fullWidth size="small"
+                                />
+                            </Grid>
+                            <Grid
+                                size={{
+                                    xs: 12,
+                                    sm: 6,
+                                    md: 6,
+                                    lg: 4
+                                }}>
+                                {!detailTask.confirm_completed && <Button variant="contained" color="success" onClick={() => { confirmAsCompleted(1); }} disabled={buttonDisabled} fullWidth>{tr("accept")}</Button>}
+                                {detailTask.confirm_completed && <Button variant="contained" color="error" onClick={() => { confirmAsCompleted(0); }} disabled={buttonDisabled} fullWidth>{tr("reject")}</Button>}
+                            </Grid>
+                            <Grid
+                                size={{
+                                    xs: 0,
+                                    sm: 6,
+                                    md: 6,
+                                    lg: 8
+                                }}></Grid>
+                            <Grid
+                                size={{
+                                    xs: 12,
+                                    sm: 6,
+                                    md: 6,
+                                    lg: 4
+                                }}>
+                                <FormControlLabel size="small"
+                                    control={<Checkbox checked={bonusControl} onChange={(e) => { setBonusControl(e.target.checked); }} />}
+                                    label={`${detailTask.confirm_completed ? tr("remove_bonus") : tr("distribute_bonus")}`}
+                                />
+                            </Grid>
+                        </Grid>
+                    </>}
+                </DialogContent>
+                <DialogActions>
+                </DialogActions>
+            </Dialog>}
+            <Dialog open={dialogAction === "managers"} onClose={() => setDialogAction("")}>
+                <DialogTitle>{tr("public_task_managers")}</DialogTitle>
+                <DialogContent>
+                    <TaskManagers />
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="contained" onClick={() => { setDialogAction(""); }}>{tr("close")}</Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog open={dialogAction === "create" || dialogAction == "edit"} onClose={() => setDialogAction("")}>
+                <DialogTitle>
+                    {dialogAction === "create" ? tr("create_task") : tr("edit_task")}
+                    <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogAction("")}>
+                        <CloseRounded />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent>
+                    <form onSubmit={submitTaskForm} style={{ marginTop: "5px" }}>
+                        <Grid container spacing={2}>
+                            <Grid size={12}>
+                                <TextField
+                                    label={tr("title")}
+                                    value={taskForm.title}
+                                    onChange={(e) => setTaskForm(taskForm => ({ ...taskForm, title: e.target.value }))}
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid size={12}>
+                                <TextField
+                                    label={tr("description")}
+                                    multiline
+                                    value={taskForm.description}
+                                    onChange={(e) => setTaskForm(taskForm => ({ ...taskForm, description: e.target.value }))}
+                                    fullWidth
+                                    minRows={4}
+                                />
+                            </Grid>
+                            <Grid
+                                size={{
+                                    xs: 12,
+                                    md: canManagePublicTasks ? 6 : 12
+                                }}>
+                                <TextField
+                                    label={tr("priority")}
+                                    select
+                                    value={taskForm.priority}
+                                    onChange={(e) => setTaskForm(taskForm => ({ ...taskForm, priority: e.target.value }))}
+                                    fullWidth
+                                >
+                                    {PRIORITY_STRING.map((priority, index) => (
+                                        <MenuItem key={index} value={index} sx={{ color: PRIORITY_COLOR[index] }}>{priority}</MenuItem>
+                                    ))}
+                                </TextField>
+                            </Grid>
+                            {canManagePublicTasks && <Grid
+                                size={{
+                                    xs: 12,
+                                    md: 6
+                                }}>
+                                <TextField
+                                    label={tr("bonus")}
+                                    value={taskForm.bonus}
+                                    onChange={(e) => setTaskForm(taskForm => ({ ...taskForm, bonus: e.target.value }))}
+                                    fullWidth
+                                />
+                            </Grid>}
+                            <Grid
+                                size={{
+                                    xs: 12,
+                                    md: 6
+                                }}>
+                                <DateTimeField
+                                    label={tr("due_date")}
+                                    defaultValue={taskForm.due_timestamp}
+                                    onChange={(timestamp) => setTaskForm(taskForm => ({ ...taskForm, due_timestamp: timestamp }))}
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid
+                                size={{
+                                    xs: 12,
+                                    md: 6
+                                }}>
+                                <DateTimeField
+                                    label={tr("remind_date")}
+                                    defaultValue={taskForm.remind_timestamp}
+                                    onChange={(timestamp) => setTaskForm(taskForm => ({ ...taskForm, remind_timestamp: timestamp }))}
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid
+                                size={{
+                                    xs: 6,
+                                    md: 6
+                                }}>
+                                <TextField
+                                    label={tr("recurring_every_eg_1d_4h_10m_30s")}
+                                    value={taskForm.recurringText}
+                                    onChange={(e) => setTaskForm(taskForm => ({ ...taskForm, recurring: userFriendlyDurationToSeconds(e.target.value), recurringText: e.target.value }))}
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid
+                                size={{
+                                    xs: 6,
+                                    md: 3
+                                }}>
+                                <TextField
+                                    label={tr("recurring_seconds")}
+                                    value={taskForm.recurring}
+                                    onChange={(e) => setTaskForm(taskForm => ({ ...taskForm, recurring: e.target.value, recurringText: secondsToUserFriendlyDuration(e.target.value) }))}
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid
+                                size={{
+                                    xs: 12,
+                                    md: 3
+                                }}>
+                                <TextField
+                                    label={tr("assign_mode")}
+                                    select
+                                    value={taskForm.assign_mode}
+                                    onChange={(e) => setTaskForm(taskForm => ({ ...taskForm, assign_mode: e.target.value, assign_to: e.target.value === 0 ? [curUser.userid] : [] }))}
+                                    fullWidth
+                                >
+                                    <MenuItem value={0}>{tr("self")}</MenuItem>
+                                    {canManagePublicTasks && <MenuItem value={1}>{tr("users")}</MenuItem>}
+                                    {canManagePublicTasks && <MenuItem value={2}>{tr("roles")}</MenuItem>}
+                                </TextField>
+                            </Grid>
+                            {canManagePublicTasks && <Grid size={12}>
+                                {taskForm.assign_mode === 1 && <UserSelect label={tr("assign_to")} users={assignToTmp} isMulti={true} onUpdate={(users) => { setAssignToTmp(users); setTaskForm(taskForm => ({ ...taskForm, assign_to: users.map(user => user.userid) })); }} style={{ marginTop: "-5px" }} />}
+                                {taskForm.assign_mode === 2 && <RoleSelect initialRoles={taskForm.assign_to} onUpdate={(newRoles) => { setTaskForm(taskForm => ({ ...taskForm, assign_to: newRoles.map((role) => (role.id)) })); }} label={tr("assign_to")} showAllRoles={true} style={{ marginTop: "-5px" }} />}
+                            </Grid>}
+                        </Grid>
+                    </form>
+                </DialogContent>
+                <DialogActions>
+                    <Grid container justifyContent="space-between" padding="10px">
+                        <Grid>
+                            <Box sx={{ display: 'flex', gap: '10px' }}>
+                                <Button variant="contained" onClick={() => { setTaskForm(TASK_FORM); }}>{tr("clear")}</Button>
+                            </Box>
+                        </Grid>
+                        <Grid>
+                            <Box sx={{ display: 'flex', gap: '10px' }}>
+                                <Button variant="contained" color="info" onClick={submitTaskForm} disabled={buttonDisabled}>{dialogAction === "create" ? tr("create") : tr("edit")}</Button>
+                            </Box>
                         </Grid>
                     </Grid>
-                </>}
-                {isTaskAssignee && isTaskManager && <Divider sx={{ margin: "15px 0 10px 0" }} />}
-                {isTaskManager && <>
-                    <Typography variant="body2" gutterBottom><b>{tr("manager_status")}</b></Typography>
-                    <Grid container spacing={2} rowSpacing={-2}>
-                        <Grid item xs={12} sm={6} md={6} lg={8}>
-                            <TextField
-                                label={tr("note")}
-                                value={confirmNote}
-                                onChange={(e) => setConfirmNote(e.target.value)}
-                                fullWidth size="small"
-                            />
+                </DialogActions>
+            </Dialog>
+            {detailTask !== null && <Dialog open={dialogAction === "delete"} onClose={() => setDialogAction("")}>
+                <DialogTitle>{tr("delete_task")}</DialogTitle>
+                <DialogContent>
+                    <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>{tr("are_you_sure_you_want_to_delete_this_task")}</Typography>
+                    <Typography variant="body2" sx={{ minWidth: "400px" }}><b>{detailTask.title}</b></Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Grid container justifyContent="space-between" padding="10px">
+                        <Grid>
+                            <Box sx={{ display: 'flex', gap: '10px' }}>
+                                <Button variant="contained" onClick={() => { setDialogAction(""); }}>{tr("cancel")}</Button>
+                            </Box>
                         </Grid>
-                        <Grid item xs={12} sm={6} md={6} lg={4}>
-                            {!detailTask.confirm_completed && <Button variant="contained" color="success" onClick={() => { confirmAsCompleted(1); }} disabled={buttonDisabled} fullWidth>{tr("accept")}</Button>}
-                            {detailTask.confirm_completed && <Button variant="contained" color="error" onClick={() => { confirmAsCompleted(0); }} disabled={buttonDisabled} fullWidth>{tr("reject")}</Button>}
-                        </Grid>
-                        <Grid item xs={0} sm={6} md={6} lg={8}></Grid>
-                        <Grid item xs={12} sm={6} md={6} lg={4}>
-                            <FormControlLabel size="small"
-                                control={<Checkbox checked={bonusControl} onChange={(e) => { setBonusControl(e.target.checked); }} />}
-                                label={`${detailTask.confirm_completed ? tr("remove_bonus") : tr("distribute_bonus")}`}
-                            />
+                        <Grid>
+                            <Box sx={{ display: 'flex', gap: '10px' }}>
+                                <Button variant="contained" color="error" onClick={() => { deleteTask(detailTask); }} disabled={buttonDisabled}>{tr("delete")}</Button>
+                            </Box>
                         </Grid>
                     </Grid>
-                </>}
-            </DialogContent>
-            <DialogActions>
-            </DialogActions>
-        </Dialog>}
-        <Dialog open={dialogAction === "managers"} onClose={() => setDialogAction("")}>
-            <DialogTitle>{tr("public_task_managers")}</DialogTitle>
-            <DialogContent>
-                <TaskManagers />
-            </DialogContent>
-            <DialogActions>
-                <Button variant="contained" onClick={() => { setDialogAction(""); }}>{tr("close")}</Button>
-            </DialogActions>
-        </Dialog>
-        <Dialog open={dialogAction === "create" || dialogAction == "edit"} onClose={() => setDialogAction("")}>
-            <DialogTitle>
-                {dialogAction === "create" ? tr("create_task") : tr("edit_task")}
-                <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogAction("")}>
-                    <CloseRounded />
-                </IconButton>
-            </DialogTitle>
-            <DialogContent>
-                <form onSubmit={submitTaskForm} style={{ marginTop: "5px" }}>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12}>
-                            <TextField
-                                label={tr("title")}
-                                value={taskForm.title}
-                                onChange={(e) => setTaskForm(taskForm => ({ ...taskForm, title: e.target.value }))}
-                                fullWidth
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField
-                                label={tr("description")}
-                                multiline
-                                value={taskForm.description}
-                                onChange={(e) => setTaskForm(taskForm => ({ ...taskForm, description: e.target.value }))}
-                                fullWidth
-                                minRows={4}
-                            />
-                        </Grid>
-                        <Grid item xs={12} md={canManagePublicTasks ? 6 : 12}>
-                            <TextField
-                                label={tr("priority")}
-                                select
-                                value={taskForm.priority}
-                                onChange={(e) => setTaskForm(taskForm => ({ ...taskForm, priority: e.target.value }))}
-                                fullWidth
-                            >
-                                {PRIORITY_STRING.map((priority, index) => (
-                                    <MenuItem key={index} value={index} sx={{ color: PRIORITY_COLOR[index] }}>{priority}</MenuItem>
-                                ))}
-                            </TextField>
-                        </Grid>
-                        {canManagePublicTasks && <Grid item xs={12} md={6}>
-                            <TextField
-                                label={tr("bonus")}
-                                value={taskForm.bonus}
-                                onChange={(e) => setTaskForm(taskForm => ({ ...taskForm, bonus: e.target.value }))}
-                                fullWidth
-                            />
-                        </Grid>}
-                        <Grid item xs={12} md={6}>
-                            <DateTimeField
-                                label={tr("due_date")}
-                                defaultValue={taskForm.due_timestamp}
-                                onChange={(timestamp) => setTaskForm(taskForm => ({ ...taskForm, due_timestamp: timestamp }))}
-                                fullWidth
-                            />
-                        </Grid>
-                        <Grid item xs={12} md={6}>
-                            <DateTimeField
-                                label={tr("remind_date")}
-                                defaultValue={taskForm.remind_timestamp}
-                                onChange={(timestamp) => setTaskForm(taskForm => ({ ...taskForm, remind_timestamp: timestamp }))}
-                                fullWidth
-                            />
-                        </Grid>
-                        <Grid item xs={6} md={6}>
-                            <TextField
-                                label={tr("recurring_every_eg_1d_4h_10m_30s")}
-                                value={taskForm.recurringText}
-                                onChange={(e) => setTaskForm(taskForm => ({ ...taskForm, recurring: userFriendlyDurationToSeconds(e.target.value), recurringText: e.target.value }))}
-                                fullWidth
-                            />
-                        </Grid>
-                        <Grid item xs={6} md={3}>
-                            <TextField
-                                label={tr("recurring_seconds")}
-                                value={taskForm.recurring}
-                                onChange={(e) => setTaskForm(taskForm => ({ ...taskForm, recurring: e.target.value, recurringText: secondsToUserFriendlyDuration(e.target.value) }))}
-                                fullWidth
-                            />
-                        </Grid>
-                        <Grid item xs={12} md={3}>
-                            <TextField
-                                label={tr("assign_mode")}
-                                select
-                                value={taskForm.assign_mode}
-                                onChange={(e) => setTaskForm(taskForm => ({ ...taskForm, assign_mode: e.target.value, assign_to: e.target.value === 0 ? [curUser.userid] : [] }))}
-                                fullWidth
-                            >
-                                <MenuItem value={0}>{tr("self")}</MenuItem>
-                                {canManagePublicTasks && <MenuItem value={1}>{tr("users")}</MenuItem>}
-                                {canManagePublicTasks && <MenuItem value={2}>{tr("roles")}</MenuItem>}
-                            </TextField>
-                        </Grid>
-                        {canManagePublicTasks && <Grid item xs={12}>
-                            {taskForm.assign_mode === 1 && <UserSelect label={tr("assign_to")} users={assignToTmp} isMulti={true} onUpdate={(users) => { setAssignToTmp(users); setTaskForm(taskForm => ({ ...taskForm, assign_to: users.map(user => user.userid) })); }} style={{ marginTop: "-5px" }} />}
-                            {taskForm.assign_mode === 2 && <RoleSelect initialRoles={taskForm.assign_to} onUpdate={(newRoles) => { setTaskForm(taskForm => ({ ...taskForm, assign_to: newRoles.map((role) => (role.id)) })); }} label={tr("assign_to")} showAllRoles={true} style={{ marginTop: "-5px" }} />}
-                        </Grid>}
-                    </Grid>
-                </form>
-            </DialogContent>
-            <DialogActions>
-                <Grid container justifyContent="space-between" padding="10px">
-                    <Grid item>
-                        <Box sx={{ display: 'flex', gap: '10px' }}>
-                            <Button variant="contained" onClick={() => { setTaskForm(TASK_FORM); }}>{tr("clear")}</Button>
-                        </Box>
-                    </Grid>
-                    <Grid item>
-                        <Box sx={{ display: 'flex', gap: '10px' }}>
-                            <Button variant="contained" color="info" onClick={submitTaskForm} disabled={buttonDisabled}>{dialogAction === "create" ? tr("create") : tr("edit")}</Button>
-                        </Box>
-                    </Grid>
-                </Grid>
-            </DialogActions>
-        </Dialog>
-        {detailTask !== null && <Dialog open={dialogAction === "delete"} onClose={() => setDialogAction("")}>
-            <DialogTitle>{tr("delete_task")}</DialogTitle>
-            <DialogContent>
-                <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>{tr("are_you_sure_you_want_to_delete_this_task")}</Typography>
-                <Typography variant="body2" sx={{ minWidth: "400px" }}><b>{detailTask.title}</b></Typography>
-            </DialogContent>
-            <DialogActions>
-                <Grid container justifyContent="space-between" padding="10px">
-                    <Grid item>
-                        <Box sx={{ display: 'flex', gap: '10px' }}>
-                            <Button variant="contained" onClick={() => { setDialogAction(""); }}>{tr("cancel")}</Button>
-                        </Box>
-                    </Grid>
-                    <Grid item>
-                        <Box sx={{ display: 'flex', gap: '10px' }}>
-                            <Button variant="contained" color="error" onClick={() => { deleteTask(detailTask); }} disabled={buttonDisabled}>{tr("delete")}</Button>
-                        </Box>
-                    </Grid>
-                </Grid>
-            </DialogActions>
-        </Dialog>}
-        <SpeedDial
-            ariaLabel={tr("controls")}
-            sx={{ position: 'fixed', bottom: 20, right: 20 }}
-            icon={<SpeedDialIcon />}
-        >
-            {curUser.userid !== -1 && <SpeedDialAction
-                key="create"
-                icon={<EditNoteRounded />}
-                tooltipTitle={tr("create")}
-                onClick={() => createTask()}
-            />}
-            {curUser.userid !== -1 && <SpeedDialAction
-                key="managers"
-                icon={<PeopleAltRounded />}
-                tooltipTitle={tr("managers")}
-                onClick={() => setDialogAction("managers")}
-            />}
-        </SpeedDial>
-        <Portal>
-            <Snackbar
-                open={!!snackbarContent}
-                autoHideDuration={5000}
-                onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                </DialogActions>
+            </Dialog>}
+            <SpeedDial
+                ariaLabel={tr("controls")}
+                sx={{ position: 'fixed', bottom: 20, right: 20 }}
+                icon={<SpeedDialIcon />}
             >
-                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
-                    {snackbarContent}
-                </Alert>
-            </Snackbar>
-        </Portal></>;
+                {curUser.userid !== -1 && <SpeedDialAction
+                    key="create"
+                    icon={<EditNoteRounded />}
+                    tooltipTitle={tr("create")}
+                    onClick={() => createTask()}
+                />}
+                {curUser.userid !== -1 && <SpeedDialAction
+                    key="managers"
+                    icon={<PeopleAltRounded />}
+                    tooltipTitle={tr("managers")}
+                    onClick={() => setDialogAction("managers")}
+                />}
+            </SpeedDial>
+            <Portal>
+                <Snackbar
+                    open={!!snackbarContent}
+                    autoHideDuration={5000}
+                    onClose={handleCloseSnackbar}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                >
+                    <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
+                        {snackbarContent}
+                    </Alert>
+                </Snackbar>
+            </Portal></>
+    );
 };
 
 export default Task;

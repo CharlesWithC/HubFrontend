@@ -294,10 +294,22 @@ function App() {
                                     <Typography variant="h6" fontWeight="bold">{tr("we_value_your_privacy")}</Typography>
                                     <Typography variant="body2" sx={{ marginBottom: "10px" }}>{tr("we_use_necessary_cookies_for")}<br />{tr("by_clicking_accept_you_consent")}</Typography>
                                     <Grid container spacing={2}>
-                                        <Grid item xs={12} sm={12} md={6} lg={6}>
+                                        <Grid
+                                            size={{
+                                                xs: 12,
+                                                sm: 12,
+                                                md: 6,
+                                                lg: 6
+                                            }}>
                                             <Button onClick={() => { updateCookieSettings("analytical"); }} variant="contained" color="success" sx={{ width: "100%" }}>{tr("accept")}</Button>
                                         </Grid>
-                                        <Grid item xs={12} sm={12} md={6} lg={6}>
+                                        <Grid
+                                            size={{
+                                                xs: 12,
+                                                sm: 12,
+                                                md: 6,
+                                                lg: 6
+                                            }}>
                                             <Button onClick={() => { updateCookieSettings("essential"); }} variant="contained" color="secondary" sx={{ width: "100%" }}>{tr("decline")}</Button>
                                         </Grid>
                                     </Grid>
@@ -310,13 +322,31 @@ function App() {
                                     <Typography variant="h6" fontWeight="bold">CHub Community Survey</Typography>
                                     <Typography variant="body2" sx={{ marginBottom: "10px" }}>Share your feedback for a chance to win a <b>$10 Steam Giftcard</b>!</Typography>
                                     <Grid container spacing={2}>
-                                        <Grid item xs={12} sm={12} md={localStorage.getItem("survey-202402") !== null ? 12 : 6} lg={localStorage.getItem("survey-202402") !== null ? 12 : 6}>
+                                        <Grid
+                                            size={{
+                                                xs: 12,
+                                                sm: 12,
+                                                md: localStorage.getItem("survey-202402") !== null ? 12 : 6,
+                                                lg: localStorage.getItem("survey-202402") !== null ? 12 : 6
+                                            }}>
                                             <Button onClick={() => { localStorage.setItem("survey-202402", "1710806400000"); setShowSurveyCard(false); window.open("https://go.charlws.com/survey"); }} variant="contained" color="success" sx={{ width: "100%" }}>Join</Button>
                                         </Grid>
-                                        {localStorage.getItem("survey-202402") !== null && <Grid item xs={12} sm={12} md={6} lg={6}>
+                                        {localStorage.getItem("survey-202402") !== null && <Grid
+                                            size={{
+                                                xs: 12,
+                                                sm: 12,
+                                                md: 6,
+                                                lg: 6
+                                            }}>
                                             <Button onClick={() => { localStorage.setItem("survey-202402", "1710806400000"); setShowSurveyCard(false); }} variant="contained" color="secondary" sx={{ width: "100%" }}>Not interested</Button>
                                         </Grid>}
-                                        <Grid item xs={12} sm={12} md={6} lg={6}>
+                                        <Grid
+                                            size={{
+                                                xs: 12,
+                                                sm: 12,
+                                                md: 6,
+                                                lg: 6
+                                            }}>
                                             <Button onClick={() => { localStorage.setItem("survey-202402", String(+new Date() + 86400000)); setShowSurveyCard(false); }} variant="contained" color="secondary" sx={{ width: "100%" }}>Remind me later</Button>
                                         </Grid>
                                     </Grid>
@@ -326,7 +356,7 @@ function App() {
                         <SimpleBar style={{ padding: "20px", height: "100%", backgroundColor: theme.palette.background.default }} >
                             <div style={{ display: "flex", flexDirection: "column", minHeight: "calc(100vh - 120px)" }}>
                                 {!sidebarForceHidden && curUser.userid === null && [false, ...apiConfig.required_connections].reduce((res, conn) => (res || curUser[conn + (conn !== "email" ? "id" : "")] === null)) && <Grid container>
-                                    <Grid item xs={12} sx={{ mb: "15px" }}>
+                                    <Grid sx={{ mb: "15px" }} size={12}>
                                         <Card>
                                             <CardContent>
                                                 <Typography variant="h5">
@@ -428,12 +458,20 @@ function App() {
                                             Versions
                                         </Typography>
                                         <Grid container spacing={2} rowSpacing={-0.5}>
-                                            <Grid item xs={12} md={6}>
+                                            <Grid
+                                                size={{
+                                                    xs: 12,
+                                                    md: 6
+                                                }}>
                                                 <Typography variant="body2">
                                                     Client: 3.4.6 (build.{buildhash})
                                                 </Typography>
                                             </Grid>
-                                            <Grid item xs={12} md={6}>
+                                            <Grid
+                                                size={{
+                                                    xs: 12,
+                                                    md: 6
+                                                }}>
                                                 <Typography variant="body2">
                                                     Server: {apiVersion}
                                                 </Typography>

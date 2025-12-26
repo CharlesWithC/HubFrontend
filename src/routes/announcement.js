@@ -4,7 +4,7 @@ import { AppContext, CacheContext } from '../context';
 
 import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, MenuItem, Snackbar, Alert, Pagination, IconButton, Checkbox, InputAdornment, Box } from '@mui/material';
 import { InfoRounded, EventNoteRounded, WarningRounded, ErrorOutlineRounded, CheckCircleOutlineRounded, EditNoteRounded, RefreshRounded, EditRounded, DeleteRounded, PeopleAltRounded, CloseRounded } from '@mui/icons-material';
-import { Portal } from '@mui/base';
+import Portal from '@mui/material/Portal';
 
 import UserCard from '../components/usercard';
 import MarkdownRenderer from '../components/markdown';
@@ -61,7 +61,14 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
 
     if (announcement.display === "half-width") {
         return (
-            <Grid item xs={12} sm={12} md={6} lg={6} key={announcement.announcementid}>
+            <Grid
+                key={announcement.announcementid}
+                size={{
+                    xs: 12,
+                    sm: 12,
+                    md: 6,
+                    lg: 6
+                }}>
                 <Card>
                     <CardContent>
                         <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
@@ -85,7 +92,14 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
         );
     } else if (announcement.display === "full-width") {
         return (
-            <Grid item xs={12} sm={12} md={12} lg={12} key={announcement.announcementid}>
+            <Grid
+                key={announcement.announcementid}
+                size={{
+                    xs: 12,
+                    sm: 12,
+                    md: 12,
+                    lg: 12
+                }}>
                 <Card>
                     <CardContent>
                         <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
@@ -109,12 +123,32 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
         );
     } else if (announcement.display === "with-image-left") {
         return (
-            <Grid item xs={12} sm={12} md={12} lg={12} key={announcement.announcementid}>
+            <Grid
+                key={announcement.announcementid}
+                size={{
+                    xs: 12,
+                    sm: 12,
+                    md: 12,
+                    lg: 12
+                }}>
                 <Grid container spacing={2}>
-                    <Grid item xs={12} sm={12} md={6} lg={6}>
+                    <Grid
+                        size={{
+                            xs: 12,
+                            sm: 12,
+                            md: 6,
+                            lg: 6
+                        }}>
                         <img src={announcement.image} alt="" style={{ width: '100%', border: 'none' }} />
                     </Grid>
-                    <Grid item xs={12} sm={12} md={6} lg={6} style={{ display: 'flex' }}>
+                    <Grid
+                        style={{ display: 'flex' }}
+                        size={{
+                            xs: 12,
+                            sm: 12,
+                            md: 6,
+                            lg: 6
+                        }}>
                         <Card style={{ display: 'flex', flexDirection: 'column' }}>
                             <CardContent>
                                 <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
@@ -140,9 +174,23 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
         );
     } else if (announcement.display === "with-image-right") {
         return (
-            <Grid item xs={12} sm={12} md={12} lg={12} key={announcement.announcementid}>
+            <Grid
+                key={announcement.announcementid}
+                size={{
+                    xs: 12,
+                    sm: 12,
+                    md: 12,
+                    lg: 12
+                }}>
                 <Grid container spacing={2}>
-                    <Grid item xs={12} sm={12} md={6} lg={6} style={{ display: 'flex' }}>
+                    <Grid
+                        style={{ display: 'flex' }}
+                        size={{
+                            xs: 12,
+                            sm: 12,
+                            md: 6,
+                            lg: 6
+                        }}>
                         <Card style={{ display: 'flex', flexDirection: 'column' }}>
                             <CardContent>
                                 <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
@@ -163,7 +211,13 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
                             </CardContent>
                         </Card>
                     </Grid>
-                    <Grid item xs={12} sm={12} md={6} lg={6}>
+                    <Grid
+                        size={{
+                            xs: 12,
+                            sm: 12,
+                            md: 6,
+                            lg: 6
+                        }}>
                         <img src={announcement.image} alt="" style={{ width: '100%', border: 'none' }} />
                     </Grid>
                 </Grid>
@@ -174,49 +228,51 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
 
 const AnnouncementGrid = memo(({ announcements, lastUpdate, onEdit, onDelete }) => {
     let halfCnt = 0;
-    return <Grid container spacing={3}>
-        {announcements.map((announcement, index) => {
-            announcement.display = 'half-width';
+    return (
+        <Grid container spacing={3}>
+            {announcements.map((announcement, index) => {
+                announcement.display = 'half-width';
 
-            const hasImage = /^\[Image src="(.+)" loc="(.+)"\]/.test(announcement.content);
+                const hasImage = /^\[Image src="(.+)" loc="(.+)"\]/.test(announcement.content);
 
-            if (hasImage) {
-                const re = announcement.content.match(/^\[Image src="(.+)" loc="(.+)"\]/);
-                const link = re[1];
-                const loc = re[2];
-                announcement.image = link;
-                announcement.display = 'with-image-' + loc;
-                halfCnt = 0;
-            } else {
-                if (index + 1 < announcements.length) {
-                    const nextAnnouncement = announcements[index + 1];
-                    const nextHasImage = /^\[Image src="(.+)" loc="(.+)"\]/.test(nextAnnouncement.content);
+                if (hasImage) {
+                    const re = announcement.content.match(/^\[Image src="(.+)" loc="(.+)"\]/);
+                    const link = re[1];
+                    const loc = re[2];
+                    announcement.image = link;
+                    announcement.display = 'with-image-' + loc;
+                    halfCnt = 0;
+                } else {
+                    if (index + 1 < announcements.length) {
+                        const nextAnnouncement = announcements[index + 1];
+                        const nextHasImage = /^\[Image src="(.+)" loc="(.+)"\]/.test(nextAnnouncement.content);
 
-                    if (nextHasImage) {
-                        if (halfCnt % 2 === 1) {
+                        if (nextHasImage) {
+                            if (halfCnt % 2 === 1) {
+                                announcement.display = 'half-width';
+                                halfCnt += 1;
+                            } else {
+                                announcement.display = 'full-width';
+                                halfCnt = 0;
+                            }
+                        } else {
                             announcement.display = 'half-width';
                             halfCnt += 1;
-                        } else {
-                            announcement.display = 'full-width';
-                            halfCnt = 0;
                         }
-                    } else {
-                        announcement.display = 'half-width';
-                        halfCnt += 1;
                     }
                 }
-            }
 
-            return (
-                <AnnouncementCard
-                    announcement={announcement}
-                    key={announcement.announcementid}
-                    onEdit={onEdit}
-                    onDelete={onDelete}
-                />
-            );
-        })}
-    </Grid>;
+                return (
+                    <AnnouncementCard
+                        announcement={announcement}
+                        key={announcement.announcementid}
+                        onEdit={onEdit}
+                        onDelete={onDelete}
+                    />
+                );
+            })}
+        </Grid>
+    );
 }, (prevProps, nextProps) => {
     return prevProps.lastUpdate === nextProps.lastUpdate;
 });
@@ -425,187 +481,187 @@ const Announcement = () => {
 
     return (
         <>{announcementTypes !== null && <>
-            <AnnouncementGrid announcements={announcements} lastUpdate={lastUpdate} onEdit={editAnnouncement} onDelete={deleteAnnouncement} />
-            {announcements.length !== 0 && <Pagination count={totalPages} onChange={handlePagination}
-                sx={{ display: "flex", justifyContent: "flex-end", marginTop: "10px", marginRight: "10px" }} />}
-            <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
-                <DialogTitle>
-                    {dialogTitle}
-                    <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogOpen(false)}>
-                        <CloseRounded />
-                    </IconButton>
-                </DialogTitle>
-                <DialogContent>
-                    <form onSubmit={handleSubmit} style={{ marginTop: "5px" }}>
-                        <Grid container spacing={2}>
-                            <Grid item xs={12}>
-                                <TextField
-                                    label={tr("title")}
-                                    value={title}
-                                    onChange={(e) => setTitle(e.target.value)}
-                                    fullWidth
-                                    InputProps={{
-                                        endAdornment: (
-                                            <>{title.match(/https:\/\/truckersmp\.com\/vtc\/(.*)\/news\/(\d+)/) && <InputAdornment position="end">
-                                                <Button variant="contained" onClick={() => { importTMPNews(); }} disabled={importDisabled}>{tr("import")}</Button>
-                                            </InputAdornment>}</>
-                                        ),
-                                    }}
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-                                <TextField
-                                    label={tr("content_markdown")}
-                                    multiline
-                                    value={content}
-                                    onChange={(e) => setContent(e.target.value)}
-                                    fullWidth
-                                    minRows={4}
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-                                <Grid container spacing={2}>
-                                    <Grid item xs={6}>
-                                        <TextField select label={tr("announcement_type")} value={announcementType} onChange={(e) => setAnnouncementType(e.target.value)} sx={{ marginTop: "6px", height: "30px" }} fullWidth>
-                                            {(announcementTypes).map((option) => (
-                                                <MenuItem key={option.id} value={option.id}>
-                                                    {option.name}
-                                                </MenuItem>
-                                            ))}
-                                        </TextField>
-                                    </Grid>
-                                    <Grid item xs={6}>
-                                        <FormControl component="fieldset">
-                                            <FormLabel component="legend">{tr("visibility")}</FormLabel>
-                                            <RadioGroup
-                                                value={isPrivate} row
-                                                onChange={(e) => setIsPrivate(e.target.value)}
-                                            >
-                                                <FormControlLabel value={false} control={<Radio />} label={tr("public")} />
-                                                <FormControlLabel value={true} control={<Radio />} label={tr("private")} />
-                                            </RadioGroup>
-                                        </FormControl>
-                                    </Grid>
-                                    <Grid item xs={6}>
-                                        <TextField
-                                            label={tr("order_id")}
-                                            value={orderId}
-                                            onChange={(e) => { let f = e.target.value.startsWith("-"); setOrderId((f ? "-" : "") + e.target.value.replace(/[^0-9]/g, "")); }}
-                                            fullWidth
-                                        />
-                                    </Grid>
-                                    <Grid item xs={6}>
-                                        <FormControl component="fieldset" sx={{ mb: "10px" }}>
-                                            <FormControlLabel
-                                                key="pin"
-                                                control={
-                                                    <Checkbox
-                                                        name={tr("pin")}
-                                                        checked={isPinned}
-                                                        onChange={() => setIsPinned(!isPinned)}
-                                                    />
-                                                }
-                                                label={tr("pin")}
+                <AnnouncementGrid announcements={announcements} lastUpdate={lastUpdate} onEdit={editAnnouncement} onDelete={deleteAnnouncement} />
+                {announcements.length !== 0 && <Pagination count={totalPages} onChange={handlePagination}
+                    sx={{ display: "flex", justifyContent: "flex-end", marginTop: "10px", marginRight: "10px" }} />}
+                <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
+                    <DialogTitle>
+                        {dialogTitle}
+                        <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogOpen(false)}>
+                            <CloseRounded />
+                        </IconButton>
+                    </DialogTitle>
+                    <DialogContent>
+                        <form onSubmit={handleSubmit} style={{ marginTop: "5px" }}>
+                            <Grid container spacing={2}>
+                                <Grid size={12}>
+                                    <TextField
+                                        label={tr("title")}
+                                        value={title}
+                                        onChange={(e) => setTitle(e.target.value)}
+                                        fullWidth
+                                        InputProps={{
+                                            endAdornment: (
+                                                <>{title.match(/https:\/\/truckersmp\.com\/vtc\/(.*)\/news\/(\d+)/) && <InputAdornment position="end">
+                                                    <Button variant="contained" onClick={() => { importTMPNews(); }} disabled={importDisabled}>{tr("import")}</Button>
+                                                </InputAdornment>}</>
+                                            ),
+                                        }}
+                                    />
+                                </Grid>
+                                <Grid size={12}>
+                                    <TextField
+                                        label={tr("content_markdown")}
+                                        multiline
+                                        value={content}
+                                        onChange={(e) => setContent(e.target.value)}
+                                        fullWidth
+                                        minRows={4}
+                                    />
+                                </Grid>
+                                <Grid size={12}>
+                                    <Grid container spacing={2}>
+                                        <Grid size={6}>
+                                            <TextField select label={tr("announcement_type")} value={announcementType} onChange={(e) => setAnnouncementType(e.target.value)} sx={{ marginTop: "6px", height: "30px" }} fullWidth>
+                                                {(announcementTypes).map((option) => (
+                                                    <MenuItem key={option.id} value={option.id}>
+                                                        {option.name}
+                                                    </MenuItem>
+                                                ))}
+                                            </TextField>
+                                        </Grid>
+                                        <Grid size={6}>
+                                            <FormControl component="fieldset">
+                                                <FormLabel component="legend">{tr("visibility")}</FormLabel>
+                                                <RadioGroup
+                                                    value={isPrivate} row
+                                                    onChange={(e) => setIsPrivate(e.target.value)}
+                                                >
+                                                    <FormControlLabel value={false} control={<Radio />} label={tr("public")} />
+                                                    <FormControlLabel value={true} control={<Radio />} label={tr("private")} />
+                                                </RadioGroup>
+                                            </FormControl>
+                                        </Grid>
+                                        <Grid size={6}>
+                                            <TextField
+                                                label={tr("order_id")}
+                                                value={orderId}
+                                                onChange={(e) => { let f = e.target.value.startsWith("-"); setOrderId((f ? "-" : "") + e.target.value.replace(/[^0-9]/g, "")); }}
+                                                fullWidth
                                             />
-                                        </FormControl>
+                                        </Grid>
+                                        <Grid size={6}>
+                                            <FormControl component="fieldset" sx={{ mb: "10px" }}>
+                                                <FormControlLabel
+                                                    key="pin"
+                                                    control={
+                                                        <Checkbox
+                                                            name={tr("pin")}
+                                                            checked={isPinned}
+                                                            onChange={() => setIsPinned(!isPinned)}
+                                                        />
+                                                    }
+                                                    label={tr("pin")}
+                                                />
+                                            </FormControl>
+                                        </Grid>
                                     </Grid>
                                 </Grid>
                             </Grid>
+                        </form>
+                    </DialogContent>
+                    <DialogActions>
+                        <Grid container justifyContent="space-between" padding="10px">
+                            <Grid>
+                                <Box sx={{ display: 'flex', gap: '10px' }}>
+                                    <Button variant="contained" onClick={clearModal}>{tr("clear")}</Button>
+                                </Box>
+                            </Grid>
+                            <Grid>
+                                <Box sx={{ display: 'flex', gap: '10px' }}>
+                                    <Button variant="contained" color="info" onClick={handleSubmit} disabled={submitLoading}>{dialogButton}</Button>
+                                </Box>
+                            </Grid>
                         </Grid>
-                    </form>
-                </DialogContent>
-                <DialogActions>
-                    <Grid container justifyContent="space-between" padding="10px">
-                        <Grid item>
-                            <Box sx={{ display: 'flex', gap: '10px' }}>
-                                <Button variant="contained" onClick={clearModal}>{tr("clear")}</Button>
-                            </Box>
+                    </DialogActions>
+                </Dialog>
+                <Dialog open={dialogDelete} onClose={() => setDialogDelete(false)}>
+                    <DialogTitle>
+                        {tr("delete_announcement")}
+                        <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogDelete(false)}>
+                            <CloseRounded />
+                        </IconButton>
+                    </DialogTitle>
+                    <DialogContent>
+                        <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>{tr("are_you_sure_you_want")}</Typography>
+                        <AnnouncementCard announcement={toDelete !== null ? toDelete : {}} />
+                    </DialogContent>
+                    <DialogActions>
+                        <Grid container justifyContent="space-between" padding="10px">
+                            <Grid>
+                                <Box sx={{ display: 'flex', gap: '10px' }}>
+                                    <Button variant="contained" onClick={() => { setDialogDelete(false); }}>{tr("cancel")}</Button>
+                                </Box>
+                            </Grid>
+                            <Grid>
+                                <Box sx={{ display: 'flex', gap: '10px' }}>
+                                    <Button variant="contained" color="error" onClick={() => { deleteAnnouncement({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>{tr("delete")}</Button>
+                                </Box>
+                            </Grid>
                         </Grid>
-                        <Grid item>
-                            <Box sx={{ display: 'flex', gap: '10px' }}>
-                                <Button variant="contained" color="info" onClick={handleSubmit} disabled={submitLoading}>{dialogButton}</Button>
-                            </Box>
-                        </Grid>
-                    </Grid>
-                </DialogActions>
-            </Dialog>
-            <Dialog open={dialogDelete} onClose={() => setDialogDelete(false)}>
-                <DialogTitle>
-                    {tr("delete_announcement")}
-                    <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogDelete(false)}>
-                        <CloseRounded />
-                    </IconButton>
-                </DialogTitle>
-                <DialogContent>
-                    <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>{tr("are_you_sure_you_want")}</Typography>
-                    <AnnouncementCard announcement={toDelete !== null ? toDelete : {}} />
-                </DialogContent>
-                <DialogActions>
-                    <Grid container justifyContent="space-between" padding="10px">
-                        <Grid item>
-                            <Box sx={{ display: 'flex', gap: '10px' }}>
-                                <Button variant="contained" onClick={() => { setDialogDelete(false); }}>{tr("cancel")}</Button>
-                            </Box>
-                        </Grid>
-                        <Grid item>
-                            <Box sx={{ display: 'flex', gap: '10px' }}>
-                                <Button variant="contained" color="error" onClick={() => { deleteAnnouncement({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>{tr("delete")}</Button>
-                            </Box>
-                        </Grid>
-                    </Grid>
-                </DialogActions>
-            </Dialog>
-            <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
-                <DialogTitle>
-                    {tr("announcement_managers")}
-                    <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogOpen(false)}>
-                        <CloseRounded />
-                    </IconButton>
-                </DialogTitle>
-                <DialogContent>
-                    <AnnouncementManagers />
-                </DialogContent>
-                <DialogActions>
-                    <Button variant="contained" onClick={() => { setDialogManagers(false); }}>{tr("close")}</Button>
-                </DialogActions>
-            </Dialog>
-            <SpeedDial
-                ariaLabel={tr("controls")}
-                sx={{ position: 'fixed', bottom: 20, right: 20 }}
-                icon={<SpeedDialIcon />}
-            >
-                {checkUserPerm(curUserPerm, ["administrator", "manage_announcements"]) && <SpeedDialAction
-                    key="create"
-                    icon={<EditNoteRounded />}
-                    tooltipTitle={tr("create")}
-                    onClick={() => createAnnouncement()}
-                />}
-                {!isNaN(curUser.userid) && <SpeedDialAction
-                    key="managers"
-                    icon={<PeopleAltRounded />}
-                    tooltipTitle={tr("managers")}
-                    onClick={() => setDialogManagers(true)}
-                />}
-                <SpeedDialAction
-                    key="refresh"
-                    icon={<RefreshRounded />}
-                    tooltipTitle={tr("refresh")}
-                    onClick={() => doLoad()}
-                />
-            </SpeedDial>
-            <Portal>
-                <Snackbar
-                    open={!!snackbarContent}
-                    autoHideDuration={5000}
-                    onClose={handleCloseSnackbar}
-                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                    </DialogActions>
+                </Dialog>
+                <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
+                    <DialogTitle>
+                        {tr("announcement_managers")}
+                        <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogOpen(false)}>
+                            <CloseRounded />
+                        </IconButton>
+                    </DialogTitle>
+                    <DialogContent>
+                        <AnnouncementManagers />
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant="contained" onClick={() => { setDialogManagers(false); }}>{tr("close")}</Button>
+                    </DialogActions>
+                </Dialog>
+                <SpeedDial
+                    ariaLabel={tr("controls")}
+                    sx={{ position: 'fixed', bottom: 20, right: 20 }}
+                    icon={<SpeedDialIcon />}
                 >
-                    <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
-                        {snackbarContent}
-                    </Alert>
-                </Snackbar>
-            </Portal>
-        </>}</>
+                    {checkUserPerm(curUserPerm, ["administrator", "manage_announcements"]) && <SpeedDialAction
+                        key="create"
+                        icon={<EditNoteRounded />}
+                        tooltipTitle={tr("create")}
+                        onClick={() => createAnnouncement()}
+                    />}
+                    {!isNaN(curUser.userid) && <SpeedDialAction
+                        key="managers"
+                        icon={<PeopleAltRounded />}
+                        tooltipTitle={tr("managers")}
+                        onClick={() => setDialogManagers(true)}
+                    />}
+                    <SpeedDialAction
+                        key="refresh"
+                        icon={<RefreshRounded />}
+                        tooltipTitle={tr("refresh")}
+                        onClick={() => doLoad()}
+                    />
+                </SpeedDial>
+                <Portal>
+                    <Snackbar
+                        open={!!snackbarContent}
+                        autoHideDuration={5000}
+                        onClose={handleCloseSnackbar}
+                        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                    >
+                        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
+                            {snackbarContent}
+                        </Alert>
+                    </Snackbar>
+                </Portal>
+            </>}</>
     );
 };
 

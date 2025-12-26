@@ -18,7 +18,7 @@ const Podium = ({ title, first, second, third, fixWidth }) => {
                 </Typography>
             </CardContent>
             <Grid container direction="column" alignItems="flex-start" spacing={2} sx={{ marginBottom: "15px" }}>
-                <Grid item sx={{ width: "100%" }}>
+                <Grid sx={{ width: "100%" }}>
                     <Paper
                         elevation={3}
                         style={{
@@ -37,7 +37,8 @@ const Podium = ({ title, first, second, third, fixWidth }) => {
                         </Typography>
                     </Paper>
                 </Grid>
-                <Grid item sx={{ width: (!fixWidth ? String(parseInt((second.stat / first.stat) * 100)) : "80") + "%" }}>
+                <Grid
+                    sx={{ width: (!fixWidth ? String(parseInt((second.stat / first.stat) * 100)) : "80") + "%" }}>
                     <Paper
                         elevation={3}
                         style={{
@@ -56,7 +57,8 @@ const Podium = ({ title, first, second, third, fixWidth }) => {
                         </Typography>
                     </Paper>
                 </Grid>
-                <Grid item sx={{ width: (!fixWidth ? String(parseInt((third.stat / first.stat) * 100)) : "60") + "%" }}>
+                <Grid
+                    sx={{ width: (!fixWidth ? String(parseInt((third.stat / first.stat) * 100)) : "60") + "%" }}>
                     <Paper
                         elevation={3}
                         style={{

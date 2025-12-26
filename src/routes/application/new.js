@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../../context';
 
 import { Grid, Card, CardContent, Typography, TextField, RadioGroup, FormControl, FormLabel, FormControlLabel, MenuItem, Radio, Checkbox, Button, Box, Snackbar, Alert, useTheme } from '@mui/material';
-import { Portal } from '@mui/base';
+import Portal from '@mui/material/Portal';
 
 import { customAxios as axios, getAuthToken } from '../../functions';
 
@@ -444,7 +444,7 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
                         default:
                             ret = null;
                     }
-                    return <Grid item xs={12} key={field.label}>{ret}</Grid>;
+                    return <Grid key={field.label} size={12}>{ret}</Grid>;
                 })}
             </Grid>}
         </form>

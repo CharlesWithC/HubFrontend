@@ -4,7 +4,7 @@ import { AppContext, CacheContext } from '../context';
 
 import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction, InputAdornment, Box } from '@mui/material';
 import { LocalParkingRounded, TimeToLeaveRounded, FlightTakeoffRounded, FlightLandRounded, RouteRounded, HowToRegRounded, LocalShippingRounded, EmojiEventsRounded, EditRounded, DeleteRounded, CheckBoxRounded, CheckBoxOutlineBlankRounded, PeopleAltRounded, EditNoteRounded, CloseRounded } from '@mui/icons-material';
-import { Portal } from '@mui/base';
+import Portal from '@mui/material/Portal';
 
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -141,55 +141,109 @@ const EventCard = ({ event, eventid, imageUrl, title, creator, description, link
                     </>}
                 </div>
                 <Grid container>
-                    <Grid item xs={12}>
+                    <Grid size={12}>
                         {creator !== null && <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
                             <EditNoteRounded />&nbsp;&nbsp;<UserCard user={creator} inline={true} />
                         </Typography>}
                     </Grid>
-                    <Grid item xs={12} sm={6} md={6} lg={6}>
+                    <Grid
+                        size={{
+                            xs: 12,
+                            sm: 6,
+                            md: 6,
+                            lg: 6
+                        }}>
                         <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
                             <LocalParkingRounded />&nbsp;&nbsp;<TimeDelta timestamp={meetupTime * 1000} />
                         </Typography>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={6} lg={6}>
+                    <Grid
+                        size={{
+                            xs: 12,
+                            sm: 6,
+                            md: 6,
+                            lg: 6
+                        }}>
                         <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
                             <TimeToLeaveRounded />&nbsp;&nbsp;<TimeDelta timestamp={departureTime * 1000} />
                         </Typography>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={6} lg={6}>
+                    <Grid
+                        size={{
+                            xs: 12,
+                            sm: 6,
+                            md: 6,
+                            lg: 6
+                        }}>
                         <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
                             <FlightTakeoffRounded />&nbsp;&nbsp;{departure}
                         </Typography>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={6} lg={6}>
+                    <Grid
+                        size={{
+                            xs: 12,
+                            sm: 6,
+                            md: 6,
+                            lg: 6
+                        }}>
                         <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
                             <FlightLandRounded />&nbsp;&nbsp;{destination}
                         </Typography>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={6} lg={6}>
+                    <Grid
+                        size={{
+                            xs: 12,
+                            sm: 6,
+                            md: 6,
+                            lg: 6
+                        }}>
                         <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
                             <RouteRounded />&nbsp;&nbsp;{distance !== "" ? distance : "N/A"}
                         </Typography>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={6} lg={6}>
+                    <Grid
+                        size={{
+                            xs: 12,
+                            sm: 6,
+                            md: 6,
+                            lg: 6
+                        }}>
                         <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
                             <HowToRegRounded />&nbsp;&nbsp;{votercnt}
                         </Typography>
                     </Grid>
                     {futureEvent !== true && attendeecnt > 0 && <>
-                        <Grid item xs={12} sm={6} md={6} lg={6}>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                sm: 6,
+                                md: 6,
+                                lg: 6
+                            }}>
                             <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
                                 <LocalShippingRounded />&nbsp;&nbsp;{attendeecnt}
                             </Typography>
                         </Grid>
-                        <Grid item xs={12} sm={6} md={6} lg={6}>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                sm: 6,
+                                md: 6,
+                                lg: 6
+                            }}>
                             <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
                                 <EmojiEventsRounded />&nbsp;&nbsp;{points}
                             </Typography>
                         </Grid>
                     </>}
                     {(voters !== undefined && voters !== <></>) && <>
-                        <Grid item xs={12} sm={12} md={12} lg={12}>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                sm: 12,
+                                md: 12,
+                                lg: 12
+                            }}>
                             <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', }}>
                                 <HowToRegRounded />&nbsp;&nbsp;
                                 <div style={{ display: 'inline-block', whiteSpace: 'normal', wordWrap: 'break-word', maxWidth: '100%' }}>
@@ -199,7 +253,13 @@ const EventCard = ({ event, eventid, imageUrl, title, creator, description, link
                         </Grid>
                     </>}
                     {(attendees !== undefined && attendees !== <></>) && <>
-                        <Grid item xs={12} sm={12} md={12} lg={12}>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                sm: 12,
+                                md: 12,
+                                lg: 12
+                            }}>
                             <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
                                 <LocalShippingRounded />&nbsp;&nbsp;
                                 <div style={{ display: 'inline-block', whiteSpace: 'normal', wordWrap: 'break-word', maxWidth: '100%' }}>
@@ -517,7 +577,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
             </Dialog>
             {upcomingEvents.length !== 0 &&
                 <Grid container spacing={2} sx={{ marginTop: "20px" }}>
-                    <Grid item xs={upcomingEvents.length === 2 ? 6 : 12}>
+                    <Grid size={upcomingEvents.length === 2 ? 6 : 12}>
                         <EventCard
                             event={upcomingEvents[0]}
                             eventid={upcomingEvents[0].eventid}
@@ -541,7 +601,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
                             onUpdateAttendees={onUpdateAttendees}
                         />
                     </Grid>
-                    {upcomingEvents.length === 2 && <Grid item xs={6}>
+                    {upcomingEvents.length === 2 && <Grid size={6}>
                         <EventCard
                             event={upcomingEvents[1]}
                             eventid={upcomingEvents[1].eventid}
@@ -818,259 +878,261 @@ const Events = () => {
         setSubmitLoading(false);
     }, [apiPath, attendeeEvent, eventAttendees, points]);
 
-    return <>
-        <EventsMemo upcomingEvents={upcomingEvents} setUpcomingEvents={setUpcomingEvents} calendarEvents={calendarEvents} setCalendarEvents={setCalendarEvents} allEvents={allEvents} setAllEvents={setAllEvents} openEventDetails={openEventDetails} setOpenEventDetals={setOpenEventDetals} modalEvent={modalEvent} setModalEvent={setModalEvent} setSnackbarContent={setSnackbarContent} setSnackbarSeverity={setSnackbarSeverity} onEdit={editEvent} onDelete={deleteEvent} doReload={doReload} onUpdateAttendees={editEventAttendees} />
+    return (
+        <>
+            <EventsMemo upcomingEvents={upcomingEvents} setUpcomingEvents={setUpcomingEvents} calendarEvents={calendarEvents} setCalendarEvents={setCalendarEvents} allEvents={allEvents} setAllEvents={setAllEvents} openEventDetails={openEventDetails} setOpenEventDetals={setOpenEventDetals} modalEvent={modalEvent} setModalEvent={setModalEvent} setSnackbarContent={setSnackbarContent} setSnackbarSeverity={setSnackbarSeverity} onEdit={editEvent} onDelete={deleteEvent} doReload={doReload} onUpdateAttendees={editEventAttendees} />
 
-        <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
-            <DialogTitle>
-                {dialogTitle}
-                <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogOpen(false)}>
-                    <CloseRounded />
-                </IconButton>
-            </DialogTitle>
-            <DialogContent>
-                <form onSubmit={handleSubmit} style={{ marginTop: "5px" }}>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12}>
-                            <TextField
-                                label={tr("title")}
-                                value={title}
-                                onChange={(e) => setTitle(e.target.value)}
-                                fullWidth
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField
-                                label={tr("link")}
-                                value={link}
-                                onChange={(e) => setLink(e.target.value)}
-                                fullWidth
-                                InputProps={{
-                                    endAdornment: (
-                                        <>{link.startsWith("https://truckersmp.com/events/") && link.replace("https://truckersmp.com/events/", "") !== "" && <InputAdornment position="end">
-                                            <Button variant="contained" onClick={() => { importTMPEvent(); }} disabled={importDisabled}>{tr("import")}</Button>
-                                        </InputAdornment>}</>
-                                    ),
-                                }}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField
-                                label={tr("description")}
-                                multiline
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                fullWidth
-                                minRows={4}
-                            />
-                        </Grid>
-                        <Grid item xs={6}>
-                            <TextField
-                                label={tr("departure")}
-                                value={departure}
-                                onChange={(e) => setDeparture(e.target.value)}
-                                fullWidth
-                            />
-                        </Grid>
-                        <Grid item xs={6}>
-                            <TextField
-                                label={tr("destination")}
-                                value={destination}
-                                onChange={(e) => setDestination(e.target.value)}
-                                fullWidth
-                            />
-                        </Grid>
-                        <Grid item xs={6}>
-                            <TextField
-                                label={tr("distance")}
-                                value={distance}
-                                onChange={(e) => setDistance(e.target.value)}
-                                fullWidth
-                            />
-                        </Grid>
-                        <Grid item xs={6}>
-                            <DateTimeField
-                                label={tr("meetup_time")}
-                                defaultValue={meetupTime}
-                                onChange={(timestamp) => setMeetupTime(timestamp)}
-                                fullWidth
-                            />
-                        </Grid>
-                        <Grid item xs={6}>
-                            <DateTimeField
-                                label={tr("departure_time")}
-                                defaultValue={departureTime}
-                                onChange={(timestamp) => setDepartureTime(timestamp)}
-                                fullWidth
-                            />
-                        </Grid>
-                        <Grid item xs={6}>
-                            <FormControl component="fieldset">
-                                <FormLabel component="legend">{tr("visibility")}</FormLabel>
-                                <RadioGroup
-                                    value={visibility}
-                                    row
-                                    onChange={(e) => setVisibility(e.target.value)}
-                                >
-                                    <FormControlLabel value="public" control={<Radio />} label={tr("public")} />
-                                    <FormControlLabel value="private" control={<Radio />} label={tr("private")} />
-                                </RadioGroup>
-                            </FormControl>
-                        </Grid>
-                        <Grid item xs={6}>
-                            <FormControl component="fieldset">
+            <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
+                <DialogTitle>
+                    {dialogTitle}
+                    <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogOpen(false)}>
+                        <CloseRounded />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent>
+                    <form onSubmit={handleSubmit} style={{ marginTop: "5px" }}>
+                        <Grid container spacing={2}>
+                            <Grid size={12}>
                                 <TextField
-                                    label={tr("order_id")}
-                                    value={orderId}
-                                    onChange={(e) => { let f = e.target.value.startsWith("-"); setOrderId((f ? "-" : "") + e.target.value.replace(/[^0-9]/g, "")); }}
+                                    label={tr("title")}
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
                                     fullWidth
                                 />
-                            </FormControl>
+                            </Grid>
+                            <Grid size={12}>
+                                <TextField
+                                    label={tr("link")}
+                                    value={link}
+                                    onChange={(e) => setLink(e.target.value)}
+                                    fullWidth
+                                    InputProps={{
+                                        endAdornment: (
+                                            <>{link.startsWith("https://truckersmp.com/events/") && link.replace("https://truckersmp.com/events/", "") !== "" && <InputAdornment position="end">
+                                                <Button variant="contained" onClick={() => { importTMPEvent(); }} disabled={importDisabled}>{tr("import")}</Button>
+                                            </InputAdornment>}</>
+                                        ),
+                                    }}
+                                />
+                            </Grid>
+                            <Grid size={12}>
+                                <TextField
+                                    label={tr("description")}
+                                    multiline
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    fullWidth
+                                    minRows={4}
+                                />
+                            </Grid>
+                            <Grid size={6}>
+                                <TextField
+                                    label={tr("departure")}
+                                    value={departure}
+                                    onChange={(e) => setDeparture(e.target.value)}
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid size={6}>
+                                <TextField
+                                    label={tr("destination")}
+                                    value={destination}
+                                    onChange={(e) => setDestination(e.target.value)}
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid size={6}>
+                                <TextField
+                                    label={tr("distance")}
+                                    value={distance}
+                                    onChange={(e) => setDistance(e.target.value)}
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid size={6}>
+                                <DateTimeField
+                                    label={tr("meetup_time")}
+                                    defaultValue={meetupTime}
+                                    onChange={(timestamp) => setMeetupTime(timestamp)}
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid size={6}>
+                                <DateTimeField
+                                    label={tr("departure_time")}
+                                    defaultValue={departureTime}
+                                    onChange={(timestamp) => setDepartureTime(timestamp)}
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid size={6}>
+                                <FormControl component="fieldset">
+                                    <FormLabel component="legend">{tr("visibility")}</FormLabel>
+                                    <RadioGroup
+                                        value={visibility}
+                                        row
+                                        onChange={(e) => setVisibility(e.target.value)}
+                                    >
+                                        <FormControlLabel value="public" control={<Radio />} label={tr("public")} />
+                                        <FormControlLabel value="private" control={<Radio />} label={tr("private")} />
+                                    </RadioGroup>
+                                </FormControl>
+                            </Grid>
+                            <Grid size={6}>
+                                <FormControl component="fieldset">
+                                    <TextField
+                                        label={tr("order_id")}
+                                        value={orderId}
+                                        onChange={(e) => { let f = e.target.value.startsWith("-"); setOrderId((f ? "-" : "") + e.target.value.replace(/[^0-9]/g, "")); }}
+                                        fullWidth
+                                    />
+                                </FormControl>
+                            </Grid>
+                            <Grid size={6}>
+                                <FormControl component="fieldset">
+                                    <FormLabel component="legend">{tr("is_pinned")}</FormLabel>
+                                    <RadioGroup
+                                        value={isPinned}
+                                        row
+                                        onChange={(e) => setIsPinned(e.target.value)}
+                                    >
+                                        <FormControlLabel value={true} control={<Radio />} label={tr("yes")} />
+                                        <FormControlLabel value={false} control={<Radio />} label={tr("no")} />
+                                    </RadioGroup>
+                                </FormControl>
+                            </Grid>
                         </Grid>
-                        <Grid item xs={6}>
-                            <FormControl component="fieldset">
-                                <FormLabel component="legend">{tr("is_pinned")}</FormLabel>
-                                <RadioGroup
-                                    value={isPinned}
-                                    row
-                                    onChange={(e) => setIsPinned(e.target.value)}
-                                >
-                                    <FormControlLabel value={true} control={<Radio />} label={tr("yes")} />
-                                    <FormControlLabel value={false} control={<Radio />} label={tr("no")} />
-                                </RadioGroup>
-                            </FormControl>
+                    </form>
+                </DialogContent>
+                <DialogActions>
+                    <Grid container justifyContent="space-between" padding="10px">
+                        <Grid>
+                            <Box sx={{ display: 'flex', gap: '10px' }}>
+                                <Button variant="contained" onClick={clearModal}>{tr("clear")}</Button>
+                            </Box>
+                        </Grid>
+                        <Grid>
+                            <Box sx={{ display: 'flex', gap: '10px' }}>
+                                <Button variant="contained" color="info" onClick={handleSubmit} disabled={submitLoading}>{dialogButton}</Button>
+                            </Box>
                         </Grid>
                     </Grid>
-                </form>
-            </DialogContent>
-            <DialogActions>
-                <Grid container justifyContent="space-between" padding="10px">
-                    <Grid item>
-                        <Box sx={{ display: 'flex', gap: '10px' }}>
-                            <Button variant="contained" onClick={clearModal}>{tr("clear")}</Button>
-                        </Box>
-                    </Grid>
-                    <Grid item>
-                        <Box sx={{ display: 'flex', gap: '10px' }}>
-                            <Button variant="contained" color="info" onClick={handleSubmit} disabled={submitLoading}>{dialogButton}</Button>
-                        </Box>
-                    </Grid>
-                </Grid>
-            </DialogActions>
-        </Dialog>
-        <SpeedDial
-            ariaLabel={tr("controls")}
-            sx={{ position: 'fixed', bottom: 20, right: 20 }}
-            icon={<SpeedDialIcon />}
-        >
-            {checkUserPerm(curUserPerm, ["administrator", "manage_events"]) && <SpeedDialAction
-                key="create"
-                icon={<EditNoteRounded />}
-                tooltipTitle={tr("create")}
-                onClick={() => createEvent()}
-            />}
-            {curUser.userid !== -1 && <SpeedDialAction
-                key="managers"
-                icon={<PeopleAltRounded />}
-                tooltipTitle={tr("managers")}
-                onClick={() => setDialogManagers(true)}
-            />}
-        </SpeedDial>
-        <Dialog open={dialogDelete} onClose={() => setDialogDelete(false)}>
-            <DialogTitle>{tr("delete_event")}</DialogTitle>
-            <DialogContent>
-                <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>{tr("delete_event_confirm")}</Typography>
-                {toDelete !== null &&
-                    <EventCard
-                        event={toDelete.event}
-                        eventid={toDelete.eventid}
-                        imageUrl=""
-                        title={toDelete.title}
-                        creator={toDelete.creator}
-                        description=""
-                        link=""
-                        meetupTime={toDelete.meetupTime}
-                        departureTime={toDelete.departureTime}
-                        departure={toDelete.departure}
-                        destination={toDelete.destination}
-                        distance={toDelete.distance}
-                        votercnt={toDelete.votercnt}
-                        futureEvent={true}
-                        onEdit={null}
-                        onDelete={null}
-                    />}
-            </DialogContent>
-            <DialogActions>
-                <Grid container justifyContent="space-between" padding="10px">
-                    <Grid item>
-                        <Box sx={{ display: 'flex', gap: '10px' }}>
-                            <Button variant="contained" onClick={() => { setDialogDelete(false); }}>{tr("cancel")}</Button>
-                        </Box>
-                    </Grid>
-                    <Grid item>
-                        <Box sx={{ display: 'flex', gap: '10px' }}>
-                            <Button variant="contained" color="error" onClick={() => { deleteEvent({ ...toDelete.event, confirmed: true }); }} disabled={submitLoading}>{tr("delete")}</Button>
-                        </Box>
-                    </Grid>
-                </Grid>
-            </DialogActions>
-        </Dialog>
-        <Dialog open={openAttendeeEvent} onClose={() => setOpenAttendeeEvent(false)}>
-            <DialogTitle>{attendeeEvent.title}</DialogTitle>
-            <DialogContent>
-                <form onSubmit={handleUpdateAttendees} style={{ marginTop: "5px" }}>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12}>
-                            <UserSelect label={tr("attendees")} users={eventAttendees} onUpdate={setEventAttendees} />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField
-                                label={tr("points")}
-                                value={points}
-                                onChange={(e) => { let f = e.target.value.startsWith("-"); setPoints((f ? "-" : "") + e.target.value.replace(/[^0-9]/g, "")); }}
-                                fullWidth
-                            />
-                        </Grid>
-                    </Grid>
-                </form>
-            </DialogContent>
-            <DialogActions>
-                <Grid container justifyContent="space-between" padding="10px">
-                    <Grid item>
-                        <Box sx={{ display: 'flex', gap: '10px' }}>
-                            <Button variant="contained" onClick={() => { setOpenAttendeeEvent(false); }}>{tr("close")}</Button>
-                        </Box>
-                    </Grid>
-                    <Grid item>
-                        <Box sx={{ display: 'flex', gap: '10px' }}>
-                            <Button variant="contained" color="info" onClick={handleUpdateAttendees} disabled={submitLoading}>{tr("update")}</Button>
-                        </Box>
-                    </Grid>
-                </Grid>
-            </DialogActions>
-        </Dialog>
-        <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
-            <DialogTitle>{tr("event_managers")}</DialogTitle>
-            <DialogContent>
-                <EventManagers />
-            </DialogContent>
-            <DialogActions>
-                <Button variant="contained" onClick={() => { setDialogManagers(false); }}>{tr("close")}</Button>
-            </DialogActions>
-        </Dialog>
-        <Portal>
-            <Snackbar
-                open={!!snackbarContent}
-                autoHideDuration={5000}
-                onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                </DialogActions>
+            </Dialog>
+            <SpeedDial
+                ariaLabel={tr("controls")}
+                sx={{ position: 'fixed', bottom: 20, right: 20 }}
+                icon={<SpeedDialIcon />}
             >
-                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
-                    {snackbarContent}
-                </Alert>
-            </Snackbar>
-        </Portal>
-    </>;
+                {checkUserPerm(curUserPerm, ["administrator", "manage_events"]) && <SpeedDialAction
+                    key="create"
+                    icon={<EditNoteRounded />}
+                    tooltipTitle={tr("create")}
+                    onClick={() => createEvent()}
+                />}
+                {curUser.userid !== -1 && <SpeedDialAction
+                    key="managers"
+                    icon={<PeopleAltRounded />}
+                    tooltipTitle={tr("managers")}
+                    onClick={() => setDialogManagers(true)}
+                />}
+            </SpeedDial>
+            <Dialog open={dialogDelete} onClose={() => setDialogDelete(false)}>
+                <DialogTitle>{tr("delete_event")}</DialogTitle>
+                <DialogContent>
+                    <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>{tr("delete_event_confirm")}</Typography>
+                    {toDelete !== null &&
+                        <EventCard
+                            event={toDelete.event}
+                            eventid={toDelete.eventid}
+                            imageUrl=""
+                            title={toDelete.title}
+                            creator={toDelete.creator}
+                            description=""
+                            link=""
+                            meetupTime={toDelete.meetupTime}
+                            departureTime={toDelete.departureTime}
+                            departure={toDelete.departure}
+                            destination={toDelete.destination}
+                            distance={toDelete.distance}
+                            votercnt={toDelete.votercnt}
+                            futureEvent={true}
+                            onEdit={null}
+                            onDelete={null}
+                        />}
+                </DialogContent>
+                <DialogActions>
+                    <Grid container justifyContent="space-between" padding="10px">
+                        <Grid>
+                            <Box sx={{ display: 'flex', gap: '10px' }}>
+                                <Button variant="contained" onClick={() => { setDialogDelete(false); }}>{tr("cancel")}</Button>
+                            </Box>
+                        </Grid>
+                        <Grid>
+                            <Box sx={{ display: 'flex', gap: '10px' }}>
+                                <Button variant="contained" color="error" onClick={() => { deleteEvent({ ...toDelete.event, confirmed: true }); }} disabled={submitLoading}>{tr("delete")}</Button>
+                            </Box>
+                        </Grid>
+                    </Grid>
+                </DialogActions>
+            </Dialog>
+            <Dialog open={openAttendeeEvent} onClose={() => setOpenAttendeeEvent(false)}>
+                <DialogTitle>{attendeeEvent.title}</DialogTitle>
+                <DialogContent>
+                    <form onSubmit={handleUpdateAttendees} style={{ marginTop: "5px" }}>
+                        <Grid container spacing={2}>
+                            <Grid size={12}>
+                                <UserSelect label={tr("attendees")} users={eventAttendees} onUpdate={setEventAttendees} />
+                            </Grid>
+                            <Grid size={12}>
+                                <TextField
+                                    label={tr("points")}
+                                    value={points}
+                                    onChange={(e) => { let f = e.target.value.startsWith("-"); setPoints((f ? "-" : "") + e.target.value.replace(/[^0-9]/g, "")); }}
+                                    fullWidth
+                                />
+                            </Grid>
+                        </Grid>
+                    </form>
+                </DialogContent>
+                <DialogActions>
+                    <Grid container justifyContent="space-between" padding="10px">
+                        <Grid>
+                            <Box sx={{ display: 'flex', gap: '10px' }}>
+                                <Button variant="contained" onClick={() => { setOpenAttendeeEvent(false); }}>{tr("close")}</Button>
+                            </Box>
+                        </Grid>
+                        <Grid>
+                            <Box sx={{ display: 'flex', gap: '10px' }}>
+                                <Button variant="contained" color="info" onClick={handleUpdateAttendees} disabled={submitLoading}>{tr("update")}</Button>
+                            </Box>
+                        </Grid>
+                    </Grid>
+                </DialogActions>
+            </Dialog>
+            <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
+                <DialogTitle>{tr("event_managers")}</DialogTitle>
+                <DialogContent>
+                    <EventManagers />
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="contained" onClick={() => { setDialogManagers(false); }}>{tr("close")}</Button>
+                </DialogActions>
+            </Dialog>
+            <Portal>
+                <Snackbar
+                    open={!!snackbarContent}
+                    autoHideDuration={5000}
+                    onClose={handleCloseSnackbar}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                >
+                    <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
+                        {snackbarContent}
+                    </Alert>
+                </Snackbar>
+            </Portal>
+        </>
+    );
 };
 
 export default Events;

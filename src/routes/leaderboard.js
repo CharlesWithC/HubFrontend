@@ -125,204 +125,278 @@ const Leaderboard = () => {
         doLoad();
     }, [apiPath, page, pageSize, listParam, allRanks]);
 
-    return <>
-        {monthly.length === 3 && <>
-            <Typography variant="h5" align="center" sx={{ margin: '16px 0' }}>
-                <b>{tr("top_members_of_month", { month: getCurrentMonthName() })}</b>
-            </Typography>
-            <Box sx={{ justifyContent: 'center', display: { sm: 'none', md: 'block' } }}>
-                <Grid container spacing={2} sx={{ marginBottom: "15px" }}>
-                    <Grid item xs={12} sm={12} md={4} lg={4}>
-                        <LargeUserCard user={monthly[1].user} color="#C0C0C0" />
+    return (
+        <>
+            {monthly.length === 3 && <>
+                <Typography variant="h5" align="center" sx={{ margin: '16px 0' }}>
+                    <b>{tr("top_members_of_month", { month: getCurrentMonthName() })}</b>
+                </Typography>
+                <Box sx={{ justifyContent: 'center', display: { sm: 'none', md: 'block' } }}>
+                    <Grid container spacing={2} sx={{ marginBottom: "15px" }}>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                sm: 12,
+                                md: 4,
+                                lg: 4
+                            }}>
+                            <LargeUserCard user={monthly[1].user} color="#C0C0C0" />
+                        </Grid>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                sm: 12,
+                                md: 4,
+                                lg: 4
+                            }}>
+                            <LargeUserCard user={monthly[0].user} color="#FFD700" />
+                        </Grid>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                sm: 12,
+                                md: 4,
+                                lg: 4
+                            }}>
+                            <LargeUserCard user={monthly[2].user} color="#CD7F32" />
+                        </Grid>
                     </Grid>
-                    <Grid item xs={12} sm={12} md={4} lg={4}>
-                        <LargeUserCard user={monthly[0].user} color="#FFD700" />
+                </Box>
+                <Box sx={{ justifyContent: 'center', display: { sm: 'block', md: 'none' } }}>
+                    <Grid container spacing={2} sx={{ marginBottom: "15px" }}>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                sm: 12,
+                                md: 4,
+                                lg: 4
+                            }}>
+                            <LargeUserCard user={monthly[0].user} color="#FFD700" />
+                        </Grid>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                sm: 12,
+                                md: 4,
+                                lg: 4
+                            }}>
+                            <LargeUserCard user={monthly[1].user} color="#C0C0C0" />
+                        </Grid>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                sm: 12,
+                                md: 4,
+                                lg: 4
+                            }}>
+                            <LargeUserCard user={monthly[2].user} color="#CD7F32" />
+                        </Grid>
                     </Grid>
-                    <Grid item xs={12} sm={12} md={4} lg={4}>
-                        <LargeUserCard user={monthly[2].user} color="#CD7F32" />
+                </Box>
+            </>
+            }
+            {allTime.length === 3 && <>
+                <Typography variant="h5" align="center" sx={{ margin: '16px 0' }}>
+                    <b>{tr("top_members_of_all_time")}</b>
+                </Typography>
+                <Box sx={{ justifyContent: 'center', display: { sm: 'none', md: 'block' } }}>
+                    <Grid container spacing={2} sx={{ marginBottom: "15px" }}>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                sm: 12,
+                                md: 4,
+                                lg: 4
+                            }}>
+                            <LargeUserCard user={allTime[1].user} color="#C0C0C0" />
+                        </Grid>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                sm: 12,
+                                md: 4,
+                                lg: 4
+                            }}>
+                            <LargeUserCard user={allTime[0].user} color="#FFD700" />
+                        </Grid>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                sm: 12,
+                                md: 4,
+                                lg: 4
+                            }}>
+                            <LargeUserCard user={allTime[2].user} color="#CD7F32" />
+                        </Grid>
                     </Grid>
-                </Grid>
-            </Box>
-            <Box sx={{ justifyContent: 'center', display: { sm: 'block', md: 'none' } }}>
-                <Grid container spacing={2} sx={{ marginBottom: "15px" }}>
-                    <Grid item xs={12} sm={12} md={4} lg={4}>
-                        <LargeUserCard user={monthly[0].user} color="#FFD700" />
+                </Box>
+                <Box sx={{ justifyContent: 'center', display: { sm: 'block', md: 'none' } }}>
+                    <Grid container spacing={2} sx={{ marginBottom: "15px" }}>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                sm: 12,
+                                md: 4,
+                                lg: 4
+                            }}>
+                            <LargeUserCard user={allTime[0].user} color="#FFD700" />
+                        </Grid>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                sm: 12,
+                                md: 4,
+                                lg: 4
+                            }}>
+                            <LargeUserCard user={allTime[1].user} color="#C0C0C0" />
+                        </Grid>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                sm: 12,
+                                md: 4,
+                                lg: 4
+                            }}>
+                            <LargeUserCard user={allTime[2].user} color="#CD7F32" />
+                        </Grid>
                     </Grid>
-                    <Grid item xs={12} sm={12} md={4} lg={4}>
-                        <LargeUserCard user={monthly[1].user} color="#C0C0C0" />
+                </Box>
+            </>
+            }
+            {leaderboard.length > 0 && <CustomTable page={page} columns={columns} data={leaderboard} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} style={{ marginTop: "30px" }} />}
+            <Dialog open={dialogOpen === "settings"} onClose={() => { setDialogOpen(""); }} fullWidth>
+                <DialogTitle><FontAwesomeIcon icon={faGears} />&nbsp;&nbsp;{tr("settings")}</DialogTitle>
+                <DialogContent>
+                    <Grid container spacing={2} sx={{ mt: "5px" }}>
+                        <Grid size={6}>
+                            <DateTimeField
+                                label={tr("after")}
+                                defaultValue={tempListParam.after}
+                                onChange={(timestamp) => { setTempListParam({ ...tempListParam, after: timestamp }); }}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid size={6}>
+                            <DateTimeField
+                                label={tr("before")}
+                                defaultValue={tempListParam.before}
+                                onChange={(timestamp) => { setTempListParam({ ...tempListParam, before: timestamp }); }}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid size={12}>
+                            <ButtonGroup fullWidth>
+                                <Button variant="contained" color="success" onClick={() => {
+                                    let now = new Date();
+                                    let lastDayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+                                    let lastDayEnd = new Date(lastDayStart);
+                                    lastDayEnd.setDate(lastDayEnd.getDate() + 1);
+                                    setTempListParam({ ...tempListParam, after: undefined, before: undefined });
+                                    setTimeout(function () {
+                                        setTempListParam({ ...tempListParam, after: lastDayStart.getTime() / 1000 + timezoneDelta, before: lastDayEnd.getTime() / 1000 + timezoneDelta });
+                                    }, 50);
+                                }}>Last day</Button>
+                                <Button variant="contained" color="info" onClick={() => {
+                                    let before = new Date();
+                                    let locale = navigator.language;
+                                    let format = new Intl.DateTimeFormat(locale, { weekday: 'long' });
+                                    while (format.format(before) !== format.format(new Date(before.getFullYear(), before.getMonth(), before.getDate() - 7))) {
+                                        before.setDate(before.getDate() - 1);
+                                    }
+                                    before = new Date(before.getFullYear(), before.getMonth(), before.getDate());
+                                    setTempListParam({ ...tempListParam, after: undefined, before: undefined });
+                                    setTimeout(function () {
+                                        setTempListParam({ ...tempListParam, after: before.getTime() / 1000 - 86400 * 7 + timezoneDelta, before: before.getTime() / 1000 + timezoneDelta });
+                                    }, 50);
+                                }}>Last week</Button>
+                                <Button variant="contained" color="warning" onClick={() => {
+                                    let now = new Date();
+                                    let lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                                    let lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+                                    setTempListParam({ ...tempListParam, after: undefined, before: undefined });
+                                    setTimeout(function () {
+                                        setTempListParam({ ...tempListParam, after: lastMonthStart.getTime() / 1000 + timezoneDelta, before: lastMonthEnd.getTime() / 1000 + timezoneDelta });
+                                    }, 50);
+                                }}>Last month</Button>
+                            </ButtonGroup>
+                        </Grid>
+                        <Grid size={6}>
+                            <TextField
+                                label={tr("minimum_points")}
+                                value={tempListParam.min_point}
+                                onChange={(e) => { if (!isNaN(e.target.value)) setTempListParam({ ...tempListParam, min_point: e.target.value }); }}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid size={6}>
+                            <TextField
+                                label={tr("maximum_points")}
+                                value={tempListParam.max_point}
+                                onChange={(e) => { if (!isNaN(e.target.value)) setTempListParam({ ...tempListParam, max_point: e.target.value }); }}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid size={6}>
+                            <TextField
+                                label={tr("speed_limit_kmh")}
+                                value={tempListParam.speed_limit}
+                                onChange={(e) => { if (!isNaN(e.target.value)) setTempListParam({ ...tempListParam, speed_limit: e.target.value }); }}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid size={6}>
+                            <TextField select
+                                label={tr("game")}
+                                value={tempListParam.game}
+                                onChange={(e) => { setTempListParam({ ...tempListParam, game: e.target.value }); }}
+                                fullWidth
+                            >
+                                <MenuItem value="0">{tr("both")}</MenuItem>
+                                <MenuItem value="1">{tr("ets2")}</MenuItem>
+                                <MenuItem value="2">{tr("ats")}</MenuItem>
+                            </TextField>
+                        </Grid>
+                        <Grid size={12}>
+                            <Typography variant="body2">{tr("point_types")}</Typography>
+                            <Select
+                                isMulti
+                                name="colors"
+                                options={["bonus", "distance", "challenge", "division", "event"].map((item) => ({ value: item, label: replaceUnderscores(item) }))}
+                                className="basic-multi-select"
+                                classNamePrefix="select"
+                                styles={customSelectStyles(theme)}
+                                value={tempListParam.point_types.map((item) => ({ value: item, label: replaceUnderscores(item) }))}
+                                onChange={(newItems) => {
+                                    setTempListParam({
+                                        ...tempListParam,
+                                        point_types: newItems.map((item) => (item.value))
+                                    });
+                                }}
+                                menuPortalTarget={document.body}
+                            />
+                        </Grid>
+                        <Grid size={12}>
+                            <UserSelect label={tr("users_up_to_100")} users={tempListParam.users} onUpdate={(newUsers) => { setTempListParam({ ...tempListParam, users: newUsers }); }} limit={10} />
+                        </Grid>
                     </Grid>
-                    <Grid item xs={12} sm={12} md={4} lg={4}>
-                        <LargeUserCard user={monthly[2].user} color="#CD7F32" />
-                    </Grid>
-                </Grid>
-            </Box>
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="contained" onClick={() => { setListParam(tempListParam); setPage(1); }}>{tr("update")}</Button>
+                </DialogActions>
+            </Dialog>
+            <SpeedDial
+                ariaLabel={tr("controls")}
+                sx={{ position: 'fixed', bottom: 20, right: 20 }}
+                icon={<SpeedDialIcon />}
+            >
+                <SpeedDialAction
+                    key="settings"
+                    tooltipTitle={tr("settings")}
+                    icon={<FontAwesomeIcon icon={faGears} />}
+                    onClick={() => { setDialogOpen("settings"); }} />
+            </SpeedDial>
         </>
-        }
-        {allTime.length === 3 && <>
-            <Typography variant="h5" align="center" sx={{ margin: '16px 0' }}>
-                <b>{tr("top_members_of_all_time")}</b>
-            </Typography>
-            <Box sx={{ justifyContent: 'center', display: { sm: 'none', md: 'block' } }}>
-                <Grid container spacing={2} sx={{ marginBottom: "15px" }}>
-                    <Grid item xs={12} sm={12} md={4} lg={4}>
-                        <LargeUserCard user={allTime[1].user} color="#C0C0C0" />
-                    </Grid>
-                    <Grid item xs={12} sm={12} md={4} lg={4}>
-                        <LargeUserCard user={allTime[0].user} color="#FFD700" />
-                    </Grid>
-                    <Grid item xs={12} sm={12} md={4} lg={4}>
-                        <LargeUserCard user={allTime[2].user} color="#CD7F32" />
-                    </Grid>
-                </Grid>
-            </Box>
-            <Box sx={{ justifyContent: 'center', display: { sm: 'block', md: 'none' } }}>
-                <Grid container spacing={2} sx={{ marginBottom: "15px" }}>
-                    <Grid item xs={12} sm={12} md={4} lg={4}>
-                        <LargeUserCard user={allTime[0].user} color="#FFD700" />
-                    </Grid>
-                    <Grid item xs={12} sm={12} md={4} lg={4}>
-                        <LargeUserCard user={allTime[1].user} color="#C0C0C0" />
-                    </Grid>
-                    <Grid item xs={12} sm={12} md={4} lg={4}>
-                        <LargeUserCard user={allTime[2].user} color="#CD7F32" />
-                    </Grid>
-                </Grid>
-            </Box>
-        </>
-        }
-        {leaderboard.length > 0 && <CustomTable page={page} columns={columns} data={leaderboard} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} style={{ marginTop: "30px" }} />}
-        <Dialog open={dialogOpen === "settings"} onClose={() => { setDialogOpen(""); }} fullWidth>
-            <DialogTitle><FontAwesomeIcon icon={faGears} />&nbsp;&nbsp;{tr("settings")}</DialogTitle>
-            <DialogContent>
-                <Grid container spacing={2} sx={{ mt: "5px" }}>
-                    <Grid item xs={6}>
-                        <DateTimeField
-                            label={tr("after")}
-                            defaultValue={tempListParam.after}
-                            onChange={(timestamp) => { setTempListParam({ ...tempListParam, after: timestamp }); }}
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={6}>
-                        <DateTimeField
-                            label={tr("before")}
-                            defaultValue={tempListParam.before}
-                            onChange={(timestamp) => { setTempListParam({ ...tempListParam, before: timestamp }); }}
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <ButtonGroup fullWidth>
-                            <Button variant="contained" color="success" onClick={() => {
-                                let now = new Date();
-                                let lastDayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
-                                let lastDayEnd = new Date(lastDayStart);
-                                lastDayEnd.setDate(lastDayEnd.getDate() + 1);
-                                setTempListParam({ ...tempListParam, after: undefined, before: undefined });
-                                setTimeout(function () {
-                                    setTempListParam({ ...tempListParam, after: lastDayStart.getTime() / 1000 + timezoneDelta, before: lastDayEnd.getTime() / 1000 + timezoneDelta });
-                                }, 50);
-                            }}>Last day</Button>
-                            <Button variant="contained" color="info" onClick={() => {
-                                let before = new Date();
-                                let locale = navigator.language;
-                                let format = new Intl.DateTimeFormat(locale, { weekday: 'long' });
-                                while (format.format(before) !== format.format(new Date(before.getFullYear(), before.getMonth(), before.getDate() - 7))) {
-                                    before.setDate(before.getDate() - 1);
-                                }
-                                before = new Date(before.getFullYear(), before.getMonth(), before.getDate());
-                                setTempListParam({ ...tempListParam, after: undefined, before: undefined });
-                                setTimeout(function () {
-                                    setTempListParam({ ...tempListParam, after: before.getTime() / 1000 - 86400 * 7 + timezoneDelta, before: before.getTime() / 1000 + timezoneDelta });
-                                }, 50);
-                            }}>Last week</Button>
-                            <Button variant="contained" color="warning" onClick={() => {
-                                let now = new Date();
-                                let lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-                                let lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
-                                setTempListParam({ ...tempListParam, after: undefined, before: undefined });
-                                setTimeout(function () {
-                                    setTempListParam({ ...tempListParam, after: lastMonthStart.getTime() / 1000 + timezoneDelta, before: lastMonthEnd.getTime() / 1000 + timezoneDelta });
-                                }, 50);
-                            }}>Last month</Button>
-                        </ButtonGroup>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <TextField
-                            label={tr("minimum_points")}
-                            value={tempListParam.min_point}
-                            onChange={(e) => { if (!isNaN(e.target.value)) setTempListParam({ ...tempListParam, min_point: e.target.value }); }}
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={6}>
-                        <TextField
-                            label={tr("maximum_points")}
-                            value={tempListParam.max_point}
-                            onChange={(e) => { if (!isNaN(e.target.value)) setTempListParam({ ...tempListParam, max_point: e.target.value }); }}
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={6}>
-                        <TextField
-                            label={tr("speed_limit_kmh")}
-                            value={tempListParam.speed_limit}
-                            onChange={(e) => { if (!isNaN(e.target.value)) setTempListParam({ ...tempListParam, speed_limit: e.target.value }); }}
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={6}>
-                        <TextField select
-                            label={tr("game")}
-                            value={tempListParam.game}
-                            onChange={(e) => { setTempListParam({ ...tempListParam, game: e.target.value }); }}
-                            fullWidth
-                        >
-                            <MenuItem value="0">{tr("both")}</MenuItem>
-                            <MenuItem value="1">{tr("ets2")}</MenuItem>
-                            <MenuItem value="2">{tr("ats")}</MenuItem>
-                        </TextField>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Typography variant="body2">{tr("point_types")}</Typography>
-                        <Select
-                            isMulti
-                            name="colors"
-                            options={["bonus", "distance", "challenge", "division", "event"].map((item) => ({ value: item, label: replaceUnderscores(item) }))}
-                            className="basic-multi-select"
-                            classNamePrefix="select"
-                            styles={customSelectStyles(theme)}
-                            value={tempListParam.point_types.map((item) => ({ value: item, label: replaceUnderscores(item) }))}
-                            onChange={(newItems) => {
-                                setTempListParam({
-                                    ...tempListParam,
-                                    point_types: newItems.map((item) => (item.value))
-                                });
-                            }}
-                            menuPortalTarget={document.body}
-                        />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <UserSelect label={tr("users_up_to_100")} users={tempListParam.users} onUpdate={(newUsers) => { setTempListParam({ ...tempListParam, users: newUsers }); }} limit={10} />
-                    </Grid>
-                </Grid>
-            </DialogContent>
-            <DialogActions>
-                <Button variant="contained" onClick={() => { setListParam(tempListParam); setPage(1); }}>{tr("update")}</Button>
-            </DialogActions>
-        </Dialog>
-        <SpeedDial
-            ariaLabel={tr("controls")}
-            sx={{ position: 'fixed', bottom: 20, right: 20 }}
-            icon={<SpeedDialIcon />}
-        >
-            <SpeedDialAction
-                key="settings"
-                tooltipTitle={tr("settings")}
-                icon={<FontAwesomeIcon icon={faGears} />}
-                onClick={() => { setDialogOpen("settings"); }} />
-        </SpeedDial>
-    </>;
+    );
 };
 
 export default Leaderboard;

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { AppContext, CacheContext } from '../context';
 
 import { useTheme, Typography, Snackbar, Alert, SpeedDial, SpeedDialAction, SpeedDialIcon, Dialog, DialogTitle, DialogActions, DialogContent, Grid, Button, LinearProgress, MenuItem } from '@mui/material';
-import { Portal } from '@mui/base';
+import Portal from '@mui/material/Portal';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserPlus, faBan, faUsersSlash } from '@fortawesome/free-solid-svg-icons';
@@ -309,83 +309,85 @@ const ExternalUsers = () => {
         }
     }, [apiPath]);
 
-    return <>
-        <CustomTable page={userPage} name={<><FontAwesomeIcon icon={faUserPlus} />&nbsp;&nbsp;{tr("external_users")}</>} order={userListParam.order} orderBy={userListParam.order_by} onOrderingUpdate={(order_by, order) => { setUserListParam({ ...userListParam, order_by: order_by, order: order }); }} titlePosition="top" columns={puColumns} data={userList} totalItems={userTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={userPageSize} onPageChange={setUserPage} onRowsPerPageChange={setUserPageSize} onSearch={(content) => { setUserPage(1); setUserSearch(content); }} searchHint={tr("search_by_username_or_ids")} />
-        <CustomTable page={banPage} name={<><FontAwesomeIcon icon={faBan} />&nbsp;&nbsp;{tr("banned_users")}</>} order={banListParam.order} orderBy={banListParam.order_by} onOrderingUpdate={(order_by, order) => { setBanListParam({ ...banListParam, order_by: order_by, order: order }); }} titlePosition="top" columns={buColumns} data={banList} totalItems={banTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={banPageSize} onPageChange={setBanPage} onRowsPerPageChange={setBanPageSize} style={{ marginTop: "15px" }} onSearch={(content) => { setBanPage(1); setBanSearch(content); }} searchHint={tr("search_by_username_or_ids")} />
-        <Portal>
-            <Snackbar
-                open={!!snackbarContent}
-                autoHideDuration={5000}
-                onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            >
-                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
-                    {snackbarContent}
-                </Alert>
-            </Snackbar>
-        </Portal>
-        <Dialog open={dialogOpen === "prune-user"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
-            <DialogTitle><FontAwesomeIcon icon={faUsersSlash} />&nbsp;&nbsp;{tr("prune_users")}&nbsp;&nbsp;<SponsorBadge level={4} /></DialogTitle>
-            <DialogContent>
-                <Typography variant="body2">{tr("prune_users_note")}</Typography>
-                <Typography variant="body2">{tr("prune_users_note_2")}</Typography>
-                <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>{tr("prune_users_note_3")}</Typography>
-                <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>{tr("prune_users_note_4")}</Typography>
-                <Grid container spacing={2} sx={{ mt: "5px", mb: "5px" }}>
-                    <Grid item xs={8}>
-                        <DateTimeField size="small"
-                            label={tr("last_online_before")}
-                            defaultValue={batchDeleteLastOnline}
-                            onChange={(timestamp) => { setBatchDeleteLastOnline(timestamp); }}
-                            fullWidth
-                            disabled={batchDeleteLoading}
-                        />
-                    </Grid>
-                    <Grid item xs={4}>
-                        <Button variant="contained" color="info" onClick={() => {
-                            if (batchDeleteLastOnline === undefined) return;
-                            let newList = [];
-                            for (let i = 0; i < allUsersCache.length; i++) {
-                                if (allUsersCache[i].activity !== null && allUsersCache[i].activity.last_seen < batchDeleteLastOnline) {
-                                    newList.push(allUsersCache[i]);
+    return (
+        <>
+            <CustomTable page={userPage} name={<><FontAwesomeIcon icon={faUserPlus} />&nbsp;&nbsp;{tr("external_users")}</>} order={userListParam.order} orderBy={userListParam.order_by} onOrderingUpdate={(order_by, order) => { setUserListParam({ ...userListParam, order_by: order_by, order: order }); }} titlePosition="top" columns={puColumns} data={userList} totalItems={userTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={userPageSize} onPageChange={setUserPage} onRowsPerPageChange={setUserPageSize} onSearch={(content) => { setUserPage(1); setUserSearch(content); }} searchHint={tr("search_by_username_or_ids")} />
+            <CustomTable page={banPage} name={<><FontAwesomeIcon icon={faBan} />&nbsp;&nbsp;{tr("banned_users")}</>} order={banListParam.order} orderBy={banListParam.order_by} onOrderingUpdate={(order_by, order) => { setBanListParam({ ...banListParam, order_by: order_by, order: order }); }} titlePosition="top" columns={buColumns} data={banList} totalItems={banTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={banPageSize} onPageChange={setBanPage} onRowsPerPageChange={setBanPageSize} style={{ marginTop: "15px" }} onSearch={(content) => { setBanPage(1); setBanSearch(content); }} searchHint={tr("search_by_username_or_ids")} />
+            <Portal>
+                <Snackbar
+                    open={!!snackbarContent}
+                    autoHideDuration={5000}
+                    onClose={handleCloseSnackbar}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                >
+                    <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
+                        {snackbarContent}
+                    </Alert>
+                </Snackbar>
+            </Portal>
+            <Dialog open={dialogOpen === "prune-user"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
+                <DialogTitle><FontAwesomeIcon icon={faUsersSlash} />&nbsp;&nbsp;{tr("prune_users")}&nbsp;&nbsp;<SponsorBadge level={4} /></DialogTitle>
+                <DialogContent>
+                    <Typography variant="body2">{tr("prune_users_note")}</Typography>
+                    <Typography variant="body2">{tr("prune_users_note_2")}</Typography>
+                    <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>{tr("prune_users_note_3")}</Typography>
+                    <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>{tr("prune_users_note_4")}</Typography>
+                    <Grid container spacing={2} sx={{ mt: "5px", mb: "5px" }}>
+                        <Grid size={8}>
+                            <DateTimeField size="small"
+                                label={tr("last_online_before")}
+                                defaultValue={batchDeleteLastOnline}
+                                onChange={(timestamp) => { setBatchDeleteLastOnline(timestamp); }}
+                                fullWidth
+                                disabled={batchDeleteLoading}
+                            />
+                        </Grid>
+                        <Grid size={4}>
+                            <Button variant="contained" color="info" onClick={() => {
+                                if (batchDeleteLastOnline === undefined) return;
+                                let newList = [];
+                                for (let i = 0; i < allUsersCache.length; i++) {
+                                    if (allUsersCache[i].activity !== null && allUsersCache[i].activity.last_seen < batchDeleteLastOnline) {
+                                        newList.push(allUsersCache[i]);
+                                    }
                                 }
-                            }
-                            setBatchDeleteUsers(newList);
-                        }} disabled={dialogButtonDisabled || batchDeleteLoading} fullWidth>{tr("select")}</Button>
+                                setBatchDeleteUsers(newList);
+                            }} disabled={dialogButtonDisabled || batchDeleteLoading} fullWidth>{tr("select")}</Button>
+                        </Grid>
+                        <Grid size={12}>
+                            {/*This has to be done because UserSelect does not support update on userList*/}
+                            {allUsersCache.length === 0 && <UserSelect userList={allUsersCache} label={tr("users")} users={batchDeleteUsers} isMulti={true} onUpdate={setBatchDeleteUsers} disabled={batchDeleteLoading} allowSelectAll={true} />}
+                            {allUsersCache.length !== 0 && <UserSelect userList={allUsersCache} label={tr("users")} users={batchDeleteUsers} isMulti={true} onUpdate={setBatchDeleteUsers} disabled={batchDeleteLoading} allowSelectAll={true} />}
+                        </Grid>
                     </Grid>
-                    <Grid item xs={12}>
-                        {/*This has to be done because UserSelect does not support update on userList*/}
-                        {allUsersCache.length === 0 && <UserSelect userList={allUsersCache} label={tr("users")} users={batchDeleteUsers} isMulti={true} onUpdate={setBatchDeleteUsers} disabled={batchDeleteLoading} allowSelectAll={true} />}
-                        {allUsersCache.length !== 0 && <UserSelect userList={allUsersCache} label={tr("users")} users={batchDeleteUsers} isMulti={true} onUpdate={setBatchDeleteUsers} disabled={batchDeleteLoading} allowSelectAll={true} />}
-                    </Grid>
-                </Grid>
-                {(dialogButtonDisabled || batchDeleteCurrent !== 0 && batchDeleteCurrent == batchDeleteUsers.length) && <>
-                    <Typography variant="body2" gutterBottom sx={{ mt: "5px" }}>{tr("completed")}{batchDeleteCurrent} / {batchDeleteUsers.length}</Typography>
-                    <LinearProgress variant="determinate" color="info" value={batchDeleteCurrent / batchDeleteUsers.length * 100} />
-                    <Typography variant="body2" sx={{ color: theme.palette[logSeverity].main }} gutterBottom>{batchDeleteLog}</Typography>
-                </>}
-                {batchDeleteLoading && <>
-                    <Typography variant="body2" gutterBottom sx={{ mt: "5px" }}>{tr("loading_user_list_please_wait")}</Typography>
-                    <LinearProgress variant="indeterminate" color="info" />
-                </>}
-            </DialogContent>
-            <DialogActions>
-                <Button variant="contained" color="error" onClick={() => { batchDelete(); }} disabled={dialogButtonDisabled || batchDeleteLoading}>{tr("delete")}</Button>
-            </DialogActions>
-        </Dialog>
-        <SpeedDial
-            ariaLabel={tr("controls")}
-            sx={{ position: 'fixed', bottom: 20, right: 20 }}
-            icon={<SpeedDialIcon />}
-        >
-            <SpeedDialAction
-                key="prune-user"
-                icon={<FontAwesomeIcon icon={faUsersSlash} />}
-                tooltipTitle={tr("prune_users")}
-                onClick={() => { loadUserList(); setDialogOpen("prune-user"); }}
-            />
-        </SpeedDial>
-    </>;
+                    {(dialogButtonDisabled || batchDeleteCurrent !== 0 && batchDeleteCurrent == batchDeleteUsers.length) && <>
+                        <Typography variant="body2" gutterBottom sx={{ mt: "5px" }}>{tr("completed")}{batchDeleteCurrent} / {batchDeleteUsers.length}</Typography>
+                        <LinearProgress variant="determinate" color="info" value={batchDeleteCurrent / batchDeleteUsers.length * 100} />
+                        <Typography variant="body2" sx={{ color: theme.palette[logSeverity].main }} gutterBottom>{batchDeleteLog}</Typography>
+                    </>}
+                    {batchDeleteLoading && <>
+                        <Typography variant="body2" gutterBottom sx={{ mt: "5px" }}>{tr("loading_user_list_please_wait")}</Typography>
+                        <LinearProgress variant="indeterminate" color="info" />
+                    </>}
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="contained" color="error" onClick={() => { batchDelete(); }} disabled={dialogButtonDisabled || batchDeleteLoading}>{tr("delete")}</Button>
+                </DialogActions>
+            </Dialog>
+            <SpeedDial
+                ariaLabel={tr("controls")}
+                sx={{ position: 'fixed', bottom: 20, right: 20 }}
+                icon={<SpeedDialIcon />}
+            >
+                <SpeedDialAction
+                    key="prune-user"
+                    icon={<FontAwesomeIcon icon={faUsersSlash} />}
+                    tooltipTitle={tr("prune_users")}
+                    onClick={() => { loadUserList(); setDialogOpen("prune-user"); }}
+                />
+            </SpeedDial>
+        </>
+    );
 };
 
 export default ExternalUsers;

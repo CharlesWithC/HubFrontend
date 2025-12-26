@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { AppContext, CacheContext } from '../context';
 
 import { useTheme, Dialog, DialogTitle, DialogContent, DialogActions, LinearProgress, Typography, Button, SpeedDial, SpeedDialAction, SpeedDialIcon, MenuItem, TextField, Grid, Snackbar, Alert, TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Card, CardContent } from '@mui/material';
-import { Portal } from '@mui/base';
+import Portal from '@mui/material/Portal';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowsRotate, faCodeCompare, faFileExport, faGears, faIdCard, faTruck, faUserGroup, faUsersSlash } from '@fortawesome/free-solid-svg-icons';
@@ -427,277 +427,287 @@ const MemberList = () => {
         doLoad();
     }, [apiPath, theme, page, pageSize, search, listParam]);
 
-    return <>
-        <CustomTable page={page} name={<><FontAwesomeIcon icon={faUserGroup} />&nbsp;&nbsp;{tr("members")}</>} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} titlePosition="top" columns={[
-            { id: 'userid', label: tr("user_id"), orderKey: 'userid', defaultOrder: 'asc' },
-            { id: 'user', label: tr("user"), orderKey: 'name', defaultOrder: 'asc' },
-            { id: 'discordid', label: tr("discord_id"), orderKey: 'discordid', defaultOrder: 'asc' },
-            { id: 'steamid', label: tr("steam_id"), orderKey: 'steamid', defaultOrder: 'asc' },
-            { id: 'truckersmpid', label: tr("truckersmp_id"), orderKey: 'truckersmpid', defaultOrder: 'asc' },
-            { id: 'joined', label: tr("joined"), orderKey: 'join_timestamp', defaultOrder: 'asc' },
-            { id: 'last_seen', label: tr("last_seen"), orderKey: 'last_seen', defaultOrder: 'desc' }
-        ]} data={userList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onSearch={(content) => { setPage(1); setSearch(content); }} searchHint={tr("search_by_username_or_ids")} />
-        <Dialog open={dialogOpen === "sync-profile"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
-            <DialogTitle><FontAwesomeIcon icon={faArrowsRotate} />&nbsp;&nbsp;{tr("sync_profiles")}&nbsp;&nbsp;<SponsorBadge level={4} /></DialogTitle>
-            <DialogContent>
-                <Typography variant="body2">{tr("sync_profiles_note")}</Typography>
-                <Typography variant="body2">{tr("sync_profiles_note_2")}</Typography>
-                <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>{tr("sync_profiles_note_3")}</Typography>
-                <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>{tr("prune_users_note_4")}</Typography>
-                <br />
-                {dialogButtonDisabled && <>
-                    <Typography variant="body2" gutterBottom>{tr("completed")}{syncProfileCurrent} / {allMembers.length}</Typography>
-                    <LinearProgress variant="determinate" color="info" value={syncProfileCurrent / allMembers.length * 100} />
-                    <Typography variant="body2" sx={{ color: theme.palette[logSeverity].main }} gutterBottom>{syncProfileLog}</Typography>
-                </>}
-            </DialogContent>
-            <DialogActions>
-                <Button variant="contained" color="info" onClick={() => { syncProfile(); }} disabled={dialogButtonDisabled}>{tr("sync")}</Button>
-            </DialogActions>
-        </Dialog>
-        <Dialog fullWidth open={dialogOpen === "compare-members"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
-            <DialogTitle><FontAwesomeIcon icon={faCodeCompare} />&nbsp;&nbsp;{tr("compare_members")}&nbsp;&nbsp;<SponsorBadge level={4} /></DialogTitle>
-            <DialogContent>
-                <TextField size="small"
-                    label={tr("truckersmp_vtc_id")}
-                    value={tmpVtcId}
-                    onChange={(e) => { if (!isNaN(e.target.value)) setTmpVtcId(e.target.value); }}
-                    fullWidth sx={{ mt: "5px", mb: "10px" }}
-                />
-                <br />
-                <Card>
-                    <CardContent>
-                        <TableContainer>
-                            <Table>
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell>{tr("name")}</TableCell>
-                                        <TableCell>{tr("truckersmp_id")}</TableCell>
-                                        <TableCell>{tr("status")}</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {tmpCompareResult.map((row, index) => (
-                                        <TableRow key={index}>
-                                            <TableCell>{row.userid !== undefined ? <UserCard user={row} /> : row.name}</TableCell>
-                                            <TableCell><a href={`https://truckersmp.com/user/${row.truckersmpid}`} target="_blank" rel="noreferrer">{row.truckersmpid}</a></TableCell>
-                                            <TableCell>{row.status}</TableCell>
-                                        </TableRow>))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                    </CardContent>
-                </Card>
-            </DialogContent>
-            <DialogActions>
-                <Button variant="contained" color="info" onClick={() => { compareMembers(); }} disabled={dialogButtonDisabled || tmpVtcId.replaceAll(" ", "") === ""}>{tr("compare")}</Button>
-            </DialogActions>
-        </Dialog>
-        <Dialog open={dialogOpen === "batch-role-update"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
-            <DialogTitle><FontAwesomeIcon icon={faIdCard} />&nbsp;&nbsp;{tr("batch_update_roles")}&nbsp;&nbsp;<SponsorBadge level={4} /></DialogTitle>
-            <DialogContent>
-                <Typography variant="body2">{tr("batch_update_roles_note")}</Typography>
-                <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>{tr("prune_users_note_3")}</Typography>
-                <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>{tr("prune_users_note_4")}</Typography>
-                <UserSelect label={tr("users")} users={batchRoleUpdateUsers} isMulti={true} onUpdate={setBatchRoleUpdateUsers} style={{ marginTop: "5px", marginBottom: "5px" }} allowSelectAll={true} />
-                <RoleSelect label={tr("roles")} initialRoles={batchRoleUpdateRoles} onUpdate={(newRoles) => setBatchRoleUpdateRoles(newRoles.map((role) => (role.id)))} style={{ marginBottom: "12px" }} />
-                <TextField select size="small"
-                    label={tr("mode")}
-                    value={batchRoleUpdateMode}
-                    onChange={(e) => { setBatchRoleUpdateMode(e.target.value); }}
-                    fullWidth
-                >
-                    <MenuItem value="add">{tr("add_selected_roles")}</MenuItem>
-                    <MenuItem value="remove">{tr("remove_selected_roles")}</MenuItem>
-                    <MenuItem value="overwrite">{tr("overwrite_current_roles")}</MenuItem>
-                </TextField>
-                {(dialogButtonDisabled || batchRoleUpdateCurrent !== 0 && batchRoleUpdateCurrent == batchRoleUpdateUsers.length) && <>
-                    <Typography variant="body2" gutterBottom sx={{ mt: "5px" }}>{tr("completed")}{batchRoleUpdateCurrent} / {batchRoleUpdateUsers.length}</Typography>
-                    <LinearProgress variant="determinate" color="info" value={batchRoleUpdateCurrent / batchRoleUpdateUsers.length * 100} />
-                    <Typography variant="body2" sx={{ color: theme.palette[logSeverity].main }} gutterBottom>{batchRoleUpdateLog}</Typography>
-                </>}
-            </DialogContent>
-            <DialogActions>
-                <Button variant="contained" color="info" onClick={() => { batchUpdateRoles(); }} disabled={dialogButtonDisabled}>{tr("update")}</Button>
-            </DialogActions>
-        </Dialog>
-        <Dialog open={dialogOpen === "batch-tracker-update"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
-            <DialogTitle><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;{tr("batch_update_tracker")}&nbsp;&nbsp;<SponsorBadge level={4} /></DialogTitle>
-            <DialogContent>
-                <Typography variant="body2">{tr("batch_update_tracker_note")}</Typography>
-                <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>{tr("prune_users_note_3")}</Typography>
-                <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>{tr("prune_users_note_4")}</Typography>
-                <UserSelect label={tr("users")} users={batchTrackerUpdateUsers} isMulti={true} onUpdate={setBatchTrackerUpdateUsers} style={{ marginTop: "5px", marginBottom: "12px" }} allowSelectAll={true} />
-                <TextField select size="small"
-                    label={tr("tracker")}
-                    value={batchTrackerUpdateTo}
-                    onChange={(e) => { setBatchTrackerUpdateTo(e.target.value); }}
-                    fullWidth
-                >
-                    <MenuItem value="trucky">Trucky</MenuItem>
-                    <MenuItem value="tracksim">TrackSim</MenuItem>
-                    <MenuItem value="custom">{tr("custom")}</MenuItem>
-                </TextField>
-                {(dialogButtonDisabled || batchTrackerUpdateCurrent !== 0 && batchTrackerUpdateCurrent == batchTrackerUpdateUsers.length) && <>
-                    <Typography variant="body2" gutterBottom sx={{ mt: "5px" }}>{tr("completed")}{batchTrackerUpdateCurrent} / {batchTrackerUpdateUsers.length}</Typography>
-                    <LinearProgress variant="determinate" color="info" value={batchTrackerUpdateCurrent / batchTrackerUpdateUsers.length * 100} />
-                    <Typography variant="body2" sx={{ color: theme.palette[logSeverity].main }} gutterBottom>{batchTrackerUpdateLog}</Typography>
-                </>}
-            </DialogContent>
-            <DialogActions>
-                <Button variant="contained" color="info" onClick={() => { batchUpdateTrackers(); }} disabled={dialogButtonDisabled}>{tr("update")}</Button>
-            </DialogActions>
-        </Dialog>
-        <Dialog open={dialogOpen === "batch-member-dismiss"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
-            <DialogTitle><FontAwesomeIcon icon={faUsersSlash} />&nbsp;&nbsp;{tr("batch_dismiss_members")}&nbsp;&nbsp;<SponsorBadge level={4} /></DialogTitle>
-            <DialogContent>
-                <Typography variant="body2">{tr("batch_dismiss_members_note")}</Typography>
-                <Typography variant="body2">{tr("batch_dismiss_members_note_2")}</Typography>
-                <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>{tr("prune_users_note_3")}</Typography>
-                <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>{tr("prune_users_note_4")}</Typography>
-                <Grid container spacing={2} sx={{ mt: "5px", mb: "5px" }}>
-                    <Grid item xs={8}>
-                        <DateTimeField size="small"
-                            label={tr("last_online_before")}
-                            defaultValue={batchDismissLastOnline}
-                            onChange={(timestamp) => { setBatchDismissLastOnline(timestamp); }}
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={4}>
-                        <Button variant="contained" color="info" onClick={() => {
-                            if (batchDismissLastOnline === undefined) return;
-                            let newList = [];
-                            for (let i = 0; i < allMembers.length; i++) {
-                                if (allMembers[i].activity !== null && allMembers[i].activity.last_seen < batchDismissLastOnline) {
-                                    newList.push(allMembers[i]);
+    return (
+        <>
+            <CustomTable page={page} name={<><FontAwesomeIcon icon={faUserGroup} />&nbsp;&nbsp;{tr("members")}</>} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} titlePosition="top" columns={[
+                { id: 'userid', label: tr("user_id"), orderKey: 'userid', defaultOrder: 'asc' },
+                { id: 'user', label: tr("user"), orderKey: 'name', defaultOrder: 'asc' },
+                { id: 'discordid', label: tr("discord_id"), orderKey: 'discordid', defaultOrder: 'asc' },
+                { id: 'steamid', label: tr("steam_id"), orderKey: 'steamid', defaultOrder: 'asc' },
+                { id: 'truckersmpid', label: tr("truckersmp_id"), orderKey: 'truckersmpid', defaultOrder: 'asc' },
+                { id: 'joined', label: tr("joined"), orderKey: 'join_timestamp', defaultOrder: 'asc' },
+                { id: 'last_seen', label: tr("last_seen"), orderKey: 'last_seen', defaultOrder: 'desc' }
+            ]} data={userList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onSearch={(content) => { setPage(1); setSearch(content); }} searchHint={tr("search_by_username_or_ids")} />
+            <Dialog open={dialogOpen === "sync-profile"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
+                <DialogTitle><FontAwesomeIcon icon={faArrowsRotate} />&nbsp;&nbsp;{tr("sync_profiles")}&nbsp;&nbsp;<SponsorBadge level={4} /></DialogTitle>
+                <DialogContent>
+                    <Typography variant="body2">{tr("sync_profiles_note")}</Typography>
+                    <Typography variant="body2">{tr("sync_profiles_note_2")}</Typography>
+                    <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>{tr("sync_profiles_note_3")}</Typography>
+                    <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>{tr("prune_users_note_4")}</Typography>
+                    <br />
+                    {dialogButtonDisabled && <>
+                        <Typography variant="body2" gutterBottom>{tr("completed")}{syncProfileCurrent} / {allMembers.length}</Typography>
+                        <LinearProgress variant="determinate" color="info" value={syncProfileCurrent / allMembers.length * 100} />
+                        <Typography variant="body2" sx={{ color: theme.palette[logSeverity].main }} gutterBottom>{syncProfileLog}</Typography>
+                    </>}
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="contained" color="info" onClick={() => { syncProfile(); }} disabled={dialogButtonDisabled}>{tr("sync")}</Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog fullWidth open={dialogOpen === "compare-members"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
+                <DialogTitle><FontAwesomeIcon icon={faCodeCompare} />&nbsp;&nbsp;{tr("compare_members")}&nbsp;&nbsp;<SponsorBadge level={4} /></DialogTitle>
+                <DialogContent>
+                    <TextField size="small"
+                        label={tr("truckersmp_vtc_id")}
+                        value={tmpVtcId}
+                        onChange={(e) => { if (!isNaN(e.target.value)) setTmpVtcId(e.target.value); }}
+                        fullWidth sx={{ mt: "5px", mb: "10px" }}
+                    />
+                    <br />
+                    <Card>
+                        <CardContent>
+                            <TableContainer>
+                                <Table>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell>{tr("name")}</TableCell>
+                                            <TableCell>{tr("truckersmp_id")}</TableCell>
+                                            <TableCell>{tr("status")}</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {tmpCompareResult.map((row, index) => (
+                                            <TableRow key={index}>
+                                                <TableCell>{row.userid !== undefined ? <UserCard user={row} /> : row.name}</TableCell>
+                                                <TableCell><a href={`https://truckersmp.com/user/${row.truckersmpid}`} target="_blank" rel="noreferrer">{row.truckersmpid}</a></TableCell>
+                                                <TableCell>{row.status}</TableCell>
+                                            </TableRow>))}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        </CardContent>
+                    </Card>
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="contained" color="info" onClick={() => { compareMembers(); }} disabled={dialogButtonDisabled || tmpVtcId.replaceAll(" ", "") === ""}>{tr("compare")}</Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog open={dialogOpen === "batch-role-update"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
+                <DialogTitle><FontAwesomeIcon icon={faIdCard} />&nbsp;&nbsp;{tr("batch_update_roles")}&nbsp;&nbsp;<SponsorBadge level={4} /></DialogTitle>
+                <DialogContent>
+                    <Typography variant="body2">{tr("batch_update_roles_note")}</Typography>
+                    <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>{tr("prune_users_note_3")}</Typography>
+                    <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>{tr("prune_users_note_4")}</Typography>
+                    <UserSelect label={tr("users")} users={batchRoleUpdateUsers} isMulti={true} onUpdate={setBatchRoleUpdateUsers} style={{ marginTop: "5px", marginBottom: "5px" }} allowSelectAll={true} />
+                    <RoleSelect label={tr("roles")} initialRoles={batchRoleUpdateRoles} onUpdate={(newRoles) => setBatchRoleUpdateRoles(newRoles.map((role) => (role.id)))} style={{ marginBottom: "12px" }} />
+                    <TextField select size="small"
+                        label={tr("mode")}
+                        value={batchRoleUpdateMode}
+                        onChange={(e) => { setBatchRoleUpdateMode(e.target.value); }}
+                        fullWidth
+                    >
+                        <MenuItem value="add">{tr("add_selected_roles")}</MenuItem>
+                        <MenuItem value="remove">{tr("remove_selected_roles")}</MenuItem>
+                        <MenuItem value="overwrite">{tr("overwrite_current_roles")}</MenuItem>
+                    </TextField>
+                    {(dialogButtonDisabled || batchRoleUpdateCurrent !== 0 && batchRoleUpdateCurrent == batchRoleUpdateUsers.length) && <>
+                        <Typography variant="body2" gutterBottom sx={{ mt: "5px" }}>{tr("completed")}{batchRoleUpdateCurrent} / {batchRoleUpdateUsers.length}</Typography>
+                        <LinearProgress variant="determinate" color="info" value={batchRoleUpdateCurrent / batchRoleUpdateUsers.length * 100} />
+                        <Typography variant="body2" sx={{ color: theme.palette[logSeverity].main }} gutterBottom>{batchRoleUpdateLog}</Typography>
+                    </>}
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="contained" color="info" onClick={() => { batchUpdateRoles(); }} disabled={dialogButtonDisabled}>{tr("update")}</Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog open={dialogOpen === "batch-tracker-update"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
+                <DialogTitle><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;{tr("batch_update_tracker")}&nbsp;&nbsp;<SponsorBadge level={4} /></DialogTitle>
+                <DialogContent>
+                    <Typography variant="body2">{tr("batch_update_tracker_note")}</Typography>
+                    <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>{tr("prune_users_note_3")}</Typography>
+                    <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>{tr("prune_users_note_4")}</Typography>
+                    <UserSelect label={tr("users")} users={batchTrackerUpdateUsers} isMulti={true} onUpdate={setBatchTrackerUpdateUsers} style={{ marginTop: "5px", marginBottom: "12px" }} allowSelectAll={true} />
+                    <TextField select size="small"
+                        label={tr("tracker")}
+                        value={batchTrackerUpdateTo}
+                        onChange={(e) => { setBatchTrackerUpdateTo(e.target.value); }}
+                        fullWidth
+                    >
+                        <MenuItem value="trucky">Trucky</MenuItem>
+                        <MenuItem value="tracksim">TrackSim</MenuItem>
+                        <MenuItem value="custom">{tr("custom")}</MenuItem>
+                    </TextField>
+                    {(dialogButtonDisabled || batchTrackerUpdateCurrent !== 0 && batchTrackerUpdateCurrent == batchTrackerUpdateUsers.length) && <>
+                        <Typography variant="body2" gutterBottom sx={{ mt: "5px" }}>{tr("completed")}{batchTrackerUpdateCurrent} / {batchTrackerUpdateUsers.length}</Typography>
+                        <LinearProgress variant="determinate" color="info" value={batchTrackerUpdateCurrent / batchTrackerUpdateUsers.length * 100} />
+                        <Typography variant="body2" sx={{ color: theme.palette[logSeverity].main }} gutterBottom>{batchTrackerUpdateLog}</Typography>
+                    </>}
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="contained" color="info" onClick={() => { batchUpdateTrackers(); }} disabled={dialogButtonDisabled}>{tr("update")}</Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog open={dialogOpen === "batch-member-dismiss"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
+                <DialogTitle><FontAwesomeIcon icon={faUsersSlash} />&nbsp;&nbsp;{tr("batch_dismiss_members")}&nbsp;&nbsp;<SponsorBadge level={4} /></DialogTitle>
+                <DialogContent>
+                    <Typography variant="body2">{tr("batch_dismiss_members_note")}</Typography>
+                    <Typography variant="body2">{tr("batch_dismiss_members_note_2")}</Typography>
+                    <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>{tr("prune_users_note_3")}</Typography>
+                    <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>{tr("prune_users_note_4")}</Typography>
+                    <Grid container spacing={2} sx={{ mt: "5px", mb: "5px" }}>
+                        <Grid size={8}>
+                            <DateTimeField size="small"
+                                label={tr("last_online_before")}
+                                defaultValue={batchDismissLastOnline}
+                                onChange={(timestamp) => { setBatchDismissLastOnline(timestamp); }}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid size={4}>
+                            <Button variant="contained" color="info" onClick={() => {
+                                if (batchDismissLastOnline === undefined) return;
+                                let newList = [];
+                                for (let i = 0; i < allMembers.length; i++) {
+                                    if (allMembers[i].activity !== null && allMembers[i].activity.last_seen < batchDismissLastOnline) {
+                                        newList.push(allMembers[i]);
+                                    }
                                 }
-                            }
-                            setBatchDismissUsers(newList);
-                        }} disabled={dialogButtonDisabled} fullWidth>{tr("select")}</Button>
+                                setBatchDismissUsers(newList);
+                            }} disabled={dialogButtonDisabled} fullWidth>{tr("select")}</Button>
+                        </Grid>
+                        <Grid size={12}>
+                            <UserSelect label={tr("users")} users={batchDismissUsers} isMulti={true} onUpdate={setBatchDismissUsers} allowSelectAll={true} />
+                        </Grid>
                     </Grid>
-                    <Grid item xs={12}>
-                        <UserSelect label={tr("users")} users={batchDismissUsers} isMulti={true} onUpdate={setBatchDismissUsers} allowSelectAll={true} />
+                    {(dialogButtonDisabled || batchDismissCurrent !== 0 && batchDismissCurrent == batchDismissUsers.length) && <>
+                        <Typography variant="body2" gutterBottom sx={{ mt: "5px" }}>{tr("completed")}{batchDismissCurrent} / {batchDismissUsers.length}</Typography>
+                        <LinearProgress variant="determinate" color="info" value={batchDismissCurrent / batchDismissUsers.length * 100} />
+                        <Typography variant="body2" sx={{ color: theme.palette[logSeverity].main }} gutterBottom>{batchDismissLog}</Typography>
+                    </>}
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="contained" color="error" onClick={() => { batchDismiss(); }} disabled={dialogButtonDisabled}>{tr("dismiss")}</Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog open={dialogOpen === "settings"} onClose={() => { setDialogOpen(""); }} fullWidth>
+                <DialogTitle><FontAwesomeIcon icon={faGears} />&nbsp;&nbsp;{tr("settings")}</DialogTitle>
+                <DialogContent>
+                    <Grid container spacing={2} sx={{ mt: "5px" }}>
+                        <Grid size={6}>
+                            <DateTimeField
+                                label={tr("joined_after")}
+                                defaultValue={tempListParam.joined_after}
+                                onChange={(timestamp) => { setTempListParam({ ...tempListParam, joined_after: timestamp }); }}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid size={6}>
+                            <DateTimeField
+                                label={tr("joined_before")}
+                                defaultValue={tempListParam.joined_before}
+                                onChange={(timestamp) => { setTempListParam({ ...tempListParam, joined_before: timestamp }); }}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid size={6}>
+                            <DateTimeField
+                                label={tr("last_seen_after")}
+                                defaultValue={tempListParam.last_seen_after}
+                                onChange={(timestamp) => { setTempListParam({ ...tempListParam, last_seen_after: timestamp }); }}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid size={6}>
+                            <DateTimeField
+                                label={tr("last_seen_before")}
+                                defaultValue={tempListParam.last_seen_before}
+                                onChange={(timestamp) => { setTempListParam({ ...tempListParam, last_seen_before: timestamp }); }}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                md: 6
+                            }}>
+                            <RoleSelect initialRoles={tempListParam.include_roles || []} onUpdate={(newRoles) => setTempListParam({ ...tempListParam, include_roles: newRoles.map((role) => (role.id)) })} label={tr("include_roles")} style={{ marginBottom: '16px' }} showAllRoles={true} />
+                        </Grid>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                md: 6
+                            }}>
+                            <RoleSelect initialRoles={tempListParam.exclude_roles || []} onUpdate={(newRoles) => setTempListParam({ ...tempListParam, exclude_roles: newRoles.map((role) => (role.id)) })} label={tr("exclude_roles")} style={{ marginBottom: '16px' }} showAllRoles={true} />
+                        </Grid>
                     </Grid>
-                </Grid>
-                {(dialogButtonDisabled || batchDismissCurrent !== 0 && batchDismissCurrent == batchDismissUsers.length) && <>
-                    <Typography variant="body2" gutterBottom sx={{ mt: "5px" }}>{tr("completed")}{batchDismissCurrent} / {batchDismissUsers.length}</Typography>
-                    <LinearProgress variant="determinate" color="info" value={batchDismissCurrent / batchDismissUsers.length * 100} />
-                    <Typography variant="body2" sx={{ color: theme.palette[logSeverity].main }} gutterBottom>{batchDismissLog}</Typography>
-                </>}
-            </DialogContent>
-            <DialogActions>
-                <Button variant="contained" color="error" onClick={() => { batchDismiss(); }} disabled={dialogButtonDisabled}>{tr("dismiss")}</Button>
-            </DialogActions>
-        </Dialog>
-        <Dialog open={dialogOpen === "settings"} onClose={() => { setDialogOpen(""); }} fullWidth>
-            <DialogTitle><FontAwesomeIcon icon={faGears} />&nbsp;&nbsp;{tr("settings")}</DialogTitle>
-            <DialogContent>
-                <Grid container spacing={2} sx={{ mt: "5px" }}>
-                    <Grid item xs={6}>
-                        <DateTimeField
-                            label={tr("joined_after")}
-                            defaultValue={tempListParam.joined_after}
-                            onChange={(timestamp) => { setTempListParam({ ...tempListParam, joined_after: timestamp }); }}
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={6}>
-                        <DateTimeField
-                            label={tr("joined_before")}
-                            defaultValue={tempListParam.joined_before}
-                            onChange={(timestamp) => { setTempListParam({ ...tempListParam, joined_before: timestamp }); }}
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={6}>
-                        <DateTimeField
-                            label={tr("last_seen_after")}
-                            defaultValue={tempListParam.last_seen_after}
-                            onChange={(timestamp) => { setTempListParam({ ...tempListParam, last_seen_after: timestamp }); }}
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={6}>
-                        <DateTimeField
-                            label={tr("last_seen_before")}
-                            defaultValue={tempListParam.last_seen_before}
-                            onChange={(timestamp) => { setTempListParam({ ...tempListParam, last_seen_before: timestamp }); }}
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <RoleSelect initialRoles={tempListParam.include_roles || []} onUpdate={(newRoles) => setTempListParam({ ...tempListParam, include_roles: newRoles.map((role) => (role.id)) })} label={tr("include_roles")} style={{ marginBottom: '16px' }} showAllRoles={true} />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <RoleSelect initialRoles={tempListParam.exclude_roles || []} onUpdate={(newRoles) => setTempListParam({ ...tempListParam, exclude_roles: newRoles.map((role) => (role.id)) })} label={tr("exclude_roles")} style={{ marginBottom: '16px' }} showAllRoles={true} />
-                    </Grid>
-                </Grid>
-            </DialogContent>
-            <DialogActions>
-                <Button variant="contained" onClick={() => { setListParam(tempListParam); setPage(1); }}>{tr("update")}</Button>
-            </DialogActions>
-        </Dialog>
-        <SpeedDial
-            ariaLabel={tr("controls")}
-            sx={{ position: 'fixed', bottom: 20, right: 20 }}
-            icon={<SpeedDialIcon />}
-        >
-            <SpeedDialAction
-                key="settings"
-                tooltipTitle={tr("settings")}
-                icon={<FontAwesomeIcon icon={faGears} />}
-                onClick={() => { setDialogOpen("settings"); }} />
-            <SpeedDialAction
-                key="export-member-list"
-                icon={<FontAwesomeIcon icon={faFileExport} />}
-                tooltipTitle={tr("export_members")}
-                onClick={() => exportMemberList()}
-            />
-            <SpeedDialAction
-                key="sync-profile"
-                icon={<FontAwesomeIcon icon={faArrowsRotate} />}
-                tooltipTitle={tr("sync_profiles")}
-                onClick={() => setDialogOpen("sync-profile")}
-            />
-            <SpeedDialAction
-                key="compare-members"
-                icon={<FontAwesomeIcon icon={faCodeCompare} />}
-                tooltipTitle={tr("compare_members")}
-                onClick={() => { setDialogOpen("compare-members"); if (allDiscordMembers.length === 0) loadAllDiscordMembers(); }}
-            />
-            <SpeedDialAction
-                key="batch-role-update"
-                icon={<FontAwesomeIcon icon={faIdCard} />}
-                tooltipTitle={tr("batch_update_roles")}
-                onClick={() => setDialogOpen("batch-role-update")}
-            />
-            <SpeedDialAction
-                key="batch-tracker-update"
-                icon={<FontAwesomeIcon icon={faTruck} />}
-                tooltipTitle={tr("batch_update_tracker")}
-                onClick={() => setDialogOpen("batch-tracker-update")}
-            />
-            <SpeedDialAction
-                key="batch-member-dismiss"
-                icon={<FontAwesomeIcon icon={faUsersSlash} />}
-                tooltipTitle={tr("batch_dismiss_members")}
-                onClick={() => setDialogOpen("batch-member-dismiss")}
-            />
-        </SpeedDial>
-        <Portal>
-            <Snackbar
-                open={!!snackbarContent}
-                autoHideDuration={5000}
-                onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="contained" onClick={() => { setListParam(tempListParam); setPage(1); }}>{tr("update")}</Button>
+                </DialogActions>
+            </Dialog>
+            <SpeedDial
+                ariaLabel={tr("controls")}
+                sx={{ position: 'fixed', bottom: 20, right: 20 }}
+                icon={<SpeedDialIcon />}
             >
-                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
-                    {snackbarContent}
-                </Alert>
-            </Snackbar>
-        </Portal>
-    </>;
+                <SpeedDialAction
+                    key="settings"
+                    tooltipTitle={tr("settings")}
+                    icon={<FontAwesomeIcon icon={faGears} />}
+                    onClick={() => { setDialogOpen("settings"); }} />
+                <SpeedDialAction
+                    key="export-member-list"
+                    icon={<FontAwesomeIcon icon={faFileExport} />}
+                    tooltipTitle={tr("export_members")}
+                    onClick={() => exportMemberList()}
+                />
+                <SpeedDialAction
+                    key="sync-profile"
+                    icon={<FontAwesomeIcon icon={faArrowsRotate} />}
+                    tooltipTitle={tr("sync_profiles")}
+                    onClick={() => setDialogOpen("sync-profile")}
+                />
+                <SpeedDialAction
+                    key="compare-members"
+                    icon={<FontAwesomeIcon icon={faCodeCompare} />}
+                    tooltipTitle={tr("compare_members")}
+                    onClick={() => { setDialogOpen("compare-members"); if (allDiscordMembers.length === 0) loadAllDiscordMembers(); }}
+                />
+                <SpeedDialAction
+                    key="batch-role-update"
+                    icon={<FontAwesomeIcon icon={faIdCard} />}
+                    tooltipTitle={tr("batch_update_roles")}
+                    onClick={() => setDialogOpen("batch-role-update")}
+                />
+                <SpeedDialAction
+                    key="batch-tracker-update"
+                    icon={<FontAwesomeIcon icon={faTruck} />}
+                    tooltipTitle={tr("batch_update_tracker")}
+                    onClick={() => setDialogOpen("batch-tracker-update")}
+                />
+                <SpeedDialAction
+                    key="batch-member-dismiss"
+                    icon={<FontAwesomeIcon icon={faUsersSlash} />}
+                    tooltipTitle={tr("batch_dismiss_members")}
+                    onClick={() => setDialogOpen("batch-member-dismiss")}
+                />
+            </SpeedDial>
+            <Portal>
+                <Snackbar
+                    open={!!snackbarContent}
+                    autoHideDuration={5000}
+                    onClose={handleCloseSnackbar}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                >
+                    <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
+                        {snackbarContent}
+                    </Alert>
+                </Snackbar>
+            </Portal>
+        </>
+    );
 };
 
 export default MemberList;

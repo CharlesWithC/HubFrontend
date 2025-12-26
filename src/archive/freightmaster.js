@@ -114,64 +114,90 @@ const FreightMaster = () => {
         doLoad();
     }, [webConfig, userSettings, curUID, fMode, page, pageSize, memberUIDs]);
 
-    return <Grid container spacing={2}>
-        <Grid item xs={12} md={6} lg={4}>
-            <Typography variant="h5" fontWeight="bold">
-                {seasonName}
-            </Typography>
-            <Typography variant="body2">
-                {startTime} - {endTime}
-            </Typography>
+    return (
+        <Grid container spacing={2}>
+            <Grid
+                size={{
+                    xs: 12,
+                    md: 6,
+                    lg: 4
+                }}>
+                <Typography variant="h5" fontWeight="bold">
+                    {seasonName}
+                </Typography>
+                <Typography variant="body2">
+                    {startTime} - {endTime}
+                </Typography>
+            </Grid>
+            <Grid
+                size={{
+                    xs: 4,
+                    md: 1,
+                    lg: 4
+                }}></Grid>
+            <Grid
+                sx={{ mt: { md: "10px" } }}
+                size={{
+                    xs: 8,
+                    md: 5,
+                    lg: 4
+                }}>
+                <ButtonGroup fullWidth>
+                    <Button variant="contained" color={fMode === "d" ? "info" : "secondary"} onClick={() => { setFMode("d"); setLeaderboard([]); setTotalItems(1); setPage(1); }}>{tr("cross_vtc")}</Button>
+                    <Button variant="contained" color={fMode === "a" ? "info" : "secondary"} onClick={() => { setFMode("a"); setLeaderboard([]); setTotalItems(1); setPage(1); }}>{tr("single_vtc")}</Button>
+                </ButtonGroup>
+            </Grid>
+            <Grid
+                size={{
+                    xs: 12,
+                    md: 4
+                }}>
+                <Card>
+                    <CardContent>
+                        <Typography variant="h5" fontWeight="bold" fontSize="30px">{tr("rank")} {fMode === "d" ? rankd : ranka}
+                        </Typography>
+                        <Typography variant="body2" fontSize="25px">{tr("points")} {TSep(fMode === "d" ? pointd : pointa)}
+                        </Typography>
+                        <Typography variant="body2" fontSize="25px">{tr("level")} {fMode === "d" ? parseInt(pointd / D_LEVEL_POINT + 1) : parseInt(pointa / A_LEVEL_POINT + 1)}
+                        </Typography>
+                    </CardContent>
+                </Card>
+                <Card sx={{ mt: "10px" }}>
+                    <CardContent>
+                        <Typography variant="h5" fontWeight="bold" fontSize="30px">{tr("season_rewards")}</Typography>
+                        <Typography variant="body2" fontSize="15px" color="grey" sx={{ mb: "5px" }}>{tr("only_applies_to_crossvtc_ranking")}</Typography>
+                        <Typography variant="body2" fontWeight="bold" fontSize="15px">{tr("player_title")}</Typography>
+                        {fmRewards.filter((reward) => reward.reward_type === "title" && reward.active).map((reward) =>
+                            <Typography variant="body2" fontSize="15px">
+                                {reward.reward_value}
+                                {reward.qualify_type === "percentage" && <> ({reward.finisher_reward ? `Finishes` : `Been`} {reward.qualify_value.substring(0, 2) == "==" ? "at" : "top"} {parseFloat(reward.qualify_value.substring(2)) * 100}%)</>}
+                                {reward.qualify_type === "rank" && <> ({reward.finisher_reward ? `Finishes` : `Been`} {reward.qualify_value.substring(0, 2) == "==" ? "at" : "top"} {reward.qualify_value.substring(2)})</>}
+                                {/* we only care about == and <= */}
+                            </Typography>)}
+                    </CardContent>
+                </Card>
+            </Grid>
+            <Grid
+                size={{
+                    xs: 12,
+                    md: 8
+                }}>
+                {fMode === "d" && <CustomTable page={page} name={<><FontAwesomeIcon icon={faCrown} />&nbsp;&nbsp;{tr("leaderboard")}{tr("tracked_distance")}</>} columns={[
+                    { id: 'rank', label: tr("rank") },
+                    { id: 'vtc', label: tr("vtc") },
+                    { id: 'user', label: tr("user") },
+                    { id: 'points', label: tr("points") },
+                    { id: 'level', label: tr("level") }
+                ]} data={leaderboard} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} />}
+                {fMode === "a" && <CustomTable page={page} name={<><FontAwesomeIcon icon={faCrown} />&nbsp;&nbsp;{tr("leaderboard")}{tr("all_points")}</>} columns={[
+                    { id: 'rank', label: tr("rank") },
+                    { id: 'user', label: tr("user") },
+                    { id: 'points', label: tr("points") },
+                    { id: 'level', label: tr("level") }
+                ]} data={leaderboard} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} />}
+            </Grid>
         </Grid>
-        <Grid item xs={4} md={1} lg={4}></Grid>
-        <Grid item xs={8} md={5} lg={4} sx={{ mt: { md: "10px" } }}>
-            <ButtonGroup fullWidth>
-                <Button variant="contained" color={fMode === "d" ? "info" : "secondary"} onClick={() => { setFMode("d"); setLeaderboard([]); setTotalItems(1); setPage(1); }}>{tr("cross_vtc")}</Button>
-                <Button variant="contained" color={fMode === "a" ? "info" : "secondary"} onClick={() => { setFMode("a"); setLeaderboard([]); setTotalItems(1); setPage(1); }}>{tr("single_vtc")}</Button>
-            </ButtonGroup>
-        </Grid>
-        <Grid item xs={12} md={4}>
-            <Card>
-                <CardContent>
-                    <Typography variant="h5" fontWeight="bold" fontSize="30px">{tr("rank")} {fMode === "d" ? rankd : ranka}
-                    </Typography>
-                    <Typography variant="body2" fontSize="25px">{tr("points")} {TSep(fMode === "d" ? pointd : pointa)}
-                    </Typography>
-                    <Typography variant="body2" fontSize="25px">{tr("level")} {fMode === "d" ? parseInt(pointd / D_LEVEL_POINT + 1) : parseInt(pointa / A_LEVEL_POINT + 1)}
-                    </Typography>
-                </CardContent>
-            </Card>
-            <Card sx={{ mt: "10px" }}>
-                <CardContent>
-                    <Typography variant="h5" fontWeight="bold" fontSize="30px">{tr("season_rewards")}</Typography>
-                    <Typography variant="body2" fontSize="15px" color="grey" sx={{ mb: "5px" }}>{tr("only_applies_to_crossvtc_ranking")}</Typography>
-                    <Typography variant="body2" fontWeight="bold" fontSize="15px">{tr("player_title")}</Typography>
-                    {fmRewards.filter((reward) => reward.reward_type === "title" && reward.active).map((reward) =>
-                        <Typography variant="body2" fontSize="15px">
-                            {reward.reward_value}
-                            {reward.qualify_type === "percentage" && <> ({reward.finisher_reward ? `Finishes` : `Been`} {reward.qualify_value.substring(0, 2) == "==" ? "at" : "top"} {parseFloat(reward.qualify_value.substring(2)) * 100}%)</>}
-                            {reward.qualify_type === "rank" && <> ({reward.finisher_reward ? `Finishes` : `Been`} {reward.qualify_value.substring(0, 2) == "==" ? "at" : "top"} {reward.qualify_value.substring(2)})</>}
-                            {/* we only care about == and <= */}
-                        </Typography>)}
-                </CardContent>
-            </Card>
-        </Grid>
-        <Grid item xs={12} md={8}>
-            {fMode === "d" && <CustomTable page={page} name={<><FontAwesomeIcon icon={faCrown} />&nbsp;&nbsp;{tr("leaderboard")}{tr("tracked_distance")}</>} columns={[
-                { id: 'rank', label: tr("rank") },
-                { id: 'vtc', label: tr("vtc") },
-                { id: 'user', label: tr("user") },
-                { id: 'points', label: tr("points") },
-                { id: 'level', label: tr("level") }
-            ]} data={leaderboard} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} />}
-            {fMode === "a" && <CustomTable page={page} name={<><FontAwesomeIcon icon={faCrown} />&nbsp;&nbsp;{tr("leaderboard")}{tr("all_points")}</>} columns={[
-                { id: 'rank', label: tr("rank") },
-                { id: 'user', label: tr("user") },
-                { id: 'points', label: tr("points") },
-                { id: 'level', label: tr("level") }
-            ]} data={leaderboard} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} />}
-        </Grid>
-    </Grid>;
+    );
 };
 
 export default FreightMaster;

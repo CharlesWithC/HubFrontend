@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { AppContext } from '../context';
 
 import { Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, useTheme, Grid, Snackbar, Alert, TextField, MenuItem, ButtonGroup, IconButton, Divider, Card, CardContent } from '@mui/material';
-import { Portal } from '@mui/base';
+import Portal from '@mui/material/Portal';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCoins, faFileExport, faLock, faMoneyBillTransfer, faPlus, faRankingStar, faTruck, faUnlock, faUserGear, faShoppingCart, faWarehouse } from '@fortawesome/free-solid-svg-icons';
@@ -955,242 +955,359 @@ const Economy = () => {
         setDialogDisabled(false);
     }, [apiPath, activeMerch]);
 
-    return <>{cached && <>
-        <CustomTileMap tilesUrl={"https://map.charlws.com/ets2/base/tiles"} title={tr("europe")} onGarageClick={handleGarageClick} economyGarages={Object.values(economyCache.garagesMap)} />
-        {hasATS && <CustomTileMap tilesUrl={"https://map.charlws.com/ats/base/tiles"} title={tr("america")} onGarageClick={handleGarageClick} style={{ marginTop: "10px" }} economyGarages={Object.values(economyCache.garagesMap)} />}
-        <Dialog open={dialogAction === "garage"} onClose={() => setDialogAction("")} fullWidth>
-            <DialogTitle>{modalGarage.name}</DialogTitle>
-            <DialogContent>
-                {modalGarageDetails === null && <Typography variant="body2" sx={{ color: theme.palette.info.main }}>{tr("loading_garage_info")}</Typography>}
-                {modalGarageDetails !== null && modalGarageDetails.garage_owner !== undefined && <>
-                    <Grid container spacing={2}>
-                        <Grid item xs={4}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("owner")}</Typography>
-                            <Typography variant="body2"><UserCard user={modalGarageDetails.garage_owner} /></Typography>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("purchased")}</Typography>
-                            <Typography variant="body2"><TimeDelta timestamp={modalGarageDetails.purchase_timestamp * 1000} /></Typography>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("income")}</Typography>
-                            <Typography variant="body2">{TSep(modalGarageDetails.income)} {economyCache.config.currency_name}</Typography>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("trucks")}</Typography>
-                            <Typography variant="body2">{TSep(modalGarageDetails.trucks)}</Typography>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("slots")}</Typography>
-                            <Typography variant="body2">{TSep(modalGarageDetails.slots)}</Typography>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("slot_owners")}</Typography>
-                            <Typography variant="body2">{TSep(modalGarageDetails.slot_owners)}</Typography>
-                        </Grid>
-                    </Grid>
-                </>}
-                {modalGarageDetails !== null && modalGarageDetails.garage_owner === undefined && <>
-                    <Grid container spacing={2}>
-                        <Grid item xs={4}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("price")}</Typography>
-                            <Typography variant="body2">{TSep(modalGarage.price)} {economyCache.config.currency_name}</Typography>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("base_slots")}</Typography>
-                            <Typography variant="body2">{TSep(modalGarage.base_slots)}</Typography>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("slot_price")}</Typography>
-                            <Typography variant="body2">{TSep(modalGarage.slot_price)} {economyCache.config.currency_name}</Typography>
-                        </Grid>
-                    </Grid>
-                </>}
-            </DialogContent>
-            <DialogActions>
-                <Button variant="primary" onClick={() => { setDialogAction(""); }}>{tr("close")}</Button>
-                {modalGarageDetails !== null && modalGarageDetails.garage_owner !== undefined && <>
-                    {(checkUserPerm(curUserPerm, ["administrator", "manage_economy", "manage_garage"]) || modalGarageDetails.garage_owner.userid === curUser.userid) && <Button variant="contained" color="error" onClick={() => { setDialogAction("sell-garage"); }}>{tr("sell")}</Button>}
-                    {(checkUserPerm(curUserPerm, ["administrator", "manage_economy", "manage_garage"]) || modalGarageDetails.garage_owner.userid === curUser.userid) && <Button variant="contained" color="warning" onClick={() => { setDialogAction("transfer-garage"); }}>{tr("transfer")}</Button>}
-                    <Button variant="contained" color="info" onClick={() => { setSlotList([]); setDialogAction("slot"); }}>{tr("show_slots")}</Button>
-                </>}
-                {modalGarageDetails !== null && modalGarageDetails.garage_owner === undefined && <Button variant="contained" color="info" onClick={() => { purchaseGarage(); }} disabled={dialogDisabled}>{tr("purchase")}</Button>}
-            </DialogActions>
-        </Dialog>
-        {modalGarageDetails !== null && <>
-            <Dialog open={dialogAction === "transfer-garage"} onClose={() => setDialogAction("garage")} fullWidth>
-                <DialogTitle><>{tr("transfer_garage")}</> - {modalGarage.name}</DialogTitle>
+    return (
+        <>{cached && <>
+            <CustomTileMap tilesUrl={"https://map.charlws.com/ets2/base/tiles"} title={tr("europe")} onGarageClick={handleGarageClick} economyGarages={Object.values(economyCache.garagesMap)} />
+            {hasATS && <CustomTileMap tilesUrl={"https://map.charlws.com/ats/base/tiles"} title={tr("america")} onGarageClick={handleGarageClick} style={{ marginTop: "10px" }} economyGarages={Object.values(economyCache.garagesMap)} />}
+            <Dialog open={dialogAction === "garage"} onClose={() => setDialogAction("")} fullWidth>
+                <DialogTitle>{modalGarage.name}</DialogTitle>
                 <DialogContent>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("new_garage_owner")}</Typography>
-                            <Typography variant="body2"><UserSelect users={[garageOwner]} isMulti={false} includeCompany={true} onUpdate={setGarageOwner} /></Typography>
+                    {modalGarageDetails === null && <Typography variant="body2" sx={{ color: theme.palette.info.main }}>{tr("loading_garage_info")}</Typography>}
+                    {modalGarageDetails !== null && modalGarageDetails.garage_owner !== undefined && <>
+                        <Grid container spacing={2}>
+                            <Grid size={4}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("owner")}</Typography>
+                                <Typography variant="body2"><UserCard user={modalGarageDetails.garage_owner} /></Typography>
+                            </Grid>
+                            <Grid size={4}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("purchased")}</Typography>
+                                <Typography variant="body2"><TimeDelta timestamp={modalGarageDetails.purchase_timestamp * 1000} /></Typography>
+                            </Grid>
+                            <Grid size={4}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("income")}</Typography>
+                                <Typography variant="body2">{TSep(modalGarageDetails.income)} {economyCache.config.currency_name}</Typography>
+                            </Grid>
+                            <Grid size={4}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("trucks")}</Typography>
+                                <Typography variant="body2">{TSep(modalGarageDetails.trucks)}</Typography>
+                            </Grid>
+                            <Grid size={4}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("slots")}</Typography>
+                                <Typography variant="body2">{TSep(modalGarageDetails.slots)}</Typography>
+                            </Grid>
+                            <Grid size={4}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("slot_owners")}</Typography>
+                                <Typography variant="body2">{TSep(modalGarageDetails.slot_owners)}</Typography>
+                            </Grid>
                         </Grid>
-                        <Grid item xs={12}>
-                            <TextField
-                                label={tr("message")}
-                                value={message}
-                                onChange={(e) => setMessage(e.target.value)}
-                                fullWidth
-                            />
+                    </>}
+                    {modalGarageDetails !== null && modalGarageDetails.garage_owner === undefined && <>
+                        <Grid container spacing={2}>
+                            <Grid size={4}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("price")}</Typography>
+                                <Typography variant="body2">{TSep(modalGarage.price)} {economyCache.config.currency_name}</Typography>
+                            </Grid>
+                            <Grid size={4}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("base_slots")}</Typography>
+                                <Typography variant="body2">{TSep(modalGarage.base_slots)}</Typography>
+                            </Grid>
+                            <Grid size={4}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("slot_price")}</Typography>
+                                <Typography variant="body2">{TSep(modalGarage.slot_price)} {economyCache.config.currency_name}</Typography>
+                            </Grid>
                         </Grid>
-                    </Grid>
-                </DialogContent>
-                <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogAction("garage"); }}>{tr("close")}</Button>
-                    <Button variant="contained" color="warning" onClick={() => { transferGarage(); }} disabled={dialogDisabled}>{tr("transfer")}</Button>
-                </DialogActions>
-            </Dialog>
-            <Dialog open={dialogAction === "sell-garage"} onClose={() => setDialogAction("garage")}>
-                <DialogTitle><>{tr("sell_garage")}</> - {modalGarage.name}</DialogTitle>
-                <DialogContent>
-                    <Grid container spacing={2}>
-                        <Grid item xs={6}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("purchase_price")}</Typography>
-                            <Typography variant="body2">{TSep(modalGarage.price)} {economyCache.config.currency_name}</Typography>
-                        </Grid>
-                        <Grid item xs={6}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("refund")}</Typography>
-                            <Typography variant="body2">{TSep(parseInt(modalGarage.price * economyCache.config.garage_refund))} {economyCache.config.currency_name}</Typography>
-                        </Grid>
-                    </Grid>
-                </DialogContent>
-                <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogAction("garage"); }}>{tr("close")}</Button>
-                    <Button variant="contained" color="error" onClick={() => { sellGarage(); }} disabled={dialogDisabled}>{tr("sell")}</Button>
-                </DialogActions>
-            </Dialog>
-            <Dialog open={dialogAction === "slot"} onClose={() => setDialogAction("garage")} fullWidth>
-                <DialogTitle><>{tr("slots")}</> - {modalGarage.name}</DialogTitle>
-                <DialogContent>
-                    <CustomTable columns={slotColumns} data={slotList} totalItems={slotTotal} rowsPerPageOptions={[10, 25, 50]} page={slotPage} defaultRowsPerPage={slotPageSize} onPageChange={setSlotPage} onRowsPerPageChange={setSlotPageSize} />
-                </DialogContent>
-                <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogAction("garage"); }}>{tr("close")}</Button>
-                    <Button variant="contained" color="info" onClick={() => { purchaseSlot(); }} disabled={dialogDisabled}><>{tr("purchase")}</> (<>{tr("cost")}</>: {modalGarage.slot_price})</Button>
-                </DialogActions>
-            </Dialog>
-            <Dialog open={dialogAction === "transfer-slot"} onClose={() => setDialogAction("slot")} fullWidth>
-                <DialogTitle><>{tr("transfer_slot")}</> #{activeSlot.slotid} - {modalGarage.name}</DialogTitle>
-                <DialogContent>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("new_slot_owner")}</Typography>
-                            <Typography variant="body2"><UserSelect users={[slotOwner]} isMulti={false} includeCompany={true} onUpdate={setSlotOwner} /></Typography>
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField
-                                label={tr("message")}
-                                value={message}
-                                onChange={(e) => setMessage(e.target.value)}
-                                fullWidth
-                            />
-                        </Grid>
-                    </Grid>
-                </DialogContent>
-                <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogAction("slot"); }}>{tr("close")}</Button>
-                    <Button variant="contained" color="warning" onClick={() => { transferSlot(); }} disabled={dialogDisabled}>{tr("transfer")}</Button>
-                </DialogActions>
-            </Dialog>
-            <Dialog open={dialogAction === "sell-slot"} onClose={() => setDialogAction("slot")}>
-                <DialogTitle><>{tr("sell_slot")}</> #{activeSlot.slotid} - {modalGarage.name}</DialogTitle>
-                <DialogContent>
-                    <Grid container spacing={2}>
-                        <Grid item xs={6}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("purchase_price")}</Typography>
-                            <Typography variant="body2">{TSep(modalGarage.slot_price)} {economyCache.config.currency_name}</Typography>
-                        </Grid>
-                        <Grid item xs={6}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("refund")}</Typography>
-                            <Typography variant="body2">{TSep(parseInt(modalGarage.slot_price * economyCache.config.slot_refund))} {economyCache.config.currency_name}</Typography>
-                        </Grid>
-                    </Grid>
-                </DialogContent>
-                <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogAction("slot"); }}>{tr("close")}</Button>
-                    <Button variant="contained" color="error" onClick={() => { sellSlot(); }} disabled={dialogDisabled}>{tr("sell")}</Button>
-                </DialogActions>
-            </Dialog>
-        </>}
-        {activeTruck.truck !== undefined && <>
-            <Dialog open={dialogAction === "truck"} onClose={() => setDialogAction(truckReferer)}>
-                <DialogTitle><>{tr("vehicle")}</> #{activeTruck.vehicleid}</DialogTitle>
-                <DialogContent>
-                    <Grid container spacing={2}>
-                        <Grid item xs={4}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("owner")}</Typography>
-                            <Typography variant="body2"><UserCard user={activeTruck.owner} /></Typography>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("assignee")}</Typography>
-                            <Typography variant="body2">{activeTruck.owner.userid === null ? <UserCard user={activeTruck.assignee} /> : tr("not_applicable")}</Typography>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("parking_at")}</Typography>
-                            <Typography variant="body2">{economyCache.garagesMap[activeTruck.garageid] !== undefined ? economyCache.garagesMap[activeTruck.garageid].name : tr("unknown_garage")}</Typography>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("model")}</Typography>
-                            <Typography variant="body2">{activeTruck.truck.brand} {activeTruck.truck.model}</Typography>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("price")}</Typography>
-                            <Typography variant="body2">{TSep(activeTruck.price)} {economyCache.config.currency_name}</Typography>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("purchased")}</Typography>
-                            <Typography variant="body2"><TimeDelta timestamp={activeTruck.purchase_timestamp * 1000} /></Typography>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("odometer")}</Typography>
-                            <Typography variant="body2">{ConvertUnit(userSettings.unit, "km", activeTruck.odometer)}</Typography>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("income")}</Typography>
-                            <Typography variant="body2">{TSep(activeTruck.income)} {economyCache.config.currency_name}</Typography>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("service_expense")}</Typography>
-                            <Typography variant="body2">{TSep(activeTruck.service)} {economyCache.config.currency_name}</Typography>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("damage")}</Typography>
-                            <Typography variant="body2">{parseInt(activeTruck.damage * 100)}%</Typography>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("repair_cost")}</Typography>
-                            <Typography variant="body2">{TSep(activeTruck.repair_cost)} {economyCache.config.currency_name}</Typography>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("status")}</Typography>
-                            <Typography variant="body2">{TRUCK_STATUS[activeTruck.status]}</Typography>
-                        </Grid>
-                    </Grid>
-                    {(checkUserPerm(curUserPerm, ["administrator", "manage_economy", "manage_truck"]) || activeTruck.owner.userid === curUser.userid) && <>
-                        <ButtonGroup fullWidth sx={{ mt: "10px" }}>
-                            <Button variant="contained" color="success" onClick={() => { activateTruck(); }} disabled={activeTruck.status !== "inactive" || dialogDisabled}>{tr("activate")}</Button>
-                            <Button variant="contained" color="warning" onClick={() => { deactivateTruck(); }} disabled={activeTruck.status !== "active" || dialogDisabled}>{tr("deactivate")}</Button>
-                            <Button variant="contained" color="info" onClick={() => { setDialogAction("relocate-truck"); }} disabled={dialogDisabled}>{tr("relocate")}</Button>
-                            <Button variant="contained" color="success" onClick={() => { repairTruck(); }} disabled={activeTruck.damage === 0 || dialogDisabled}>{tr("repair")}</Button>
-                        </ButtonGroup>
-                        <ButtonGroup fullWidth sx={{ mt: "10px" }}>
-                            <Button variant="contained" color="warning" onClick={() => { setDialogAction("transfer-truck"); }} disabled={dialogDisabled}>{tr("transfer")}</Button>
-                            <Button variant="contained" color="warning" onClick={() => { setDialogAction("reassign-truck"); }} disabled={activeTruck.owner.userid !== null || dialogDisabled}>{tr("reassign")}</Button>
-                            <Button variant="contained" color="error" onClick={() => { setDialogAction("sell-truck"); }} disabled={dialogDisabled}>{tr("sell")}</Button>
-                            <Button variant="contained" color="error" onClick={() => { setDialogAction("scrap-truck"); }} disabled={dialogDisabled}>{tr("scrap")}</Button>
-                        </ButtonGroup>
                     </>}
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogAction(truckReferer); }}>{tr("close")}</Button>
+                    <Button variant="primary" onClick={() => { setDialogAction(""); }}>{tr("close")}</Button>
+                    {modalGarageDetails !== null && modalGarageDetails.garage_owner !== undefined && <>
+                        {(checkUserPerm(curUserPerm, ["administrator", "manage_economy", "manage_garage"]) || modalGarageDetails.garage_owner.userid === curUser.userid) && <Button variant="contained" color="error" onClick={() => { setDialogAction("sell-garage"); }}>{tr("sell")}</Button>}
+                        {(checkUserPerm(curUserPerm, ["administrator", "manage_economy", "manage_garage"]) || modalGarageDetails.garage_owner.userid === curUser.userid) && <Button variant="contained" color="warning" onClick={() => { setDialogAction("transfer-garage"); }}>{tr("transfer")}</Button>}
+                        <Button variant="contained" color="info" onClick={() => { setSlotList([]); setDialogAction("slot"); }}>{tr("show_slots")}</Button>
+                    </>}
+                    {modalGarageDetails !== null && modalGarageDetails.garage_owner === undefined && <Button variant="contained" color="info" onClick={() => { purchaseGarage(); }} disabled={dialogDisabled}>{tr("purchase")}</Button>}
                 </DialogActions>
             </Dialog>
-            <Dialog open={dialogAction === "relocate-truck"} onClose={() => setDialogAction("truck")} fullWidth>
-                <DialogTitle><>{tr("relocate_truck")}</> #{activeTruck.vehicleid} - {activeTruck.truck.brand} {activeTruck.truck.model}</DialogTitle>
+            {modalGarageDetails !== null && <>
+                <Dialog open={dialogAction === "transfer-garage"} onClose={() => setDialogAction("garage")} fullWidth>
+                    <DialogTitle><>{tr("transfer_garage")}</> - {modalGarage.name}</DialogTitle>
+                    <DialogContent>
+                        <Grid container spacing={2}>
+                            <Grid size={12}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("new_garage_owner")}</Typography>
+                                <Typography variant="body2"><UserSelect users={[garageOwner]} isMulti={false} includeCompany={true} onUpdate={setGarageOwner} /></Typography>
+                            </Grid>
+                            <Grid size={12}>
+                                <TextField
+                                    label={tr("message")}
+                                    value={message}
+                                    onChange={(e) => setMessage(e.target.value)}
+                                    fullWidth
+                                />
+                            </Grid>
+                        </Grid>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant="primary" onClick={() => { setDialogAction("garage"); }}>{tr("close")}</Button>
+                        <Button variant="contained" color="warning" onClick={() => { transferGarage(); }} disabled={dialogDisabled}>{tr("transfer")}</Button>
+                    </DialogActions>
+                </Dialog>
+                <Dialog open={dialogAction === "sell-garage"} onClose={() => setDialogAction("garage")}>
+                    <DialogTitle><>{tr("sell_garage")}</> - {modalGarage.name}</DialogTitle>
+                    <DialogContent>
+                        <Grid container spacing={2}>
+                            <Grid size={6}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("purchase_price")}</Typography>
+                                <Typography variant="body2">{TSep(modalGarage.price)} {economyCache.config.currency_name}</Typography>
+                            </Grid>
+                            <Grid size={6}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("refund")}</Typography>
+                                <Typography variant="body2">{TSep(parseInt(modalGarage.price * economyCache.config.garage_refund))} {economyCache.config.currency_name}</Typography>
+                            </Grid>
+                        </Grid>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant="primary" onClick={() => { setDialogAction("garage"); }}>{tr("close")}</Button>
+                        <Button variant="contained" color="error" onClick={() => { sellGarage(); }} disabled={dialogDisabled}>{tr("sell")}</Button>
+                    </DialogActions>
+                </Dialog>
+                <Dialog open={dialogAction === "slot"} onClose={() => setDialogAction("garage")} fullWidth>
+                    <DialogTitle><>{tr("slots")}</> - {modalGarage.name}</DialogTitle>
+                    <DialogContent>
+                        <CustomTable columns={slotColumns} data={slotList} totalItems={slotTotal} rowsPerPageOptions={[10, 25, 50]} page={slotPage} defaultRowsPerPage={slotPageSize} onPageChange={setSlotPage} onRowsPerPageChange={setSlotPageSize} />
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant="primary" onClick={() => { setDialogAction("garage"); }}>{tr("close")}</Button>
+                        <Button variant="contained" color="info" onClick={() => { purchaseSlot(); }} disabled={dialogDisabled}><>{tr("purchase")}</> (<>{tr("cost")}</>: {modalGarage.slot_price})</Button>
+                    </DialogActions>
+                </Dialog>
+                <Dialog open={dialogAction === "transfer-slot"} onClose={() => setDialogAction("slot")} fullWidth>
+                    <DialogTitle><>{tr("transfer_slot")}</> #{activeSlot.slotid} - {modalGarage.name}</DialogTitle>
+                    <DialogContent>
+                        <Grid container spacing={2}>
+                            <Grid size={12}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("new_slot_owner")}</Typography>
+                                <Typography variant="body2"><UserSelect users={[slotOwner]} isMulti={false} includeCompany={true} onUpdate={setSlotOwner} /></Typography>
+                            </Grid>
+                            <Grid size={12}>
+                                <TextField
+                                    label={tr("message")}
+                                    value={message}
+                                    onChange={(e) => setMessage(e.target.value)}
+                                    fullWidth
+                                />
+                            </Grid>
+                        </Grid>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant="primary" onClick={() => { setDialogAction("slot"); }}>{tr("close")}</Button>
+                        <Button variant="contained" color="warning" onClick={() => { transferSlot(); }} disabled={dialogDisabled}>{tr("transfer")}</Button>
+                    </DialogActions>
+                </Dialog>
+                <Dialog open={dialogAction === "sell-slot"} onClose={() => setDialogAction("slot")}>
+                    <DialogTitle><>{tr("sell_slot")}</> #{activeSlot.slotid} - {modalGarage.name}</DialogTitle>
+                    <DialogContent>
+                        <Grid container spacing={2}>
+                            <Grid size={6}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("purchase_price")}</Typography>
+                                <Typography variant="body2">{TSep(modalGarage.slot_price)} {economyCache.config.currency_name}</Typography>
+                            </Grid>
+                            <Grid size={6}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("refund")}</Typography>
+                                <Typography variant="body2">{TSep(parseInt(modalGarage.slot_price * economyCache.config.slot_refund))} {economyCache.config.currency_name}</Typography>
+                            </Grid>
+                        </Grid>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant="primary" onClick={() => { setDialogAction("slot"); }}>{tr("close")}</Button>
+                        <Button variant="contained" color="error" onClick={() => { sellSlot(); }} disabled={dialogDisabled}>{tr("sell")}</Button>
+                    </DialogActions>
+                </Dialog>
+            </>}
+            {activeTruck.truck !== undefined && <>
+                <Dialog open={dialogAction === "truck"} onClose={() => setDialogAction(truckReferer)}>
+                    <DialogTitle><>{tr("vehicle")}</> #{activeTruck.vehicleid}</DialogTitle>
+                    <DialogContent>
+                        <Grid container spacing={2}>
+                            <Grid size={4}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("owner")}</Typography>
+                                <Typography variant="body2"><UserCard user={activeTruck.owner} /></Typography>
+                            </Grid>
+                            <Grid size={4}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("assignee")}</Typography>
+                                <Typography variant="body2">{activeTruck.owner.userid === null ? <UserCard user={activeTruck.assignee} /> : tr("not_applicable")}</Typography>
+                            </Grid>
+                            <Grid size={4}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("parking_at")}</Typography>
+                                <Typography variant="body2">{economyCache.garagesMap[activeTruck.garageid] !== undefined ? economyCache.garagesMap[activeTruck.garageid].name : tr("unknown_garage")}</Typography>
+                            </Grid>
+                            <Grid size={4}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("model")}</Typography>
+                                <Typography variant="body2">{activeTruck.truck.brand} {activeTruck.truck.model}</Typography>
+                            </Grid>
+                            <Grid size={4}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("price")}</Typography>
+                                <Typography variant="body2">{TSep(activeTruck.price)} {economyCache.config.currency_name}</Typography>
+                            </Grid>
+                            <Grid size={4}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("purchased")}</Typography>
+                                <Typography variant="body2"><TimeDelta timestamp={activeTruck.purchase_timestamp * 1000} /></Typography>
+                            </Grid>
+                            <Grid size={4}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("odometer")}</Typography>
+                                <Typography variant="body2">{ConvertUnit(userSettings.unit, "km", activeTruck.odometer)}</Typography>
+                            </Grid>
+                            <Grid size={4}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("income")}</Typography>
+                                <Typography variant="body2">{TSep(activeTruck.income)} {economyCache.config.currency_name}</Typography>
+                            </Grid>
+                            <Grid size={4}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("service_expense")}</Typography>
+                                <Typography variant="body2">{TSep(activeTruck.service)} {economyCache.config.currency_name}</Typography>
+                            </Grid>
+                            <Grid size={4}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("damage")}</Typography>
+                                <Typography variant="body2">{parseInt(activeTruck.damage * 100)}%</Typography>
+                            </Grid>
+                            <Grid size={4}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("repair_cost")}</Typography>
+                                <Typography variant="body2">{TSep(activeTruck.repair_cost)} {economyCache.config.currency_name}</Typography>
+                            </Grid>
+                            <Grid size={4}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("status")}</Typography>
+                                <Typography variant="body2">{TRUCK_STATUS[activeTruck.status]}</Typography>
+                            </Grid>
+                        </Grid>
+                        {(checkUserPerm(curUserPerm, ["administrator", "manage_economy", "manage_truck"]) || activeTruck.owner.userid === curUser.userid) && <>
+                            <ButtonGroup fullWidth sx={{ mt: "10px" }}>
+                                <Button variant="contained" color="success" onClick={() => { activateTruck(); }} disabled={activeTruck.status !== "inactive" || dialogDisabled}>{tr("activate")}</Button>
+                                <Button variant="contained" color="warning" onClick={() => { deactivateTruck(); }} disabled={activeTruck.status !== "active" || dialogDisabled}>{tr("deactivate")}</Button>
+                                <Button variant="contained" color="info" onClick={() => { setDialogAction("relocate-truck"); }} disabled={dialogDisabled}>{tr("relocate")}</Button>
+                                <Button variant="contained" color="success" onClick={() => { repairTruck(); }} disabled={activeTruck.damage === 0 || dialogDisabled}>{tr("repair")}</Button>
+                            </ButtonGroup>
+                            <ButtonGroup fullWidth sx={{ mt: "10px" }}>
+                                <Button variant="contained" color="warning" onClick={() => { setDialogAction("transfer-truck"); }} disabled={dialogDisabled}>{tr("transfer")}</Button>
+                                <Button variant="contained" color="warning" onClick={() => { setDialogAction("reassign-truck"); }} disabled={activeTruck.owner.userid !== null || dialogDisabled}>{tr("reassign")}</Button>
+                                <Button variant="contained" color="error" onClick={() => { setDialogAction("sell-truck"); }} disabled={dialogDisabled}>{tr("sell")}</Button>
+                                <Button variant="contained" color="error" onClick={() => { setDialogAction("scrap-truck"); }} disabled={dialogDisabled}>{tr("scrap")}</Button>
+                            </ButtonGroup>
+                        </>}
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant="primary" onClick={() => { setDialogAction(truckReferer); }}>{tr("close")}</Button>
+                    </DialogActions>
+                </Dialog>
+                <Dialog open={dialogAction === "relocate-truck"} onClose={() => setDialogAction("truck")} fullWidth>
+                    <DialogTitle><>{tr("relocate_truck")}</> #{activeTruck.vehicleid} - {activeTruck.truck.brand} {activeTruck.truck.model}</DialogTitle>
+                    <DialogContent>
+                        <Grid container spacing={2}>
+                            <Grid size={12}>
+                                <TextField
+                                    label={tr("slot_id")}
+                                    value={truckSlotId}
+                                    onChange={(e) => setTruckSlotId(e.target.value)}
+                                    fullWidth sx={{ mt: "5px" }}
+                                />
+                            </Grid>
+                        </Grid>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant="primary" onClick={() => { setDialogAction("truck"); }}>{tr("close")}</Button>
+                        <Button variant="contained" color="info" onClick={() => { relocateTruck(); }} disabled={dialogDisabled}>{tr("relocate")}</Button>
+                    </DialogActions>
+                </Dialog>
+                <Dialog open={dialogAction === "transfer-truck"} onClose={() => setDialogAction("truck")} fullWidth>
+                    <DialogTitle><>{tr("transfer_truck")}</> #{activeTruck.vehicleid} - {activeTruck.truck.brand} {activeTruck.truck.model}</DialogTitle>
+                    <DialogContent>
+                        <Grid container spacing={2}>
+                            <Grid size={12}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("new_truck_owner")}</Typography>
+                                <Typography variant="body2"><UserSelect users={[truckOwner]} isMulti={false} includeCompany={true} onUpdate={setTruckOwner} /></Typography>
+                            </Grid>
+                            <Grid size={12}>
+                                <TextField
+                                    label={tr("message")}
+                                    value={message}
+                                    onChange={(e) => setMessage(e.target.value)}
+                                    fullWidth
+                                />
+                            </Grid>
+                        </Grid>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant="primary" onClick={() => { setDialogAction("truck"); }}>{tr("close")}</Button>
+                        <Button variant="contained" color="warning" onClick={() => { transferTruck(); }} disabled={dialogDisabled}>{tr("transfer")}</Button>
+                    </DialogActions>
+                </Dialog>
+                <Dialog open={dialogAction === "reassign-truck"} onClose={() => setDialogAction("truck")} fullWidth>
+                    <DialogTitle><>{tr("reassign_truck")}</> #{activeTruck.vehicleid} - {activeTruck.truck.brand} {activeTruck.truck.model}</DialogTitle>
+                    <DialogContent>
+                        <Grid container spacing={2}>
+                            <Grid size={12}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("new_truck_assignee")}</Typography>
+                                <Typography variant="body2"><UserSelect users={[truckAssignee]} isMulti={false} includeCompany={true} onUpdate={setTruckAssignee} /></Typography>
+                            </Grid>
+                            <Grid size={12}>
+                                <TextField
+                                    label={tr("message")}
+                                    value={message}
+                                    onChange={(e) => setMessage(e.target.value)}
+                                    fullWidth
+                                />
+                            </Grid>
+                        </Grid>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant="primary" onClick={() => { setDialogAction("truck"); }}>{tr("close")}</Button>
+                        <Button variant="contained" color="warning" onClick={() => { reassignTruck(); }} disabled={dialogDisabled}>{tr("reassign")}</Button>
+                    </DialogActions>
+                </Dialog>
+                <Dialog open={dialogAction === "sell-truck"} onClose={() => setDialogAction("truck")}>
+                    <DialogTitle><>{tr("sell_truck")}</> #{activeTruck.vehicleid} - {activeTruck.truck.brand} {activeTruck.truck.model}</DialogTitle>
+                    <DialogContent>
+                        <Grid container spacing={2}>
+                            <Grid size={6}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("purchase_price")}</Typography>
+                                <Typography variant="body2">{TSep(activeTruck.price)} {economyCache.config.currency_name}</Typography>
+                            </Grid>
+                            <Grid size={6}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("refund")}</Typography>
+                                <Typography variant="body2">{TSep(parseInt(activeTruck.price * economyCache.config.truck_refund))} {economyCache.config.currency_name}</Typography>
+                            </Grid>
+                        </Grid>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant="primary" onClick={() => { setDialogAction("truck"); }}>{tr("close")}</Button>
+                        <Button variant="contained" color="error" onClick={() => { sellTruck(); }} disabled={dialogDisabled}>{tr("sell")}</Button>
+                    </DialogActions>
+                </Dialog>
+                <Dialog open={dialogAction === "scrap-truck"} onClose={() => setDialogAction("truck")}>
+                    <DialogTitle><>{tr("scrap_truck")}</> #{activeTruck.vehicleid} - {activeTruck.truck.brand} {activeTruck.truck.model}</DialogTitle>
+                    <DialogContent>
+                        <Grid container spacing={2}>
+                            <Grid size={6}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("purchase_price")}</Typography>
+                                <Typography variant="body2">{TSep(activeTruck.price)} {economyCache.config.currency_name}</Typography>
+                            </Grid>
+                            <Grid size={6}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("refund")}</Typography>
+                                <Typography variant="body2">{TSep(parseInt(activeTruck.price * economyCache.config.scrap_refund))} {economyCache.config.currency_name}</Typography>
+                            </Grid>
+                        </Grid>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant="primary" onClick={() => { setDialogAction("truck"); }}>{tr("close")}</Button>
+                        <Button variant="contained" color="error" onClick={() => { scrapTruck(); }} disabled={dialogDisabled}>{tr("scrap")}</Button>
+                    </DialogActions>
+                </Dialog>
+            </>}
+            <Dialog open={dialogAction === "purchase-truck"} onClose={() => setDialogAction(truckReferer)} fullWidth>
+                <DialogTitle>{tr("purchase_truck")}</DialogTitle>
                 <DialogContent>
                     <Grid container spacing={2}>
-                        <Grid item xs={12}>
+                        <Grid size={12}>
+                            <Select
+                                name="colors"
+                                options={economyCache.trucks.map((truck) => ({ value: truck.id, label: truck.brand + " " + truck.model + " - " + truck.price + " " + economyCache.config.currency_name, truck: truck }))}
+                                className="basic-select"
+                                classNamePrefix="select"
+                                styles={customSelectStyles(theme)}
+                                value={selectedTruck}
+                                onChange={(item) => { setSelectedTruck(item); }}
+                                menuPortalTarget={document.body}
+                            />
+                        </Grid>
+                        <Grid size={6}>
                             <TextField
                                 label={tr("slot_id")}
                                 value={truckSlotId}
@@ -1198,351 +1315,308 @@ const Economy = () => {
                                 fullWidth sx={{ mt: "5px" }}
                             />
                         </Grid>
-                    </Grid>
-                </DialogContent>
-                <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogAction("truck"); }}>{tr("close")}</Button>
-                    <Button variant="contained" color="info" onClick={() => { relocateTruck(); }} disabled={dialogDisabled}>{tr("relocate")}</Button>
-                </DialogActions>
-            </Dialog>
-            <Dialog open={dialogAction === "transfer-truck"} onClose={() => setDialogAction("truck")} fullWidth>
-                <DialogTitle><>{tr("transfer_truck")}</> #{activeTruck.vehicleid} - {activeTruck.truck.brand} {activeTruck.truck.model}</DialogTitle>
-                <DialogContent>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12}>
+                        <Grid size={6}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("new_truck_owner")}</Typography>
                             <Typography variant="body2"><UserSelect users={[truckOwner]} isMulti={false} includeCompany={true} onUpdate={setTruckOwner} /></Typography>
                         </Grid>
-                        <Grid item xs={12}>
+                    </Grid>
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="primary" onClick={() => { setDialogAction(truckReferer); }}>{tr("close")}</Button>
+                    <Button variant="contained" color="info" onClick={() => { purchaseTruck(); }} disabled={selectedTruck.truck === undefined || truckSlotId === "" || dialogDisabled}>{tr("purchase")}</Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog open={dialogAction === "manage-balance"} onClose={() => setDialogAction("")} fullWidth>
+                <DialogTitle><FontAwesomeIcon icon={faCoins} />&nbsp;&nbsp;{tr("manage_balance")}</DialogTitle>
+                <DialogContent>
+                    <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("user")}</Typography>
+                    <Typography variant="body2"><UserSelect users={[manageTransferFrom]} isMulti={false} includeCompany={true} onUpdate={setManageTransferFrom} /></Typography>
+                    <br />
+                    <Typography variant="body">{tr("current_balance")}: {TSep(manageBalance)} {economyCache.config.currency_name}
+                        {manageBalanceVisibility === "public" && <IconButton onClick={() => { updateManageBalanceVisibility("private"); }}><FontAwesomeIcon icon={faUnlock} /></IconButton>}
+                        {manageBalanceVisibility === "private" && <IconButton onClick={() => { updateManageBalanceVisibility("public"); }}><FontAwesomeIcon icon={faLock} /></IconButton>}</Typography>
+                    <Grid container spacing={2} sx={{ mt: "5px" }}>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                sm: 12,
+                                md: 8,
+                                lg: 8
+                            }}>
+                            <TextField
+                                label={tr("set_balance_to")}
+                                value={manageNewBalance}
+                                onChange={(e) => setManageNewBalance(e.target.value)}
+                                fullWidth size="small"
+                            />
+                        </Grid>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                sm: 12,
+                                md: 4,
+                                lg: 4
+                            }}>
+                            <Button variant="contained" color="info" onClick={() => { manageUpdateBalance(); }} disabled={dialogDisabled} fullWidth>{tr("update")}</Button>
+                        </Grid>
+                    </Grid>
+                    <Divider sx={{ mt: "10px", mb: "10px" }} />
+                    <Typography variant="h6" sx={{ fontWeight: 800, mb: "10px" }}><FontAwesomeIcon icon={faMoneyBillTransfer} />&nbsp;&nbsp;{tr("transfer")}</Typography>
+                    <Grid container spacing={2}>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                sm: 12,
+                                md: 6,
+                                lg: 6
+                            }}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("recipient")}</Typography>
+                            <Typography variant="body2"><UserSelect users={[manageTransferTo]} isMulti={false} includeCompany={true} includeBlackhole={true} onUpdate={setManageTransferTo} /></Typography>
+                        </Grid>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                sm: 12,
+                                md: 6,
+                                lg: 6
+                            }}>
+                            <TextField
+                                label={tr("amount")}
+                                value={manageTransferAmount}
+                                onChange={(e) => setManageTransferAmount(e.target.value)}
+                                fullWidth size="small" sx={{ mt: { md: "18px", lg: "18px" } }}
+                            />
+                        </Grid>
+                        <Grid size={12}>
                             <TextField
                                 label={tr("message")}
-                                value={message}
-                                onChange={(e) => setMessage(e.target.value)}
+                                value={manageTransferMessage}
+                                onChange={(e) => setManageTransferMessage(e.target.value)}
                                 fullWidth
                             />
                         </Grid>
                     </Grid>
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogAction("truck"); }}>{tr("close")}</Button>
-                    <Button variant="contained" color="warning" onClick={() => { transferTruck(); }} disabled={dialogDisabled}>{tr("transfer")}</Button>
+                    <Button variant="primary" onClick={() => { setDialogAction(""); }}>{tr("close")}</Button>
+                    <Button variant="contained" color="info" onClick={() => { manageTransferMoney(); }} disabled={dialogDisabled}>{tr("transfer")}</Button>
                 </DialogActions>
             </Dialog>
-            <Dialog open={dialogAction === "reassign-truck"} onClose={() => setDialogAction("truck")} fullWidth>
-                <DialogTitle><>{tr("reassign_truck")}</> #{activeTruck.vehicleid} - {activeTruck.truck.brand} {activeTruck.truck.model}</DialogTitle>
+            <Dialog open={dialogAction === "export-transaction"} onClose={() => setDialogAction("")}>
+                <DialogTitle>{tr("export_transaction_history")}</DialogTitle>
                 <DialogContent>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("new_truck_assignee")}</Typography>
-                            <Typography variant="body2"><UserSelect users={[truckAssignee]} isMulti={false} includeCompany={true} onUpdate={setTruckAssignee} /></Typography>
+                    <Typography variant="body2">{tr("export_transaction_history_note")}</Typography>
+                    <Grid container spacing={2} style={{ marginTop: "3px" }}>
+                        <Grid size={6}>
+                            <DateTimeField
+                                label={tr("start_time")}
+                                defaultValue={exportRange.start_time}
+                                onChange={(timestamp) => { setExportRange({ ...exportRange, start_time: timestamp }); }}
+                                fullWidth
+                            />
                         </Grid>
-                        <Grid item xs={12}>
-                            <TextField
-                                label={tr("message")}
-                                value={message}
-                                onChange={(e) => setMessage(e.target.value)}
+                        <Grid size={6}>
+                            <DateTimeField
+                                label={tr("end_time")}
+                                defaultValue={exportRange.end_time}
+                                onChange={(timestamp) => { setExportRange({ ...exportRange, end_time: timestamp }); }}
                                 fullWidth
                             />
                         </Grid>
                     </Grid>
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogAction("truck"); }}>{tr("close")}</Button>
-                    <Button variant="contained" color="warning" onClick={() => { reassignTruck(); }} disabled={dialogDisabled}>{tr("reassign")}</Button>
+                    <Button variant="primary" onClick={() => { setDialogAction(""); }}>{tr("cancel")}</Button>
+                    <Button variant="contained" color="info" onClick={() => { exportTransaction(); }} disabled={dialogDisabled}>{tr("export")}</Button>
                 </DialogActions>
             </Dialog>
-            <Dialog open={dialogAction === "sell-truck"} onClose={() => setDialogAction("truck")}>
-                <DialogTitle><>{tr("sell_truck")}</> #{activeTruck.vehicleid} - {activeTruck.truck.brand} {activeTruck.truck.model}</DialogTitle>
-                <DialogContent>
-                    <Grid container spacing={2}>
-                        <Grid item xs={6}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("purchase_price")}</Typography>
-                            <Typography variant="body2">{TSep(activeTruck.price)} {economyCache.config.currency_name}</Typography>
-                        </Grid>
-                        <Grid item xs={6}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("refund")}</Typography>
-                            <Typography variant="body2">{TSep(parseInt(activeTruck.price * economyCache.config.truck_refund))} {economyCache.config.currency_name}</Typography>
-                        </Grid>
-                    </Grid>
-                </DialogContent>
-                <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogAction("truck"); }}>{tr("close")}</Button>
-                    <Button variant="contained" color="error" onClick={() => { sellTruck(); }} disabled={dialogDisabled}>{tr("sell")}</Button>
-                </DialogActions>
-            </Dialog>
-            <Dialog open={dialogAction === "scrap-truck"} onClose={() => setDialogAction("truck")}>
-                <DialogTitle><>{tr("scrap_truck")}</> #{activeTruck.vehicleid} - {activeTruck.truck.brand} {activeTruck.truck.model}</DialogTitle>
-                <DialogContent>
-                    <Grid container spacing={2}>
-                        <Grid item xs={6}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("purchase_price")}</Typography>
-                            <Typography variant="body2">{TSep(activeTruck.price)} {economyCache.config.currency_name}</Typography>
-                        </Grid>
-                        <Grid item xs={6}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("refund")}</Typography>
-                            <Typography variant="body2">{TSep(parseInt(activeTruck.price * economyCache.config.scrap_refund))} {economyCache.config.currency_name}</Typography>
-                        </Grid>
-                    </Grid>
-                </DialogContent>
-                <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogAction("truck"); }}>{tr("close")}</Button>
-                    <Button variant="contained" color="error" onClick={() => { scrapTruck(); }} disabled={dialogDisabled}>{tr("scrap")}</Button>
-                </DialogActions>
-            </Dialog>
-        </>}
-        <Dialog open={dialogAction === "purchase-truck"} onClose={() => setDialogAction(truckReferer)} fullWidth>
-            <DialogTitle>{tr("purchase_truck")}</DialogTitle>
-            <DialogContent>
-                <Grid container spacing={2}>
-                    <Grid item xs={12}>
-                        <Select
-                            name="colors"
-                            options={economyCache.trucks.map((truck) => ({ value: truck.id, label: truck.brand + " " + truck.model + " - " + truck.price + " " + economyCache.config.currency_name, truck: truck }))}
-                            className="basic-select"
-                            classNamePrefix="select"
-                            styles={customSelectStyles(theme)}
-                            value={selectedTruck}
-                            onChange={(item) => { setSelectedTruck(item); }}
-                            menuPortalTarget={document.body}
-                        />
-                    </Grid>
-                    <Grid item xs={6}>
-                        <TextField
-                            label={tr("slot_id")}
-                            value={truckSlotId}
-                            onChange={(e) => setTruckSlotId(e.target.value)}
-                            fullWidth sx={{ mt: "5px" }}
-                        />
-                    </Grid>
-                    <Grid item xs={6}>
-                        <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("new_truck_owner")}</Typography>
-                        <Typography variant="body2"><UserSelect users={[truckOwner]} isMulti={false} includeCompany={true} onUpdate={setTruckOwner} /></Typography>
-                    </Grid>
-                </Grid>
-            </DialogContent>
-            <DialogActions>
-                <Button variant="primary" onClick={() => { setDialogAction(truckReferer); }}>{tr("close")}</Button>
-                <Button variant="contained" color="info" onClick={() => { purchaseTruck(); }} disabled={selectedTruck.truck === undefined || truckSlotId === "" || dialogDisabled}>{tr("purchase")}</Button>
-            </DialogActions>
-        </Dialog>
-        <Dialog open={dialogAction === "manage-balance"} onClose={() => setDialogAction("")} fullWidth>
-            <DialogTitle><FontAwesomeIcon icon={faCoins} />&nbsp;&nbsp;{tr("manage_balance")}</DialogTitle>
-            <DialogContent>
-                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("user")}</Typography>
-                <Typography variant="body2"><UserSelect users={[manageTransferFrom]} isMulti={false} includeCompany={true} onUpdate={setManageTransferFrom} /></Typography>
-                <br />
-                <Typography variant="body">{tr("current_balance")}: {TSep(manageBalance)} {economyCache.config.currency_name}
-                    {manageBalanceVisibility === "public" && <IconButton onClick={() => { updateManageBalanceVisibility("private"); }}><FontAwesomeIcon icon={faUnlock} /></IconButton>}
-                    {manageBalanceVisibility === "private" && <IconButton onClick={() => { updateManageBalanceVisibility("public"); }}><FontAwesomeIcon icon={faLock} /></IconButton>}</Typography>
-                <Grid container spacing={2} sx={{ mt: "5px" }}>
-                    <Grid item xs={12} sm={12} md={8} lg={8}>
-                        <TextField
-                            label={tr("set_balance_to")}
-                            value={manageNewBalance}
-                            onChange={(e) => setManageNewBalance(e.target.value)}
-                            fullWidth size="small"
-                        />
-                    </Grid>
-                    <Grid item xs={12} sm={12} md={4} lg={4}>
-                        <Button variant="contained" color="info" onClick={() => { manageUpdateBalance(); }} disabled={dialogDisabled} fullWidth>{tr("update")}</Button>
-                    </Grid>
-                </Grid>
-                <Divider sx={{ mt: "10px", mb: "10px" }} />
-                <Typography variant="h6" sx={{ fontWeight: 800, mb: "10px" }}><FontAwesomeIcon icon={faMoneyBillTransfer} />&nbsp;&nbsp;{tr("transfer")}</Typography>
-                <Grid container spacing={2}>
-                    <Grid item xs={12} sm={12} md={6} lg={6}>
-                        <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("recipient")}</Typography>
-                        <Typography variant="body2"><UserSelect users={[manageTransferTo]} isMulti={false} includeCompany={true} includeBlackhole={true} onUpdate={setManageTransferTo} /></Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={12} md={6} lg={6}>
-                        <TextField
-                            label={tr("amount")}
-                            value={manageTransferAmount}
-                            onChange={(e) => setManageTransferAmount(e.target.value)}
-                            fullWidth size="small" sx={{ mt: { md: "18px", lg: "18px" } }}
-                        />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <TextField
-                            label={tr("message")}
-                            value={manageTransferMessage}
-                            onChange={(e) => setManageTransferMessage(e.target.value)}
-                            fullWidth
-                        />
-                    </Grid>
-                </Grid>
-            </DialogContent>
-            <DialogActions>
-                <Button variant="primary" onClick={() => { setDialogAction(""); }}>{tr("close")}</Button>
-                <Button variant="contained" color="info" onClick={() => { manageTransferMoney(); }} disabled={dialogDisabled}>{tr("transfer")}</Button>
-            </DialogActions>
-        </Dialog>
-        <Dialog open={dialogAction === "export-transaction"} onClose={() => setDialogAction("")}>
-            <DialogTitle>{tr("export_transaction_history")}</DialogTitle>
-            <DialogContent>
-                <Typography variant="body2">{tr("export_transaction_history_note")}</Typography>
-                <Grid container spacing={2} style={{ marginTop: "3px" }}>
-                    <Grid item xs={6}>
-                        <DateTimeField
-                            label={tr("start_time")}
-                            defaultValue={exportRange.start_time}
-                            onChange={(timestamp) => { setExportRange({ ...exportRange, start_time: timestamp }); }}
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={6}>
-                        <DateTimeField
-                            label={tr("end_time")}
-                            defaultValue={exportRange.end_time}
-                            onChange={(timestamp) => { setExportRange({ ...exportRange, end_time: timestamp }); }}
-                            fullWidth
-                        />
-                    </Grid>
-                </Grid>
-            </DialogContent>
-            <DialogActions>
-                <Button variant="primary" onClick={() => { setDialogAction(""); }}>{tr("cancel")}</Button>
-                <Button variant="contained" color="info" onClick={() => { exportTransaction(); }} disabled={dialogDisabled}>{tr("export")}</Button>
-            </DialogActions>
-        </Dialog>
-        {activeMerch.merchid !== undefined && <>
-            <Dialog open={dialogAction === "transfer-merch"} onClose={() => setDialogAction("merch")} fullWidth>
-                <DialogTitle><>{tr("transfer_merch")}</> - {economyCache.merchMap[activeMerch.merchid] !== undefined ? economyCache.merchMap[activeMerch.merchid].name : activeMerch.merchid}</DialogTitle>
-                <DialogContent>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("new_owner")}</Typography>
-                            <Typography variant="body2"><UserSelect users={[merchOwner]} isMulti={false} includeCompany={true} onUpdate={setMerchOwner} /></Typography>
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField
-                                label={tr("message")}
-                                value={message}
-                                onChange={(e) => setMessage(e.target.value)}
-                                fullWidth
-                            />
-                        </Grid>
-                    </Grid>
-                </DialogContent>
-                <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogAction("merch"); }}>{tr("close")}</Button>
-                    <Button variant="contained" color="warning" onClick={() => { transferMerch(); }} disabled={dialogDisabled}>{tr("transfer")}</Button>
-                </DialogActions>
-            </Dialog>
-            <Dialog open={dialogAction === "sell-merch"} onClose={() => setDialogAction("merch")}>
-                <DialogTitle><>{tr("sell_merch")}</> - {economyCache.merchMap[activeMerch.merchid] !== undefined ? economyCache.merchMap[activeMerch.merchid].name : activeMerch.merchid}</DialogTitle>
-                <DialogContent>
-                    <Grid container spacing={2}>
-                        <Grid item xs={6}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("purchase_price")}</Typography>
-                            <Typography variant="body2">{TSep(activeMerch.price)} {economyCache.config.currency_name}</Typography>
-                        </Grid>
-                        <Grid item xs={6}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("sell_price")}</Typography>
-                            <Typography variant="body2">{economyCache.merchMap[activeMerch.merchid] !== undefined ? TSep(economyCache.merchMap[activeMerch.merchid].sell_price) : "/"} {economyCache.config.currency_name}</Typography>
-                        </Grid>
-                    </Grid>
-                </DialogContent>
-                <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogAction("merch"); }}>{tr("close")}</Button>
-                    <Button variant="contained" color="error" onClick={() => { sellMerch(); }} disabled={dialogDisabled}>{tr("sell")}</Button>
-                </DialogActions>
-            </Dialog>
-        </>}
-        <Dialog open={dialogAction === "purchase-merch"} onClose={() => setDialogAction("")} fullWidth>
-            <DialogTitle>{tr("purchase_merch")}</DialogTitle>
-            <DialogContent>
-                <Grid container spacing={2}>
-                    <Grid item xs={12}>
-                        <Select
-                            name="colors"
-                            options={Object.values(economyCache.merchMap).map((merch) => ({ value: merch.id, label: merch.name + " - " + merch.buy_price + " " + economyCache.config.currency_name, merch: merch }))}
-                            className="basic-select"
-                            classNamePrefix="select"
-                            styles={customSelectStyles(theme)}
-                            value={selectedMerch}
-                            onChange={(item) => { setSelectedMerch(item); }}
-                            menuPortalTarget={document.body}
-                        />
-                    </Grid>
-                </Grid>
-            </DialogContent>
-            <DialogActions>
-                <Button variant="primary" onClick={() => { setDialogAction(""); }}>{tr("close")}</Button>
-                <Button variant="contained" color="info" onClick={() => { purchaseMerch(); }} disabled={selectedMerch.value === undefined || dialogDisabled}>{tr("purchase")}</Button>
-            </DialogActions>
-        </Dialog>
-        <Grid container spacing={2} sx={{ mt: "10px" }}>
-            <Grid item xs={12} sm={12} md={6} lg={6}>
-                <CustomTable name={<><FontAwesomeIcon icon={faRankingStar} />&nbsp;&nbsp;{tr("balance_leaderboard")}</>} columns={leaderboardColumns} data={leaderboard} totalItems={leaderboardTotal} rowsPerPageOptions={[5, 10, 25, 50]} page={leaderboardPage} defaultRowsPerPage={leaderboardPageSize} onPageChange={setLeaderboardPage} onRowsPerPageChange={setLeaderboardPageSize} onRowClick={checkUserPerm(curUserPerm, ["administrator", "manage_economy", "manage_balance"]) ? (row) => { setManageTransferFrom(row.data); setManageBalance(row.balance); setDialogAction("manage-balance"); } : undefined} />
-            </Grid>
-            <Grid item xs={12} sm={12} md={6} lg={6}>
-                <Card>
-                    <CardContent>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                            <Typography variant="h6" sx={{ fontWeight: 800, mb: "10px", display: 'flex', alignItems: 'center', marginRight: 'auto' }}><FontAwesomeIcon icon={faCoins} />&nbsp;&nbsp;{tr("balance")}</Typography>
-                            <Typography variant="h6" component="div" style={{ display: 'flex', alignItems: 'center' }}>
-                                {balanceVisibility === "public" && <IconButton onClick={() => { updateBalanceVisibility("private"); }}><FontAwesomeIcon icon={faUnlock} /></IconButton>}
-                                {balanceVisibility === "private" && <IconButton onClick={() => { updateBalanceVisibility("public"); }}><FontAwesomeIcon icon={faLock} /></IconButton>}
-                                {checkUserPerm(curUserPerm, ["administrator", "manage_economy", "manage_balance"]) && <IconButton onClick={() => { setDialogAction("manage-balance"); }}><FontAwesomeIcon icon={faUserGear} /></IconButton>}
-                                {<IconButton onClick={() => { setDialogAction("export-transaction"); }}><FontAwesomeIcon icon={faFileExport} /></IconButton>}
-                            </Typography>
-                        </div>
-                        <Typography variant="body">{tr("current_balance")}: {TSep(balance)} {economyCache.config.currency_name}</Typography>
-                        <Divider sx={{ mt: "10px", mb: "10px" }} />
-                        <Typography variant="h6" sx={{ fontWeight: 800, mb: "10px" }}><FontAwesomeIcon icon={faMoneyBillTransfer} />&nbsp;&nbsp;{tr("transfer")}</Typography>
+            {activeMerch.merchid !== undefined && <>
+                <Dialog open={dialogAction === "transfer-merch"} onClose={() => setDialogAction("merch")} fullWidth>
+                    <DialogTitle><>{tr("transfer_merch")}</> - {economyCache.merchMap[activeMerch.merchid] !== undefined ? economyCache.merchMap[activeMerch.merchid].name : activeMerch.merchid}</DialogTitle>
+                    <DialogContent>
                         <Grid container spacing={2}>
-                            <Grid item xs={12} sm={12} md={6} lg={6}>
-                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("recipient")}</Typography>
-                                <Typography variant="body2"><UserSelect users={[transferTo]} isMulti={false} includeCompany={true} onUpdate={setTransferTo} /></Typography>
+                            <Grid size={12}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("new_owner")}</Typography>
+                                <Typography variant="body2"><UserSelect users={[merchOwner]} isMulti={false} includeCompany={true} onUpdate={setMerchOwner} /></Typography>
                             </Grid>
-                            <Grid item xs={12} sm={12} md={6} lg={6}>
-                                <TextField
-                                    label={tr("amount")}
-                                    value={transferAmount}
-                                    onChange={(e) => setTransferAmount(e.target.value)}
-                                    fullWidth size="small" sx={{ mt: { md: "18px", lg: "18px" } }}
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
+                            <Grid size={12}>
                                 <TextField
                                     label={tr("message")}
-                                    value={transferMessage}
-                                    onChange={(e) => setTransferMessage(e.target.value)}
+                                    value={message}
+                                    onChange={(e) => setMessage(e.target.value)}
                                     fullWidth
                                 />
                             </Grid>
                         </Grid>
-                        <Button variant="contained" color="info" fullWidth onClick={() => { transferMoney(); }} disabled={transferTo.userid === undefined || dialogDisabled} sx={{ mt: "10px" }}>{tr("transfer")}</Button>
-                    </CardContent>
-                </Card>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant="primary" onClick={() => { setDialogAction("merch"); }}>{tr("close")}</Button>
+                        <Button variant="contained" color="warning" onClick={() => { transferMerch(); }} disabled={dialogDisabled}>{tr("transfer")}</Button>
+                    </DialogActions>
+                </Dialog>
+                <Dialog open={dialogAction === "sell-merch"} onClose={() => setDialogAction("merch")}>
+                    <DialogTitle><>{tr("sell_merch")}</> - {economyCache.merchMap[activeMerch.merchid] !== undefined ? economyCache.merchMap[activeMerch.merchid].name : activeMerch.merchid}</DialogTitle>
+                    <DialogContent>
+                        <Grid container spacing={2}>
+                            <Grid size={6}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("purchase_price")}</Typography>
+                                <Typography variant="body2">{TSep(activeMerch.price)} {economyCache.config.currency_name}</Typography>
+                            </Grid>
+                            <Grid size={6}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("sell_price")}</Typography>
+                                <Typography variant="body2">{economyCache.merchMap[activeMerch.merchid] !== undefined ? TSep(economyCache.merchMap[activeMerch.merchid].sell_price) : "/"} {economyCache.config.currency_name}</Typography>
+                            </Grid>
+                        </Grid>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant="primary" onClick={() => { setDialogAction("merch"); }}>{tr("close")}</Button>
+                        <Button variant="contained" color="error" onClick={() => { sellMerch(); }} disabled={dialogDisabled}>{tr("sell")}</Button>
+                    </DialogActions>
+                </Dialog>
+            </>}
+            <Dialog open={dialogAction === "purchase-merch"} onClose={() => setDialogAction("")} fullWidth>
+                <DialogTitle>{tr("purchase_merch")}</DialogTitle>
+                <DialogContent>
+                    <Grid container spacing={2}>
+                        <Grid size={12}>
+                            <Select
+                                name="colors"
+                                options={Object.values(economyCache.merchMap).map((merch) => ({ value: merch.id, label: merch.name + " - " + merch.buy_price + " " + economyCache.config.currency_name, merch: merch }))}
+                                className="basic-select"
+                                classNamePrefix="select"
+                                styles={customSelectStyles(theme)}
+                                value={selectedMerch}
+                                onChange={(item) => { setSelectedMerch(item); }}
+                                menuPortalTarget={document.body}
+                            />
+                        </Grid>
+                    </Grid>
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="primary" onClick={() => { setDialogAction(""); }}>{tr("close")}</Button>
+                    <Button variant="contained" color="info" onClick={() => { purchaseMerch(); }} disabled={selectedMerch.value === undefined || dialogDisabled}>{tr("purchase")}</Button>
+                </DialogActions>
+            </Dialog>
+            <Grid container spacing={2} sx={{ mt: "10px" }}>
+                <Grid
+                    size={{
+                        xs: 12,
+                        sm: 12,
+                        md: 6,
+                        lg: 6
+                    }}>
+                    <CustomTable name={<><FontAwesomeIcon icon={faRankingStar} />&nbsp;&nbsp;{tr("balance_leaderboard")}</>} columns={leaderboardColumns} data={leaderboard} totalItems={leaderboardTotal} rowsPerPageOptions={[5, 10, 25, 50]} page={leaderboardPage} defaultRowsPerPage={leaderboardPageSize} onPageChange={setLeaderboardPage} onRowsPerPageChange={setLeaderboardPageSize} onRowClick={checkUserPerm(curUserPerm, ["administrator", "manage_economy", "manage_balance"]) ? (row) => { setManageTransferFrom(row.data); setManageBalance(row.balance); setDialogAction("manage-balance"); } : undefined} />
+                </Grid>
+                <Grid
+                    size={{
+                        xs: 12,
+                        sm: 12,
+                        md: 6,
+                        lg: 6
+                    }}>
+                    <Card>
+                        <CardContent>
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <Typography variant="h6" sx={{ fontWeight: 800, mb: "10px", display: 'flex', alignItems: 'center', marginRight: 'auto' }}><FontAwesomeIcon icon={faCoins} />&nbsp;&nbsp;{tr("balance")}</Typography>
+                                <Typography variant="h6" component="div" style={{ display: 'flex', alignItems: 'center' }}>
+                                    {balanceVisibility === "public" && <IconButton onClick={() => { updateBalanceVisibility("private"); }}><FontAwesomeIcon icon={faUnlock} /></IconButton>}
+                                    {balanceVisibility === "private" && <IconButton onClick={() => { updateBalanceVisibility("public"); }}><FontAwesomeIcon icon={faLock} /></IconButton>}
+                                    {checkUserPerm(curUserPerm, ["administrator", "manage_economy", "manage_balance"]) && <IconButton onClick={() => { setDialogAction("manage-balance"); }}><FontAwesomeIcon icon={faUserGear} /></IconButton>}
+                                    {<IconButton onClick={() => { setDialogAction("export-transaction"); }}><FontAwesomeIcon icon={faFileExport} /></IconButton>}
+                                </Typography>
+                            </div>
+                            <Typography variant="body">{tr("current_balance")}: {TSep(balance)} {economyCache.config.currency_name}</Typography>
+                            <Divider sx={{ mt: "10px", mb: "10px" }} />
+                            <Typography variant="h6" sx={{ fontWeight: 800, mb: "10px" }}><FontAwesomeIcon icon={faMoneyBillTransfer} />&nbsp;&nbsp;{tr("transfer")}</Typography>
+                            <Grid container spacing={2}>
+                                <Grid
+                                    size={{
+                                        xs: 12,
+                                        sm: 12,
+                                        md: 6,
+                                        lg: 6
+                                    }}>
+                                    <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("recipient")}</Typography>
+                                    <Typography variant="body2"><UserSelect users={[transferTo]} isMulti={false} includeCompany={true} onUpdate={setTransferTo} /></Typography>
+                                </Grid>
+                                <Grid
+                                    size={{
+                                        xs: 12,
+                                        sm: 12,
+                                        md: 6,
+                                        lg: 6
+                                    }}>
+                                    <TextField
+                                        label={tr("amount")}
+                                        value={transferAmount}
+                                        onChange={(e) => setTransferAmount(e.target.value)}
+                                        fullWidth size="small" sx={{ mt: { md: "18px", lg: "18px" } }}
+                                    />
+                                </Grid>
+                                <Grid size={12}>
+                                    <TextField
+                                        label={tr("message")}
+                                        value={transferMessage}
+                                        onChange={(e) => setTransferMessage(e.target.value)}
+                                        fullWidth
+                                    />
+                                </Grid>
+                            </Grid>
+                            <Button variant="contained" color="info" fullWidth onClick={() => { transferMoney(); }} disabled={transferTo.userid === undefined || dialogDisabled} sx={{ mt: "10px" }}>{tr("transfer")}</Button>
+                        </CardContent>
+                    </Card>
+                </Grid>
+                <Grid
+                    size={{
+                        xs: 12,
+                        sm: 12,
+                        md: 6,
+                        lg: 6
+                    }}>
+                    <CustomTable name={<><FontAwesomeIcon icon={faWarehouse} />&nbsp;&nbsp;{tr("top_garages")}</>} columns={garageColumns} data={garageList} totalItems={garageTotal} rowsPerPageOptions={[5, 10, 25, 50]} page={garagePage} defaultRowsPerPage={garagePageSize} onPageChange={setGaragePage} onRowsPerPageChange={setGaragePageSize} onRowClick={(row) => { if (economyCache.garagesMap[row.data.garageid] !== undefined) { setModalGarage(economyCache.garagesMap[row.data.garageid]); } setModalGarageDetails(row.data); setDialogAction("garage"); }} />
+                </Grid>
+                <Grid
+                    size={{
+                        xs: 12,
+                        sm: 12,
+                        md: 6,
+                        lg: 6
+                    }}>
+                    <CustomTable name={<><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;{tr("top_trucks")}</>} columns={truckColumns} data={truckList} totalItems={truckTotal} rowsPerPageOptions={[5, 10, 25, 50]} page={truckPage} defaultRowsPerPage={truckPageSize} onPageChange={setTruckPage} onRowsPerPageChange={setTruckPageSize} onRowClick={(row) => { setTruckReferer(""); setActiveTruck(row.data); loadTruck(row.data); setDialogAction("truck"); }} />
+                </Grid>
+                <Grid
+                    size={{
+                        xs: 12,
+                        sm: 12,
+                        md: 6,
+                        lg: 6
+                    }}>
+                    <CustomTable name={<><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;{tr("my_trucks")}</>} nameRight={<IconButton onClick={() => { setTruckReferer(""); setDialogAction("purchase-truck"); }}><FontAwesomeIcon icon={faPlus} /></IconButton>} columns={myTruckColumns} data={myTruckList} totalItems={myTruckTotal} rowsPerPageOptions={[5, 10, 25, 50]} page={myTruckPage} defaultRowsPerPage={myTruckPageSize} onPageChange={setMyTruckPage} onRowsPerPageChange={setMyTruckPageSize} onRowClick={(row) => { setTruckReferer(""); setActiveTruck(row.data); loadTruck(row.data); setDialogAction("truck"); }} />
+                </Grid>
+                <Grid
+                    size={{
+                        xs: 12,
+                        sm: 12,
+                        md: 6,
+                        lg: 6
+                    }}>
+                    <CustomTable name={<><FontAwesomeIcon icon={faShoppingCart} />&nbsp;&nbsp;{tr("owned_merchandise")}</>} nameRight={<IconButton onClick={() => { setDialogAction("purchase-merch"); }}><FontAwesomeIcon icon={faPlus} /></IconButton>} columns={merchColumns} data={merchList} totalItems={merchTotal} rowsPerPageOptions={[5, 10, 25, 50]} page={merchPage} defaultRowsPerPage={merchPageSize} onPageChange={setMerchPage} onRowsPerPageChange={setMerchPageSize} />
+                </Grid>
             </Grid>
-            <Grid item xs={12} sm={12} md={6} lg={6}>
-                <CustomTable name={<><FontAwesomeIcon icon={faWarehouse} />&nbsp;&nbsp;{tr("top_garages")}</>} columns={garageColumns} data={garageList} totalItems={garageTotal} rowsPerPageOptions={[5, 10, 25, 50]} page={garagePage} defaultRowsPerPage={garagePageSize} onPageChange={setGaragePage} onRowsPerPageChange={setGaragePageSize} onRowClick={(row) => { if (economyCache.garagesMap[row.data.garageid] !== undefined) { setModalGarage(economyCache.garagesMap[row.data.garageid]); } setModalGarageDetails(row.data); setDialogAction("garage"); }} />
-            </Grid>
-            <Grid item xs={12} sm={12} md={6} lg={6}>
-                <CustomTable name={<><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;{tr("top_trucks")}</>} columns={truckColumns} data={truckList} totalItems={truckTotal} rowsPerPageOptions={[5, 10, 25, 50]} page={truckPage} defaultRowsPerPage={truckPageSize} onPageChange={setTruckPage} onRowsPerPageChange={setTruckPageSize} onRowClick={(row) => { setTruckReferer(""); setActiveTruck(row.data); loadTruck(row.data); setDialogAction("truck"); }} />
-            </Grid>
-            <Grid item xs={12} sm={12} md={6} lg={6}>
-                <CustomTable name={<><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;{tr("my_trucks")}</>} nameRight={<IconButton onClick={() => { setTruckReferer(""); setDialogAction("purchase-truck"); }}><FontAwesomeIcon icon={faPlus} /></IconButton>} columns={myTruckColumns} data={myTruckList} totalItems={myTruckTotal} rowsPerPageOptions={[5, 10, 25, 50]} page={myTruckPage} defaultRowsPerPage={myTruckPageSize} onPageChange={setMyTruckPage} onRowsPerPageChange={setMyTruckPageSize} onRowClick={(row) => { setTruckReferer(""); setActiveTruck(row.data); loadTruck(row.data); setDialogAction("truck"); }} />
-            </Grid>
-            <Grid item xs={12} sm={12} md={6} lg={6}>
-                <CustomTable name={<><FontAwesomeIcon icon={faShoppingCart} />&nbsp;&nbsp;{tr("owned_merchandise")}</>} nameRight={<IconButton onClick={() => { setDialogAction("purchase-merch"); }}><FontAwesomeIcon icon={faPlus} /></IconButton>} columns={merchColumns} data={merchList} totalItems={merchTotal} rowsPerPageOptions={[5, 10, 25, 50]} page={merchPage} defaultRowsPerPage={merchPageSize} onPageChange={setMerchPage} onRowsPerPageChange={setMerchPageSize} />
-            </Grid>
-        </Grid>
-        <Portal>
-            <Snackbar
-                open={!!snackbarContent}
-                autoHideDuration={5000}
-                onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            >
-                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
-                    {snackbarContent}
-                </Alert>
-            </Snackbar>
-        </Portal>
-    </>}</>;
+            <Portal>
+                <Snackbar
+                    open={!!snackbarContent}
+                    autoHideDuration={5000}
+                    onClose={handleCloseSnackbar}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                >
+                    <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
+                        {snackbarContent}
+                    </Alert>
+                </Snackbar>
+            </Portal>
+        </>}</>
+    );
 };
 
 export default Economy;

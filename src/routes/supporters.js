@@ -53,32 +53,42 @@ const Supporters = () => {
         groups.push({ "group": tr("discord_booster") + ((group.length > 1) ? "s" : ""), "color": SPONSOR_COLOR["server_booster"], "users": group });
     }
 
-    return (<div style={{ width: "100%" }}>
-        <Card>
-            <CardHeader
-                title={tr("appreciation_wall")}
-                subheader={<>{tr("supporters_fueling_our_journey_with_generosity")}</>}
-                titleTypographyProps={{ align: 'center', mb: "10px" }}
-                subheaderTypographyProps={{ align: 'center' }}
-            />
-        </Card>
-        {groups.map((group) => (<div key={group.group}>
-            <Typography variant="h5" align="center" sx={{ margin: '16px 0' }}>
-                <b style={group.color !== undefined ? { color: group.color } : {}}>{group.group}</b>
-            </Typography>
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <Grid container spacing={2} justifyContent="center">
-                    {group.users.map((user, index) => (
-                        <Grid item key={`${group.group}-${index}`} xs={6} sm={6} md={4} lg={2} sx={{ minWidth: 150 }}>
-                            <LargeUserCard user={user} />
-                        </Grid>
-                    ))}
-                </Grid>
-            </div >
-        </div>
-        ))
-        }
-    </div >);
+    return (
+        <div style={{ width: "100%" }}>
+            <Card>
+                <CardHeader
+                    title={tr("appreciation_wall")}
+                    subheader={<>{tr("supporters_fueling_our_journey_with_generosity")}</>}
+                    titleTypographyProps={{ align: 'center', mb: "10px" }}
+                    subheaderTypographyProps={{ align: 'center' }}
+                />
+            </Card>
+            {groups.map((group) => (<div key={group.group}>
+                <Typography variant="h5" align="center" sx={{ margin: '16px 0' }}>
+                    <b style={group.color !== undefined ? { color: group.color } : {}}>{group.group}</b>
+                </Typography>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <Grid container spacing={2} justifyContent="center">
+                        {group.users.map((user, index) => (
+                            <Grid
+                                key={`${group.group}-${index}`}
+                                sx={{ minWidth: 150 }}
+                                size={{
+                                    xs: 6,
+                                    sm: 6,
+                                    md: 4,
+                                    lg: 2
+                                }}>
+                                <LargeUserCard user={user} />
+                            </Grid>
+                        ))}
+                    </Grid>
+                </div >
+            </div>
+            ))
+            }
+        </div >
+    );
 };
 
 export default Supporters;

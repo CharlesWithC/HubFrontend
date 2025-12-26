@@ -157,86 +157,88 @@ const Map = () => {
     }, []);
 
 
-    return <Card>
-        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-            <Tabs value={tab} onChange={handleChange} aria-label="map tabs" color="info" TabIndicatorProps={{ style: { backgroundColor: theme.palette.info.main } }}>
-                <Tab label={tr("ets2")} {...tabBtnProps(0, tab, theme)} />
-                <Tab label={tr("ets2_promods")} {...tabBtnProps(1, tab, theme)} />
-                <Tab label={tr("ets2_promods_classic")} {...tabBtnProps(2, tab, theme)} />
-                <Tab label={tr("ats")} {...tabBtnProps(3, tab, theme)} />
-                <Tab label={tr("ats_promods")} {...tabBtnProps(4, tab, theme)} />
-            </Tabs>
-        </Box>
-        {tab === 0 && <TabPanel value={tab} index={0}>
-            <TileMap tilesUrl={"https://map.charlws.com/ets2/base/tiles"} title={<>{tr("euro_truck_simulator_2_base_map")}<br />{tr("live_data_feed_truckersmp_eu_sim_1")}<br /> <span style={{ cursor: "pointer" }} onClick={handleToggleVtcOnly}>{orangeOnly ? tr("showing_vtc_drivers_only") : tr("showing_all_players")}&nbsp;{tr("click_to_toggle")}</span></>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} showOrangeOnly={orangeOnly} />
-        </TabPanel>}
-        {tab === 1 && <TabPanel value={tab} index={1}>
-            <TileMap tilesUrl={"https://map.charlws.com/ets2/promods/tiles"} title={<>{tr("euro_truck_simulator_2_promods_map")}<br />{tr("live_data_feed_truckersmp_eu_pm")}<br /> <span style={{ cursor: "pointer" }} onClick={handleToggleVtcOnly}>{orangeOnly ? tr("showing_vtc_drivers_only") : tr("showing_all_players")}&nbsp;{tr("click_to_toggle")}</span></>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} showOrangeOnly={orangeOnly} />
-        </TabPanel>}
-        {tab === 2 && <TabPanel value={tab} index={2}>
-            <TileMap tilesUrl={"https://map.charlws.com/ets2/promods-classic/tiles"} title={<>{tr("euro_truck_simulator_2_promods_classic_map")}<br />{tr("live_data_feed_no_data")}</>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} showOrangeOnly={orangeOnly} />
-        </TabPanel>}
-        {tab === 3 && <TabPanel value={tab} index={3}>
-            <TileMap tilesUrl={"https://map.charlws.com/ats/base/tiles"} title={<>{tr("american_truck_simulator_base_map")}<br />{tr("live_data_feed_truckersmp_us_sim")}<br /> <span style={{ cursor: "pointer" }} onClick={handleToggleVtcOnly}>{orangeOnly ? tr("showing_vtc_drivers_only") : tr("showing_all_players")}&nbsp;{tr("click_to_toggle")}</span></>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} showOrangeOnly={orangeOnly} />
-        </TabPanel>}
-        {tab === 4 && <TabPanel value={tab} index={4}>
-            <TileMap tilesUrl={"https://map.charlws.com/ats/promods/tiles"} title={<>{tr("american_truck_simulator_promods_map")}<br />{tr("live_data_feed_no_data")}</>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} showOrangeOnly={orangeOnly} />
-        </TabPanel>}
-        <Dialog open={displayUser.MpId !== undefined} onClose={() => setDisplayUser({})}>
-            <DialogTitle>{displayUser.userid === undefined ? <>{tr("truckersmp_player")}</> : <>{webConfig.name} {tr("driver")}</>}</DialogTitle>
-            <DialogContent>
-                <Grid container spacing={2}>
-                    <Grid item xs={4}>
-                        <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("name")}</Typography>
-                        <Typography variant="body2">{displayUser.userid === undefined ? <>{displayUser.Name}</> : <UserCard user={displayUser} />}</Typography>
+    return (
+        <Card>
+            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+                <Tabs value={tab} onChange={handleChange} aria-label="map tabs" color="info" TabIndicatorProps={{ style: { backgroundColor: theme.palette.info.main } }}>
+                    <Tab label={tr("ets2")} {...tabBtnProps(0, tab, theme)} />
+                    <Tab label={tr("ets2_promods")} {...tabBtnProps(1, tab, theme)} />
+                    <Tab label={tr("ets2_promods_classic")} {...tabBtnProps(2, tab, theme)} />
+                    <Tab label={tr("ats")} {...tabBtnProps(3, tab, theme)} />
+                    <Tab label={tr("ats_promods")} {...tabBtnProps(4, tab, theme)} />
+                </Tabs>
+            </Box>
+            {tab === 0 && <TabPanel value={tab} index={0}>
+                <TileMap tilesUrl={"https://map.charlws.com/ets2/base/tiles"} title={<>{tr("euro_truck_simulator_2_base_map")}<br />{tr("live_data_feed_truckersmp_eu_sim_1")}<br /> <span style={{ cursor: "pointer" }} onClick={handleToggleVtcOnly}>{orangeOnly ? tr("showing_vtc_drivers_only") : tr("showing_all_players")}&nbsp;{tr("click_to_toggle")}</span></>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} showOrangeOnly={orangeOnly} />
+            </TabPanel>}
+            {tab === 1 && <TabPanel value={tab} index={1}>
+                <TileMap tilesUrl={"https://map.charlws.com/ets2/promods/tiles"} title={<>{tr("euro_truck_simulator_2_promods_map")}<br />{tr("live_data_feed_truckersmp_eu_pm")}<br /> <span style={{ cursor: "pointer" }} onClick={handleToggleVtcOnly}>{orangeOnly ? tr("showing_vtc_drivers_only") : tr("showing_all_players")}&nbsp;{tr("click_to_toggle")}</span></>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} showOrangeOnly={orangeOnly} />
+            </TabPanel>}
+            {tab === 2 && <TabPanel value={tab} index={2}>
+                <TileMap tilesUrl={"https://map.charlws.com/ets2/promods-classic/tiles"} title={<>{tr("euro_truck_simulator_2_promods_classic_map")}<br />{tr("live_data_feed_no_data")}</>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} showOrangeOnly={orangeOnly} />
+            </TabPanel>}
+            {tab === 3 && <TabPanel value={tab} index={3}>
+                <TileMap tilesUrl={"https://map.charlws.com/ats/base/tiles"} title={<>{tr("american_truck_simulator_base_map")}<br />{tr("live_data_feed_truckersmp_us_sim")}<br /> <span style={{ cursor: "pointer" }} onClick={handleToggleVtcOnly}>{orangeOnly ? tr("showing_vtc_drivers_only") : tr("showing_all_players")}&nbsp;{tr("click_to_toggle")}</span></>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} showOrangeOnly={orangeOnly} />
+            </TabPanel>}
+            {tab === 4 && <TabPanel value={tab} index={4}>
+                <TileMap tilesUrl={"https://map.charlws.com/ats/promods/tiles"} title={<>{tr("american_truck_simulator_promods_map")}<br />{tr("live_data_feed_no_data")}</>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} showOrangeOnly={orangeOnly} />
+            </TabPanel>}
+            <Dialog open={displayUser.MpId !== undefined} onClose={() => setDisplayUser({})}>
+                <DialogTitle>{displayUser.userid === undefined ? <>{tr("truckersmp_player")}</> : <>{webConfig.name} {tr("driver")}</>}</DialogTitle>
+                <DialogContent>
+                    <Grid container spacing={2}>
+                        <Grid size={4}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("name")}</Typography>
+                            <Typography variant="body2">{displayUser.userid === undefined ? <>{displayUser.Name}</> : <UserCard user={displayUser} />}</Typography>
+                        </Grid>
+                        <Grid size={4}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>TruckersMP</Typography>
+                            <Typography variant="body2"><a href={`https://truckersmp.com/user/${displayUser.MpId}`} target="_blank" rel="noreferrer">{displayUser.MpId}</a></Typography>
+                        </Grid>
+                        <Grid size={4}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("player_id")}</Typography>
+                            <Typography variant="body2">{displayUser.PlayerId}</Typography>
+                        </Grid>
+                        <Grid size={4}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>X</Typography>
+                            <Typography variant="body2">{displayUser.X}</Typography>
+                        </Grid>
+                        <Grid size={4}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Y</Typography>
+                            <Typography variant="body2">{displayUser.Y}</Typography>
+                        </Grid>
+                        <Grid size={4}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("heading")}</Typography>
+                            <Typography variant="body2">{displayUser.Heading}</Typography>
+                        </Grid>
+                        {displayUser.Job !== undefined && <>
+                            {displayUser.cargo === undefined && <>
+                                <Grid size={4}>
+                                    <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("status")}</Typography>
+                                    <Typography variant="body2">{tr("free_roaming")}</Typography>
+                                </Grid></>}
+                            {displayUser.cargo !== undefined && <>
+                                <Grid size={4}>
+                                    <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("cargo")}</Typography>
+                                    <Typography variant="body2">{displayUser.cargo}</Typography>
+                                </Grid>
+                                <Grid size={4}>
+                                    <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("source")}</Typography>
+                                    <Typography variant="body2">{displayUser.source}</Typography>
+                                </Grid>
+                                <Grid size={4}>
+                                    <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("destination")}</Typography>
+                                    <Typography variant="body2">{displayUser.destination}</Typography>
+                                </Grid></>}
+                        </>}
                     </Grid>
-                    <Grid item xs={4}>
-                        <Typography variant="body2" sx={{ fontWeight: "bold" }}>TruckersMP</Typography>
-                        <Typography variant="body2"><a href={`https://truckersmp.com/user/${displayUser.MpId}`} target="_blank" rel="noreferrer">{displayUser.MpId}</a></Typography>
-                    </Grid>
-                    <Grid item xs={4}>
-                        <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("player_id")}</Typography>
-                        <Typography variant="body2">{displayUser.PlayerId}</Typography>
-                    </Grid>
-                    <Grid item xs={4}>
-                        <Typography variant="body2" sx={{ fontWeight: "bold" }}>X</Typography>
-                        <Typography variant="body2">{displayUser.X}</Typography>
-                    </Grid>
-                    <Grid item xs={4}>
-                        <Typography variant="body2" sx={{ fontWeight: "bold" }}>Y</Typography>
-                        <Typography variant="body2">{displayUser.Y}</Typography>
-                    </Grid>
-                    <Grid item xs={4}>
-                        <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("heading")}</Typography>
-                        <Typography variant="body2">{displayUser.Heading}</Typography>
-                    </Grid>
-                    {displayUser.Job !== undefined && <>
-                        {displayUser.cargo === undefined && <>
-                            <Grid item xs={4}>
-                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("status")}</Typography>
-                                <Typography variant="body2">{tr("free_roaming")}</Typography>
-                            </Grid></>}
-                        {displayUser.cargo !== undefined && <>
-                            <Grid item xs={4}>
-                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("cargo")}</Typography>
-                                <Typography variant="body2">{displayUser.cargo}</Typography>
-                            </Grid>
-                            <Grid item xs={4}>
-                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("source")}</Typography>
-                                <Typography variant="body2">{displayUser.source}</Typography>
-                            </Grid>
-                            <Grid item xs={4}>
-                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("destination")}</Typography>
-                                <Typography variant="body2">{displayUser.destination}</Typography>
-                            </Grid></>}
-                    </>}
-                </Grid>
-            </DialogContent>
-            <DialogActions>
-                <Button variant="primary" onClick={() => { setDisplayUser({}); }}>{tr("close")}</Button>
-            </DialogActions>
-        </Dialog>
-    </Card>;
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="primary" onClick={() => { setDisplayUser({}); }}>{tr("close")}</Button>
+                </DialogActions>
+            </Dialog>
+        </Card>
+    );
 };
 
 export default Map;

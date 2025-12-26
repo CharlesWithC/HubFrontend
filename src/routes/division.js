@@ -6,7 +6,7 @@ import { debounce } from 'lodash';
 
 import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Snackbar, Alert, useTheme, Tooltip, IconButton, TextField } from '@mui/material';
 import { PermContactCalendarRounded, LocalShippingRounded, EuroRounded, AttachMoneyRounded, RouteRounded, LocalGasStationRounded, EmojiEventsRounded, PeopleAltRounded, RefreshRounded, VerifiedOutlined, AspectRatioRounded } from '@mui/icons-material';
-import { Portal } from '@mui/base';
+import Portal from '@mui/material/Portal';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faWarehouse, faClock, faGears, faStamp } from '@fortawesome/free-solid-svg-icons';
@@ -93,113 +93,157 @@ const DivisionCard = ({ division }) => {
         if (showDetails) debouncedDoLoad();
     }, [showDetails, apiPath, division, listParam, page, pageSize]);
 
-    return (<>
-        <Card>
-            <CardContent>
-                <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
-                    <Typography variant="h5" sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                            {division.name}
-                        </div>
-                        <IconButton sx={{ marginLeft: 'auto' }} onClick={() => setShowDetails(true)}>
-                            <AspectRatioRounded />
-                        </IconButton>
-                    </Typography>
-                </div>
-                <Grid container spacing={2}>
-                    <Grid item xs={6} sm={6} md={6} lg={6}>
-                        <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
-                            <PermContactCalendarRounded />&nbsp;{TSep(division.drivers)}
+    return (
+        <>
+            <Card>
+                <CardContent>
+                    <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
+                        <Typography variant="h5" sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                {division.name}
+                            </div>
+                            <IconButton sx={{ marginLeft: 'auto' }} onClick={() => setShowDetails(true)}>
+                                <AspectRatioRounded />
+                            </IconButton>
                         </Typography>
+                    </div>
+                    <Grid container spacing={2}>
+                        <Grid
+                            size={{
+                                xs: 6,
+                                sm: 6,
+                                md: 6,
+                                lg: 6
+                            }}>
+                            <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
+                                <PermContactCalendarRounded />&nbsp;{TSep(division.drivers)}
+                            </Typography>
+                        </Grid>
+                        <Grid
+                            size={{
+                                xs: 6,
+                                sm: 6,
+                                md: 6,
+                                lg: 6
+                            }}>
+                            <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
+                                <LocalShippingRounded />&nbsp;{TSep(division.jobs)}
+                            </Typography>
+                        </Grid>
+                        <Grid
+                            size={{
+                                xs: 6,
+                                sm: 6,
+                                md: 6,
+                                lg: 6
+                            }}>
+                            <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
+                                <RouteRounded />&nbsp;{ConvertUnit(userSettings.unit, "km", division.distance)}
+                            </Typography>
+                        </Grid>
+                        <Grid
+                            size={{
+                                xs: 6,
+                                sm: 6,
+                                md: 6,
+                                lg: 6
+                            }}>
+                            <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
+                                <LocalGasStationRounded />&nbsp;{ConvertUnit(userSettings.unit, "l", division.fuel)}
+                            </Typography>
+                        </Grid>
+                        <Grid
+                            size={{
+                                xs: 6,
+                                sm: 6,
+                                md: 6,
+                                lg: 6
+                            }}>
+                            <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
+                                <EuroRounded />&nbsp;{TSep(division.profit.euro)}
+                            </Typography>
+                        </Grid>
+                        <Grid
+                            size={{
+                                xs: 6,
+                                sm: 6,
+                                md: 6,
+                                lg: 6
+                            }}>
+                            <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
+                                <AttachMoneyRounded />&nbsp;{TSep(division.profit.dollar)}
+                            </Typography>
+                        </Grid>
+                        <Grid
+                            size={{
+                                xs: 6,
+                                sm: 6,
+                                md: 6,
+                                lg: 6
+                            }}>
+                            <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
+                                <EmojiEventsRounded />&nbsp;{TSep(division.points)}
+                            </Typography>
+                        </Grid>
                     </Grid>
-                    <Grid item xs={6} sm={6} md={6} lg={6}>
-                        <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
-                            <LocalShippingRounded />&nbsp;{TSep(division.jobs)}
-                        </Typography>
+                </CardContent>
+            </Card>
+            <Dialog open={showDetails} onClose={() => setShowDetails(false)}
+                PaperProps={{
+                    sx: {
+                        minWidth: "min(1000px, 100vw)"
+                    }
+                }}>
+                <DialogTitle>{tr("division_activity")}{division.name}</DialogTitle>
+                <DialogContent>
+                    <Grid container spacing={2} sx={{ paddingTop: "5px" }}>
+                        <Grid size={6}>
+                            <DateTimeField
+                                label={tr("after")}
+                                defaultValue={listParam.after}
+                                onChange={(timestamp) => { setListParam({ ...listParam, after: timestamp }); }}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid size={6}>
+                            <DateTimeField
+                                label={tr("before")}
+                                defaultValue={listParam.before}
+                                onChange={(timestamp) => { setListParam({ ...listParam, before: timestamp }); }}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid size={6}>
+                            <TextField select
+                                label={tr("include_previous_drivers")}
+                                value={listParam.include_previous_drivers}
+                                onChange={(e) => { setListParam({ ...listParam, include_previous_drivers: e.target.value }); }}
+                                fullWidth
+                            >
+                                <MenuItem value={true}>{tr("yes")}</MenuItem>
+                                <MenuItem value={false}>{tr("no")}</MenuItem>
+                            </TextField>
+                        </Grid>
+                        <Grid size={6}>
+                            <TextField select
+                                label={tr("include_pending_validations")}
+                                value={listParam.include_pending}
+                                onChange={(e) => { setListParam({ ...listParam, include_pending: e.target.value }); }}
+                                fullWidth
+                            >
+                                <MenuItem value={true}>{tr("yes")}</MenuItem>
+                                <MenuItem value={false}>{tr("no")}</MenuItem>
+                            </TextField>
+                        </Grid>
                     </Grid>
-                    <Grid item xs={6} sm={6} md={6} lg={6}>
-                        <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
-                            <RouteRounded />&nbsp;{ConvertUnit(userSettings.unit, "km", division.distance)}
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={6} sm={6} md={6} lg={6}>
-                        <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
-                            <LocalGasStationRounded />&nbsp;{ConvertUnit(userSettings.unit, "l", division.fuel)}
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={6} sm={6} md={6} lg={6}>
-                        <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
-                            <EuroRounded />&nbsp;{TSep(division.profit.euro)}
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={6} sm={6} md={6} lg={6}>
-                        <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
-                            <AttachMoneyRounded />&nbsp;{TSep(division.profit.dollar)}
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={6} sm={6} md={6} lg={6}>
-                        <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
-                            <EmojiEventsRounded />&nbsp;{TSep(division.points)}
-                        </Typography>
-                    </Grid>
-                </Grid>
-            </CardContent>
-        </Card>
-        <Dialog open={showDetails} onClose={() => setShowDetails(false)}
-            PaperProps={{
-                sx: {
-                    minWidth: "min(1000px, 100vw)"
-                }
-            }}>
-            <DialogTitle>{tr("division_activity")}{division.name}</DialogTitle>
-            <DialogContent>
-                <Grid container spacing={2} sx={{ paddingTop: "5px" }}>
-                    <Grid item xs={6}>
-                        <DateTimeField
-                            label={tr("after")}
-                            defaultValue={listParam.after}
-                            onChange={(timestamp) => { setListParam({ ...listParam, after: timestamp }); }}
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={6}>
-                        <DateTimeField
-                            label={tr("before")}
-                            defaultValue={listParam.before}
-                            onChange={(timestamp) => { setListParam({ ...listParam, before: timestamp }); }}
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={6}>
-                        <TextField select
-                            label={tr("include_previous_drivers")}
-                            value={listParam.include_previous_drivers}
-                            onChange={(e) => { setListParam({ ...listParam, include_previous_drivers: e.target.value }); }}
-                            fullWidth
-                        >
-                            <MenuItem value={true}>{tr("yes")}</MenuItem>
-                            <MenuItem value={false}>{tr("no")}</MenuItem>
-                        </TextField>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <TextField select
-                            label={tr("include_pending_validations")}
-                            value={listParam.include_pending}
-                            onChange={(e) => { setListParam({ ...listParam, include_pending: e.target.value }); }}
-                            fullWidth
-                        >
-                            <MenuItem value={true}>{tr("yes")}</MenuItem>
-                            <MenuItem value={false}>{tr("no")}</MenuItem>
-                        </TextField>
-                    </Grid>
-                </Grid>
-                <CustomTable page={page} columns={columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} data={userList} totalItems={totalItems} rowsPerPageOptions={[5, 10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} style={{ marginTop: "15px" }} />
-            </DialogContent>
-            <DialogActions>
-                <Button variant="primary" onClick={() => setShowDetails(false)}>{tr("close")}</Button>
-            </DialogActions>
-        </Dialog >
-    </>);
+                    <CustomTable page={page} columns={columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} data={userList} totalItems={totalItems} rowsPerPageOptions={[5, 10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} style={{ marginTop: "15px" }} />
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="primary" onClick={() => setShowDetails(false)}>{tr("close")}</Button>
+                </DialogActions>
+            </Dialog >
+        </>
+    );
 };
 
 const DivisionsMemo = memo(({ doReload, loadComplete, setLoadComplete, listParam }) => {
@@ -226,13 +270,22 @@ const DivisionsMemo = memo(({ doReload, loadComplete, setLoadComplete, listParam
         doLoad();
     }, [apiPath, doReload, listParam]);
 
-    return <>{loadComplete >= 2 && <Grid container spacing={2}>
-        {divisions.map((division, index) => (
-            <Grid key={`grid-${index}`} item xs={12} sm={12} md={6} lg={4}>
-                <DivisionCard division={division} />
-            </Grid>
-        ))}
-    </Grid>}</>;
+    return (
+        <>{loadComplete >= 2 && <Grid container spacing={2}>
+            {divisions.map((division, index) => (
+                <Grid
+                    key={`grid-${index}`}
+                    size={{
+                        xs: 12,
+                        sm: 12,
+                        md: 6,
+                        lg: 4
+                    }}>
+                    <DivisionCard division={division} />
+                </Grid>
+            ))}
+        </Grid>}</>
+    );
 });
 
 const DivisionsDlog = memo(({ doReload, loadComplete, setLoadComplete }) => {
@@ -458,69 +511,71 @@ const Divisions = () => {
 
     const [loadComplete, setLoadComplete] = useState(0);
 
-    return <>
-        {location.pathname === "/division" && <DivisionsMemo doReload={doReload} loadComplete={loadComplete} setLoadComplete={setLoadComplete} listParam={listParam} />}
-        {location.pathname === "/division" && <DivisionsDlog doReload={doReload} loadComplete={loadComplete} setLoadComplete={setLoadComplete} />}
-        {location.pathname === "/division/pending" && checkUserPerm(curUserPerm, ["administrator", "manage_divisions"]) && <DivisionsPending doReload={doReload} loadComplete={loadComplete} setLoadComplete={setLoadComplete} />}
-        <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
-            <DialogTitle>{tr("division_managers")}</DialogTitle>
-            <DialogContent>
-                <DivisionManagers />
-            </DialogContent>
-            <DialogActions>
-                <Button variant="primary" onClick={() => { setDialogManagers(false); }}>{tr("close")}</Button>
-            </DialogActions>
-        </Dialog>
-        <Dialog open={dialogOpen === "settings"} onClose={() => { setDialogOpen(""); }} fullWidth>
-            <DialogTitle><FontAwesomeIcon icon={faGears} />&nbsp;&nbsp;{tr("settings")}</DialogTitle>
-            <DialogContent>
-                <Grid container spacing={2} sx={{ mt: "5px" }}>
-                    <Grid item xs={6}>
-                        <DateTimeField
-                            label={tr("after")}
-                            defaultValue={tempListParam.after}
-                            onChange={(timestamp) => { setTempListParam({ ...tempListParam, after: timestamp }); }}
-                            fullWidth
-                        />
+    return (
+        <>
+            {location.pathname === "/division" && <DivisionsMemo doReload={doReload} loadComplete={loadComplete} setLoadComplete={setLoadComplete} listParam={listParam} />}
+            {location.pathname === "/division" && <DivisionsDlog doReload={doReload} loadComplete={loadComplete} setLoadComplete={setLoadComplete} />}
+            {location.pathname === "/division/pending" && checkUserPerm(curUserPerm, ["administrator", "manage_divisions"]) && <DivisionsPending doReload={doReload} loadComplete={loadComplete} setLoadComplete={setLoadComplete} />}
+            <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
+                <DialogTitle>{tr("division_managers")}</DialogTitle>
+                <DialogContent>
+                    <DivisionManagers />
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="primary" onClick={() => { setDialogManagers(false); }}>{tr("close")}</Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog open={dialogOpen === "settings"} onClose={() => { setDialogOpen(""); }} fullWidth>
+                <DialogTitle><FontAwesomeIcon icon={faGears} />&nbsp;&nbsp;{tr("settings")}</DialogTitle>
+                <DialogContent>
+                    <Grid container spacing={2} sx={{ mt: "5px" }}>
+                        <Grid size={6}>
+                            <DateTimeField
+                                label={tr("after")}
+                                defaultValue={tempListParam.after}
+                                onChange={(timestamp) => { setTempListParam({ ...tempListParam, after: timestamp }); }}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid size={6}>
+                            <DateTimeField
+                                label={tr("before")}
+                                defaultValue={tempListParam.before}
+                                onChange={(timestamp) => { setTempListParam({ ...tempListParam, before: timestamp }); }}
+                                fullWidth
+                            />
+                        </Grid>
                     </Grid>
-                    <Grid item xs={6}>
-                        <DateTimeField
-                            label={tr("before")}
-                            defaultValue={tempListParam.before}
-                            onChange={(timestamp) => { setTempListParam({ ...tempListParam, before: timestamp }); }}
-                            fullWidth
-                        />
-                    </Grid>
-                </Grid>
-            </DialogContent>
-            <DialogActions>
-                <Button variant="contained" onClick={() => { setTempListParam(tempListParam); }}>{tr("update")}</Button>
-            </DialogActions>
-        </Dialog>
-        {location.pathname === "/division" && <SpeedDial
-            ariaLabel={tr("controls")}
-            sx={{ position: 'fixed', bottom: 20, right: 20 }}
-            icon={<SpeedDialIcon />}
-        >
-            <SpeedDialAction
-                key="settings"
-                tooltipTitle={tr("settings")}
-                icon={<FontAwesomeIcon icon={faGears} />}
-                onClick={() => { setDialogOpen("settings"); }} />
-            {curUser.userid !== -1 && <SpeedDialAction
-                key="managers"
-                icon={<PeopleAltRounded />}
-                tooltipTitle={tr("managers")}
-                onClick={() => setDialogManagers(true)}
-            />}
-            <SpeedDialAction
-                key="refresh"
-                icon={<RefreshRounded />}
-                tooltipTitle={tr("refresh")}
-                onClick={() => setDoReload(+new Date())}
-            />
-        </SpeedDial>}
-    </>;
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="contained" onClick={() => { setTempListParam(tempListParam); }}>{tr("update")}</Button>
+                </DialogActions>
+            </Dialog>
+            {location.pathname === "/division" && <SpeedDial
+                ariaLabel={tr("controls")}
+                sx={{ position: 'fixed', bottom: 20, right: 20 }}
+                icon={<SpeedDialIcon />}
+            >
+                <SpeedDialAction
+                    key="settings"
+                    tooltipTitle={tr("settings")}
+                    icon={<FontAwesomeIcon icon={faGears} />}
+                    onClick={() => { setDialogOpen("settings"); }} />
+                {curUser.userid !== -1 && <SpeedDialAction
+                    key="managers"
+                    icon={<PeopleAltRounded />}
+                    tooltipTitle={tr("managers")}
+                    onClick={() => setDialogManagers(true)}
+                />}
+                <SpeedDialAction
+                    key="refresh"
+                    icon={<RefreshRounded />}
+                    tooltipTitle={tr("refresh")}
+                    onClick={() => setDoReload(+new Date())}
+                />
+            </SpeedDial>}
+        </>
+    );
 };
 
 export default Divisions;

@@ -4,7 +4,7 @@ import { AppContext, CacheContext } from '../context';
 
 import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, TextField, Snackbar, Alert, Pagination, IconButton, Tooltip, Box, Checkbox, ButtonGroup, useTheme } from '@mui/material';
 import { EditNoteRounded, RefreshRounded, EditRounded, DeleteRounded, PeopleAltRounded, CloseRounded } from '@mui/icons-material';
-import { Portal } from '@mui/base';
+import Portal from '@mui/material/Portal';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircle as faCircleSolid, fa1, faN, faUsers, faUsersSlash, faPenToSquare, faPlus, faMinus, faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
@@ -236,7 +236,14 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete, onPollVoters }) => {
 
     if (poll.display === "half-width") {
         return (
-            <Grid item xs={12} sm={12} md={6} lg={6} key={poll.pollid}>
+            <Grid
+                key={poll.pollid}
+                size={{
+                    xs: 12,
+                    sm: 12,
+                    md: 6,
+                    lg: 6
+                }}>
                 <Card>
                     <CardContent>
                         <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
@@ -264,7 +271,14 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete, onPollVoters }) => {
         );
     } else if (poll.display === "full-width") {
         return (
-            <Grid item xs={12} sm={12} md={12} lg={12} key={poll.pollid}>
+            <Grid
+                key={poll.pollid}
+                size={{
+                    xs: 12,
+                    sm: 12,
+                    md: 12,
+                    lg: 12
+                }}>
                 <Card>
                     <CardContent>
                         <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
@@ -292,12 +306,32 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete, onPollVoters }) => {
         );
     } else if (poll.display === "with-image-left") {
         return (
-            <Grid item xs={12} sm={12} md={12} lg={12} key={poll.pollid}>
+            <Grid
+                key={poll.pollid}
+                size={{
+                    xs: 12,
+                    sm: 12,
+                    md: 12,
+                    lg: 12
+                }}>
                 <Grid container spacing={2}>
-                    <Grid item xs={12} sm={12} md={6} lg={6}>
+                    <Grid
+                        size={{
+                            xs: 12,
+                            sm: 12,
+                            md: 6,
+                            lg: 6
+                        }}>
                         <img src={poll.image} alt="" style={{ width: '100%', border: 'none' }} />
                     </Grid>
-                    <Grid item xs={12} sm={12} md={6} lg={6} style={{ display: 'flex' }}>
+                    <Grid
+                        style={{ display: 'flex' }}
+                        size={{
+                            xs: 12,
+                            sm: 12,
+                            md: 6,
+                            lg: 6
+                        }}>
                         <Card style={{ display: 'flex', flexDirection: 'column' }}>
                             <CardContent>
                                 <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
@@ -327,9 +361,23 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete, onPollVoters }) => {
         );
     } else if (poll.display === "with-image-right") {
         return (
-            <Grid item xs={12} sm={12} md={12} lg={12} key={poll.pollid}>
+            <Grid
+                key={poll.pollid}
+                size={{
+                    xs: 12,
+                    sm: 12,
+                    md: 12,
+                    lg: 12
+                }}>
                 <Grid container spacing={2}>
-                    <Grid item xs={12} sm={12} md={6} lg={6} style={{ display: 'flex' }}>
+                    <Grid
+                        style={{ display: 'flex' }}
+                        size={{
+                            xs: 12,
+                            sm: 12,
+                            md: 6,
+                            lg: 6
+                        }}>
                         <Card style={{ display: 'flex', flexDirection: 'column' }}>
                             <CardContent>
                                 <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
@@ -354,7 +402,13 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete, onPollVoters }) => {
                             </CardContent>
                         </Card>
                     </Grid>
-                    <Grid item xs={12} sm={12} md={6} lg={6}>
+                    <Grid
+                        size={{
+                            xs: 12,
+                            sm: 12,
+                            md: 6,
+                            lg: 6
+                        }}>
                         <img src={poll.image} alt="" style={{ width: '100%', border: 'none' }} />
                     </Grid>
                 </Grid>
@@ -365,50 +419,52 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete, onPollVoters }) => {
 
 const PollGrid = memo(({ polls, lastUpdate, onEdit, onDelete, onPollVoters }) => {
     let halfCnt = 0;
-    return <Grid container spacing={3}>
-        {polls.map((poll, index) => {
-            poll.display = 'half-width';
+    return (
+        <Grid container spacing={3}>
+            {polls.map((poll, index) => {
+                poll.display = 'half-width';
 
-            const hasImage = /^\[Image src="(.+)" loc="(.+)"\]/.test(poll.description);
+                const hasImage = /^\[Image src="(.+)" loc="(.+)"\]/.test(poll.description);
 
-            if (hasImage) {
-                const re = poll.description.match(/^\[Image src="(.+)" loc="(.+)"\]/);
-                const link = re[1];
-                const loc = re[2];
-                poll.image = link;
-                poll.display = 'with-image-' + loc;
-                halfCnt = 0;
-            } else {
-                if (index + 1 < polls.length) {
-                    const nextPoll = polls[index + 1];
-                    const nextHasImage = /^\[Image src="(.+)" loc="(.+)"\]/.test(nextPoll.description);
+                if (hasImage) {
+                    const re = poll.description.match(/^\[Image src="(.+)" loc="(.+)"\]/);
+                    const link = re[1];
+                    const loc = re[2];
+                    poll.image = link;
+                    poll.display = 'with-image-' + loc;
+                    halfCnt = 0;
+                } else {
+                    if (index + 1 < polls.length) {
+                        const nextPoll = polls[index + 1];
+                        const nextHasImage = /^\[Image src="(.+)" loc="(.+)"\]/.test(nextPoll.description);
 
-                    if (nextHasImage) {
-                        if (halfCnt % 2 === 1) {
+                        if (nextHasImage) {
+                            if (halfCnt % 2 === 1) {
+                                poll.display = 'half-width';
+                                halfCnt += 1;
+                            } else {
+                                poll.display = 'full-width';
+                                halfCnt = 0;
+                            }
+                        } else {
                             poll.display = 'half-width';
                             halfCnt += 1;
-                        } else {
-                            poll.display = 'full-width';
-                            halfCnt = 0;
                         }
-                    } else {
-                        poll.display = 'half-width';
-                        halfCnt += 1;
                     }
                 }
-            }
 
-            return (
-                <PollCard
-                    poll={poll}
-                    key={index}
-                    onEdit={onEdit}
-                    onDelete={onDelete}
-                    onPollVoters={onPollVoters}
-                />
-            );
-        })}
-    </Grid>;
+                return (
+                    <PollCard
+                        poll={poll}
+                        key={index}
+                        onEdit={onEdit}
+                        onDelete={onDelete}
+                        onPollVoters={onPollVoters}
+                    />
+                );
+            })}
+        </Grid>
+    );
 }, (prevProps, nextProps) => {
     return prevProps.lastUpdate === nextProps.lastUpdate;
 });
@@ -635,7 +691,7 @@ const Poll = () => {
                 <DialogContent>
                     <form onSubmit={handleSubmit} style={{ marginTop: "5px" }}>
                         <Grid container spacing={2}>
-                            <Grid item xs={12}>
+                            <Grid size={12}>
                                 <TextField
                                     label={tr("title")}
                                     value={title}
@@ -643,7 +699,7 @@ const Poll = () => {
                                     fullWidth
                                 />
                             </Grid>
-                            <Grid item xs={12}>
+                            <Grid size={12}>
                                 <TextField
                                     label={tr("content_markdown")}
                                     multiline
@@ -653,38 +709,40 @@ const Poll = () => {
                                     minRows={4}
                                 />
                             </Grid>
-                            <Grid item xs={12} sx={{ mb: 0 }}>
+                            <Grid sx={{ mb: 0 }} size={12}>
                                 <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("choices")}</Typography>
                             </Grid>
                             {choices.map((_, index) => {
-                                return <Grid item xs={12} key={index}>
-                                    <ButtonGroup>
-                                        <TextField
-                                            label={`${tr("choice")} #${index + 1}`}
-                                            value={choices[index].content}
-                                            onChange={(e) => setChoices(prevChoices => [...prevChoices.slice(0, index), { content: e.target.value }, ...prevChoices.slice(index + 1)])}
-                                            size="small"
-                                            sx={editId === null ? { width: "calc(100% - 150px)" } : { width: "calc(100% - 75px)" }}
-                                        />
-                                        {editId === null && <IconButton variant="contained" color="success" onClick={() => {
-                                            if (choices.length < 10) setChoices(prevChoices => [...prevChoices.slice(0, index + 1), { content: "" }, ...prevChoices.slice(index + 1)]);
-                                        }}><FontAwesomeIcon icon={faPlus} disabled={choices.length >= 10} /></IconButton>}
-                                        {editId === null && <IconButton variant="contained" color="error" onClick={() => {
-                                            if (choices.length > 1) setChoices(prevChoices => [...prevChoices.slice(0, index), ...prevChoices.slice(index + 1)]);
-                                        }}><FontAwesomeIcon icon={faMinus} disabled={choices.length <= 1} /></IconButton>}
-                                        <IconButton variant="contained" color="info" onClick={() => {
-                                            if (index >= 1) setChoices(prevChoices => [...prevChoices.slice(0, index - 1), prevChoices[index], prevChoices[index - 1], ...prevChoices.slice(index + 1)]);
-                                        }}><FontAwesomeIcon icon={faArrowUp} disabled={index === 0} /></IconButton>
-                                        <IconButton variant="contained" color="warning" onClick={() => {
-                                            if (index <= choices.length - 2) setChoices(prevChoices => [...prevChoices.slice(0, index), prevChoices[index + 1], prevChoices[index], ...prevChoices.slice(index + 2)]);
-                                        }} disabled={index === choices.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
-                                    </ButtonGroup>
-                                </Grid>;
+                                return (
+                                    <Grid key={index} size={12}>
+                                        <ButtonGroup>
+                                            <TextField
+                                                label={`${tr("choice")} #${index + 1}`}
+                                                value={choices[index].content}
+                                                onChange={(e) => setChoices(prevChoices => [...prevChoices.slice(0, index), { content: e.target.value }, ...prevChoices.slice(index + 1)])}
+                                                size="small"
+                                                sx={editId === null ? { width: "calc(100% - 150px)" } : { width: "calc(100% - 75px)" }}
+                                            />
+                                            {editId === null && <IconButton variant="contained" color="success" onClick={() => {
+                                                if (choices.length < 10) setChoices(prevChoices => [...prevChoices.slice(0, index + 1), { content: "" }, ...prevChoices.slice(index + 1)]);
+                                            }}><FontAwesomeIcon icon={faPlus} disabled={choices.length >= 10} /></IconButton>}
+                                            {editId === null && <IconButton variant="contained" color="error" onClick={() => {
+                                                if (choices.length > 1) setChoices(prevChoices => [...prevChoices.slice(0, index), ...prevChoices.slice(index + 1)]);
+                                            }}><FontAwesomeIcon icon={faMinus} disabled={choices.length <= 1} /></IconButton>}
+                                            <IconButton variant="contained" color="info" onClick={() => {
+                                                if (index >= 1) setChoices(prevChoices => [...prevChoices.slice(0, index - 1), prevChoices[index], prevChoices[index - 1], ...prevChoices.slice(index + 1)]);
+                                            }}><FontAwesomeIcon icon={faArrowUp} disabled={index === 0} /></IconButton>
+                                            <IconButton variant="contained" color="warning" onClick={() => {
+                                                if (index <= choices.length - 2) setChoices(prevChoices => [...prevChoices.slice(0, index), prevChoices[index + 1], prevChoices[index], ...prevChoices.slice(index + 2)]);
+                                            }} disabled={index === choices.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                                        </ButtonGroup>
+                                    </Grid>
+                                );
                             })}
-                            <Grid item xs={12} sx={{ mb: 0 }}>
+                            <Grid sx={{ mb: 0 }} size={12}>
                                 <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("config")}</Typography>
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid size={6}>
                                 <FormControl component="fieldset">
                                     <DateTimeField
                                         label={tr("end_time")}
@@ -695,7 +753,7 @@ const Poll = () => {
                                     />
                                 </FormControl>
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid size={6}>
                                 <FormControl component="fieldset" sx={{ mb: "10px" }}>
                                     <FormControlLabel
                                         key="always-active"
@@ -710,7 +768,7 @@ const Poll = () => {
                                     />
                                 </FormControl>
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid size={6}>
                                 <FormControl component="fieldset">
                                     <TextField
                                         label={tr("max_choice")}
@@ -720,7 +778,7 @@ const Poll = () => {
                                     />
                                 </FormControl>
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid size={6}>
                                 <FormControl component="fieldset" sx={{ mb: "10px" }}>
                                     <FormControlLabel
                                         key="allow-modify-vote"
@@ -735,7 +793,7 @@ const Poll = () => {
                                     />
                                 </FormControl>
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid size={6}>
                                 <FormControl component="fieldset" sx={{ mb: "10px" }}>
                                     <FormControlLabel
                                         key="anonymous-voting"
@@ -750,7 +808,7 @@ const Poll = () => {
                                     />
                                 </FormControl>
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid size={6}>
                                 <FormControl component="fieldset" sx={{ mb: "10px" }}>
                                     <FormControlLabel
                                         key="always-show-results"
@@ -765,7 +823,7 @@ const Poll = () => {
                                     />
                                 </FormControl>
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid size={6}>
                                 <FormControl component="fieldset" sx={{ mb: "10px" }}>
                                     <FormControlLabel
                                         key="show-stats-before-vote"
@@ -780,7 +838,7 @@ const Poll = () => {
                                     />
                                 </FormControl>
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid size={6}>
                                 <FormControl component="fieldset" sx={{ mb: "10px" }}>
                                     <FormControlLabel
                                         key="show-stats-after-end"
@@ -795,7 +853,7 @@ const Poll = () => {
                                     />
                                 </FormControl>
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid size={6}>
                                 <FormControl component="fieldset">
                                     <TextField
                                         label={tr("order_id")}
@@ -805,7 +863,7 @@ const Poll = () => {
                                     />
                                 </FormControl>
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid size={6}>
                                 <FormControl component="fieldset" sx={{ mb: "10px" }}>
                                     <FormControlLabel
                                         key="pin"
@@ -825,12 +883,12 @@ const Poll = () => {
                 </DialogContent>
                 <DialogActions>
                     <Grid container justifyContent="space-between" padding="10px">
-                        <Grid item>
+                        <Grid>
                             <Box sx={{ display: 'flex', gap: '10px' }}>
                                 <Button variant="contained" onClick={clearModal}>{tr("clear")}</Button>
                             </Box>
                         </Grid>
-                        <Grid item>
+                        <Grid>
                             <Box sx={{ display: 'flex', gap: '10px' }}>
                                 <Button variant="contained" color="info" onClick={handleSubmit} disabled={submitLoading}>{dialogButton}</Button>
                             </Box>
@@ -851,12 +909,12 @@ const Poll = () => {
                 </DialogContent>
                 <DialogActions>
                     <Grid container justifyContent="space-between" padding="10px">
-                        <Grid item>
+                        <Grid>
                             <Box sx={{ display: 'flex', gap: '10px' }}>
                                 <Button variant="contained" onClick={() => { setDialogDelete(false); }}>{tr("cancel")}</Button>
                             </Box>
                         </Grid>
-                        <Grid item>
+                        <Grid>
                             <Box sx={{ display: 'flex', gap: '10px' }}>
                                 <Button variant="contained" color="error" onClick={() => { deletePoll({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>{tr("delete")}</Button>
                             </Box>

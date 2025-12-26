@@ -4,7 +4,7 @@ import { AppContext } from '../../context';
 
 import { Card, CardContent, Typography, Grid, Snackbar, Alert, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button, IconButton, Box, useTheme } from '@mui/material';
 import { CloseRounded } from '@mui/icons-material';
-import { Portal } from '@mui/base';
+import Portal from '@mui/material/Portal';
 
 import CustomTable from '../../components/table';
 import UserCard from '../../components/usercard';
@@ -147,39 +147,53 @@ const ApplicationTable = memo(({ showDetail }) => {
         showDetail(data.application);
     }
 
-    return <>
-        {recent.length !== 0 && <Grid container spacing={2} style={{ marginBottom: "20px" }}>
-            <Grid item xs={12} sm={12} md={recent.length === 2 ? 6 : 12} lg={recent.length === 2 ? 6 : 12}>
-                <Card>
-                    <CardContent>
-                        <Typography variant="subtitle2" gutterBottom>{tr("recent")} {applicationTypes !== null && applicationTypes[recent[0].type] ? applicationTypes[recent[0].type].name : tr("unknown")} {tr("application")}</Typography>
-                        <Typography variant="h5" component="div">
-                            {STATUS[recent[0].status]}
-                        </Typography>
-                        <Typography variant="subtitle2" sx={{ mt: 1 }}>
-                            <>{tr("last_responded")}</>: <TimeDelta key={`${+new Date()}`} timestamp={recent[0].respond_timestamp * 1000} />
-                        </Typography>
-                    </CardContent>
-                </Card>
-            </Grid>
-            {recent.length === 2 &&
-                <Grid item xs={12} sm={12} md={6} lg={6}>
+    return (
+        <>
+            {recent.length !== 0 && <Grid container spacing={2} style={{ marginBottom: "20px" }}>
+                <Grid
+                    size={{
+                        xs: 12,
+                        sm: 12,
+                        md: recent.length === 2 ? 6 : 12,
+                        lg: recent.length === 2 ? 6 : 12
+                    }}>
                     <Card>
                         <CardContent>
-                            <Typography variant="subtitle2" gutterBottom>{tr("recent")} {applicationTypes !== null && applicationTypes[recent[1].type] ? applicationTypes[recent[1].type].name : tr("unknown")} {tr("application")}</Typography>
+                            <Typography variant="subtitle2" gutterBottom>{tr("recent")} {applicationTypes !== null && applicationTypes[recent[0].type] ? applicationTypes[recent[0].type].name : tr("unknown")} {tr("application")}</Typography>
                             <Typography variant="h5" component="div">
-                                {STATUS[recent[1].status]}
+                                {STATUS[recent[0].status]}
                             </Typography>
                             <Typography variant="subtitle2" sx={{ mt: 1 }}>
-                                <>{tr("last_responded")}</>: <TimeDelta key={`${+new Date()}`} timestamp={recent[1].respond_timestamp * 1000} />
+                                <>{tr("last_responded")}</>: <TimeDelta key={`${+new Date()}`} timestamp={recent[0].respond_timestamp * 1000} />
                             </Typography>
                         </CardContent>
                     </Card>
                 </Grid>
-            }
-        </Grid>}
-        {applications !== null && <CustomTable page={page} columns={columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} data={applications} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />}
-    </>;
+                {recent.length === 2 &&
+                    <Grid
+                        size={{
+                            xs: 12,
+                            sm: 12,
+                            md: 6,
+                            lg: 6
+                        }}>
+                        <Card>
+                            <CardContent>
+                                <Typography variant="subtitle2" gutterBottom>{tr("recent")} {applicationTypes !== null && applicationTypes[recent[1].type] ? applicationTypes[recent[1].type].name : tr("unknown")} {tr("application")}</Typography>
+                                <Typography variant="h5" component="div">
+                                    {STATUS[recent[1].status]}
+                                </Typography>
+                                <Typography variant="subtitle2" sx={{ mt: 1 }}>
+                                    <>{tr("last_responded")}</>: <TimeDelta key={`${+new Date()}`} timestamp={recent[1].respond_timestamp * 1000} />
+                                </Typography>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                }
+            </Grid>}
+            {applications !== null && <CustomTable page={page} columns={columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} data={applications} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />}
+        </>
+    );
 });
 
 const MyApplication = () => {
@@ -239,80 +253,82 @@ const MyApplication = () => {
         setSubmitLoading(false);
     }, [apiPath, detailApp, message]);
 
-    return <>
-        <ApplicationTable showDetail={showDetail}></ApplicationTable>
-        {detailApp !== null && <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} >
-            <DialogTitle>
-                {tr("application")}
-                <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogOpen(false)}>
-                    <CloseRounded />
-                </IconButton>
-            </DialogTitle>
-            <DialogContent sx={{ minWidth: "550px" }}>
-                {Object.entries(detailApp.application).map(([question, answer]) => {
-                    const matchq = question.match(/\[Message\] (.*) \((\d+)\) #(\d+)/);
-                    if (matchq) {
-                        question = <>Message from {membersMapping[matchq[2]] !== undefined && <UserCard user={membersMapping[matchq[2]]} />}{membersMapping[matchq[2]] === undefined && <>{matchq[1]}</>}</>;
-                    }
-                    if (vtcLevel >= 1) {
-                        const matcha1 = answer.match(/\[AT-(\d+)\] .*: (.*)/);
-                        if (matcha1) {
-                            answer = <>Application assigned to {users[matcha1[1]] !== undefined && <UserCard user={users[matcha1[1]]} />}{users[matcha1[1]] === undefined && <>{matcha1[2]}</>}</>;
-                        } else {
-                            const matcha2 = answer.match(/\[AS\] .*: (.*)/);
-                            if (matcha2) {
-                                answer = <>Application status updated to: {matcha2[1]}</>;
+    return (
+        <>
+            <ApplicationTable showDetail={showDetail}></ApplicationTable>
+            {detailApp !== null && <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} >
+                <DialogTitle>
+                    {tr("application")}
+                    <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogOpen(false)}>
+                        <CloseRounded />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent sx={{ minWidth: "550px" }}>
+                    {Object.entries(detailApp.application).map(([question, answer]) => {
+                        const matchq = question.match(/\[Message\] (.*) \((\d+)\) #(\d+)/);
+                        if (matchq) {
+                            question = <>Message from {membersMapping[matchq[2]] !== undefined && <UserCard user={membersMapping[matchq[2]]} />}{membersMapping[matchq[2]] === undefined && <>{matchq[1]}</>}</>;
+                        }
+                        if (vtcLevel >= 1) {
+                            const matcha1 = answer.match(/\[AT-(\d+)\] .*: (.*)/);
+                            if (matcha1) {
+                                answer = <>Application assigned to {users[matcha1[1]] !== undefined && <UserCard user={users[matcha1[1]]} />}{users[matcha1[1]] === undefined && <>{matcha1[2]}</>}</>;
                             } else {
-                                const matcha3 = answer.match(/\[XAS\] .*: (.*)/);
-                                if (matcha3) {
-                                    answer = <>Application status cleared.</>;
+                                const matcha2 = answer.match(/\[AS\] .*: (.*)/);
+                                if (matcha2) {
+                                    answer = <>Application status updated to: {matcha2[1]}</>;
                                 } else {
-                                    answer = <MarkdownRenderer>{answer}</MarkdownRenderer>;
+                                    const matcha3 = answer.match(/\[XAS\] .*: (.*)/);
+                                    if (matcha3) {
+                                        answer = <>Application status cleared.</>;
+                                    } else {
+                                        answer = <MarkdownRenderer>{answer}</MarkdownRenderer>;
+                                    }
                                 }
                             }
+                        } else {
+                            answer = <MarkdownRenderer>{answer}</MarkdownRenderer>;
                         }
-                    } else {
-                        answer = <MarkdownRenderer>{answer}</MarkdownRenderer>;
-                    }
-                    return <>
-                        <Typography variant="body" sx={{ marginBottom: "5px" }}>
-                            <b>{question}</b>
-                        </Typography>
-                        <Typography variant="body2" sx={{ marginBottom: "15px", wordWrap: "break-word" }}>
-                            {answer}
-                        </Typography>
-                    </>;
-                })}
-                <div style={{ display: detailApp.status !== 0 ? "none" : "block" }}>
-                    <hr />
-                    <Typography variant="body2" fontWeight="bold" sx={{ mb: "5px" }}>{tr("message")}</Typography>
-                    <TextField
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        multiline
-                        rows="5"
-                        fullWidth
-                    />
-                </div>
-            </DialogContent>
-            <DialogActions>
-                <Box sx={{ padding: "10px" }}>
-                    <Button variant="contained" color="info" onClick={() => { addMessage(); }} disabled={submitLoading || message.trim() === ""} sx={{ display: detailApp.status !== 0 ? "none" : "block" }}>{tr("respond")}</Button>
-                </Box>
-            </DialogActions>
-        </Dialog>}
-        <Portal>
-            <Snackbar
-                open={!!snackbarContent}
-                autoHideDuration={5000}
-                onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            >
-                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
-                    {snackbarContent}
-                </Alert>
-            </Snackbar>
-        </Portal></>;
+                        return <>
+                            <Typography variant="body" sx={{ marginBottom: "5px" }}>
+                                <b>{question}</b>
+                            </Typography>
+                            <Typography variant="body2" sx={{ marginBottom: "15px", wordWrap: "break-word" }}>
+                                {answer}
+                            </Typography>
+                        </>;
+                    })}
+                    <div style={{ display: detailApp.status !== 0 ? "none" : "block" }}>
+                        <hr />
+                        <Typography variant="body2" fontWeight="bold" sx={{ mb: "5px" }}>{tr("message")}</Typography>
+                        <TextField
+                            value={message}
+                            onChange={(e) => setMessage(e.target.value)}
+                            multiline
+                            rows="5"
+                            fullWidth
+                        />
+                    </div>
+                </DialogContent>
+                <DialogActions>
+                    <Box sx={{ padding: "10px" }}>
+                        <Button variant="contained" color="info" onClick={() => { addMessage(); }} disabled={submitLoading || message.trim() === ""} sx={{ display: detailApp.status !== 0 ? "none" : "block" }}>{tr("respond")}</Button>
+                    </Box>
+                </DialogActions>
+            </Dialog>}
+            <Portal>
+                <Snackbar
+                    open={!!snackbarContent}
+                    autoHideDuration={5000}
+                    onClose={handleCloseSnackbar}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                >
+                    <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
+                        {snackbarContent}
+                    </Alert>
+                </Snackbar>
+            </Portal></>
+    );
 };
 
 export default MyApplication;

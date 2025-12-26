@@ -4,7 +4,7 @@ import { AppContext } from '../../context';
 
 import { Card, CardContent, Typography, Grid, Snackbar, Alert, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button, MenuItem, Box, IconButton, useTheme } from '@mui/material';
 import { CloseRounded, CheckRounded } from '@mui/icons-material';
-import { Portal } from '@mui/base';
+import Portal from '@mui/material/Portal';
 
 import CustomTable from '../../components/table';
 import UserCard from '../../components/usercard';
@@ -181,17 +181,31 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
         showDetail(data.application);
     }
 
-    return <>
-        {xAxis.length !== 0 && applicationTypes[1]?.name && <Grid container spacing={2} style={{ marginBottom: "20px" }}>
-            <Grid item xs={12} sm={12} md={6} lg={6}>
-                <StatCard icon={<CheckRounded />} title={applicationTypes[1]?.name + " " + tr("accepted")} inputs={charts.driver_accepted} originalInputs={originalChart.driver_accepted} xAxis={xAxis} color={theme.palette.success.main} />
-            </Grid>
-            <Grid item xs={12} sm={12} md={6} lg={6}>
-                <StatCard icon={<CloseRounded />} title={applicationTypes[1]?.name + " " + tr("declined")} inputs={charts.driver_declined} originalInputs={originalChart.driver_declined} xAxis={xAxis} color={theme.palette.error.main} />
-            </Grid>
-        </Grid>}
-        {applications.length > 0 && <CustomTable page={page} columns={columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} data={applications} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />}
-    </>;
+    return (
+        <>
+            {xAxis.length !== 0 && applicationTypes[1]?.name && <Grid container spacing={2} style={{ marginBottom: "20px" }}>
+                <Grid
+                    size={{
+                        xs: 12,
+                        sm: 12,
+                        md: 6,
+                        lg: 6
+                    }}>
+                    <StatCard icon={<CheckRounded />} title={applicationTypes[1]?.name + " " + tr("accepted")} inputs={charts.driver_accepted} originalInputs={originalChart.driver_accepted} xAxis={xAxis} color={theme.palette.success.main} />
+                </Grid>
+                <Grid
+                    size={{
+                        xs: 12,
+                        sm: 12,
+                        md: 6,
+                        lg: 6
+                    }}>
+                    <StatCard icon={<CloseRounded />} title={applicationTypes[1]?.name + " " + tr("declined")} inputs={charts.driver_declined} originalInputs={originalChart.driver_declined} xAxis={xAxis} color={theme.palette.error.main} />
+                </Grid>
+            </Grid>}
+            {applications.length > 0 && <CustomTable page={page} columns={columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} data={applications} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />}
+        </>
+    );
 });
 
 const AllApplication = () => {
@@ -335,183 +349,193 @@ const AllApplication = () => {
         setSubmitLoading(false);
     }, [apiPath, detailApp]);
 
-    return <>
-        <ApplicationTable showDetail={showDetail} doReload={doReload}></ApplicationTable>
-        {detailApp !== null && <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} >
-            <DialogTitle>
-                {tr("application")}
-                <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogOpen(false)}>
-                    <CloseRounded />
-                </IconButton>
-            </DialogTitle>
-            <DialogContent sx={{ minWidth: "550px" }}>
-                <Typography variant="body2" sx={{ marginBottom: "5px" }}>
-                    <b><>{tr("applicant")}</>: </b><UserCard user={detailApp.creator} /> (<>UID</>: {detailApp.creator.uid} | <>{tr("user_id")}</>: {detailApp.creator.userid})
-                </Typography>
-                <Typography variant="body2" sx={{ marginBottom: "5px" }}>
-                    <b><>{tr("email")}</>: </b><a href={`mailto:${detailApp.creator.email}`} target="_blank" rel="noreferrer">{detailApp.creator.email}</a>
-                </Typography>
-                <Typography variant="body2" sx={{ marginBottom: "5px" }}>
-                    <b><>Discord</>: </b><a href={`https://discord.com/users/${detailApp.creator.discordid}`} target="_blank" rel="noreferrer">{detailApp.creator.discordid}</a>
-                </Typography>
-                <Typography variant="body2" sx={{ marginBottom: "5px" }}>
-                    <b><>Steam</>: </b><a href={`https://steamcommunity.com/profiles/${detailApp.creator.steamid}`} target="_blank" rel="noreferrer">{detailApp.creator.steamid}</a>
-                </Typography>
-                <Typography variant="body2" sx={{ marginBottom: "5px" }}>
-                    <b><>TruckersMP</>: </b><a href={`https://truckersmp.com/user/${detailApp.creator.truckersmpid}`} target="_blank" rel="noreferrer">{detailApp.creator.truckersmpid}</a>
-                    {tmpData !== null && <>
-                        {!tmpData.displayBans && <>&nbsp;({tr("punishments_hidden")})</>}
-                        {tmpData.displayBans && <>
-                            {!tmpData.banned && <>&nbsp;({tr("no_active_bans")})</>}
-                            {tmpData.banned && <>
-                                &nbsp;({tmpData.bansCount} {tr("active_bans")})</>}
-                        </>}<br />
-                        {tmpData.vtc.id !== 0 && <>
-                            <b>{tr("current_vtc")}</b>: <a href={`https://truckersmp.com/vtc/${tmpData.vtc.id}`} target="_blank" rel="noreferrer">{tmpData.vtc.name}</a>
+    return (
+        <>
+            <ApplicationTable showDetail={showDetail} doReload={doReload}></ApplicationTable>
+            {detailApp !== null && <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} >
+                <DialogTitle>
+                    {tr("application")}
+                    <IconButton style={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setDialogOpen(false)}>
+                        <CloseRounded />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent sx={{ minWidth: "550px" }}>
+                    <Typography variant="body2" sx={{ marginBottom: "5px" }}>
+                        <b><>{tr("applicant")}</>: </b><UserCard user={detailApp.creator} /> (<>UID</>: {detailApp.creator.uid} | <>{tr("user_id")}</>: {detailApp.creator.userid})
+                    </Typography>
+                    <Typography variant="body2" sx={{ marginBottom: "5px" }}>
+                        <b><>{tr("email")}</>: </b><a href={`mailto:${detailApp.creator.email}`} target="_blank" rel="noreferrer">{detailApp.creator.email}</a>
+                    </Typography>
+                    <Typography variant="body2" sx={{ marginBottom: "5px" }}>
+                        <b><>Discord</>: </b><a href={`https://discord.com/users/${detailApp.creator.discordid}`} target="_blank" rel="noreferrer">{detailApp.creator.discordid}</a>
+                    </Typography>
+                    <Typography variant="body2" sx={{ marginBottom: "5px" }}>
+                        <b><>Steam</>: </b><a href={`https://steamcommunity.com/profiles/${detailApp.creator.steamid}`} target="_blank" rel="noreferrer">{detailApp.creator.steamid}</a>
+                    </Typography>
+                    <Typography variant="body2" sx={{ marginBottom: "5px" }}>
+                        <b><>TruckersMP</>: </b><a href={`https://truckersmp.com/user/${detailApp.creator.truckersmpid}`} target="_blank" rel="noreferrer">{detailApp.creator.truckersmpid}</a>
+                        {tmpData !== null && <>
+                            {!tmpData.displayBans && <>&nbsp;({tr("punishments_hidden")})</>}
+                            {tmpData.displayBans && <>
+                                {!tmpData.banned && <>&nbsp;({tr("no_active_bans")})</>}
+                                {tmpData.banned && <>
+                                    &nbsp;({tmpData.bansCount} {tr("active_bans")})</>}
+                            </>}<br />
+                            {tmpData.vtc.id !== 0 && <>
+                                <b>{tr("current_vtc")}</b>: <a href={`https://truckersmp.com/vtc/${tmpData.vtc.id}`} target="_blank" rel="noreferrer">{tmpData.vtc.name}</a>
+                            </>}
+                            {tmpData.vtc.id === 0 && <>
+                                <b>{tr("current_vtc")}</b>{tr("na")}</>}<br />
+                            {tmpData.vtcHistory !== null && tmpData.vtcHistory.length !== 0 && <>
+                                <b>{tr("vtc_history")} ({tmpData.vtcHistory.length})</b>: <>{tmpData.vtcHistory.map((vtc, index) => <><a href={`https://truckersmp.com/vtc/${vtc.id}`} target="_blank" rel="noreferrer">{vtc.name}</a> ({tr("left")} <TimeDelta timestamp={+new Date(vtc.leftDate)} rough={true}
+                                />)<>{index !== tmpData.vtcHistory.length - 1 && `, `}</></>)}</>
+                            </>}
+                            {tmpData.vtcHistory !== null && tmpData.vtcHistory.length === 0 && <>
+                                <b>{tr("vtc_history_0")}</b>{tr("na")}</>}
+                            {tmpData.vtcHistory === null && <>
+                                <b>{tr("vtc_history")}</b>: <i>{tr("not_available")}</i></>}
                         </>}
-                        {tmpData.vtc.id === 0 && <>
-                            <b>{tr("current_vtc")}</b>{tr("na")}</>}<br />
-                        {tmpData.vtcHistory !== null && tmpData.vtcHistory.length !== 0 && <>
-                            <b>{tr("vtc_history")} ({tmpData.vtcHistory.length})</b>: <>{tmpData.vtcHistory.map((vtc, index) => <><a href={`https://truckersmp.com/vtc/${vtc.id}`} target="_blank" rel="noreferrer">{vtc.name}</a> ({tr("left")} <TimeDelta timestamp={+new Date(vtc.leftDate)} rough={true}
-                            />)<>{index !== tmpData.vtcHistory.length - 1 && `, `}</></>)}</>
-                        </>}
-                        {tmpData.vtcHistory !== null && tmpData.vtcHistory.length === 0 && <>
-                            <b>{tr("vtc_history_0")}</b>{tr("na")}</>}
-                        {tmpData.vtcHistory === null && <>
-                            <b>{tr("vtc_history")}</b>: <i>{tr("not_available")}</i></>}
-                    </>}
-                    {tmpData === null && <><br />
-                        <b>{tr("current_vtc")}</b>{tr("na")}<br />
-                        <b>{tr("vtc_history_0")}</b>{tr("na")}</>
-                    }
-                </Typography>
-                <br />
-                {Object.entries(detailApp.application).map(([question, answer]) => {
-                    const matchq = question.match(/\[Message\] (.*) \((\d+)\) #(\d+)/);
-                    if (matchq) {
-                        question = <>{tr("message_from")} {membersMapping[matchq[2]] !== undefined && <UserCard user={membersMapping[matchq[2]]} />}{membersMapping[matchq[2]] === undefined && <>{matchq[1]}</>}</>;
-                    }
-                    if (vtcLevel >= 1) {
-                        const matcha1 = answer.match(/\[AT-(\d+)\] .*: (.*)/);
-                        if (matcha1) {
-                            answer = <>{tr("application_assigned_to")} {users[matcha1[1]] !== undefined && <UserCard user={users[matcha1[1]]} />}{users[matcha1[1]] === undefined && <>{matcha1[2]}</>}</>;
-                        } else {
-                            const matcha2 = answer.match(/\[AS\] .*: (.*)/);
-                            if (matcha2) {
-                                answer = <>{tr("application_status_updated_to")} {matcha2[1]}</>;
+                        {tmpData === null && <><br />
+                            <b>{tr("current_vtc")}</b>{tr("na")}<br />
+                            <b>{tr("vtc_history_0")}</b>{tr("na")}</>
+                        }
+                    </Typography>
+                    <br />
+                    {Object.entries(detailApp.application).map(([question, answer]) => {
+                        const matchq = question.match(/\[Message\] (.*) \((\d+)\) #(\d+)/);
+                        if (matchq) {
+                            question = <>{tr("message_from")} {membersMapping[matchq[2]] !== undefined && <UserCard user={membersMapping[matchq[2]]} />}{membersMapping[matchq[2]] === undefined && <>{matchq[1]}</>}</>;
+                        }
+                        if (vtcLevel >= 1) {
+                            const matcha1 = answer.match(/\[AT-(\d+)\] .*: (.*)/);
+                            if (matcha1) {
+                                answer = <>{tr("application_assigned_to")} {users[matcha1[1]] !== undefined && <UserCard user={users[matcha1[1]]} />}{users[matcha1[1]] === undefined && <>{matcha1[2]}</>}</>;
                             } else {
-                                const matcha3 = answer.match(/\[XAS\] .*: (.*)/);
-                                if (matcha3) {
-                                    answer = <>{tr("application_status_cleared")}</>;
+                                const matcha2 = answer.match(/\[AS\] .*: (.*)/);
+                                if (matcha2) {
+                                    answer = <>{tr("application_status_updated_to")} {matcha2[1]}</>;
                                 } else {
-                                    answer = <MarkdownRenderer>{answer}</MarkdownRenderer>;
+                                    const matcha3 = answer.match(/\[XAS\] .*: (.*)/);
+                                    if (matcha3) {
+                                        answer = <>{tr("application_status_cleared")}</>;
+                                    } else {
+                                        answer = <MarkdownRenderer>{answer}</MarkdownRenderer>;
+                                    }
                                 }
                             }
+                        } else {
+                            answer = <MarkdownRenderer>{answer}</MarkdownRenderer>;
                         }
-                    } else {
-                        answer = <MarkdownRenderer>{answer}</MarkdownRenderer>;
-                    }
-                    return <>
-                        <Typography variant="body" sx={{ marginBottom: "5px" }}>
-                            <b>{question}</b>
-                        </Typography>
-                        <Typography variant="body2" sx={{ marginBottom: "15px", wordWrap: "break-word" }}>
-                            {answer}
-                        </Typography>
-                    </>;
-                })}
-                <hr />
-                <Typography variant="body2" fontWeight="bold" sx={{ mt: "5px", mb: "5px" }}>{tr("advanced_response")}<SponsorBadge vtclevel={1} /></Typography>
-                <Typography variant="body2" sx={{ mb: "5px" }}>{tr("the_message_will_be_automatically_constructed_when_using_advanced_response")}<br />{tr("to_clear_all_status_click_clear_on_the_right_of")}<br />{tr("the_official_status_would_be_locked_to_pending_when_making")}</Typography>
-                <Grid container spacing={2}>
-                    <Grid item xs={12} md={6}>
-                        <Typography variant="body2">{tr("assign_to")}<UserSelect users={[assignTo]} isMulti={false} onUpdate={(e) => { setAssignTo(e); setMessage(`[AT-${e.uid}] Application assigned to: ${e.name}`); setNewStatus(0); setMessageDisabled(true); }} disabled={vtcLevel < 1} />
-                        </Typography>
+                        return <>
+                            <Typography variant="body" sx={{ marginBottom: "5px" }}>
+                                <b>{question}</b>
+                            </Typography>
+                            <Typography variant="body2" sx={{ marginBottom: "15px", wordWrap: "break-word" }}>
+                                {answer}
+                            </Typography>
+                        </>;
+                    })}
+                    <hr />
+                    <Typography variant="body2" fontWeight="bold" sx={{ mt: "5px", mb: "5px" }}>{tr("advanced_response")}<SponsorBadge vtclevel={1} /></Typography>
+                    <Typography variant="body2" sx={{ mb: "5px" }}>{tr("the_message_will_be_automatically_constructed_when_using_advanced_response")}<br />{tr("to_clear_all_status_click_clear_on_the_right_of")}<br />{tr("the_official_status_would_be_locked_to_pending_when_making")}</Typography>
+                    <Grid container spacing={2}>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                md: 6
+                            }}>
+                            <Typography variant="body2">{tr("assign_to")}<UserSelect users={[assignTo]} isMulti={false} onUpdate={(e) => { setAssignTo(e); setMessage(`[AT-${e.uid}] Application assigned to: ${e.name}`); setNewStatus(0); setMessageDisabled(true); }} disabled={vtcLevel < 1} />
+                            </Typography>
+                        </Grid>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                md: 6
+                            }}>
+                            <Typography variant="body2">
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <div>{tr("advanced_status")}</div>
+                                    <div><span style={{ cursor: "pointer" }} onClick={() => { setAdvancedStatus(""); setMessage(`[XAS] Application status updated to: N/A.`); setNewStatus(0); setMessageDisabled(true); }} disabled={vtcLevel < 1}>{tr("clear")}</span></div>
+                                </div>
+                                <TextField value={advancedStatus} onChange={(e) => { setAdvancedStatus(e.target.value); setMessage(`[AS] Application status updated to: ${e.target.value}`); setNewStatus(0); setMessageDisabled(true); }} size="small" disabled={vtcLevel < 1} fullWidth
+                                />
+                            </Typography>
+                        </Grid>
                     </Grid>
-                    <Grid item xs={12} md={6}>
-                        <Typography variant="body2">
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <div>{tr("advanced_status")}</div>
-                                <div><span style={{ cursor: "pointer" }} onClick={() => { setAdvancedStatus(""); setMessage(`[XAS] Application status updated to: N/A.`); setNewStatus(0); setMessageDisabled(true); }} disabled={vtcLevel < 1}>{tr("clear")}</span></div>
-                            </div>
-                            <TextField value={advancedStatus} onChange={(e) => { setAdvancedStatus(e.target.value); setMessage(`[AS] Application status updated to: ${e.target.value}`); setNewStatus(0); setMessageDisabled(true); }} size="small" disabled={vtcLevel < 1} fullWidth
-                            />
-                        </Typography>
-                    </Grid>
-                </Grid>
-                <hr />
-                <Typography variant="body2" fontWeight="bold" sx={{ mb: "5px" }}>{tr("message")}</Typography>
-                <TextField
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    disabled={messageDisabled}
-                    multiline
-                    rows="5"
-                    fullWidth
-                    InputProps={{
-                        inputComponent: 'textarea',
-                        inputProps: {
-                            style: {
-                                resize: 'vertical',
-                                overflow: 'auto'
+                    <hr />
+                    <Typography variant="body2" fontWeight="bold" sx={{ mb: "5px" }}>{tr("message")}</Typography>
+                    <TextField
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        disabled={messageDisabled}
+                        multiline
+                        rows="5"
+                        fullWidth
+                        InputProps={{
+                            inputComponent: 'textarea',
+                            inputProps: {
+                                style: {
+                                    resize: 'vertical',
+                                    overflow: 'auto'
+                                }
                             }
-                        }
-                    }}
-                />
-            </DialogContent>
-            <DialogActions>
-                <Grid container justifyContent="space-between" padding="10px">
-                    <Grid item>
-                        <Box sx={{ display: 'flex', gap: '10px' }}>
-                            <Button variant="contained" color="error" onClick={() => { setDialogDelete(true); }}>{tr("delete")}</Button>
-                            <Button variant="contained" color="secondary" onClick={() => { setMessage(""); setMessageDisabled(false); }}>{tr("clear")}</Button>
-                        </Box>
-                    </Grid>
-                    <Grid item>
-                        <Box sx={{ display: 'flex', gap: '10px' }}>
-                            <TextField select label={tr("status")} value={newStatus} onChange={(e) => setNewStatus(e.target.value)} sx={{ marginLeft: "10px", height: "40px" }} size="small" disabled={messageDisabled}>
-                                <MenuItem key={0} value={0}>{tr("pending")}</MenuItem>
-                                <MenuItem key={1} value={1}>{tr("accepted")}</MenuItem>
-                                <MenuItem key={2} value={2}>{tr("declined")}</MenuItem>
-                                <MenuItem key={3} value={3}>{tr("accepted_as_driver")}</MenuItem>
-                            </TextField>
-                            {newStatus === 3 &&
-                                <TextField select label={tr("tracker")} size="small" value={trackerInUse} onChange={(e) => setTrackerInUse(e.target.value)} sx={{ height: "40px" }}>
-                                    {availableTrackers.map((tracker) => (
-                                        <MenuItem key={tracker} value={tracker}>
-                                            {trackerMapping[tracker]}
-                                        </MenuItem>
-                                    ))}
+                        }}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Grid container justifyContent="space-between" padding="10px">
+                        <Grid>
+                            <Box sx={{ display: 'flex', gap: '10px' }}>
+                                <Button variant="contained" color="error" onClick={() => { setDialogDelete(true); }}>{tr("delete")}</Button>
+                                <Button variant="contained" color="secondary" onClick={() => { setMessage(""); setMessageDisabled(false); }}>{tr("clear")}</Button>
+                            </Box>
+                        </Grid>
+                        <Grid>
+                            <Box sx={{ display: 'flex', gap: '10px' }}>
+                                <TextField select label={tr("status")} value={newStatus} onChange={(e) => setNewStatus(e.target.value)} sx={{ marginLeft: "10px", height: "40px" }} size="small" disabled={messageDisabled}>
+                                    <MenuItem key={0} value={0}>{tr("pending")}</MenuItem>
+                                    <MenuItem key={1} value={1}>{tr("accepted")}</MenuItem>
+                                    <MenuItem key={2} value={2}>{tr("declined")}</MenuItem>
+                                    <MenuItem key={3} value={3}>{tr("accepted_as_driver")}</MenuItem>
                                 </TextField>
-                            }
-                            <Button variant="contained" color="info" onClick={() => { updateStatus(); }} disabled={submitLoading || message.trim() === ""} >{tr("respond")}</Button>
-                        </Box>
+                                {newStatus === 3 &&
+                                    <TextField select label={tr("tracker")} size="small" value={trackerInUse} onChange={(e) => setTrackerInUse(e.target.value)} sx={{ height: "40px" }}>
+                                        {availableTrackers.map((tracker) => (
+                                            <MenuItem key={tracker} value={tracker}>
+                                                {trackerMapping[tracker]}
+                                            </MenuItem>
+                                        ))}
+                                    </TextField>
+                                }
+                                <Button variant="contained" color="info" onClick={() => { updateStatus(); }} disabled={submitLoading || message.trim() === ""} >{tr("respond")}</Button>
+                            </Box>
+                        </Grid>
                     </Grid>
-                </Grid>
-            </DialogActions>
-        </Dialog>}
-        <Dialog open={dialogDelete} onClose={() => setDialogDelete(false)}>
-            <DialogTitle>{tr("delete_application")}</DialogTitle>
-            <DialogContent>
-                <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>{tr("confirm_delete_application")}</Typography>
-            </DialogContent>
-            <DialogActions>
-                <Button variant="primary" onClick={() => { setDialogDelete(false); }}>{tr("cancel")}</Button>
-                <Button variant="contained" color="error" onClick={() => { deleteApp(); }} disabled={submitLoading}>{tr("delete")}</Button>
-            </DialogActions>
-        </Dialog>
-        <Portal>
-            <Snackbar
-                open={!!snackbarContent}
-                autoHideDuration={5000}
-                onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            >
-                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
-                    {snackbarContent}
-                </Alert>
-            </Snackbar>
-        </Portal></>;
+                </DialogActions>
+            </Dialog>}
+            <Dialog open={dialogDelete} onClose={() => setDialogDelete(false)}>
+                <DialogTitle>{tr("delete_application")}</DialogTitle>
+                <DialogContent>
+                    <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>{tr("confirm_delete_application")}</Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="primary" onClick={() => { setDialogDelete(false); }}>{tr("cancel")}</Button>
+                    <Button variant="contained" color="error" onClick={() => { deleteApp(); }} disabled={submitLoading}>{tr("delete")}</Button>
+                </DialogActions>
+            </Dialog>
+            <Portal>
+                <Snackbar
+                    open={!!snackbarContent}
+                    autoHideDuration={5000}
+                    onClose={handleCloseSnackbar}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                >
+                    <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
+                        {snackbarContent}
+                    </Alert>
+                </Snackbar>
+            </Portal></>
+    );
 };
 
 export default AllApplication;
