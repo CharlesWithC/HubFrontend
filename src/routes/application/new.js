@@ -104,18 +104,17 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
 
     useEffect(() => {
         if (formData === null) {
-            setFormData(defaultResp);
+            setFormData(validateForm(defaultResp));
         }
     }, [formData, defaultResp]);
 
-    useEffect(() => {
+    const validateForm = useCallback((formData) => {
         // this checks x_must_be and updates form data to make sure unnecessary fields get deleted in response
         // (those unnecessary fields are not rendered and would likely to be in an empty state)
 
-        if (config === undefined || formData === null) return;
+        if (config === undefined || formData === null) return formData;
 
         // update form data to remove fields that are not shown
-        let modified = false;
         let newFormData = {}; // we set it to empty and redo it - so questions are kept in correct order
 
         let toDelete = [],
@@ -129,11 +128,13 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
             if (field.x_must_be !== undefined) {
                 if (formData[field.x_must_be.label] !== field.x_must_be.value) {
                     toDelete.push(field.label);
-                } else if (formData[field.label] === undefined) {
-                    newFormData[field.label] = ""; // add here directly
+                } else {
+                    // possibly duplicate field (same question being reused)
                     toAdd.push(field.label); // no effect - just for calculating "toDelete"
-                    modified = true;
-                    setSubmitDisabled(true);
+                    if (formData[field.label] === undefined) {
+                        newFormData[field.label] = ""; // add here directly
+                        setSubmitDisabled(true);
+                    }
                 }
             }
         }
@@ -145,71 +146,65 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
         for (let i = 0; i < toDelete.length; i++) {
             if (formData[toDelete[i]] !== undefined) {
                 delete newFormData[toDelete[i]];
-                modified = true;
             }
         }
 
-        if (modified || Object.keys(formData) !== Object.keys(newFormData)) {
-            setFormData(newFormData);
-        }
-    }, [formData, config]);
+        return newFormData;
+    }, [config]);
 
-    const handleChange = useCallback(
-        e => {
-            // this handles changes on user input, but this does not check condition of whether the response should be recorded
-            // aka this does not check x_must_be to filter response fields
+    const handleChange = useCallback(e => {
+        // this handles changes on user input, but this does not check condition of whether the response should be recorded
+        // aka this does not check x_must_be to filter response fields
 
-            const { name, value } = e.target;
-            setFormData(data => {
-                // first calculate submit-disabled, then write data
-                const newFormData = { ...data, [name]: value };
-                const formKeys = Object.keys(newFormData);
-                let allOk = true;
-                for (let i = 0; i < formKeys.length; i++) {
-                    // double check if field is shown (this should be handled by form composition though)
-                    let field = fieldReq[formKeys[i]];
-                    if (field !== undefined) {
-                        if (field.must_input === true) {
-                            // check input, so it may be undefined (though it shouldn't happen)
-                            if (newFormData[formKeys[i]] === undefined || newFormData[formKeys[i]].replaceAll(" ", "") === "") {
+        const { name, value } = e.target;
+        setFormData(data => {
+            // first calculate submit-disabled, then write data
+            const newFormData = { ...data, [name]: value };
+            const formKeys = Object.keys(newFormData);
+            let allOk = true;
+            for (let i = 0; i < formKeys.length; i++) {
+                // double check if field is shown (this should be handled by form composition though)
+                let field = fieldReq[formKeys[i]];
+                if (field !== undefined) {
+                    if (field.must_input === true) {
+                        // check input, so it may be undefined (though it shouldn't happen)
+                        if (newFormData[formKeys[i]] === undefined || newFormData[formKeys[i]].replaceAll(" ", "") === "") {
+                            setSubmitDisabled(true);
+                            allOk = false;
+                            break;
+                        }
+                    }
+                    if (newFormData[formKeys[i]] !== undefined) {
+                        // ensure it's not undefined for length/value check
+                        if (field.min_length !== undefined) {
+                            if (newFormData[formKeys[i]].length < field.min_length) {
                                 setSubmitDisabled(true);
                                 allOk = false;
                                 break;
                             }
                         }
-                        if (newFormData[formKeys[i]] !== undefined) {
-                            // ensure it's not undefined for length/value check
-                            if (field.min_length !== undefined) {
-                                if (newFormData[formKeys[i]].length < field.min_length) {
-                                    setSubmitDisabled(true);
-                                    allOk = false;
-                                    break;
-                                }
+                        if (field.min_value !== undefined) {
+                            if (newFormData[formKeys[i]] < field.min_value) {
+                                setSubmitDisabled(true);
+                                allOk = false;
+                                break;
                             }
-                            if (field.min_value !== undefined) {
-                                if (newFormData[formKeys[i]] < field.min_value) {
-                                    setSubmitDisabled(true);
-                                    allOk = false;
-                                    break;
-                                }
-                            }
-                            if (field.max_value !== undefined) {
-                                if (newFormData[formKeys[i]] > field.max_value) {
-                                    setSubmitDisabled(true);
-                                    allOk = false;
-                                    break;
-                                }
+                        }
+                        if (field.max_value !== undefined) {
+                            if (newFormData[formKeys[i]] > field.max_value) {
+                                setSubmitDisabled(true);
+                                allOk = false;
+                                break;
                             }
                         }
                     }
                 }
-                if (allOk) setSubmitDisabled(false);
+            }
+            if (allOk) setSubmitDisabled(false);
 
-                return { ...data, [name]: value };
-            });
-        },
-        [fieldReq]
-    );
+            return validateForm({ ...data, [name]: value });
+        });
+    }, [fieldReq]);
 
     const handleCheckboxChange = useCallback((choice, fieldLabel) => {
         setFormData(prev => {
@@ -220,10 +215,10 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
                 updated.push(choice);
             }
 
-            return {
+            return validateForm({
                 ...prev,
                 [fieldLabel]: updated,
-            };
+            });
         });
     }, []);
 
@@ -236,10 +231,10 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
                 updated = tr("yes");
             }
 
-            return {
+            return validateForm({
                 ...prev,
                 [fieldLabel]: updated,
-            };
+            });
         });
     }, []);
 
@@ -268,7 +263,7 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
                                         <Typography variant="body2" sx={{ mb: "5px" }}>
                                             {field.label}
                                         </Typography>
-                                        <TextField key={field.label} name={field.label} onChange={handleChange} placeholder={field.placeholder} sx={{ "width": "100%", "& .MuiFormHelperText-root": { color: theme.palette.error.main } }} error={field.min_length !== undefined && formData[field.label] !== "" && formData[field.label].length <= field.min_length} helperText={field.min_length !== undefined && formData[field.label] !== "" && formData[field.label].length <= field.min_length ? tr("input_at_least", { value: field.min_length }) : ""} />
+                                        <TextField key={field.label} name={field.label} onChange={handleChange} placeholder={field.placeholder} sx={{ "width": "100%", "& .MuiFormHelperText-root": { color: theme.palette.error.main } }} error={field.min_length !== undefined && formData[field.label] !== "" && formData[field.label].length < field.min_length} helperText={field.min_length !== undefined && formData[field.label] !== "" && formData[field.label].length < field.min_length ? tr("input_at_least", { value: field.min_length }) : ""} />
                                     </>
                                 );
                                 break;
@@ -287,8 +282,8 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
                                             rows={field.rows}
                                             placeholder={field.placeholder}
                                             sx={{ "width": "100%", "& .MuiFormHelperText-root": { color: theme.palette.error.main } }}
-                                            error={field.min_length !== undefined && formData[field.label] !== "" && formData[field.label].length <= field.min_length}
-                                            helperText={field.min_length !== undefined && formData[field.label] !== "" && formData[field.label].length <= field.min_length ? `Input at least ${field.min_length} characters` : ""}
+                                            error={field.min_length !== undefined && formData[field.label] !== "" && formData[field.label].length < field.min_length}
+                                            helperText={field.min_length !== undefined && formData[field.label] !== "" && formData[field.label].length < field.min_length ? `Input at least ${field.min_length} characters` : ""}
                                             InputProps={{
                                                 inputComponent: "textarea",
                                                 inputProps: {
