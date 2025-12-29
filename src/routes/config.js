@@ -4536,34 +4536,38 @@ const Configuration = () => {
     const [mfaOtp, setMfaOtp] = useState("");
 
     const [webConfig, setWebConfig] = useState({ ...curWebConfig, name_color: curWebConfig.name_color !== null ? curWebConfig.name_color : "/", theme_main_color: curWebConfig.theme_main_color !== null ? curWebConfig.theme_main_color : "/", theme_background_color: curWebConfig.theme_background_color !== null ? curWebConfig.theme_background_color : "/" });
+    const [webAssets, setWebAssets] = useState({ logo: "", banner: "", bgimage: "" });
+    const [fileNames, setFileNames] = useState({ logo: "", banner: "", bgimage: "" });
     const [webConfigDisabled, setWebConfigDisabled] = useState(false);
+
+    const handleFileUpload = (field) => (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        if (file.type !== 'image/png') {
+            setSnackbarContent('Only PNG files are allowed');
+            setSnackbarSeverity('error');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const base64 = e.target.result.split(',')[1]; // Remove data:image/png;base64, header
+            setWebAssets({ ...webAssets, [field]: base64 });
+            setFileNames({ ...fileNames, [field]: file.name });
+        };
+        reader.readAsDataURL(file);
+    };
+
     const saveWebConfig = useCallback(async () => {
         window.loading += 1;
         setWebConfigDisabled(true);
 
-        function parse_color(s) {
-            if (s.startsWith("#")) {
-                return parseInt(s.substring(1), 16);
-            } else {
-                return -1;
-            }
-        }
-
-        let newWebConfig = { ...webConfig, name_color: parse_color(webConfig.name_color), theme_main_color: parse_color(webConfig.theme_main_color), theme_background_color: parse_color(webConfig.theme_background_color) };
+        let newWebConfig = { ...webConfig, name_color: webConfig.name_color, theme_main_color: webConfig.theme_main_color, theme_background_color: webConfig.theme_background_color };
 
         setCurWebConfig({ ...webConfig, name_color: webConfig.name_color.startsWith("#") ? webConfig.name_color : null, theme_main_color: webConfig.theme_main_color.startsWith("#") ? webConfig.theme_main_color : null, theme_background_color: webConfig.theme_background_color.startsWith("#") ? webConfig.theme_background_color : null });
 
-        let resp = await axios({ url: `${apiPath}/auth/ticket`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
-        if (resp.status !== 200) {
-            setWebConfigDisabled(false);
-            window.loading -= 1;
-            setSnackbarContent(tr("failed_to_generate_auth_ticket_try_again_later"));
-            setSnackbarSeverity("error");
-            return;
-        }
-        let ticket = resp.data.token;
-
-        resp = await axios({ url: `https://config.chub.page/config?domain=${curWebConfig.domain}`, data: { config: newWebConfig }, method: "PATCH", headers: { Authorization: `Ticket ${ticket}` } });
+        let resp = await axios({ url: `${apiPath}/client/config/global`, data: { config: newWebConfig, assets: webAssets }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("web_config_updated"));
             setSnackbarSeverity("success");
@@ -4574,7 +4578,7 @@ const Configuration = () => {
 
         setWebConfigDisabled(false);
         window.loading -= 1;
-    }, [apiPath, webConfig]);
+    }, [apiPath, webConfig, webAssets]);
 
     const [apiConfig, setApiConfig] = useState(null);
     const formConfig = Array.from({ length: Object.keys(CONFIG_SECTIONS).length }, () => {
@@ -4949,7 +4953,7 @@ const Configuration = () => {
                                 xs: 12,
                                 md: 6,
                             }}>
-                            <Typography variant="body2">Client: 3.4.6 (build.{buildhash})</Typography>
+                            <Typography variant="body2">Client: 3.5.0 (build.{buildhash})</Typography>
                         </Grid>
                         <Grid
                             size={{
@@ -6254,12 +6258,24 @@ const Configuration = () => {
                                 lg: 4,
                             }}>
                             <TextField
-                                label={tr("logo_url")}
-                                value={webConfig.logo_url}
-                                onChange={e => {
-                                    setWebConfig({ ...webConfig, logo_url: e.target.value });
-                                }}
+                                label={tr("logo")}
+                                value={fileNames.logo || ""}
                                 fullWidth
+                                variant="outlined"
+                                placeholder="Click to select file"
+                                onClick={() => document.getElementById('logo-upload').click()}
+                                slotProps={{
+                                    input: {
+                                        readOnly: true,
+                                    },
+                                }}
+                            />
+                            <input
+                                id="logo-upload"
+                                type="file"
+                                accept=".png,image/png"
+                                style={{ display: 'none' }}
+                                onChange={handleFileUpload('logo')}
                             />
                         </Grid>
                         <Grid
@@ -6270,12 +6286,24 @@ const Configuration = () => {
                                 lg: 4,
                             }}>
                             <TextField
-                                label={tr("banner_url")}
-                                value={webConfig.banner_url}
-                                onChange={e => {
-                                    setWebConfig({ ...webConfig, banner_url: e.target.value });
-                                }}
+                                label={tr("banner")}
+                                value={fileNames.banner || ""}
                                 fullWidth
+                                variant="outlined"
+                                placeholder="Click to select file"
+                                onClick={() => document.getElementById('banner-upload').click()}
+                                slotProps={{
+                                    input: {
+                                        readOnly: true,
+                                    },
+                                }}
+                            />
+                            <input
+                                id="banner-upload"
+                                type="file"
+                                accept=".png,image/png"
+                                style={{ display: 'none' }}
+                                onChange={handleFileUpload('banner')}
                             />
                         </Grid>
                         <Grid
@@ -6288,16 +6316,28 @@ const Configuration = () => {
                             <TextField
                                 label={
                                     <>
-                                        {tr("background_url")}&nbsp;&nbsp;
+                                        {tr("background")}&nbsp;&nbsp;
                                         <SponsorBadge vtclevel={1} />
                                     </>
                                 }
-                                value={webConfig.bgimage_url}
-                                onChange={e => {
-                                    setWebConfig({ ...webConfig, bgimage_url: e.target.value });
-                                }}
+                                value={fileNames.bgimage || ""}
                                 fullWidth
+                                variant="outlined"
+                                placeholder="Click to select file"
                                 disabled={vtcLevel < 1}
+                                onClick={() => vtcLevel >= 1 && document.getElementById('bgimage-upload').click()}
+                                slotProps={{
+                                    input: {
+                                        readOnly: true,
+                                    },
+                                }}
+                            />
+                            <input
+                                id="bgimage-upload"
+                                type="file"
+                                accept=".png,image/png"
+                                style={{ display: 'none' }}
+                                onChange={handleFileUpload('bgimage')}
                             />
                         </Grid>
                         <Grid

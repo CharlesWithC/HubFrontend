@@ -211,7 +211,7 @@ const AuthLogin = () => {
                                 lg: 4,
                             }}>
                             <Box sx={{ display: { xs: "none", sm: "none", md: "block", lg: "block" }, margin: 0, height: "210px", maxHeight: "210px", width: "100%" }}>
-                                <img src={`https://cdn.chub.page/assets/${webConfig.abbr}/banner.png?${webConfig.banner_key !== undefined ? webConfig.banner_key : ""}`} alt="" style={{ width: "100%" }} />
+                                <img src={`${apiPath}/client/assets/banner?key=${webConfig.banner_key !== undefined ? webConfig.banner_key : ""}`} alt="" style={{ width: "100%" }} />
                             </Box>
                             <br />
                             <Typography variant="body2" sx={{ mb: "5px" }}>

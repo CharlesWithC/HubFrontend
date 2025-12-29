@@ -74,44 +74,18 @@ const Loader = ({ onLoaderLoaded }) => {
 
       // load web config, return webConfig or throw error
       async function loadWebConfig(domain) {
-        let resp = await axios({ url: `https://config.chub.page/config?domain=${domain}`, method: "GET" });
+        let resp = await axios({ url: `https://api.chub.page/config?domain=${domain}`, method: "GET" });
         if (resp.status !== 200) {
           setLoaderAnimation(false);
           setTitle(tr("drivers_hub"));
-          if (resp.data.error === "Service Suspended") {
-            setLoadMessage(
-              <>
-                {tr("drivers_hub_suspended")}
-                <br />
-                {tr("ask_for_payment")}
-                <br />
-                <br />
-                <a href="https://drivershub.charlws.com/">The Drivers Hub Project (CHub)</a>
-              </>
-            );
-          } else if (resp.data.error === "Not Found") {
-            setUnknownDomain(true);
-            setVtcLogo(await loadImageAsBase64(`./logo.png`));
-            setLoadMessage(
-              <>
-                {tr("drivers_hub_not_found")}
-                <br />
-                {tr("no_drivers_hub_under_domain")}
-                <br />
-                <br />
-                <a href="https://drivershub.charlws.com/">The Drivers Hub Project (CHub)</a>
-              </>
-            );
-          }
           throw new Error("Drivers Hub is not active");
         }
 
-        let loadedConfig = resp.data;
-        const webConfig = loadedConfig.config; // local webConfig for this function only
-        setWebConfig(loadedConfig.config);
+        const webConfig = resp.data; // local webConfig for this function only
+        setWebConfig(webConfig);
         setTitle(webConfig.name);
         setVtcLevel(VTC_LEVEL_MAPPING[webConfig.plan]);
-        setApiPath(webConfig.plan === "special" ? `https://drivershub.charlws.com/${webConfig.abbr}` : `https://api.chub.page/${webConfig.abbr}`);
+        setApiPath(`${webConfig.api_host}/${webConfig.abbr}`);
 
         setLoadMessage(tr("loading"));
         localStorage.setItem("cache-title", webConfig.name);
@@ -126,14 +100,14 @@ const Loader = ({ onLoaderLoaded }) => {
         try {
           webConfig = await loadWebConfig(domain);
           vtcLevel = VTC_LEVEL_MAPPING[webConfig.plan];
-          apiPath = webConfig.plan === "special" ? `https://drivershub.charlws.com/${webConfig.abbr}` : `https://api.chub.page/${webConfig.abbr}`;
+          apiPath = `${webConfig.api_host}/${webConfig.abbr}`;
         } catch {
           return;
         }
       } else {
         webConfig = cachedWebConfig;
         vtcLevel = VTC_LEVEL_MAPPING[webConfig.plan];
-        apiPath = webConfig.plan === "special" ? `https://drivershub.charlws.com/${webConfig.abbr}` : `https://api.chub.page/${webConfig.abbr}`;
+        apiPath = `${webConfig.api_host}/${webConfig.abbr}`;
         setWebConfig(webConfig);
         setTitle(webConfig.name);
         setVtcLevel(vtcLevel);
@@ -149,31 +123,31 @@ const Loader = ({ onLoaderLoaded }) => {
 
       // load images
       Promise.all([
-        loadImageAsBase64(`https://cdn.chub.page/assets/${webConfig.abbr}/logo.png?${webConfig.logo_key !== undefined ? webConfig.logo_key : ""}`, "./logo.png")
+        loadImageAsBase64(`${apiPath}/client/assets/logo?key=${webConfig.logo_key !== undefined ? webConfig.logo_key : ""}`, "./logo.png")
           .then(image => {
             setVtcLogo(image);
             try {
               if (window.electron) {
                 localStorage.setItem("cache-logo", image);
               }
-            } catch {}
+            } catch { }
           })
           .catch(() => {
             setVtcLogo("");
           }),
-        loadImageAsBase64(`https://cdn.chub.page/assets/${webConfig.abbr}/banner.png?${webConfig.banner_key !== undefined ? webConfig.banner_key : ""}`)
+        loadImageAsBase64(`${apiPath}/client/assets/banner?key=${webConfig.banner_key !== undefined ? webConfig.banner_key : ""}`)
           .then(image => {
             setVtcBanner(image);
             try {
               if (window.electron) {
                 localStorage.setItem("cache-banner", image);
               }
-            } catch {}
+            } catch { }
           })
           .catch(() => {
             setVtcBanner("");
           }),
-        loadImageAsBase64(`https://cdn.chub.page/assets/${webConfig.abbr}/bgimage.png?${webConfig.bgimage_key !== undefined ? webConfig.bgimage_key : ""}`)
+        loadImageAsBase64(`${apiPath}/client/assets/bgimage?key=${webConfig.bgimage_key !== undefined ? webConfig.bgimage_key : ""}`)
           .then(image => {
             if (vtcLevel >= 1) {
               setVtcBackground(image);
@@ -181,7 +155,7 @@ const Loader = ({ onLoaderLoaded }) => {
                 if (window.electron) {
                   localStorage.setItem("cache-background", image);
                 }
-              } catch {}
+              } catch { }
             } else {
               setVtcBackground("");
               localStorage.removeItem("cache-background");
@@ -299,7 +273,7 @@ const Loader = ({ onLoaderLoaded }) => {
         const urlsBatch1 = [
           { url: "https://config.chub.page/roles", auth: false },
           { url: "https://config.chub.page/sponsors", auth: false },
-          { url: `https://config.chub.page/config/user?abbr=${webConfig.abbr}`, auth: false },
+          { url: `${apiPath}/client/config/user`, auth: false },
         ];
 
         const [specialRoles, patrons, userConfig] = await makeRequestsAuto(urlsBatch1);

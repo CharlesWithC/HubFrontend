@@ -63,21 +63,22 @@ customAxios.interceptors.request.use(async config => {
         };
     }
 
-    if (config.headers["Authorization"]) {
-        if (cacheAExp > +new Date()) {
-            config.headers["Client-Key"] = cacheA;
-            return config;
-        }
-    } else {
-        if (cacheExp > +new Date()) {
-            config.headers["Client-Key"] = cache;
-            return config;
-        }
-    }
+    // TODO: Remove Client-Key completely
+    // if (config.headers["Authorization"]) {
+    //     if (cacheAExp > +new Date()) {
+    //         config.headers["Client-Key"] = cacheA;
+    //         return config;
+    //     }
+    // } else {
+    //     if (cacheExp > +new Date()) {
+    //         config.headers["Client-Key"] = cache;
+    //         return config;
+    //     }
+    // }
     const ts = parseInt(+new Date() / 1000 / 60);
     const au = config.headers["Authorization"];
     const hmac = await gck(navigator.userAgent, au, ts);
-    config.headers["Client-Key"] = hmac;
+    // config.headers["Client-Key"] = hmac;
     if (config.headers["Authorization"]) {
         cacheA = hmac;
         cacheAExp = +new Date() + 60000;

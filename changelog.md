@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.5.0
+
+1. Updated dependencies
+2. Migrated extension backend to external plugin for decentralized web config
+
 ## v3.4.6
 
 1. Added owner option on economy purchase truck

@@ -81,7 +81,7 @@ const DeliveryDetail = memo(({ divisions, userDivisionIDs, doReload, divisionMet
     if (window.isElectron) {
         window.electron.ipcRenderer.send("presence-update", {
             details: `Viewing Delivery #${logid}`,
-            largeImageKey: `https://cdn.chub.page/assets/${webConfig.abbr}/logo.png?${webConfig.logo_key !== undefined ? webConfig.logo_key : ""}`,
+            largeImageKey: `${apiPath}/client/assets/logo?key=${webConfig.logo_key !== undefined ? webConfig.logo_key : ""}`,
             largeImageText: webConfig.name,
             smallImageKey: `https://drivershub.charlws.com/images/logo.png`,
             smallImageText: "The Drivers Hub Project (CHub)",
@@ -440,7 +440,7 @@ const DeliveryDetail = memo(({ divisions, userDivisionIDs, doReload, divisionMet
                 window.electron.ipcRenderer.send("presence-update", {
                     details: `Viewing Delivery #${logid}`,
                     state: `${detail.source_city.name} -> ${detail.destination_city.name} (${ConvertUnit(userSettings.unit, "km", detail.events[detail.events.length - 1].meta.distance)})`,
-                    largeImageKey: `https://cdn.chub.page/assets/${webConfig.abbr}/logo.png?${webConfig.logo_key !== undefined ? webConfig.logo_key : ""}`,
+                    largeImageKey: `${apiPath}/client/assets/logo?key=${webConfig.logo_key !== undefined ? webConfig.logo_key : ""}`,
                     largeImageText: webConfig.name,
                     smallImageKey: `https://drivershub.charlws.com/images/logo.png`,
                     smallImageText: "The Drivers Hub Project (CHub)",

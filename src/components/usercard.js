@@ -887,7 +887,7 @@ const UserCard = props => {
         window.electron.ipcRenderer.send("presence-update", {
           details: `Viewing Profile`,
           state: `${user.name}`,
-          largeImageKey: `https://cdn.chub.page/assets/${webConfig.abbr}/logo.png?${webConfig.logo_key !== undefined ? webConfig.logo_key : ""}`,
+          largeImageKey: `${apiPath}/client/assets/logo?key=${webConfig.logo_key !== undefined ? webConfig.logo_key : ""}`,
           largeImageText: webConfig.name,
           smallImageKey: user.avatar,
           smallImageText: user.name,

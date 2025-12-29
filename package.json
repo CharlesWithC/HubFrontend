@@ -4,7 +4,7 @@
   "description": "An advanced Drivers Hub solution.",
   "author": "CharlesWithC <me@charlws.com> (https://charlws.com)",
   "homepage": "https://drivershub.charlws.com",
-  "version": "3.4.6",
+  "version": "3.5.0",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.14.0",

@@ -324,25 +324,7 @@ const Settings = ({ defaultTab = 0 }) => {
         window.loading += 1;
         setRemoteUserConfigDisabled(true);
 
-        let resp = await axios({ url: `${apiPath}/auth/ticket`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
-        if (resp.status !== 200) {
-            setRemoteUserConfigDisabled(false);
-            window.loading -= 1;
-            setSnackbarContent(tr("failed_to_generate_auth_ticket_try_again_later"));
-            setSnackbarSeverity("error");
-            return;
-        }
-        let ticket = resp.data.token;
-
-        function parse_color(s) {
-            if (s.startsWith("#")) {
-                return parseInt(s.substring(1), 16);
-            } else {
-                return -1;
-            }
-        }
-
-        resp = await axios({ url: `https://config.chub.page/config/user?domain=${webConfig.domain}`, data: { name_color: parse_color(remoteUserConfig.name_color), profile_upper_color: parse_color(remoteUserConfig.profile_upper_color), profile_lower_color: parse_color(remoteUserConfig.profile_lower_color), profile_banner_url: remoteUserConfig.profile_banner_url }, method: "PATCH", headers: { Authorization: `Ticket ${ticket}` } });
+        let resp = await axios({ url: `${apiPath}/client/config/user`, data: { name_color: remoteUserConfig.name_color, profile_upper_color: remoteUserConfig.profile_upper_color, profile_lower_color: remoteUserConfig.profile_lower_color, profile_banner_url: remoteUserConfig.profile_banner_url }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("appearance_settings_updated"));
             setSnackbarSeverity("success");

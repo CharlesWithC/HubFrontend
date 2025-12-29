@@ -99,7 +99,7 @@ const SuspenseLoadingTrigger = () => {
 
 function App() {
     const { t: tr } = useTranslation();
-    const { vtcBackground, customBackground, vtcLevel, userLevel, apiConfig, apiVersion, webConfig, userSettings, setUserSettings, curUser } = useContext(AppContext);
+    const { vtcBackground, customBackground, vtcLevel, userLevel, apiConfig, apiVersion, webConfig, userSettings, setUserSettings, curUser, apiPath } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     useEffect(() => {
@@ -240,7 +240,7 @@ function App() {
         if (Object.keys(STATUS_NAMES).includes(path)) {
             window.electron.ipcRenderer.send("presence-update", {
                 details: STATUS_NAMES[path],
-                largeImageKey: `https://cdn.chub.page/assets/${webConfig.abbr}/logo.png?${webConfig.logo_key !== undefined ? webConfig.logo_key : ""}`,
+                largeImageKey: `${apiPath}/client/assets/logo?key=${webConfig.logo_key !== undefined ? webConfig.logo_key : ""}`,
                 largeImageText: webConfig.name,
                 smallImageKey: `https://drivershub.charlws.com/images/logo.png`,
                 smallImageText: "The Drivers Hub Project (CHub)",
@@ -547,7 +547,7 @@ function App() {
                                                     xs: 12,
                                                     md: 6,
                                                 }}>
-                                                <Typography variant="body2">Client: 3.4.6 (build.{buildhash})</Typography>
+                                                <Typography variant="body2">Client: 3.5.0 (build.{buildhash})</Typography>
                                             </Grid>
                                             <Grid
                                                 size={{

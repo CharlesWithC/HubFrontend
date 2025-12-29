@@ -52,17 +52,7 @@ const Gallery = () => {
         window.loading += 1;
         setDialogButtonDisabled(true);
 
-        let resp = await axios({ url: `${apiPath}/auth/ticket`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
-        if (resp.status !== 200) {
-            setDialogButtonDisabled(false);
-            window.loading -= 1;
-            setSnackbarContent(tr("failed_to_generate_auth_ticket_try_again_later"));
-            setSnackbarSeverity("error");
-            return;
-        }
-        let ticket = resp.data.token;
-
-        resp = await axios({ url: `https://config.chub.page/config/gallery?domain=${webConfig.domain}`, data: { gallery: images }, method: "PATCH", headers: { Authorization: `Ticket ${ticket}` } });
+        let resp = await axios({ url: `${apiPath}/client/config/global/gallery`, data: { gallery: images }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("gallery_updated"));
             setSnackbarSeverity("success");
