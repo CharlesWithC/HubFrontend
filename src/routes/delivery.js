@@ -492,7 +492,7 @@ const DeliveryDetail = memo(({ divisions, userDivisionIDs, doReload, divisionMet
                             <UserCard user={dlog.user} inline={true} />
                         </Typography>
                     </div>
-                    <div style={{ display: "flex", marginTop: "10px" }}>
+                    <div style={{ marginTop: "10px" }}>
                         <Grid container spacing={2}>
                             <Grid
                                 size={{
@@ -564,7 +564,7 @@ const DeliveryDetail = memo(({ divisions, userDivisionIDs, doReload, divisionMet
                             </Grid>
                         </Grid>
                     </div>
-                    <div style={{ display: "flex", marginTop: "20px" }}>
+                    <div style={{ marginTop: "20px" }}>
                         <Grid container spacing={2}>
                             <Grid
                                 size={{
