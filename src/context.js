@@ -241,7 +241,7 @@ export const AppContextProvider = ({ children }) => {
     // background load
     const loadDlogDetails = useCallback(async () => {
         // use atm's data
-        let [resp] = await makeRequestsAuto([{ url: `https://config.chub.page/detailStats`, auth: false }]);
+        let [resp] = await makeRequestsAuto([{ url: `${apiPath}/dlog/statistics/details`, auth: false }]);
         if (resp.error === undefined) {
             setDlogDetailsCache(resp);
         }

@@ -61,20 +61,6 @@ def convertToHex(intColor):
 @app.get("/")
 async def index():
     return RedirectResponse(url="https://drivershub.charlws.com", status_code=302)
-
-detailStats = {}
-detailStatsLU = 0
-@app.get("/detailStats")
-async def getDetailStats(request: Request):
-    global detailStats
-    global detailStatsLU
-    if time.time() - detailStatsLU >= 300:
-        detailStatsLU = time.time()
-        r = await arequests.get("https://drivershub.charlws.com/atm/dlog/statistics/details", headers={"User-Agent": request.headers.get("User-Agent"), "Client-Key": request.headers.get("Client-Key")})
-        if r.status_code == 200:
-            d = json.loads(r.text)
-            detailStats = d
-    return detailStats
     
 async def updateRolesCache():
     global rolesCache
