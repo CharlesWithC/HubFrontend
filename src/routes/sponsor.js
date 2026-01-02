@@ -1,17 +1,37 @@
 import { useTranslation } from "react-i18next";
-import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Grid, Card, CardHeader, CardContent, Typography, List, ListItem, ListItemText, Button } from "@mui/material";
+import { Grid, Card, CardHeader, CardContent, Typography, List, ListItem, ListItemText, Button, Tooltip } from "@mui/material";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 
 const UpgradeCard = () => {
     const { t: tr } = useTranslation();
 
     const navigate = useNavigate();
 
-    const bronze = [tr("a_special_discord_role"), tr("a_special_thank_you")];
-    const silver = [tr("silver_name"), tr("custom_color_theme"), tr("more_radio_stations")];
-    const gold = [tr("gold_name"), tr("automatic_discord_rank_role"), tr("custom_background_image"), tr("custom_profile_theme"), tr("custom_profile_banner"), tr("configurable_display_timezone"), tr("sponsor_support")];
-    const platinum = [tr("more_name_color"), tr("any_radio_stations_radio_url"), tr("advanced_staff_functions"), tr("early_access_to_all_chub_features"), tr("sponsor_priority_support")];
+    const bronze = [
+        "A Special Discord Role",
+        "A Special Thank You"
+    ];
+
+    const silver = [
+        "Silver Name",
+        "Custom Color Theme",
+        "More Radio Stations"
+    ];
+
+    const gold = [
+        "Gold Name",
+        "Automatic Discord Rank Role",
+        "Custom Hub & Profile Theming"
+    ];
+
+    const platinum = [
+        "Fully Customizable Name Color",
+        "Any Radio Stations (via URL)",
+        "Advanced Staff Functions"
+    ];
+
 
     return (
         <Grid container spacing={2} justifyContent="center">
@@ -57,7 +77,7 @@ const UpgradeCard = () => {
                 <Card>
                     <CardHeader title={tr("bronze_sponsor")} subheader={tr("cheapest_choice")} titleTypographyProps={{ align: "center", color: "#cd7f32" }} subheaderTypographyProps={{ align: "center" }} />
                     <CardContent>
-                        <List>
+                        <List sx={{ marginTop: "-32px" }}>
                             {bronze.map(feature => (
                                 <ListItem key={feature}>
                                     <ListItemText primary={feature} />
@@ -89,7 +109,7 @@ const UpgradeCard = () => {
                 <Card>
                     <CardHeader title={tr("silver_sponsor")} subheader={tr("including_bronze_perks")} titleTypographyProps={{ align: "center", color: "#c0c0c0" }} subheaderTypographyProps={{ align: "center" }} />
                     <CardContent>
-                        <List>
+                        <List sx={{ marginTop: "-32px" }}>
                             {silver.map(feature => (
                                 <ListItem key={feature}>
                                     <ListItemText primary={feature} />
@@ -121,7 +141,7 @@ const UpgradeCard = () => {
                 <Card>
                     <CardHeader title={tr("gold_sponsor")} subheader={tr("including_silver_perks")} titleTypographyProps={{ align: "center", color: "#ffd700" }} subheaderTypographyProps={{ align: "center" }} />
                     <CardContent>
-                        <List>
+                        <List sx={{ marginTop: "-32px" }}>
                             {gold.map(feature => (
                                 <ListItem key={feature} sx={{ color: feature === tr("automatic_discord_rank_role") ? "#ffd700" : undefined }}>
                                     <ListItemText primary={feature} />
@@ -156,41 +176,30 @@ const UpgradeCard = () => {
                 <Card>
                     <CardHeader title={tr("platinum_sponsor")} subheader={tr("including_gold_perks")} titleTypographyProps={{ align: "center", color: "#e5e4e2" }} subheaderTypographyProps={{ align: "center" }} />
                     <CardContent>
-                        <List>
+                        <List sx={{ marginTop: "-32px" }}>
                             {platinum.map(feature => (
                                 <>
-                                    {feature !== tr("advanced_staff_functions") && (
-                                        <ListItem key={feature}>
-                                            <ListItemText primary={feature} />
-                                        </ListItem>
-                                    )}
-                                    {feature === tr("advanced_staff_functions") && (
-                                        <>
-                                            <ListItem key={feature} style={{ paddingBottom: 0 }}>
-                                                <ListItemText primary={feature} />
-                                            </ListItem>
-                                            <List style={{ marginLeft: "20px", paddingTop: 0 }}>
-                                                <ListItem style={{ paddingTop: 0, paddingBottom: 0 }}>
-                                                    <ListItemText primary={tr("auto_import_multiple_trucky_jobs")} />
-                                                </ListItem>
-                                                <ListItem style={{ paddingTop: 0, paddingBottom: 0 }}>
-                                                    <ListItemText primary={tr("sync_member_profiles")} />
-                                                </ListItem>
-                                                <ListItem style={{ paddingTop: 0, paddingBottom: 0 }}>
-                                                    <ListItemText primary={tr("batch_update_tracker")} />
-                                                </ListItem>
-                                                <ListItem style={{ paddingTop: 0, paddingBottom: 0 }}>
-                                                    <ListItemText primary={tr("batch_update_roles")} />
-                                                </ListItem>
-                                                <ListItem style={{ paddingTop: 0, paddingBottom: 0 }}>
-                                                    <ListItemText primary={tr("batch_dismiss_members")} />
-                                                </ListItem>
-                                                <ListItem style={{ paddingTop: 0, paddingBottom: 0 }}>
-                                                    <ListItemText primary={tr("prune_users")} />
-                                                </ListItem>
-                                            </List>
-                                        </>
-                                    )}
+                                    <ListItem key={feature}>
+                                        <ListItemText primary={feature} />
+                                        {feature === "Advanced Staff Functions" && (
+                                            <Tooltip
+                                                title={
+                                                    <div>
+                                                        • Auto Import Multiple Trucky Jobs<br />
+                                                        • Sync Member Profiles<br />
+                                                        • Batch Update Tracker<br />
+                                                        • Batch Update Roles<br />
+                                                        • Batch Dismiss Members<br />
+                                                        • Prune Users
+                                                    </div>
+                                                }
+                                                arrow
+                                                placement="left"
+                                            >
+                                                <FontAwesomeIcon icon={faInfoCircle} style={{ marginLeft: '8px', fontSize: '16px' }} />
+                                            </Tooltip>
+                                        )}
+                                    </ListItem>
                                 </>
                             ))}
                         </List>

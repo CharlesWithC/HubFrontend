@@ -271,13 +271,13 @@ const UserCard = props => {
     e => {
       if (isNaN(user.uid)) {
         // user is from other vtc - load freightmaster reward
-        async function loadFMRewards() {
-          let resp = await axios({ url: `https://config.chub.page/freightmaster/rewards/distributed?abbr=${user.uid.split("-")[0]}&uid=${user.uid.split("-")[1]}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
-          if (resp.status === 200) {
-            setFMRDSingle(resp.data);
-          }
-        }
-        loadFMRewards();
+        // async function loadFMRewards() {
+        //   let resp = await axios({ url: `https://config.chub.page/freightmaster/rewards/distributed?abbr=${user.uid.split("-")[0]}&uid=${user.uid.split("-")[1]}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        //   if (resp.status === 200) {
+        //     setFMRDSingle(resp.data);
+        //   }
+        // }
+        // loadFMRewards();
       }
       e.preventDefault();
       e.stopPropagation();
@@ -350,7 +350,7 @@ const UserCard = props => {
       window.loading += 1;
 
       const [_tmp, _chart, _overall, _details, _point, _dlogList] = await makeRequestsAuto([
-        { url: `https://config.chub.page/truckersmp?mpid=${user.truckersmpid}`, auth: false },
+        { url: `https://drivershub.charlws.com/api/truckersmp/${user.truckersmpid}`, auth: false },
         { url: `${apiPath}/dlog/statistics/chart?userid=${user.userid}&ranges=7&interval=86400&sum_up=false&before=` + getTodayUTC() / 1000, auth: "prefer" },
         { url: `${apiPath}/dlog/statistics/summary?userid=${user.userid}`, auth: "prefer" },
         { url: `${apiPath}/dlog/statistics/details?userid=${user.userid}`, auth: "prefer" },

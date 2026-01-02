@@ -1965,23 +1965,6 @@ const Settings = ({ defaultTab = 0 }) => {
                                         </Grid>
                                     </Grid>
                                 </Grid>
-                                {userLevel === 0 && (
-                                    <Grid
-                                        container
-                                        justify="center"
-                                        alignItems="center"
-                                        size={{
-                                            xs: 12,
-                                            sm: 12,
-                                            md: 6,
-                                            lg: 6,
-                                        }}>
-                                        <Typography variant="body2" align="center">
-                                            <FontAwesomeIcon icon={faPatreon} />
-                                            &nbsp;&nbsp;{tr("connect_patreon_account_to_activate_sponsor_perks")}
-                                        </Typography>
-                                    </Grid>
-                                )}
                             </Grid>
                         </Grid>
                     )}

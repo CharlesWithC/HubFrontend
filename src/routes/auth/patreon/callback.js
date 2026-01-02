@@ -52,7 +52,7 @@ const PatreonAuth = () => {
                 }
                 let ticket = resp.data.token;
 
-                resp = await axios({ url: `https://config.chub.page/patreon`, params: { domain: window.dhhost, code: patreonCode }, method: `PATCH`, headers: { Authorization: `Ticket ${ticket}` } });
+                resp = await axios({ url: `https://drivershub.charlws.com/api/connection/patreon`, params: { domain: window.dhhost, code: patreonCode }, method: `PATCH`, headers: { Authorization: `Ticket ${ticket}` } });
                 if (resp.status === 200) {
                     setCurUserPatreonID(resp.data.patreon_id);
                     setMessage(`Patreon account connected 🎉`);

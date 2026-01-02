@@ -256,8 +256,8 @@ const Loader = ({ onLoaderLoaded }) => {
 
         // chub data
         const urlsBatch1 = [
-          { url: "https://config.chub.page/roles", auth: false },
-          { url: "https://config.chub.page/sponsors", auth: false },
+          { url: "https://drivershub.charlws.com/api/member/list", auth: false },
+          { url: "https://drivershub.charlws.com/api/sponsor/list", auth: false },
           { url: `${apiPath}/client/config/user`, auth: false },
         ];
 
