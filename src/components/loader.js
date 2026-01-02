@@ -169,25 +169,10 @@ const Loader = ({ onLoaderLoaded }) => {
       // load api version and status in background
       async function loadApi(apiPath) {
         // we use a cors proxy just in case it's bad gateway and nginx fails to handle cors headers
-        const [index, apiStatus] = await makeRequestsAuto([
-          { url: `https://config.chub.page/proxy?url=${apiPath}/`, fetchOnly: true },
+        const [apiStatus] = await makeRequestsAuto([
           { url: `${apiPath}/status`, auth: false },
         ]);
 
-        if (index) {
-          if (String(index).toLowerCase().indexOf(`bad gateway`) !== -1) {
-            setLoaderAnimation(false);
-            setLoadMessage(
-              <>
-                {tr("drivers_hub_is_experiencing_a_temporary_outage")}
-                <br />
-                {tr("please_refresh_the_page_later_and_report_the_incident_if")}
-              </>
-            );
-            throw new Error("Drivers Hub API Temporary Outage");
-          }
-          setApiVersion(index.version);
-        }
         if (apiStatus) {
           if (apiStatus.database === "unavailable") {
             errorBlock.current = true; // retrying, don't quite loading page

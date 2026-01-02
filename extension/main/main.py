@@ -57,10 +57,6 @@ def convertToHex(intColor):
         return None
     else:
         return "#" + str(hex(intColor))[2:].zfill(6)
-
-@app.get("/")
-async def index():
-    return RedirectResponse(url="https://drivershub.charlws.com", status_code=302)
     
 async def updateRolesCache():
     global rolesCache
@@ -111,16 +107,6 @@ async def getRoles():
         rolesLU = time.time()
         await updateRolesCache()
     return rolesCache
-
-@app.get("/proxy")
-async def getTruckersMPProxy(request: Request, url: str):
-    domain = urlparse(url).netloc
-    if domain not in ["api.truckersmp.com", "drivershub.charlws.com", "api.chub.page"]:
-        return Response(status_code=403)
-    headers = { "User-Agent": "The Drivers Hub Project (CHub)" }
-    r = await arequests.get(url, headers=headers)
-    response_headers = {key: value for key, value in r.headers.items() if key.lower() != "content-encoding"}
-    return Response(content=r.content, status_code=r.status_code, headers=response_headers)
 
 def getAvatarSrc(discordid, avatar):
     if avatar is None:

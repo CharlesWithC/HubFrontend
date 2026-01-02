@@ -308,7 +308,7 @@ const AllApplication = () => {
                 window.loading -= 1;
 
                 if (!isNaN(resp.data.creator.truckersmpid)) {
-                    resp = await axios({ url: `https://config.chub.page/proxy?url=https://api.truckersmp.com/v2/player/${resp.data.creator.truckersmpid}`, fetchOnly: true });
+                    resp = await axios({ url: `${apiPath}/proxy?url=https://api.truckersmp.com/v2/player/${resp.data.creator.truckersmpid}`, fetchOnly: true });
                     if (resp.status === 200) {
                         setTmpData(resp.data.response);
                     }

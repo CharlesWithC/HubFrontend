@@ -775,7 +775,7 @@ const Events = () => {
         setImportDisabled(true);
 
         const eventId = link.replace("https://truckersmp.com/events/", "");
-        const resp = await axios({ url: `https://config.chub.page/proxy?url=https://api.truckersmp.com/v2/events/${eventId}`, fetchOnly: true });
+        const resp = await axios({ url: `${apiPath}/proxy?url=https://api.truckersmp.com/v2/events/${eventId}`, fetchOnly: true });
         if (resp.status !== 200) {
             setImportDisabled(false);
             setSnackbarContent("Invalid TruckersMP event link");
@@ -797,7 +797,7 @@ const Events = () => {
             if (event.start_at) setDepartureTime(+new Date(event.start_at.replace(" ", "T") + ".000000Z") / 1000);
             setImportDisabled(false);
         }, 50);
-    }, [link]);
+    }, [link, apiPath]);
 
     const editEventAttendees = useCallback(
         async eventid => {
