@@ -105,7 +105,7 @@ function App() {
     useEffect(() => {
         console.log(drivershub);
         console.log(`Drivers Hub: Frontend`);
-        console.log(`Copyright (C) 2022-2025 CharlesWithC All rights reserved.`);
+        console.log(`Copyright (C) 2022-2026 CharlesWithC All rights reserved.`);
     }, []);
 
     const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
@@ -574,7 +574,7 @@ function App() {
                                     {isMd && (
                                         <div style={{ display: "flex", alignItems: "center", marginTop: "20px", color: theme.palette.text.secondary }}>
                                             <Typography variant="body2" sx={{ flexGrow: 1, fontWeight: 800 }}>
-                                                &copy; 2022-2025{" "}
+                                                &copy; 2022-2026{" "}
                                                 <a href="https://charlws.com/" target="_blank" rel="noreferrer">
                                                     CharlesWithC
                                                 </a>
@@ -596,7 +596,7 @@ function App() {
                                     {!isMd && (
                                         <div style={{ alignItems: "center", marginTop: "20px", color: theme.palette.text.secondary }}>
                                             <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                                &copy; 2022-2025{" "}
+                                                &copy; 2022-2026{" "}
                                                 <a href="https://charlws.com/" target="_blank" rel="noreferrer">
                                                     CharlesWithC
                                                 </a>
