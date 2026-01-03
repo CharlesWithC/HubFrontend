@@ -78,6 +78,13 @@ const Loader = ({ onLoaderLoaded }) => {
         if (resp.status !== 200) {
           setLoaderAnimation(false);
           setTitle(tr("drivers_hub"));
+          setLoadMessage(
+            <>
+              {tr("drivers_hub_is_experiencing_a_temporary_outage")}
+              <br />
+              {tr("please_refresh_the_page_later_and_report_the_incident_if")}
+            </>
+          );
           throw new Error("Drivers Hub is not active");
         }
 
