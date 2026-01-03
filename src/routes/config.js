@@ -5056,13 +5056,11 @@ const Configuration = () => {
                             arrow
                             title={
                                 <Typography variant="body2">
-                                    Advanced plugins provide additional features on top of the core system and regular plugins.
+                                    Advanced plugins are features exclusive to Drivers Hubs under CHub management.
                                     <br />
-                                    These optional functions cost ADP Credits (ADPC) to unlock.
+                                    Special Guest and Managed Subscription licenses unlock all advanced plugins free of charge.
                                     <br />
-                                    ADP Credits (ADPC) may be accumulated by referring new VTCs to use CHub (10 credits/referral), joining giveaways in Discord, or be purchased at US$1/credit.
-                                    <br />
-                                    For more questions regarding advanced plugins or ADP Credits (ADPC), please contact us in Discord.
+                                    Legacy subscribers may purchase advanced plugins individually.
                                 </Typography>
                             }
                             PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
@@ -5085,7 +5083,7 @@ const Configuration = () => {
                                     }}>
                                     {plugin.enabled && <FontAwesomeIcon icon={faLockOpen}></FontAwesomeIcon>}
                                     {!plugin.enabled && <FontAwesomeIcon icon={faLock}></FontAwesomeIcon>}
-                                    &nbsp;{plugin.name} (ADPC {plugin.cost})&nbsp;
+                                    &nbsp;{plugin.name} (${plugin.cost})&nbsp;
                                     {plugin.settings && plugin.enabled && (
                                         <FontAwesomeIcon
                                             icon={faCogs}

@@ -176,9 +176,14 @@ const Loader = ({ onLoaderLoaded }) => {
       // load api version and status in background
       async function loadApi(apiPath) {
         // we use a cors proxy just in case it's bad gateway and nginx fails to handle cors headers
-        const [apiStatus] = await makeRequestsAuto([
+        const [apiBase, apiStatus] = await makeRequestsAuto([
+          { url: `${apiPath}/`, auth: false },
           { url: `${apiPath}/status`, auth: false },
         ]);
+
+        if (apiBase) {
+          setApiVersion(apiBase.version);
+        }
 
         if (apiStatus) {
           if (apiStatus.database === "unavailable") {
