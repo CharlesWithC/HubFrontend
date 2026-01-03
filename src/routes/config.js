@@ -596,6 +596,9 @@ const TrackerForm = ({ theme, tracker, onUpdate }) => {
                     <MenuItem key="trucky" value="trucky">
                         Trucky
                     </MenuItem>
+                    <MenuItem key="unitracker" value="unitracker">
+                        UniTracker
+                    </MenuItem>
                     <MenuItem key="tracksim" value="tracksim">
                         TrackSim
                     </MenuItem>
@@ -4977,6 +4980,17 @@ const Configuration = () => {
                                 Trucky Webhook URL:
                                 <br />
                                 {apiPath}/trucky/update
+                            </Typography>
+                        </Grid>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                md: 4,
+                            }}>
+                            <Typography variant="body2">
+                                UniTracker Webhook URL:
+                                <br />
+                                {apiPath}/unitracker/update
                             </Typography>
                         </Grid>
                         <Grid

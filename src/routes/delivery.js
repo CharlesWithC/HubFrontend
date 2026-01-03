@@ -167,7 +167,7 @@ const DeliveryDetail = memo(({ divisions, userDivisionIDs, doReload, divisionMet
 
             const data = dlogD;
             const detail = dlogD.detail.data.object;
-            const TRACKER = { navio: "Navio", tracksim: "TrackSim", trucky: "Trucky", custom: tr("custom") };
+            const TRACKER = { navio: "Navio", tracksim: "TrackSim", trucky: "Trucky", custom: tr("custom"), unitracker: "UniTracker" };
 
             let fine = 0;
             let autoLoad = false;

@@ -269,7 +269,7 @@ const AllApplication = () => {
         }
         return result;
     }, [apiConfig.trackers]);
-    const trackerMapping = { unknown: tr("unknown"), tracksim: "TrackSim", trucky: "Trucky", custom: tr("custom") };
+    const trackerMapping = { unknown: tr("unknown"), tracksim: "TrackSim", trucky: "Trucky", custom: tr("custom"), unitracker: "UniTracker" };
 
     const [detailApp, setDetailApp] = useState(null);
     const [dialogOpen, setDialogOpen] = useState(false);

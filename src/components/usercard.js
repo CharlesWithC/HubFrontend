@@ -157,7 +157,7 @@ const UserCard = props => {
     }
     return result;
   }, [apiConfig.trackers]);
-  const trackerMapping = { unknown: tr("unknown"), tracksim: "TrackSim", trucky: "Trucky", custom: tr("custom") };
+  const trackerMapping = { unknown: tr("unknown"), tracksim: "TrackSim", trucky: "Trucky", custom: tr("custom"), unitracker: "UniTracker" };
 
   if (users[props.user.uid] === undefined) {
     // if user is not yet cached, cache the user

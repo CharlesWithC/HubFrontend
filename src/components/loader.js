@@ -7,7 +7,7 @@ import { Typography, TextField, Button, useTheme } from "@mui/material";
 
 import { FetchProfile, loadImageAsBase64, customAxios as axios, makeRequestsAuto, writeLS, readLS, getAuthToken } from "../functions";
 
-const TIPS = ["The pre-login avatar belongs to CharlesWithC. He's a Night Fury.", "The Drivers Hub is operated by CHub, owned by CharlesWithC.", "CHub was originally called GeHub, as part of the Gecko ecosystem.", "We've got a website which may solve your problems: wiki.charlws.com", "Find hidden features by hovering on the + in the bottom right.", "Some components have context menus. Right-click to find out.", "CHub is an open platform that supports Trucky, TrackSim and custom trackers.", "Multiple rankings is supported, but you'll need JSON knowledge to manage them.", "All statistics and points are traceable, allowing data fetching of any time range."];
+const TIPS = ["The pre-login avatar belongs to CharlesWithC. He's a Night Fury.", "The Drivers Hub is operated by CHub, owned by CharlesWithC.", "CHub was originally called GeHub, as part of the Gecko ecosystem.", "We've got a website which may solve your problems: wiki.charlws.com", "Find hidden features by hovering on the + in the bottom right.", "Some components have context menus. Right-click to find out.", "CHub is an open platform that supports Trucky, UniTracker, TrackSim and custom trackers.", "Multiple rankings is supported, but you'll need JSON knowledge to manage them.", "All statistics and points are traceable, allowing data fetching of any time range."];
 
 const VTC_LEVEL_MAPPING = { special: 3, managed: 2, legacy_premium: 1, legacy_regular: 0 };
 
