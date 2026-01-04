@@ -5096,7 +5096,7 @@ const Configuration = () => {
                             </Grid>
                         ))}
                     </Grid>
-                    <Typography variant="body2">
+                    {vtcLevel < 2 && <Typography variant="body2">
                         Enable/Disable Advanced Plugin with Key:&nbsp;&nbsp;
                         <TextField
                             select
@@ -5133,7 +5133,37 @@ const Configuration = () => {
                             }}>
                             {tr("submit")}
                         </Button>
-                    </Typography>
+                    </Typography>}
+                    {vtcLevel >= 2 && <Typography variant="body2">
+                        Toggle Advanced Plugin:&nbsp;&nbsp;
+                        <TextField
+                            select
+                            size="small"
+                            value={pluginId}
+                            onChange={e => {
+                                setPluginId(e.target.value);
+                            }}>
+                            {pluginId === "unknown" && (
+                                <MenuItem key="unknown" value="unknown">
+                                    Select one
+                                </MenuItem>
+                            )}
+                            {advancedPlugins.map(plugin => (
+                                <MenuItem key={plugin.id} value={plugin.id}>
+                                    {plugin.name}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                        &nbsp;&nbsp;
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => {
+                                toggleAdvancedPlugin();
+                            }}>
+                            Toggle
+                        </Button>
+                    </Typography>}
                     <br />
                     <Typography variant="body2">
                         <FontAwesomeIcon icon={faLockOpen}></FontAwesomeIcon> indicates enabled plugins and <FontAwesomeIcon icon={faLock}></FontAwesomeIcon> indicates disabled plugins.
