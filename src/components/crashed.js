@@ -16,6 +16,18 @@ const Crashed = ({ errorUploaded }) => {
   const designTokens = getDesignTokens({ vtcBackground, customBackground, vtcLevel, userLevel, webConfig }, {}, themeMode, muiTheme[themeMode], themeSettings.use_custom_theme, themeSettings.theme_background, themeSettings.theme_main, themeSettings.theme_darken_ratio);
   const theme = useMemo(() => createTheme(designTokens, muiTheme[themeMode]), [designTokens, themeMode]);
 
+  useEffect(() => {
+    // auto clear cache on crash
+    localStorage.removeItem("cache");
+    localStorage.removeItem("cache-logo");
+    localStorage.removeItem("cache-background");
+    localStorage.removeItem("cache-banner");
+    localStorage.removeItem("cache-web-config");
+    localStorage.removeItem("cache-preload");
+    localStorage.removeItem("cache-user");
+    localStorage.removeItem("cache-list-param");
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <div className="loading-div" style={theme.palette !== undefined ? { backgroundColor: theme.palette.background.default, color: theme.palette.text.primary } : {}}>
