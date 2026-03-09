@@ -55,10 +55,10 @@ const MemberList = () => {
     const [logSeverity, setLogSeverity] = useState("success");
 
     const exportMemberList = useCallback(async () => {
-        let csv = "uid,userid,name,email,avatar_url,discordid,steamid,truckersmpid,join_date,roles\n";
+        let csv = "uid,userid,name,email,avatar_url,discordid,steamid,truckersmpid,join_date,roles,tracker\n";
         for (let i = 0; i < allMembers.length; i++) {
             let user = allMembers[i];
-            csv += `"${user.uid}","${user.userid}","${user.name}","${user.email}","${user.avatar}","${String(user.discordid)}\t","${String(user.steamid)}\t","${String(user.truckersmpid)}\t","${new Date(user.join_timestamp * 1000).toISOString()}","${user.roles.map((roleid, index) => (allRoles[roleid] !== undefined ? `${allRoles[roleid].name} (${roleid})` : `Unknown Role (${roleid})`)).join(", ")}"\n`;
+            csv += `"${user.uid}","${user.userid}","${user.name}","${user.email}","${user.avatar}","${String(user.discordid)}\t","${String(user.steamid)}\t","${String(user.truckersmpid)}\t","${new Date(user.join_timestamp * 1000).toISOString()}","${user.roles.map((roleid, index) => (allRoles[roleid] !== undefined ? `${allRoles[roleid].name} (${roleid})` : `Unknown Role (${roleid})`)).join(", ")}", "${user.tracker}"\n`;
         }
         downloadLocal("members.csv", csv);
     }, [allMembers, allRoles]);
