@@ -71,7 +71,7 @@ Electron client features:
 ### Update Environment Variables
 
 ```properties
-# .env
+# .env(.development|production)
 
 # whether to use multihub
 VITE_USE_MULTIHUB=false|true

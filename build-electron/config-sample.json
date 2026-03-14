@@ -2,7 +2,7 @@
     {
         "name": "Drivers Hub",
         "build": "general",
-        "icon": "./build-electron/assets/chub.png",
+        "icon": "./build-electron/assets/logo.png",
         "domain": "",
         "discordClientID": "997847494933368923"
     }
