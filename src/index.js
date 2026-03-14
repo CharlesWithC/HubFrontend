@@ -1,7 +1,7 @@
 import "./init";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, createRoutesFromChildren, matchRoutes, useLocation, useNavigationType } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 
 import "./index.css";
 import "./fonts/opensans/opensans.css";
@@ -15,8 +15,6 @@ import i18n from "./i18n";
 
 import Crashed from "./components/crashed";
 import { setAuthMode } from "./functions";
-
-import * as Sentry from "@sentry/react";
 
 window.loading = 0;
 
@@ -47,26 +45,6 @@ if (window.location.protocol === "http:" && window.location.hostname !== "localh
     window.location.href = window.location.href.replace("http", "https");
 }
 
-if (window.isElectron || window.location.hostname !== "localhost") {
-    Sentry.init({
-        dsn: "https://0a444a46a3cc99853e971ac04d7f8b3a@o4504067357409280.ingest.sentry.io/4505984184745984",
-        integrations: [
-            Sentry.reactRouterV6BrowserTracingIntegration({
-                useEffect: React.useEffect,
-                useLocation,
-                useNavigationType,
-                createRoutesFromChildren,
-                matchRoutes,
-            }),
-            Sentry.replayIntegration(),
-        ],
-        tracePropagationTargets: ["localhost", /https:\/\/drivershub\.charlws\.com/, /https:\/\/drivershub05\.charlws\.com/, /https:\/\/drivershub10\.charlws\.com/],
-        tracesSampleRate: 0.2,
-        replaysSessionSampleRate: 0.001,
-        replaysOnErrorSampleRate: 1.0,
-    });
-}
-
 const root = ReactDOM.createRoot(document.getElementById("root"));
 class ErrorBoundary extends React.Component {
     constructor(props) {
@@ -77,15 +55,6 @@ class ErrorBoundary extends React.Component {
     static getDerivedStateFromError(error) {
         // Update state so the next render will show the fallback UI.
         return { hasError: true };
-    }
-
-    componentDidCatch(error, errorInfo) {
-        if (window.dhhost !== "localhost:3000") {
-            Sentry.withScope(scope => {
-                scope.setExtras(errorInfo);
-                Sentry.captureException(error);
-            });
-        }
     }
 
     render() {

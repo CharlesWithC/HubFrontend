@@ -21,8 +21,6 @@
     "@mui/icons-material": "^7.3.6",
     "@mui/lab": "^7.0.1-beta.20",
     "@mui/material": "^7.3.6",
-    "@sentry/cli": "^3.0.1",
-    "@sentry/react": "^10.32.1",
     "axios": "^1.13.2",
     "axios-retry": "^4.5.0",
     "bootstrap": "^5.3.8",
@@ -65,7 +63,7 @@
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",
     "dev": "vite",
-    "build": "vite build && bash ./scripts/browser-build.sh && npm run sentry:sourcemaps && bash -c \"find ./build -type f -name '*.map' -exec rm {} \\;\"",
+    "build": "vite build && bash ./scripts/browser-build.sh && bash -c \"find ./build -type f -name '*.map' -exec rm {} \\;\"",
     "build:dev": "vite build && bash ./scripts/browser-build.sh",
     "build:electron": "vite build && bash ./scripts/electron-build.sh && bash -c \"find ./build -type f -name '*.map' -exec rm {} \\;\"",
     "build:electron:dev": "vite build && bash ./scripts/electron-build.sh",
@@ -73,8 +71,7 @@
     "test": "vitest",
     "electron": "electron .",
     "electron:build": "npm run build:electron && node ./build-electron/main.js",
-    "electron-pack": "build --em.main=public/electron.js",
-    "sentry:sourcemaps": "npx sentry-cli sourcemaps inject --org charlws --project chub-frontend-v3 ./build && npx sentry-cli sourcemaps upload --org charlws --project chub-frontend-v3 ./build"
+    "electron-pack": "build --em.main=public/electron.js"
   },
   "main": "public/electron.js",
   "build": {
