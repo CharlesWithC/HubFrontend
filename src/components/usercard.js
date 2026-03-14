@@ -563,7 +563,7 @@ const UserCard = props => {
   const updateProfile = useCallback(
     async (sync_to = undefined) => {
       setDialogBtnDisabled(true);
-      sync_to === undefined ? (sync_to = "") : (sync_to = `&sync_to_${sync_to}=true`);
+      sync_to === undefined ? (sync_to = "") : (sync_to = `&sync_from_${sync_to}=true`);
       let resp = await axios({ url: `${apiPath}/user/profile?uid=${user.uid}${sync_to}`, method: "PATCH", data: newProfile, headers: { Authorization: `Bearer ${getAuthToken()}` } });
       if (resp.status === 200) {
         // the api endpoint has been updated to return user info

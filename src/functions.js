@@ -223,7 +223,7 @@ export async function FetchProfile({ apiPath, specialUsers, patrons, setUserLeve
             } else if (curUser.avatar.startsWith("https://static.truckersmp.com/")) {
                 sync_to = "truckersmp";
             }
-            sync_to === undefined ? (sync_to = "") : (sync_to = `?sync_to_${sync_to}=true`);
+            sync_to === undefined ? (sync_to = "") : (sync_to = `?sync_from_${sync_to}=true`);
             if (sync_to !== "") {
                 let avatarOk = true;
                 fetch(curUser.avatar, {

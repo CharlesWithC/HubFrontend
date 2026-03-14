@@ -86,7 +86,7 @@ const MemberList = () => {
                 setSyncProfileCurrent(i + 1);
                 continue;
             }
-            sync_to = `&sync_to_${sync_to}=true`;
+            sync_to = `&sync_from_${sync_to}=true`;
             let st = +new Date();
             let resp = await axios({ url: `${apiPath}/user/profile?uid=${allMembers[i].uid}${sync_to}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (resp.status === 200) {
