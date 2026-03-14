@@ -52,7 +52,7 @@ const Loader = ({ onLoaderLoaded }) => {
     if (webConfig !== null) return;
 
     try {
-      if (domain === undefined || domain === null || domain === "") {
+      if (import.meta.env.VITE_USE_MULTIHUB == "true" && (domain === undefined || domain === null || domain === "")) {
         setLoaderAnimation(false);
         setTitle(tr("drivers_hub"));
         setVtcLogo(await loadImageAsBase64(`./logo.png`));
@@ -74,7 +74,7 @@ const Loader = ({ onLoaderLoaded }) => {
 
       // load web config, return webConfig or throw error
       async function loadWebConfig(domain) {
-        let resp = await axios({ url: `https://api.chub.page/config?domain=${domain}`, method: "GET" });
+        let resp = await axios({ url: import.meta.env.VITE_USE_MULTIHUB == "true" ? import.meta.env.VITE_MULTIHUB_DISCOVERY + "?domain=" + domain : import.meta.env.VITE_CONFIG_URL, method: "GET" });
         if (resp.status !== 200) {
           setLoaderAnimation(false);
           setTitle(tr("drivers_hub"));

@@ -2,6 +2,8 @@
 
 todos.txt
 .vscode
+.env*
+!.env.sample
 
 # dependencies
 /node_modules
