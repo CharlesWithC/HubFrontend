@@ -2,33 +2,23 @@ import { useContext } from "react";
 import { AppContext } from "../context";
 
 import ReactMarkdown from "react-markdown";
-import DOMPurify from "dompurify";
+import remarkBreaks from "remark-breaks";
 
 const MarkdownRenderer = ({ children }) => {
   const { userSettings } = useContext(AppContext);
 
-  const preprocessContent = content => {
-    if (content === undefined || content === null) return "";
-    return content.replace(/\n/g, "\n\n");
-  };
+  const content = children == null ? "" : String(children);
 
   const components = {
-    p: props => {
-      return (
-        <span>
-          {props.children}
-          <br />
-        </span>
-      );
-    },
-    img: props => <>{!userSettings.data_saver && <img {...props} style={{ width: "100%" }} alt=" " />}</>,
-    a: ({ node, ...props }) => <a {...props} target="_blank" rel="noreferrer" />, // Added this line
+    img: ({ node, ...props }) => <>{!userSettings.data_saver && <img {...props} style={{ width: "100%" }} alt=" " />}</>,
+    a: ({ node, ...props }) => <a {...props} target="_blank" rel="noreferrer" />,
   };
 
-  const preprocessedContent = preprocessContent(children);
-  const sanitizedContent = DOMPurify.sanitize(preprocessedContent);
-
-  return <ReactMarkdown components={components} children={sanitizedContent} />;
+  return (
+    <ReactMarkdown remarkPlugins={[remarkBreaks]} components={components}>
+      {content}
+    </ReactMarkdown>
+  );
 };
 
 export default MarkdownRenderer;

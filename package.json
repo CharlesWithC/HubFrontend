@@ -58,6 +58,7 @@
     "react-ol-wrapper": "^0.2.9",
     "react-select": "^5.10.2",
     "readline-sync": "^1.4.10",
+    "remark-breaks": "^4.0.0",
     "simplebar-react": "^3.3.2",
     "source-map-explorer": "^2.5.3"
   },
