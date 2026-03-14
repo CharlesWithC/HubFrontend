@@ -33,4 +33,22 @@ export default defineConfig({
             }
         }
     },
+    server: {
+        // https://github.com/vitejs/vite/discussions/13280
+        proxy: {
+            '/__vite_dev_proxy__': {
+                changeOrigin: true,
+                configure(_, options) {
+                    options.rewrite = path => {
+                        const proxyUrl = new URL(path, 'file:'),
+                            url = new URL(proxyUrl.searchParams.get('url'));
+
+                        // Since JS is single threaded, so it won't cause problem
+                        options.target = url.origin;
+                        return url.pathname + url.search;
+                    };
+                },
+            },
+        }
+    },
 });

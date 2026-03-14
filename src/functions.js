@@ -40,6 +40,16 @@ axiosRetry(customAxios, {
     },
 });
 customAxios.interceptors.request.use(async config => {
+    if (process.env.NODE_ENV === "development") {
+        const fullUrl = config.baseURL
+            ? `${config.baseURL}${config.url}`
+            : config.url;
+
+        const encoded = encodeURIComponent(fullUrl);
+        config.baseURL = '';
+        config.url = `/__vite_dev_proxy__?url=${encoded}`;
+    }
+
     if (config.fetchOnly) {
         config.adapter = async () => {
             const response = await fetch(config.url, {
