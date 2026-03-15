@@ -103,6 +103,8 @@ rsync ...
 
 ## License
 
-This repository is licensed under the GNU Affero General Public License v3.0.  
+This repository is licensed under the GNU Affero General Public License v3.0.
 
 Copyright &copy; 2022-2026 [CharlesWithC](https://charlws.com)
+
+<img src="https://drivershub.charlws.com/images/banner.webp" height="80" alt="Logo"> 
