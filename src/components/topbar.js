@@ -1,13 +1,13 @@
-import { useState, useEffect, useRef, useCallback, useContext, useMemo } from "react";
+import { useState, useEffect, useRef, useCallback, useContext } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { AppContext } from "../context";
 
 import { AppBar, Box, Toolbar, Typography, Divider, MenuItem, ListItemIcon, Menu, Snackbar, Alert, LinearProgress, IconButton, Tooltip, Dialog, DialogActions, DialogContent, DialogTitle, Button, useTheme, useMediaQuery } from "@mui/material";
-import { AccountBoxRounded, SettingsRounded, FlareRounded, LogoutRounded, MenuRounded, AltRouteRounded, Terminal } from "@mui/icons-material";
+import { AccountBoxRounded, SettingsRounded, LogoutRounded, MenuRounded, AltRouteRounded, Terminal } from "@mui/icons-material";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCirclePlay, faCirclePause, faClover, faDownload } from "@fortawesome/free-solid-svg-icons";
+import { faCirclePlay, faCirclePause } from "@fortawesome/free-solid-svg-icons";
 import { faSpotify } from "@fortawesome/free-brands-svg-icons";
 
 import SimpleBar from "simplebar-react";
@@ -21,11 +21,10 @@ import { FetchProfile, customAxios as axios, getAuthToken, eraseAuthMode, checkU
 const radioURLs = { tfm: "https://live.truckers.fm/", simhit: "https://radio.simulatorhits.com/radio/8000/stream" };
 const radioNames = { tfm: "TruckersFM", simhit: "SimulatorHits" };
 const radioImages = { tfm: "https://truckersfm.s3.fr-par.scw.cloud/static/tfm-2020.png", simhit: "https://simulatorhits.com/images/SH_Logo.jpg" };
-const RADIO_TYPES = { tfm: "TruckersFM", simhit: "SimulatorHits" };
 
 const TopBar = props => {
   const { t: tr } = useTranslation();
-  const { apiPath, userLevel, webConfig, allPerms, setUsers, curUID, setCurUID, users, curUser, setCurUser, curUserPerm, setCurUserPerm, curUserBanner, testRoleMode, setTestRoleMode, userSettings, setUserSettings } = useContext(AppContext);
+  const { apiPath, allPerms, setUsers, curUID, setCurUID, users, curUser, setCurUser, curUserPerm, setCurUserPerm, curUserBanner, testRoleMode, setTestRoleMode, userSettings } = useContext(AppContext);
 
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -77,20 +76,8 @@ const TopBar = props => {
     setSnackbarContent("");
   };
   const [showProfileModal, setShowProfileModal] = useState(1);
-  const [desktopClientWarning, setDesktopClientWarning] = useState(false);
 
   const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-
-  const [downloadUrl, setDownloadUrl] = useState("https://dl.chub.page/general/setup.exe");
-  useEffect(() => {
-    fetch(`https://dl.chub.page/${webConfig.abbr}/latest.yml`)
-      .then(response => {
-        if (response.ok) {
-          setDownloadUrl(`https://dl.chub.page/${webConfig.abbr}/setup.exe`);
-        }
-      })
-      .catch(error => console.log(error));
-  }, [webConfig]);
 
   const radioRef = useRef(null);
   const [radioURL, setRadioURL] = useState("");
@@ -102,9 +89,6 @@ const TopBar = props => {
   const loadRadio = useCallback(async () => {
     if (userSettings.radio !== "disabled") {
       let radioOK = false;
-      if ((userLevel < 2 && userSettings.radio_type !== "tfm") || (userLevel < 4 && !Object.keys(RADIO_TYPES).includes(userSettings.radio_type))) {
-        setUserSettings(userSettings => ({ ...userSettings, radio_type: "tfm" }));
-      }
       if (Object.keys(radioURLs).includes(userSettings.radio_type)) {
         setRadioURL(radioURLs[userSettings.radio_type]);
         setRadioName(radioNames[userSettings.radio_type]);
@@ -168,9 +152,6 @@ const TopBar = props => {
     const interval = setInterval(async () => {
       if (radioRef.current !== null && !radioRef.current.paused) {
         try {
-          if ((userLevel < 2 && userSettings.radio_type !== "tfm") || (userLevel < 4 && !Object.keys(RADIO_TYPES).includes(userSettings.radio_type))) {
-            setUserSettings(userSettings => ({ ...userSettings, radio_type: "tfm" }));
-          }
           if (userSettings.radio_type === "tfm") {
             let resp = await axios({ url: `https://radiocloud.pro/api/public/v1/song/current` });
             setRadioSongName(resp.data.data.title);
@@ -391,38 +372,6 @@ const TopBar = props => {
         </MenuItem>
       )}
       <Divider sx={{ marginTop: "5px", marginBottom: "5px" }} />
-      <Link to="/sponsor">
-        <MenuItem sx={{ color: "#FFC400" }}>
-          <ListItemIcon>
-            <FlareRounded fontSize="small" />
-          </ListItemIcon>
-          {tr("sponsor")}
-        </MenuItem>
-      </Link>
-      <Link to="/supporters">
-        <MenuItem sx={{ color: "#f47fff" }}>
-          <ListItemIcon>
-            <FontAwesomeIcon icon={faClover} style={{ marginLeft: "3px" }} />
-          </ListItemIcon>
-          {tr("supporters")}
-        </MenuItem>
-      </Link>
-      {!window.isElectron && (
-        <>
-          <Divider sx={{ marginTop: "5px", marginBottom: "5px" }} />
-          <MenuItem
-            onClick={() => {
-              setDesktopClientWarning(true);
-              window.location.href = downloadUrl;
-            }}>
-            <ListItemIcon>
-              <FontAwesomeIcon icon={faDownload} />
-            </ListItemIcon>
-            {tr("download_app")}
-          </MenuItem>
-        </>
-      )}
-      <Divider sx={{ marginTop: "5px", marginBottom: "5px" }} />
       <MenuItem onClick={logout}>
         <ListItemIcon>
           <LogoutRounded fontSize="small" />
@@ -527,18 +476,6 @@ const TopBar = props => {
                     </audio>
                   </div>
                 )}
-                {+new Date() <= 1733115599999 && (
-                  <Box sx={{ display: "flex", flexDirection: "column", gap: "4px", ml: "16px" }}>
-                    <Link to="/sponsor">
-                      <Typography variant="body1" fontWeight="600">
-                        Black Friday 2024 - Support CHub
-                      </Typography>
-                      <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                        Get <span style={{ color: "#fcd116" }}>20%</span> off new membership (discount auto applied)!
-                      </Typography>
-                    </Link>
-                  </Box>
-                )}
               </Box>
               <div className="user-profile" onClick={handleProfileMenuOpen}>
                 <div className="user-info">
@@ -556,34 +493,6 @@ const TopBar = props => {
         </AppBar>
         <LinearProgress ref={progressBarRef} sx={{ ...progressBarStyle, "top": "80px", "position": "fixed", "zIndex": 101, "display": loading ? "block" : "none", "& .MuiLinearProgress-barColorPrimary": { backgroundColor: theme.palette.info.main } }} />
       </Box>
-      <Dialog open={desktopClientWarning} onClose={() => setDesktopClientWarning(false)}>
-        <DialogTitle>Desktop Client</DialogTitle>
-        <DialogContent>
-          <Typography variant="body2">The download for the desktop client should have started.</Typography>
-          <br />
-          <Typography variant="body2">Please be aware that the desktop client is only a side project and may not be as stable as the web version.</Typography>
-          <br />
-          <Typography variant="body2">You may experience unexpected crashes or even be unable to launch it. Your anti-virus may also mark it as a virus, because we do not have a certificate to sign it (the certificate is too costly for us).</Typography>
-          <br />
-          <Typography variant="body2">The desktop client is not mandatory to use the service, and it only provides Discord Rich Presence and Desktop Notification as additional features. All other features are the same as the web version.</Typography>
-          <br />
-          <Typography variant="body2">We are unable to provide support on any issues of the desktop client, unless the same issue exists on the web version. We apologize for any inconvenience.</Typography>
-          <br />
-          <Typography variant="body2">
-            Best, <br />
-            CHub Team
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            variant="primary"
-            onClick={() => {
-              setAboutCHubModal(false);
-            }}>
-            {tr("close")}
-          </Button>
-        </DialogActions>
-      </Dialog>
       <Dialog
         open={showTestRolesModal}
         onClose={() => {

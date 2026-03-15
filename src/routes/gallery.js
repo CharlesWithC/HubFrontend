@@ -1,6 +1,5 @@
 import { useState, useCallback, useContext } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
 import { AppContext } from "../context";
 
 import { ImageList, ImageListItem, SpeedDial, SpeedDialIcon, SpeedDialAction, Dialog, DialogTitle, DialogContent, DialogActions, Card, CardContent, CardActions, Button, Typography, IconButton, Grid, Snackbar, Alert, TextField, useTheme, useMediaQuery } from "@mui/material";
@@ -13,14 +12,8 @@ import { customAxios as axios, checkUserPerm, getAuthToken } from "../functions"
 
 const Gallery = () => {
     const { t: tr } = useTranslation();
-    const { apiPath, vtcLevel, webConfig, setWebConfig, curUserPerm } = useContext(AppContext);
+    const { apiPath, webConfig, setWebConfig, curUserPerm } = useContext(AppContext);
     const theme = useTheme();
-
-    const navigate = useNavigate();
-    if (vtcLevel < 1) {
-        navigate("/404");
-        return <></>;
-    }
 
     const matchesXS = useMediaQuery(theme.breakpoints.down("xs"));
     const matchesSM = useMediaQuery(theme.breakpoints.between("sm", "md"));

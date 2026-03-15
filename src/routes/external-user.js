@@ -14,11 +14,10 @@ import { makeRequestsAuto, removeNullValues, customAxios as axios, getAuthToken,
 import UserCard from "../components/usercard";
 import UserSelect from "../components/userselect";
 import DateTimeField from "../components/datetime";
-import SponsorBadge from "../components/sponsorBadge";
 
 const ExternalUsers = () => {
     const { t: tr } = useTranslation();
-    const { apiPath, userLevel, userSettings, allUsersCache, loadAllUsers } = useContext(AppContext);
+    const { apiPath, userSettings, allUsersCache, loadAllUsers } = useContext(AppContext);
     const { cache, setCache } = useContext(CacheContext);
     const theme = useTheme();
 
@@ -64,11 +63,6 @@ const ExternalUsers = () => {
     const [batchDeleteCurrent, setBatchDeleteCurrent] = useState(0);
     const [batchDeleteLoading, setBatchDeleteLoading] = useState(false);
     const batchDelete = useCallback(async () => {
-        if (userLevel < 4) {
-            setSnackbarContent(tr("prune_user_platinum_perk"));
-            setSnackbarSeverity("warning");
-            return;
-        }
         setDialogButtonDisabled(true);
         setBatchDeleteLog("");
         setBatchDeleteCurrent(0);
@@ -420,8 +414,7 @@ const ExternalUsers = () => {
                 }}>
                 <DialogTitle>
                     <FontAwesomeIcon icon={faUsersSlash} />
-                    &nbsp;&nbsp;{tr("prune_users")}&nbsp;&nbsp;
-                    <SponsorBadge level={4} />
+                    &nbsp;&nbsp;{tr("prune_users")}
                 </DialogTitle>
                 <DialogContent>
                     <Typography variant="body2">{tr("prune_users_note")}</Typography>

@@ -8,12 +8,9 @@ import { getTimezoneOffset } from "../functions";
 // all in seconds, not milliseconds
 // always takes in utc, displays local, returns utc
 const DateTimeField = ({ label, defaultValue, onChange, fullWidth = false, size = undefined, sx = {}, disabled = false, noDate = false }) => {
-  const { userLevel, userSettings } = useContext(AppContext);
+  const { userSettings } = useContext(AppContext);
 
   let displayTimezone = userSettings.display_timezone;
-  if (userLevel < 3) {
-    displayTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  }
 
   const [defaultValueConverted, setDefaultValueConverted] = useState(null); // ISO gives UTC time, we need to calculate the timezone offset
   const [prevDefaultValue, setPrevDefaultValue] = useState(defaultValue);

@@ -18,7 +18,6 @@ import { faServer, faClockRotateLeft, faFingerprint, faDesktop, faPlus, faMinus,
 
 import TimeDelta from "../components/timedelta";
 import ColorInput from "../components/colorInput";
-import SponsorBadge from "../components/sponsorBadge";
 import RoleSelect from "../components/roleselect";
 
 import { getRolePerms, customAxios as axios, makeRequestsAuto, getAuthToken, DEFAULT_ROLES, DEFAULT_PERMS, DEFAULT_RANKS, DEFAULT_APPLICATIONS } from "../functions";
@@ -4292,14 +4291,6 @@ const MemoEconomyForm = memo(({ theme, formConfig }) => {
 
     return (
         <>
-            <Typography variant="body2">{tr("config_economy_note")}</Typography>
-            <Typography variant="body2" sx={{ mb: "5px" }}>
-                For your convenience, we provide a list of default trucks and garages that may be imported into config. Read the{" "}
-                <a href="https://wiki.charlws.com/books/chub/page/economy-plugin" target="_blank" rel="noreferrer" style={{ color: theme.palette.info.main }}>
-                    wiki article
-                </a>{" "}
-                for more information.
-            </Typography>
             <ButtonGroup sx={{ margin: "5px", mb: "10px" }}>
                 <Button
                     component="label"
@@ -4489,7 +4480,7 @@ const MemoEconomyForm = memo(({ theme, formConfig }) => {
 
 const Configuration = () => {
     const { t: tr } = useTranslation();
-    const { apiPath, apiVersion, vtcLevel, webConfig: curWebConfig, setWebConfig: setCurWebConfig, curUser } = useContext(AppContext);
+    const { apiPath, apiVersion, webConfig: curWebConfig, setWebConfig: setCurWebConfig, curUser } = useContext(AppContext);
     const theme = useTheme();
 
     const [snackbarContent, setSnackbarContent] = useState("");
@@ -4771,15 +4762,15 @@ const Configuration = () => {
         [apiPath, formConfig, formConfigOrg]
     );
 
-    const [buildhash, setBuildHash] = useState("drgn.dev");
+    const [buildhash, setBuildHash] = useState("fury.dev");
     useEffect(() => {
         const scripts = document.getElementsByTagName("script");
         const mainScript = Array.from(scripts).find(script => script.src);
 
         if (mainScript) {
             const filename = mainScript.src.split("/").pop().replace(".js", "");
-            if (filename === "client") setBuildHash("drgn.dev");
-            else setBuildHash("drgn." + (filename.substring(0, 8) || "dev"));
+            if (filename === "client") setBuildHash("fury.dev");
+            else setBuildHash("fury." + (filename.substring(0, 8) || "dev"));
         }
     }, []);
 
@@ -4922,15 +4913,12 @@ const Configuration = () => {
                     </Tabs>
                 </Box>
                 <TabPanel value={tab} index={0}>
-                    <Typography variant="h6">The Drivers Hub Project (CHub)</Typography>
+                    <Typography variant="h6">The Drivers Hub Project</Typography>
                     <br />
                     <Typography variant="body2" fontWeight="bold">
                         Information
                     </Typography>
                     <Grid container spacing={2} rowSpacing={-0.5}>
-                        <Grid size={12}>
-                            <Typography variant="body2">License: {DHPLAN[vtcLevel]}</Typography>
-                        </Grid>
                         <Grid
                             size={{
                                 xs: 12,
@@ -4956,7 +4944,7 @@ const Configuration = () => {
                                 xs: 12,
                                 md: 6,
                             }}>
-                            <Typography variant="body2">Client: 3.5.0 (build.{buildhash})</Typography>
+                            <Typography variant="body2">Client: 3.6.0 (build.{buildhash})</Typography>
                         </Grid>
                         <Grid
                             size={{
@@ -5048,137 +5036,6 @@ const Configuration = () => {
                             </Grid>
                         ))}
                     </Grid>
-                    <br />
-                    <Typography variant="body2" fontWeight="bold">
-                        Advanced Plugins{" "}
-                        <Tooltip
-                            placement="top"
-                            arrow
-                            title={
-                                <Typography variant="body2">
-                                    Advanced plugins are features exclusive to Drivers Hubs under CHub management.
-                                    <br />
-                                    Special Guest and Managed Subscription licenses unlock all advanced plugins free of charge.
-                                    <br />
-                                    Legacy subscribers may purchase advanced plugins individually.
-                                </Typography>
-                            }
-                            PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-                            <FontAwesomeIcon icon={faInfoCircle} />
-                        </Tooltip>
-                    </Typography>
-                    <Grid container spacing={2} rowSpacing={-0.5} sx={{ mb: "5px" }}>
-                        {advancedPlugins.map(plugin => (
-                            <Grid
-                                size={{
-                                    xs: 6,
-                                    sm: 6,
-                                    md: 4,
-                                    lg: 3,
-                                }}>
-                                <Typography
-                                    variant="body2"
-                                    onClick={() => {
-                                        setPluginId(plugin.id);
-                                    }}>
-                                    {plugin.enabled && <FontAwesomeIcon icon={faLockOpen}></FontAwesomeIcon>}
-                                    {!plugin.enabled && <FontAwesomeIcon icon={faLock}></FontAwesomeIcon>}
-                                    &nbsp;{plugin.name} (${plugin.cost})&nbsp;
-                                    {plugin.settings && plugin.enabled && (
-                                        <FontAwesomeIcon
-                                            icon={faCogs}
-                                            onClick={() => {
-                                                loadADPSettings(plugin.id);
-                                            }}
-                                            style={{ cursor: "pointer" }}></FontAwesomeIcon>
-                                    )}
-                                </Typography>
-                            </Grid>
-                        ))}
-                    </Grid>
-                    {vtcLevel < 2 && <Typography variant="body2">
-                        Enable/Disable Advanced Plugin with Key:&nbsp;&nbsp;
-                        <TextField
-                            select
-                            size="small"
-                            value={pluginId}
-                            onChange={e => {
-                                setPluginId(e.target.value);
-                            }}>
-                            {pluginId === "unknown" && (
-                                <MenuItem key="unknown" value="unknown">
-                                    Select one
-                                </MenuItem>
-                            )}
-                            {advancedPlugins.map(plugin => (
-                                <MenuItem key={plugin.id} value={plugin.id}>
-                                    {plugin.name}
-                                </MenuItem>
-                            ))}
-                        </TextField>
-                        &nbsp;&nbsp;
-                        <TextField
-                            size="small"
-                            value={pluginKey}
-                            onChange={e => {
-                                setPluginKey(e.target.value);
-                            }}
-                        />
-                        &nbsp;&nbsp;
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => {
-                                toggleAdvancedPlugin();
-                            }}>
-                            {tr("submit")}
-                        </Button>
-                    </Typography>}
-                    {vtcLevel >= 2 && <Typography variant="body2">
-                        Toggle Advanced Plugin:&nbsp;&nbsp;
-                        <TextField
-                            select
-                            size="small"
-                            value={pluginId}
-                            onChange={e => {
-                                setPluginId(e.target.value);
-                            }}>
-                            {pluginId === "unknown" && (
-                                <MenuItem key="unknown" value="unknown">
-                                    Select one
-                                </MenuItem>
-                            )}
-                            {advancedPlugins.map(plugin => (
-                                <MenuItem key={plugin.id} value={plugin.id}>
-                                    {plugin.name}
-                                </MenuItem>
-                            ))}
-                        </TextField>
-                        &nbsp;&nbsp;
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => {
-                                toggleAdvancedPlugin();
-                            }}>
-                            Toggle
-                        </Button>
-                    </Typography>}
-                    <br />
-                    <Typography variant="body2">
-                        <FontAwesomeIcon icon={faLockOpen}></FontAwesomeIcon> indicates enabled plugins and <FontAwesomeIcon icon={faLock}></FontAwesomeIcon> indicates disabled plugins.
-                        <br />
-                        <FontAwesomeIcon icon={faCircleQuestion}></FontAwesomeIcon> indicates that the client is not capable of detecting whether the plugin is enabled or disabled.
-                        <br />
-                        You may be able to purchase new plugins on our{" "}
-                        <a href="https://drivershub.charlws.com/setup" style={{ color: theme.palette.info.main, cursor: "pointer" }}>
-                            website
-                        </a>
-                        , where pricing is displayed as well. Alternatively, reach out to us by creating a ticket in our Discord server to purchase additional plugins.
-                    </Typography>
-                    <Typography variant="body2">
-                        CHub Discord Server: <a href="https://discord.gg/KRFsymnVKm">https://discord.gg/KRFsymnVKm</a>
-                    </Typography>
                 </TabPanel>
                 <TabPanel value={tab} index={1}>
                     <Typography variant="body2" component="div" sx={{ mt: "5px" }}>
@@ -6276,18 +6133,13 @@ const Configuration = () => {
                             }}>
                             <TextField
                                 select
-                                label={
-                                    <>
-                                        {tr("name_color")}&nbsp;&nbsp;
-                                        <SponsorBadge vtclevel={3} />
-                                    </>
-                                }
+                                label={tr("name_color")}
                                 value={webConfig.use_highest_role_color}
                                 onChange={e => {
                                     setWebConfig({ ...webConfig, use_highest_role_color: e.target.value });
                                 }}
                                 fullWidth
-                                disabled={vtcLevel < 3}>
+                            >
                                 <MenuItem value={false}>{tr("default")}</MenuItem>
                                 <MenuItem value={true}>{tr("highest_role_color_when_not_customized")}</MenuItem>
                             </TextField>
@@ -6356,18 +6208,12 @@ const Configuration = () => {
                                 lg: 4,
                             }}>
                             <TextField
-                                label={
-                                    <>
-                                        {tr("background")}&nbsp;&nbsp;
-                                        <SponsorBadge vtclevel={1} />
-                                    </>
-                                }
+                                label={tr("background")}
                                 value={fileNames.bgimage || ""}
                                 fullWidth
                                 variant="outlined"
                                 placeholder="Click to select file"
-                                disabled={vtcLevel < 1}
-                                onClick={() => vtcLevel >= 1 && document.getElementById('bgimage-upload').click()}
+                                onClick={() => document.getElementById('bgimage-upload').click()}
                                 slotProps={{
                                     input: {
                                         readOnly: true,
@@ -6390,8 +6236,7 @@ const Configuration = () => {
                                 lg: 6,
                             }}>
                             <Typography variant="h7" sx={{ fontWeight: 800 }}>
-                                {tr("name_color")}&nbsp;&nbsp;
-                                <SponsorBadge vtclevel={1} disabled={vtcLevel < 1} />
+                                {tr("name_color")}
                             </Typography>
                             <br />
                             <ColorInput
@@ -6399,7 +6244,6 @@ const Configuration = () => {
                                 onChange={to => {
                                     setWebConfig({ ...webConfig, name_color: to });
                                 }}
-                                disableCustom={vtcLevel < 1}
                             />
                         </Grid>
                         <Grid
@@ -6410,8 +6254,7 @@ const Configuration = () => {
                                 lg: 6,
                             }}>
                             <Typography variant="h7" sx={{ fontWeight: 800 }}>
-                                {tr("theme_opacity")}&nbsp;&nbsp;
-                                <SponsorBadge vtclevel={1} />
+                                {tr("theme_opacity")}
                             </Typography>
                             <br />
                             <Slider
@@ -6421,7 +6264,6 @@ const Configuration = () => {
                                 }}
                                 aria-labelledby="continuous-slider"
                                 sx={{ color: theme.palette.info.main, height: "20px" }}
-                                disabled={vtcLevel < 1}
                             />
                         </Grid>
                         <Grid
@@ -6432,8 +6274,7 @@ const Configuration = () => {
                                 lg: 6,
                             }}>
                             <Typography variant="h7" sx={{ fontWeight: 800 }}>
-                                {tr("theme_main_color")}&nbsp;&nbsp;
-                                <SponsorBadge vtclevel={1} />
+                                {tr("theme_main_color")}
                             </Typography>
                             <br />
                             <ColorInput
@@ -6441,7 +6282,6 @@ const Configuration = () => {
                                 onChange={to => {
                                     setWebConfig({ ...webConfig, theme_main_color: to });
                                 }}
-                                disableCustom={vtcLevel < 1}
                             />
                         </Grid>
                         <Grid
@@ -6452,8 +6292,7 @@ const Configuration = () => {
                                 lg: 6,
                             }}>
                             <Typography variant="h7" sx={{ fontWeight: 800 }}>
-                                {tr("theme_background_color")}&nbsp;&nbsp;
-                                <SponsorBadge vtclevel={1} />
+                                {tr("theme_background_color")}
                             </Typography>
                             <br />
                             <ColorInput
@@ -6461,7 +6300,6 @@ const Configuration = () => {
                                 onChange={to => {
                                     setWebConfig({ ...webConfig, theme_background_color: to });
                                 }}
-                                disableCustom={vtcLevel < 1}
                             />
                         </Grid>
                     </Grid>

@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.6.0
+
+1. Separated with CHub
+
 ## v3.5.0
 
 1. Updated dependencies

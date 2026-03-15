@@ -15,7 +15,7 @@ const ALL_STAFF_PERMS = ["administrator", "update_config", "reload_config", "res
 
 const SideBar = props => {
   const { t: tr } = useTranslation();
-  const { vtcBanner, vtcLevel, webConfig, curUID, curUser, curUserPerm } = useContext(AppContext);
+  const { vtcBanner, webConfig, curUID, curUser, curUserPerm } = useContext(AppContext);
 
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -117,8 +117,6 @@ const SideBar = props => {
       }
     }
 
-    if (vtcLevel < 1) toRemove.push("gallery");
-
     for (let key in pluginControl) {
       if (!plugins.includes(key)) {
         toRemove = toRemove.concat(pluginControl[key]);
@@ -134,7 +132,7 @@ const SideBar = props => {
     if (removedPath.includes(window.location.pathname)) navigate("/404");
 
     return menu;
-  }, [webConfig, curUID, curUser, curUserPerm, vtcLevel]);
+  }, [webConfig, curUID, curUser, curUserPerm]);
 
   useEffect(() => {
     let routeIndex = {};
@@ -159,7 +157,7 @@ const SideBar = props => {
     }
     if (!matchedPath) {
       // off-the-sidebar-paths
-      if (!["/settings", "/notifications", "/sponsor", "/supporters", "/badges"].includes(path) || (["/settings", "/settings/general", "/settings/appearance", "/settings/security", "/settings/sessions", "/notifications"].includes(path) && curUID === null)) {
+      if (!["/settings", "/notifications"].includes(path) || (["/settings", "/settings/general", "/settings/appearance", "/settings/security", "/settings/sessions", "/notifications"].includes(path) && curUID === null)) {
         if (!reload404) {
           if (Object.values(menuRoute).includes(path)) {
             if (curUID === null) navigate("/auth/login");
@@ -170,7 +168,7 @@ const SideBar = props => {
           } else {
             setTimeout(function () {
               // check again later, in case sidebar should be hidden
-              if (!["/settings", "/settings/general", "/settings/appearance", "/settings/security", "/settings/sessions", "/notifications", "/sponsor", "/supporters", "/badges"].includes(path) || (["/settings", "/notifications"].includes(path) && curUID === null)) {
+              if (!["/settings", "/settings/general", "/settings/appearance", "/settings/security", "/settings/sessions", "/notifications"].includes(path) || (["/settings", "/notifications"].includes(path) && curUID === null)) {
                 if (!reload404) {
                   if (Object.values(menuRoute).includes(path)) {
                     if (curUID === null) navigate("/auth/login");

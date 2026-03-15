@@ -15,9 +15,7 @@ An advanced Drivers Hub solution for Euro Truck Simulator 2 / American Truck Sim
 
 This is a working demonstration of a web client for the Drivers Hub.
 
-As it is built by a backend developer obliged to work on frontend, the codebase is relatively messy and fragile.
-
-Due to multi-hub support and past monetization attempts, the codebase also involves various features limited to privileged users. These features are being removed or transformed to better suit an open-source project.
+As it is built by a backend developer obligated to work on frontend, as well as past attempts at monetization, the codebase is relatively messy and fragile.
 
 Nevertheless, everything works just fine and directly out of the box with the backend server.
 
@@ -27,7 +25,7 @@ Most of the features provided by backend are supported. See [drivershub.charlws.
 
 Additional features - these are implemented with non-standard approaches or without direct backend support:
 
-- [announcement/downloads/poll] Add `[Image src="{link}" loc="left|right"]` (\*case-sensitive) to the beginning of content/description to show an image banner for an announcement / downloadablt item.  
+- [announcement/downloads/poll] Add `[Image src="{link}" loc="left|right"]` (\*case-sensitive) to the beginning of content/description to show an image banner for an announcement / downloadable item.  
 - [event] Add `[Image src="{link}"]` (\*case-sensitive) to the beginning of description to show an image heading for an event.
 - [display] VTC Background image  
 - [display] VTC Theme & Name Color
@@ -35,7 +33,7 @@ Additional features - these are implemented with non-standard approaches or with
 
 More additional features - these are implemented by using api endpoints in creative ways:
 
-- Auto import mulitple trucky jobs
+- Auto import multiple trucky jobs
 - Sync member profiles
 - Compare TruckersMP Members
 - Batch update tracker
@@ -52,12 +50,6 @@ Electron client features:
 - OAuth login with default browser
 - Custom build (icon / locked domain)
 - Discord Rich Presence
-  - VTC Logo will be used as large image / CHub Logo will be used as small image
-  - For default RPC
-    - `Powered by CHub` will be used as second button
-  - For custom RPC
-    - Set `discordClientID` in `electron-config.json` and `build-electron/config.json`
-    - There will not be a second button
 - Desktop Notifications
 
 ## Getting Started

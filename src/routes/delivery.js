@@ -84,12 +84,11 @@ const DeliveryDetail = memo(({ divisions, userDivisionIDs, doReload, divisionMet
             largeImageKey: `${apiPath}/client/assets/logo?key=${webConfig.logo_key !== undefined ? webConfig.logo_key : ""}`,
             largeImageText: webConfig.name,
             smallImageKey: `https://drivershub.charlws.com/images/logo.png`,
-            smallImageText: "The Drivers Hub Project (CHub)",
+            smallImageText: "The Drivers Hub Project",
             startTimestamp: new Date(),
             instance: false,
             buttons: [
                 { label: "Visit Drivers Hub", url: `https://${window.dhhost}${window.location.pathname}` },
-                { label: tr("powered_by_chub"), url: "https://drivershub.charlws.com/" },
             ],
         });
     }
@@ -443,12 +442,11 @@ const DeliveryDetail = memo(({ divisions, userDivisionIDs, doReload, divisionMet
                     largeImageKey: `${apiPath}/client/assets/logo?key=${webConfig.logo_key !== undefined ? webConfig.logo_key : ""}`,
                     largeImageText: webConfig.name,
                     smallImageKey: `https://drivershub.charlws.com/images/logo.png`,
-                    smallImageText: "The Drivers Hub Project (CHub)",
+                    smallImageText: "The Drivers Hub Project",
                     startTimestamp: new Date(),
                     instance: false,
                     buttons: [
                         { label: "Visit Drivers Hub", url: `https://${window.dhhost}${window.location.pathname}` },
-                        { label: tr("powered_by_chub"), url: "https://drivershub.charlws.com/" },
                     ],
                 });
             }

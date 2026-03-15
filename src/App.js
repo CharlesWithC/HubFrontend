@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import i18n from "./i18n";
 import { AppContext, ThemeContext } from "./context";
 
-import { Card, CardContent, Typography, Button, Grid, Dialog, DialogActions, DialogTitle, DialogContent, useTheme, useMediaQuery, createTheme, ThemeProvider, CssBaseline } from "@mui/material";
+import { Card, CardContent, Typography, Button, Grid, useTheme, useMediaQuery, createTheme, ThemeProvider, CssBaseline } from "@mui/material";
 
 import Loader from "./components/loader";
 import Redirect from "./components/redirect";
@@ -23,7 +23,6 @@ const AuthLogin = lazy(() => import("./routes/auth/login"));
 const TokenAuth = lazy(() => import("./routes/auth/token"));
 const DiscordAuth = lazy(() => import("./routes/auth/discord/callback"));
 const SteamAuth = lazy(() => import("./routes/auth/steam/callback"));
-const PatreonAuth = lazy(() => import("./routes/auth/patreon/callback"));
 const MfaAuth = lazy(() => import("./routes/auth/mfa"));
 const EmailAuth = lazy(() => import("./routes/auth/email"));
 
@@ -55,12 +54,9 @@ const AuditLog = lazy(() => import("./routes/audit-log"));
 // lazy load: seldomly accessed
 const Notifications = lazy(() => import("./routes/notifications"));
 const NotFound = lazy(() => import("./routes/404"));
-const Badges = lazy(() => import("./routes/badges"));
-const Supporters = lazy(() => import("./routes/supporters"));
-const UpgradeCard = lazy(() => import("./routes/sponsor"));
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faLink, faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
+import { faLink } from "@fortawesome/free-solid-svg-icons";
 
 import { getDesignTokens } from "./designs";
 import "./App.css";
@@ -99,7 +95,7 @@ const SuspenseLoadingTrigger = () => {
 
 function App() {
     const { t: tr } = useTranslation();
-    const { vtcBackground, customBackground, vtcLevel, userLevel, apiConfig, apiVersion, webConfig, userSettings, setUserSettings, curUser, apiPath } = useContext(AppContext);
+    const { vtcBackground, customBackground, apiConfig, apiVersion, webConfig, userSettings, setUserSettings, curUser, apiPath } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     useEffect(() => {
@@ -111,24 +107,10 @@ function App() {
     const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
     const themeMode = useMemo(() => (themeSettings.theme === "auto" ? (prefersDarkMode ? "dark" : "light") : themeSettings.theme), [themeSettings]);
     const muiTheme = { dark: "dark", light: "light", halloween: "dark" };
-    const designTokens = useMemo(() => getDesignTokens({ vtcBackground, customBackground, vtcLevel, userLevel, webConfig }, { themeSettings, setThemeSettings }, themeMode, muiTheme[themeMode], themeSettings.use_custom_theme, themeSettings.theme_background, themeSettings.theme_main, themeSettings.theme_darken_ratio, themeSettings.font_size), [vtcBackground, customBackground, themeSettings, webConfig]);
+    const designTokens = useMemo(() => getDesignTokens({ vtcBackground, customBackground, webConfig }, { themeSettings, setThemeSettings }, themeMode, muiTheme[themeMode], themeSettings.use_custom_theme, themeSettings.theme_background, themeSettings.theme_main, themeSettings.theme_darken_ratio, themeSettings.font_size), [vtcBackground, customBackground, themeSettings, webConfig]);
     const theme = useMemo(() => createTheme(designTokens, muiTheme[themeMode]), [designTokens, themeMode]);
     const uTheme = useTheme();
     const isMd = useMediaQuery(uTheme.breakpoints.up("md"));
-
-    const [buildhash, setBuildHash] = useState("drgn.dev");
-    useEffect(() => {
-        const scripts = document.getElementsByTagName("script");
-        const mainScript = Array.from(scripts).find(script => script.src);
-
-        if (mainScript) {
-            const filename = mainScript.src.split("/").pop().replace(".js", "");
-            if (filename === "client") setBuildHash("drgn.dev");
-            else setBuildHash("drgn." + (filename.substring(0, 8) || "dev"));
-        }
-    }, []);
-
-    const [showSurveyCard, setShowSurveyCard] = useState(+new Date() <= 1710806399000 && (localStorage.getItem("survey-202402") === null || parseInt(localStorage.getItem("survey-202402")) <= +new Date()));
 
     if (window.location.hostname === "localhost" && window.location.pathname === "/auth/complete") {
         return (
@@ -179,15 +161,13 @@ function App() {
         }, 500);
     };
 
-    const [aboutCHubModal, setAboutCHubModal] = useState(false);
-
     const location = useLocation();
     const [sidebarForceHidden, setSidebarForceHidden] = useState(false);
     const [sidebarHidden, setSidebarHidden] = useState(window.innerWidth < 600);
     const [topbarHidden, setTopbarHidden] = useState(false);
     useEffect(() => {
         const handle = () => {
-            if (["/auth", "/auth/login", "/auth/email", "/auth/discord/callback", "/auth/discord/redirect", "/auth/steam/callback", "/auth/steam/redirect", "/auth/patreon/callback", "/auth/mfa"].includes(location.pathname)) {
+            if (["/auth", "/auth/login", "/auth/email", "/auth/discord/callback", "/auth/discord/redirect", "/auth/steam/callback", "/auth/steam/redirect", "/auth/mfa"].includes(location.pathname)) {
                 setSidebarForceHidden(true);
                 setSidebarHidden(true);
                 setTopbarHidden(true);
@@ -234,7 +214,7 @@ function App() {
     if (window.isElectron && webConfig !== null) {
         window.electron.ipcRenderer.send("presence-settings", userSettings.presence);
 
-        const STATUS_NAMES = { "/": "Viewing Overview", "/overview": "Viewing Overview", "/statistics": "Viewing Statistics", "/gallery": "Viewing Gallery", "/announcement": "Viewing Announcements", "/downloads": "Viewing Downloads", "/poll": "Viewing Polls", "/task": "Viewing Tasks", "/map": "Viewing Map", "/delivery": "Viewing Deliveries", "/challenge": "Viewing Challenges", "/division": "Viewing Divisions", "/economy": "Viewing Economy", "/event": "Viewing Events", "/member": "Viewing Members", "/leaderboard": "Viewing Leaderboard", "/ranking": "Viewing Rankings", "/freightmaster": "Viewing FreightMaster", "/apply": "Submitting Application", "/application/new": "Submitting Application", "/application/my": "Viewing Own Applications", "/application/all": "Viewing All Applications", "/member-list": "Viewing Member List", "/external-user": "Viewing External Users", "/audit-log": "Viewing Audit Log", "/config": "Modifying Configuration", "/settings": "Modifying Settings", "/sponsor": "Sponsoring...", "/supporters": "Viewing Supporters", "/badges": "Viewing Badges", "/notifications": "Viewing Notifications", "/auth": "Logging in..." };
+        const STATUS_NAMES = { "/": "Viewing Overview", "/overview": "Viewing Overview", "/statistics": "Viewing Statistics", "/gallery": "Viewing Gallery", "/announcement": "Viewing Announcements", "/downloads": "Viewing Downloads", "/poll": "Viewing Polls", "/task": "Viewing Tasks", "/map": "Viewing Map", "/delivery": "Viewing Deliveries", "/challenge": "Viewing Challenges", "/division": "Viewing Divisions", "/economy": "Viewing Economy", "/event": "Viewing Events", "/member": "Viewing Members", "/leaderboard": "Viewing Leaderboard", "/ranking": "Viewing Rankings", "/freightmaster": "Viewing FreightMaster", "/apply": "Submitting Application", "/application/new": "Submitting Application", "/application/my": "Viewing Own Applications", "/application/all": "Viewing All Applications", "/member-list": "Viewing Member List", "/external-user": "Viewing External Users", "/audit-log": "Viewing Audit Log", "/config": "Modifying Configuration", "/settings": "Modifying Settings", "/notifications": "Viewing Notifications", "/auth": "Logging in..." };
         let path = window.location.pathname;
         if (path.startsWith("/auth")) path = "/auth";
         if (Object.keys(STATUS_NAMES).includes(path)) {
@@ -243,12 +223,11 @@ function App() {
                 largeImageKey: `${apiPath}/client/assets/logo?key=${webConfig.logo_key !== undefined ? webConfig.logo_key : ""}`,
                 largeImageText: webConfig.name,
                 smallImageKey: `https://drivershub.charlws.com/images/logo.png`,
-                smallImageText: "The Drivers Hub Project (CHub)",
+                smallImageText: "The Drivers Hub Project",
                 startTimestamp: new Date(),
                 instance: false,
                 buttons: [
                     { label: "Visit Drivers Hub", url: `https://${window.dhhost}${window.location.pathname}` },
-                    { label: "Powered by CHub", url: "https://drivershub.charlws.com/" },
                 ],
             });
         }
@@ -335,79 +314,6 @@ function App() {
                                 </Card>
                             </>
                         )}
-                        {showSurveyCard && !(!window.isElectron && cookieSettings === null) && !sidebarForceHidden && (
-                            <>
-                                <Card sx={{ position: "fixed", zIndex: 100000, bottom: "10px", right: "10px", width: window.innerWidth <= 420 ? "calc(100vw - 20px) !important" : "400px" }}>
-                                    <CardContent>
-                                        <Typography variant="h6" fontWeight="bold">
-                                            CHub Community Survey
-                                        </Typography>
-                                        <Typography variant="body2" sx={{ marginBottom: "10px" }}>
-                                            Share your feedback for a chance to win a <b>$10 Steam Giftcard</b>!
-                                        </Typography>
-                                        <Grid container spacing={2}>
-                                            <Grid
-                                                size={{
-                                                    xs: 12,
-                                                    sm: 12,
-                                                    md: localStorage.getItem("survey-202402") !== null ? 12 : 6,
-                                                    lg: localStorage.getItem("survey-202402") !== null ? 12 : 6,
-                                                }}>
-                                                <Button
-                                                    onClick={() => {
-                                                        localStorage.setItem("survey-202402", "1710806400000");
-                                                        setShowSurveyCard(false);
-                                                        window.open("https://go.charlws.com/survey");
-                                                    }}
-                                                    variant="contained"
-                                                    color="success"
-                                                    sx={{ width: "100%" }}>
-                                                    Join
-                                                </Button>
-                                            </Grid>
-                                            {localStorage.getItem("survey-202402") !== null && (
-                                                <Grid
-                                                    size={{
-                                                        xs: 12,
-                                                        sm: 12,
-                                                        md: 6,
-                                                        lg: 6,
-                                                    }}>
-                                                    <Button
-                                                        onClick={() => {
-                                                            localStorage.setItem("survey-202402", "1710806400000");
-                                                            setShowSurveyCard(false);
-                                                        }}
-                                                        variant="contained"
-                                                        color="secondary"
-                                                        sx={{ width: "100%" }}>
-                                                        Not interested
-                                                    </Button>
-                                                </Grid>
-                                            )}
-                                            <Grid
-                                                size={{
-                                                    xs: 12,
-                                                    sm: 12,
-                                                    md: 6,
-                                                    lg: 6,
-                                                }}>
-                                                <Button
-                                                    onClick={() => {
-                                                        localStorage.setItem("survey-202402", String(+new Date() + 86400000));
-                                                        setShowSurveyCard(false);
-                                                    }}
-                                                    variant="contained"
-                                                    color="secondary"
-                                                    sx={{ width: "100%" }}>
-                                                    Remind me later
-                                                </Button>
-                                            </Grid>
-                                        </Grid>
-                                    </CardContent>
-                                </Card>
-                            </>
-                        )}
                         <SimpleBar style={{ padding: "20px", height: "100%", backgroundColor: theme.palette.background.default }}>
                             <div style={{ display: "flex", flexDirection: "column", minHeight: "calc(100vh - 120px)" }}>
                                 {!sidebarForceHidden && curUser.userid === null && [false, ...apiConfig.required_connections].reduce((res, conn) => res || curUser[conn + (conn !== "email" ? "id" : "")] === null) && (
@@ -439,12 +345,9 @@ function App() {
                                         <Route path="/auth/login" element={<AuthLogin />} />
                                         <Route path="/auth" element={<TokenAuth />} />
                                         <Route path="/auth/discord/callback" element={<DiscordAuth />} />
-                                        {apiConfig !== null && apiConfig.discord_client_id !== "1120997206938361877" && <Route path="/auth/discord/redirect" element={<Redirect to={`https://discord.com/oauth2/authorize?client_id=${apiConfig.discord_client_id}&redirect_uri=https%3A%2F%2F${window.dhhost}%2Fauth%2Fdiscord%2Fcallback&response_type=code&scope=identify email role_connections.write`} path="/auth/discord/redirect" />} />}
-                                        {apiConfig !== null && apiConfig.discord_client_id === "1120997206938361877" && <Route path="/auth/discord/redirect" element={<Redirect to={`https://oauth.chub.page/discord-auth?domain=${window.dhhost}`} path="/auth/discord/redirect" />} />}
+                                        <Route path="/auth/discord/redirect" element={<Redirect to={`https://discord.com/oauth2/authorize?client_id=${apiConfig.discord_client_id}&redirect_uri=https%3A%2F%2F${window.dhhost}%2Fauth%2Fdiscord%2Fcallback&response_type=code&scope=identify email role_connections.write`} path="/auth/discord/redirect" />} />
                                         <Route path="/auth/steam/callback" element={<SteamAuth />} />
                                         <Route path="/auth/steam/redirect" element={<Redirect to={`https://steamcommunity.com/openid/login?openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&openid.mode=checkid_setup&openid.return_to=https%3A%2F%2F${window.dhhost}%2Fauth%2Fsteam%2Fcallback&openid.realm=https%3A%2F%2F${window.dhhost}&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select`} path="/auth/steam/redirect" />} />
-                                        <Route path="/auth/patreon/redirect" element={<Redirect to={"https://oauth.chub.page/patreon-auth?domain=" + window.dhhost} path="/auth/patreon/redirect" />} />
-                                        <Route path="/auth/patreon/callback" element={<PatreonAuth />} />
                                         <Route path="/auth/mfa" element={<MfaAuth />} />
                                         <Route path="/auth/email" element={<EmailAuth />} />
                                         <Route path="/settings" element={<Settings />}></Route>
@@ -482,95 +385,10 @@ function App() {
                                         <Route path="/external-user" element={<ExternalUsers />}></Route>
                                         <Route path="/audit-log" element={<AuditLog />}></Route>
                                         <Route path="/config" element={<Configuration />}></Route>
-                                        <Route path="/sponsor" element={<UpgradeCard />}></Route>
-                                        <Route path="/supporters" element={<Supporters />}></Route>
-                                        <Route path="/badges" element={<Badges />}></Route>
                                         <Route path="*" element={<NotFound />}></Route>
                                     </Routes>
                                 </Suspense>
-                                <Dialog open={aboutCHubModal} onClose={() => setAboutCHubModal(false)}>
-                                    <DialogTitle>About The Drivers Hub Project (CHub)</DialogTitle>
-                                    <DialogContent>
-                                        <Typography variant="body2">
-                                            Embark on a journey through the digital thoroughfares with <b>{tr("drivers_hub")}</b>, an ethereal portal for Virtual Trucking Communities, crafted to elevate communal experiences and simplify the art of management.
-                                        </Typography>
-                                        <br />
-                                        <Typography variant="body2">
-                                            Orchestrated by the visionary mind of <b>CharlesWithC</b>, this symphony is performed under the appellation of CHub, also known as The Drivers Hub Project.
-                                        </Typography>
-                                        <br />
-                                        <Typography variant="body2">
-                                            CHub unveils itself as a Software as a Service (SaaS) marvel, inviting you to subscribe and forge your own Drivers Hub. Immerse yourself in the essence of our creation by exploring our{" "}
-                                            <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">
-                                                sanctuary (drivershub.charlws.com)
-                                            </a>
-                                            .
-                                        </Typography>
-                                        <br />
-                                        <Typography variant="body2">
-                                            <b>Wander through these portals:</b>&nbsp;&nbsp;
-                                            <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">
-                                                Website
-                                            </a>
-                                            &nbsp;&nbsp;
-                                            <a href="https://wiki.charlws.com/books/chub" target="_blank" rel="noreferrer">
-                                                Wiki
-                                            </a>
-                                            &nbsp;&nbsp;
-                                            <a href="https://discord.gg/KRFsymnVKm" target="_blank" rel="noreferrer">
-                                                Discord
-                                            </a>
-                                            &nbsp;&nbsp;
-                                            <a href="https://twitter.com/CHub_DH" target="_blank" rel="noreferrer">
-                                                Twitter
-                                            </a>
-                                            <br />
-                                        </Typography>
-                                        <Typography variant="body2">
-                                            <b>Our cosmic partners:</b>&nbsp;&nbsp;
-                                            <a href="https://truckyapp.com/" target="_blank" rel="noreferrer">
-                                                Trucky
-                                            </a>
-                                            &nbsp;&nbsp;
-                                            <a href="https://discord.gg/trucksim" target="_blank" rel="noreferrer">
-                                                /r/trucksim
-                                            </a>
-                                            &nbsp;&nbsp;
-                                        </Typography>
-                                        <br />
-                                        <Typography variant="body2" fontWeight="bold">
-                                            Versions
-                                        </Typography>
-                                        <Grid container spacing={2} rowSpacing={-0.5}>
-                                            <Grid
-                                                size={{
-                                                    xs: 12,
-                                                    md: 6,
-                                                }}>
-                                                <Typography variant="body2">Client: 3.5.0 (build.{buildhash})</Typography>
-                                            </Grid>
-                                            <Grid
-                                                size={{
-                                                    xs: 12,
-                                                    md: 6,
-                                                }}>
-                                                <Typography variant="body2">Server: {apiVersion}</Typography>
-                                            </Grid>
-                                        </Grid>
-                                        <br />
-                                        <Typography variant="body2">Gratitude for embarking on this celestial exploration. As the modal curtain falls, let the harmonies of Drivers Hub serenade your digital travels!</Typography>
-                                    </DialogContent>
-                                    <DialogActions>
-                                        <Button
-                                            variant="primary"
-                                            onClick={() => {
-                                                setAboutCHubModal(false);
-                                            }}>
-                                            {tr("close")}
-                                        </Button>
-                                    </DialogActions>
-                                </Dialog>
-                                <footer style={{ display: ["/auth", "/auth/login", "/auth/email", "/auth/discord/callback", "/auth/discord/redirect", "/auth/steam/callback", "/auth/steam/redirect", "/auth/patreon/callback", "/auth/mfa"].includes(location.pathname) ? "none" : "block", marginTop: "auto", fontSize: "0.9em" }}>
+                                <footer style={{ display: ["/auth", "/auth/login", "/auth/email", "/auth/discord/callback", "/auth/discord/redirect", "/auth/steam/callback", "/auth/steam/redirect", "/auth/mfa"].includes(location.pathname) ? "none" : "block", marginTop: "auto", fontSize: "0.9em" }}>
                                     {isMd && (
                                         <div style={{ display: "flex", alignItems: "center", marginTop: "20px", color: theme.palette.text.secondary }}>
                                             <Typography variant="body2" sx={{ flexGrow: 1, fontWeight: 800 }}>
@@ -581,15 +399,8 @@ function App() {
                                             </Typography>
                                             <Typography variant="body2" sx={{ marginLeft: "auto", alignSelf: "flex-end", textAlign: "right", fontWeight: 800, marginRight: hasSpeedDial ? "70px" : 0 }}>
                                                 <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">
-                                                    The Drivers Hub Project (CHub)
-                                                </a>{" "}
-                                                <FontAwesomeIcon
-                                                    icon={faQuestionCircle}
-                                                    onClick={() => {
-                                                        setAboutCHubModal(true);
-                                                    }}
-                                                    style={{ cursor: "pointer" }}
-                                                />
+                                                    The Drivers Hub Project
+                                                </a>
                                             </Typography>
                                         </div>
                                     )}
@@ -602,15 +413,8 @@ function App() {
                                                 </a>
                                                 <br />
                                                 <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">
-                                                    The Drivers Hub Project (CHub)
-                                                </a>{" "}
-                                                <FontAwesomeIcon
-                                                    icon={faQuestionCircle}
-                                                    onClick={() => {
-                                                        setAboutCHubModal(true);
-                                                    }}
-                                                    style={{ cursor: "pointer" }}
-                                                />
+                                                    The Drivers Hub Project
+                                                </a>
                                             </Typography>
                                         </div>
                                     )}

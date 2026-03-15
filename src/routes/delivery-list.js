@@ -16,14 +16,13 @@ import CustomTable from "../components/table";
 import UserCard from "../components/usercard";
 import UserSelect from "../components/userselect";
 import TimeDelta from "../components/timedelta";
-import SponsorBadge from "../components/sponsorBadge";
 import { makeRequestsAuto, getMonthUTC, ConvertUnit, customAxios as axios, getAuthToken, downloadLocal, checkUserPerm, removeNUEValues } from "../functions";
 
 const CURRENTY_ICON = { 1: "€", 2: "$" };
 
 const Deliveries = () => {
     const { t: tr } = useTranslation();
-    const { apiPath, userLevel, curUserPerm, userSettings, users, memberUIDs } = useContext(AppContext);
+    const { apiPath, curUserPerm, userSettings, users } = useContext(AppContext);
     const { cache, setCache } = useContext(CacheContext);
     const theme = useTheme();
 
@@ -109,11 +108,6 @@ const Deliveries = () => {
     const [truckyBatchImportSuccess, setTruckyBatchImportSuccess] = useState(0);
     const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
     const importFromTruckyMultiple = useCallback(async () => {
-        if (userLevel < 4) {
-            setSnackbarContent(tr("auto_import_multiple_trucky_jobs_platinum_perk"));
-            setSnackbarSeverity("warning");
-            return;
-        }
         if (isNaN(truckyImportRange.end_time - truckyImportRange.start_time)) {
             setSnackbarContent(tr("invalid_date_range"));
             setSnackbarSeverity("error");
@@ -520,8 +514,7 @@ const Deliveries = () => {
                     <Divider sx={{ mt: "10px", mb: "10px" }} />
                     <Typography variant="body2" sx={{ fontWeight: 800, mb: "10px" }}>
                         {tr("multiple_jobs")}
-                        {truckyBatchImportTotal !== 0 ? `(${truckyBatchImportCurrent} / ${truckyBatchImportTotal} | ${tr("success")}: ${truckyBatchImportSuccess})` : ""}&nbsp;&nbsp;
-                        <SponsorBadge level={4} />
+                        {truckyBatchImportTotal !== 0 ? `(${truckyBatchImportCurrent} / ${truckyBatchImportTotal} | ${tr("success")}: ${truckyBatchImportSuccess})` : ""}
                     </Typography>
 
                     <Grid container spacing={2} sx={{ mb: "3px" }}>

@@ -42,7 +42,7 @@ function removeMarkdown(content) {
 
 async function createWindow() {
     const server = express();
-    const REDIRECT_BACK = ['/auth/discord/callback', '/auth/steam/callback', '/auth/patreon/callback'];
+    const REDIRECT_BACK = ['/auth/discord/callback', '/auth/steam/callback'];
     for (const route of REDIRECT_BACK) { // handle login callback
         server.get(route, (req, res, next) => {
             const userAgent = req.headers['user-agent'];
@@ -210,7 +210,7 @@ app.on('ready', () => {
     if (!isPortable) {
         autoUpdater.setFeedURL({
             provider: 'generic',
-            url: 'https://dl.chub.page/' + config.build + '/',
+            url: process.env.ELECTRON_UPDATE_BASE + '/' + config.build + '/',
         });
         // autoUpdater.autoDownload = true;
         autoUpdater.autoDownload = false;
@@ -283,9 +283,7 @@ function doRPCLogin() {
                     largeImageKey: 'https://drivershub.charlws.com/images/logo.png',
                     startTimestamp: new Date(),
                     instance: false,
-                    buttons: config.discordClientID === "997847494933368923" ? [
-                        { label: 'Powered by CHub', url: "https://drivershub.charlws.com/" }
-                    ] : []
+                    buttons: []
                 });
             } else if (presenceMode === "basic") {
                 rpc.setActivity({
@@ -302,10 +300,6 @@ let lastPresence = null; // note, must be different from curPresence
 let curPresence = {};
 ipcMain.on('presence-update', (event, data) => {
     try {
-        if (config.discordClientID !== "997847494933368923") {
-            // remove powered by CHub for custom RPC
-            data.buttons = [data.buttons[0]];
-        }
         if (data !== curPresence) {
             if (curPresence !== lastPresence) {
                 lastPresence = JSON.parse(JSON.stringify(curPresence));

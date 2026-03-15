@@ -40,14 +40,11 @@ const LargeUserCard = ({ user, color }) => {
 
 const Leaderboard = () => {
     const { t: tr } = useTranslation();
-    const { apiPath, allRanks, userSettings, userLevel } = useContext(AppContext);
+    const { apiPath, allRanks, userSettings } = useContext(AppContext);
     const { cache, setCache } = useContext(CacheContext);
     const theme = useTheme();
 
     let displayTimezone = userSettings.display_timezone;
-    if (userLevel < 3) {
-        displayTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    }
     let timezoneDelta = getTimezoneOffset(displayTimezone, Intl.DateTimeFormat().resolvedOptions().timeZone) * 60;
 
     const columns = [

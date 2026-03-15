@@ -4,7 +4,7 @@
   "description": "An advanced Drivers Hub solution.",
   "author": "CharlesWithC <me@charlws.com> (https://charlws.com)",
   "homepage": "https://drivershub.charlws.com",
-  "version": "3.5.0",
+  "version": "3.6.0",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -79,7 +79,7 @@
     "productName": "Drivers Hub",
     "artifactName": "DriversHub.${ext}",
     "executableName": "DriversHub",
-    "icon": "./build-electron/assets/chub.png",
+    "icon": "./build-electron/assets/logo.png",
     "directories": {
       "buildResources": "assets"
     },
@@ -101,7 +101,7 @@
           ]
         }
       ],
-      "legalTrademarks": "The Drivers Hub Project (CHub)",
+      "legalTrademarks": "The Drivers Hub Project",
       "publisherName": "CharlesWithC"
     },
     "nsis": {

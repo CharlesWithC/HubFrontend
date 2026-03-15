@@ -18,13 +18,12 @@ import CreatableSelect from "react-select/creatable";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRefresh, faFingerprint, faHashtag, faScrewdriverWrench, faEarthAmericas, faCrown, faClover, faDesktop, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
-import { faChrome, faFirefox, faEdge, faInternetExplorer, faOpera, faSafari, faPatreon } from "@fortawesome/free-brands-svg-icons";
+import { faChrome, faFirefox, faEdge, faInternetExplorer, faOpera, faSafari } from "@fortawesome/free-brands-svg-icons";
 
 import ColorInput from "../components/colorInput";
 import TimeDelta from "../components/timedelta";
 import CustomTable from "../components/table";
 import MarkdownRenderer from "../components/markdown";
-import SponsorBadge from "../components/sponsorBadge";
 
 import { makeRequestsWithAuth, customAxios as axios, getAuthToken, writeLS, setAuthMode } from "../functions";
 
@@ -76,7 +75,7 @@ function TabPanel(props) {
 
 const Settings = ({ defaultTab = 0 }) => {
     const { t: tr } = useTranslation();
-    const { apiPath, vtcBackground, customBackground, setCustomBackground, specialUsers, patrons, curUserPatreonID, vtcLogo, userConfig, setUserConfig, vtcLevel, userLevel, apiConfig, webConfig, languages, allRoles, setUsers, curUser, userSettings, setUserSettings } = useContext(AppContext);
+    const { apiPath, vtcBackground, customBackground, setCustomBackground, vtcLogo, userConfig, setUserConfig, apiConfig, webConfig, languages, allRoles, setUsers, curUser, userSettings, setUserSettings } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     const sessionsColumns = useMemo(
@@ -162,18 +161,6 @@ const Settings = ({ defaultTab = 0 }) => {
     const navigate = useNavigate();
 
     const [allowClearCache, setAllowClearCache] = useState(localStorage.getItem("cache-preload") !== null);
-    const connectedCHubAccount = useMemo(() => {
-        let tiers = ["platinum", "gold", "silver", "bronze"];
-        for (let k = 0; k < 4; k++) {
-            if (!Object.keys(patrons).includes(tiers[k])) continue;
-            for (let i = 0; i < patrons[tiers[k]].length; i++) {
-                if (patrons[tiers[k]][i].abbr === webConfig.abbr && patrons[tiers[k]][i].uid === curUser.uid && !patrons[tiers[k]][i].patreon_id) {
-                    return "OK";
-                }
-            }
-        }
-        return "N/A";
-    }, [patrons, webConfig, curUser]);
 
     const [otp, setOtp] = useState("");
     const [otpAction, setOtpAction] = useState("");
@@ -1098,91 +1085,6 @@ const Settings = ({ defaultTab = 0 }) => {
         [apiPath]
     );
 
-    const [badges, setBadges] = useState([]);
-    useEffect(() => {
-        let newBadges = [];
-        let newBadgeNames = [];
-        if (Object.keys(specialUsers).includes(curUser.discordid)) {
-            for (let i = 0; i < specialUsers[curUser.discordid].length; i++) {
-                let sr = specialUsers[curUser.discordid][i];
-                let badge = null;
-                let badgeName = null;
-                if (["lead_developer", "project_manager", "community_manager", "development_team", "support_manager", "marketing_manager", "support_team", "marketing_team", "graphic_team"].includes(sr.role)) {
-                    badge = (
-                        <Tooltip key={`badge-${curUser.uid}-chub}`} placement="top" arrow title={tr("chub_team")} PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-                            <FontAwesomeIcon icon={faScrewdriverWrench} style={{ color: "#2fc1f7" }} />
-                        </Tooltip>
-                    );
-                    badgeName = "chub";
-                }
-                if (["community_legend"].includes(sr.role)) {
-                    badge = (
-                        <Tooltip key={`badge-${curUser.uid}-legend`} placement="top" arrow title={tr("community_legend")} PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-                            <FontAwesomeIcon icon={faCrown} style={{ color: "#b2db80" }} />
-                        </Tooltip>
-                    );
-                    badgeName = "legend";
-                }
-                if (["network_partner"].includes(sr.role)) {
-                    badge = (
-                        <Tooltip key={`badge-${curUser.uid}-network-partner`} placement="top" arrow title={tr("network_partner")} PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-                            <FontAwesomeIcon icon={faEarthAmericas} style={{ color: "#5ae9e1" }} />
-                        </Tooltip>
-                    );
-                    badgeName = "legend";
-                }
-                if (["server_booster", "translation_team"].includes(sr.role)) {
-                    badge = (
-                        <Tooltip key={`badge-${curUser.uid}-supporter`} placement="top" arrow title={tr("supporter")} PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-                            <FontAwesomeIcon icon={faClover} style={{ color: "#f47fff" }} />
-                        </Tooltip>
-                    );
-                    badgeName = "supporter";
-                }
-                if (badge !== null && !newBadgeNames.includes(badgeName)) {
-                    newBadges.push(badge);
-                    newBadgeNames.push(badgeName);
-                }
-            }
-        }
-
-        let tiers = ["platinum", "gold", "silver", "bronze"];
-        for (let i = 0; i < tiers.length; i++) {
-            if (!Object.keys(patrons).includes(tiers[i])) continue;
-            for (let j = 0; j < patrons[tiers[i]].length; j++) {
-                let patron = patrons[tiers[i]][j];
-                if (patron.abbr === webConfig.abbr && patron.uid === curUser.uid) {
-                    let badge = (
-                        <Tooltip key={`badge-${curUser.uid}-supporter`} placement="top" arrow title={tr("supporter")} PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-                            <FontAwesomeIcon icon={faClover} style={{ color: "#f47fff" }} />
-                        </Tooltip>
-                    );
-                    let badgeName = "supporter";
-                    if (badge !== null && !newBadgeNames.includes(badgeName)) {
-                        newBadges.push(badge);
-                        newBadgeNames.push(badgeName);
-                    }
-
-                    break;
-                }
-            }
-        }
-
-        setBadges(newBadges);
-    }, []);
-
-    useEffect(() => {
-        if (userLevel < 3 && userSettings.display_timezone !== Intl.DateTimeFormat().resolvedOptions().timeZone) {
-            updateDisplayTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
-        }
-        if ((userLevel < 2 && userSettings.radio_type !== "tfm") || (userLevel < 4 && !Object.keys(RADIO_TYPES).includes(userSettings.radio_type))) {
-            updateRadioType("tfm");
-        }
-        if (userLevel < 3) {
-            updateUseCustomTheme(false);
-        }
-    }, []);
-
     const handleCustomBackground = event => {
         const file = event.target.files[0];
         const fileSizeInMegabytes = file.size / (1024 * 1024);
@@ -1339,7 +1241,6 @@ const Settings = ({ defaultTab = 0 }) => {
                         }}>
                         <Typography variant="h7" sx={{ fontWeight: 800 }}>
                             {tr("display_timezone")}&nbsp;&nbsp;
-                            <SponsorBadge level={3} />
                         </Typography>
                         <div style={{ display: "relative", width: "100%", height: "6.5px" }}></div>
                         <Select
@@ -1353,7 +1254,6 @@ const Settings = ({ defaultTab = 0 }) => {
                                 updateDisplayTimezone(item.value);
                             }}
                             menuPortalTarget={document.body}
-                            isDisabled={userLevel < 3}
                         />
                     </Grid>
 
@@ -1619,7 +1519,6 @@ const Settings = ({ defaultTab = 0 }) => {
                         }}>
                         <Typography variant="h7" sx={{ fontWeight: 800 }}>
                             {tr("radio_provider")}&nbsp;&nbsp;
-                            <SponsorBadge level={2} plus={true} />
                         </Typography>
                         <br />
                         <CreatableSelect
@@ -1633,11 +1532,6 @@ const Settings = ({ defaultTab = 0 }) => {
                             onChange={item => {
                                 const isOptionExists = Object.keys(RADIO_TYPES).includes(item.value);
                                 if (!isOptionExists) {
-                                    if (userLevel < 4) {
-                                        setSnackbarContent(tr("radio_url_platinum_perk"));
-                                        setSnackbarSeverity("warning");
-                                        return;
-                                    }
                                     try {
                                         new URL(item.value);
                                     } catch {
@@ -1653,8 +1547,7 @@ const Settings = ({ defaultTab = 0 }) => {
                                 }
                             }}
                             menuPortalTarget={document.body}
-                            formatCreateLabel={inputValue => `[Platinum] Use URL: ${inputValue}`}
-                            isDisabled={userLevel < 2}
+                            formatCreateLabel={inputValue => `Use URL: ${inputValue}`}
                         />
                     </Grid>
 
@@ -1905,78 +1798,6 @@ const Settings = ({ defaultTab = 0 }) => {
                                         </Grid>
                                     </Grid>
                                 </Grid>
-                                <Grid
-                                    size={{
-                                        xs: 12,
-                                        sm: 12,
-                                        md: 6,
-                                        lg: 6,
-                                    }}>
-                                    <Grid container spacing={2}>
-                                        <Grid
-                                            size={{
-                                                xs: 8,
-                                                sm: 8,
-                                                md: 8,
-                                                lg: 8,
-                                            }}>
-                                            <TextField label="CHub Membership Account" value={connectedCHubAccount} fullWidth disabled size="small" />
-                                        </Grid>
-                                        <Grid
-                                            size={{
-                                                xs: 4,
-                                                sm: 4,
-                                                md: 4,
-                                                lg: 4,
-                                            }}>
-                                            <Button
-                                                variant="contained"
-                                                onClick={() => {
-                                                    const hubData = { name: webConfig.name, abbr: webConfig.abbr, uid: curUser.uid };
-                                                    const hubKey = btoa(JSON.stringify(hubData));
-                                                    window.location.href = "https://drivershub.charlws.com/sponsor?connect_hub=true&hub_key=" + hubKey;
-                                                }}
-                                                fullWidth>
-                                                {tr("connect")}
-                                            </Button>
-                                        </Grid>
-                                    </Grid>
-                                </Grid>
-                                <Grid
-                                    size={{
-                                        xs: 12,
-                                        sm: 12,
-                                        md: 6,
-                                        lg: 6,
-                                    }}>
-                                    <Grid container spacing={2}>
-                                        <Grid
-                                            size={{
-                                                xs: 8,
-                                                sm: 8,
-                                                md: 8,
-                                                lg: 8,
-                                            }}>
-                                            <TextField label="Patreon" value={curUserPatreonID} fullWidth disabled size="small" />
-                                        </Grid>
-                                        <Grid
-                                            size={{
-                                                xs: 4,
-                                                sm: 4,
-                                                md: 4,
-                                                lg: 4,
-                                            }}>
-                                            <Button
-                                                variant="contained"
-                                                onClick={() => {
-                                                    navigate("/auth/patreon/redirect");
-                                                }}
-                                                fullWidth>
-                                                {tr("update")}
-                                            </Button>
-                                        </Grid>
-                                    </Grid>
-                                </Grid>
                             </Grid>
                         </Grid>
                     )}
@@ -2130,19 +1951,9 @@ const Settings = ({ defaultTab = 0 }) => {
                             lg: 6,
                         }}>
                         <Grid container spacing={2}>
-                            {userLevel < 3 && (
-                                <Grid size={12}>
-                                    <Typography variant="h7" sx={{ fontWeight: 800, mb: "10px", color: theme.palette.info.main }}>
-                                        {tr("customize_your_profile_with")}&nbsp;&nbsp;
-                                        <SponsorBadge level={3} plus={true} />
-                                    </Typography>
-                                    <br />
-                                </Grid>
-                            )}
                             <Grid size={12}>
                                 <Typography variant="h7" sx={{ fontWeight: 800 }}>
-                                    {tr("profile_banner_url")}&nbsp;&nbsp;
-                                    <SponsorBadge level={3} />
+                                    {tr("profile_banner_url")}
                                 </Typography>
                                 <TextField
                                     value={remoteUserConfig.profile_banner_url}
@@ -2152,77 +1963,33 @@ const Settings = ({ defaultTab = 0 }) => {
                                     fullWidth
                                     size="small"
                                     sx={{ marginLeft: "5px" }}
-                                    disabled={userLevel < 3}
                                 />
                             </Grid>
                             <Grid size={12}>
                                 <Typography variant="h7" sx={{ fontWeight: 800 }}>
-                                    {tr("name_color")}&nbsp;&nbsp;
-                                    <SponsorBadge level={2} plus={true} />
+                                    {tr("name_color")}
                                 </Typography>
                                 <br />
-                                {((vtcLevel >= 1 && webConfig.name_color !== null) || userLevel >= 2) && (
+                                {webConfig.name_color !== null && (
                                     <Box display="flex" flexDirection="row">
-                                        {vtcLevel >= 1 && webConfig.name_color !== null && (
-                                            <Tooltip placement="bottom" arrow title={tr("vtc_name_color")} PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-                                                <Box
-                                                    width="120px"
-                                                    height="60px"
-                                                    bgcolor={webConfig.name_color}
-                                                    p={1}
-                                                    m={1}
-                                                    display="flex"
-                                                    justifyContent="center"
-                                                    alignItems="center"
-                                                    borderRadius="5px"
-                                                    onClick={() => {
-                                                        setRemoteUserConfig({ ...remoteUserConfig, name_color: webConfig.name_color });
-                                                    }}
-                                                    style={{ cursor: "pointer" }}>
-                                                    {remoteUserConfig.name_color === webConfig.name_color && <CheckRounded />}
-                                                </Box>
-                                            </Tooltip>
-                                        )}
-                                        {userLevel >= 2 && (
-                                            <Tooltip placement="bottom" arrow title={tr("silver")} PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-                                                <Box
-                                                    width="120px"
-                                                    height="60px"
-                                                    bgcolor="#c0c0c0"
-                                                    p={1}
-                                                    m={1}
-                                                    display="flex"
-                                                    justifyContent="center"
-                                                    alignItems="center"
-                                                    borderRadius="5px"
-                                                    onClick={() => {
-                                                        setRemoteUserConfig({ ...remoteUserConfig, name_color: "#c0c0c0" });
-                                                    }}
-                                                    style={{ cursor: "pointer" }}>
-                                                    {remoteUserConfig.name_color === "#c0c0c0" && <CheckRounded />}
-                                                </Box>
-                                            </Tooltip>
-                                        )}
-                                        {userLevel >= 3 && (
-                                            <Tooltip placement="bottom" arrow title={tr("gold")} PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-                                                <Box
-                                                    width="120px"
-                                                    height="60px"
-                                                    bgcolor="#ffd700"
-                                                    p={1}
-                                                    m={1}
-                                                    display="flex"
-                                                    justifyContent="center"
-                                                    alignItems="center"
-                                                    borderRadius="5px"
-                                                    onClick={() => {
-                                                        setRemoteUserConfig({ ...remoteUserConfig, name_color: "#ffd700" });
-                                                    }}
-                                                    style={{ cursor: "pointer" }}>
-                                                    {remoteUserConfig.name_color === "#ffd700" && <CheckRounded />}
-                                                </Box>
-                                            </Tooltip>
-                                        )}
+                                        <Tooltip placement="bottom" arrow title={tr("vtc_name_color")} PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                                            <Box
+                                                width="120px"
+                                                height="60px"
+                                                bgcolor={webConfig.name_color}
+                                                p={1}
+                                                m={1}
+                                                display="flex"
+                                                justifyContent="center"
+                                                alignItems="center"
+                                                borderRadius="5px"
+                                                onClick={() => {
+                                                    setRemoteUserConfig({ ...remoteUserConfig, name_color: webConfig.name_color });
+                                                }}
+                                                style={{ cursor: "pointer" }}>
+                                                {remoteUserConfig.name_color === webConfig.name_color && <CheckRounded />}
+                                            </Box>
+                                        </Tooltip>
                                         <ColorInput
                                             boxWrapper={false}
                                             color={remoteUserConfig.name_color}
@@ -2230,8 +1997,6 @@ const Settings = ({ defaultTab = 0 }) => {
                                                 setRemoteUserConfig({ ...remoteUserConfig, name_color: val });
                                             }}
                                             customTooltip={tr("custom_color_platinum")}
-                                            disableDefault={userLevel < 2}
-                                            disableCustom={userLevel < 4}
                                         />
                                     </Box>
                                 )}
@@ -2242,8 +2007,7 @@ const Settings = ({ defaultTab = 0 }) => {
                                     md: 6,
                                 }}>
                                 <Typography variant="h7" sx={{ fontWeight: 800 }}>
-                                    {tr("profile_theme_primary")}&nbsp;&nbsp;
-                                    <SponsorBadge level={3} />
+                                    {tr("profile_theme_primary")}
                                 </Typography>
                                 <br />
                                 <ColorInput
@@ -2251,8 +2015,6 @@ const Settings = ({ defaultTab = 0 }) => {
                                     onChange={val => {
                                         setRemoteUserConfig({ ...remoteUserConfig, profile_upper_color: val });
                                     }}
-                                    disableDefault={userLevel < 3}
-                                    disableCustom={userLevel < 3}
                                 />
                             </Grid>
                             <Grid
@@ -2261,8 +2023,7 @@ const Settings = ({ defaultTab = 0 }) => {
                                     md: 6,
                                 }}>
                                 <Typography variant="h7" sx={{ fontWeight: 800 }}>
-                                    {tr("profile_theme_accent")}&nbsp;&nbsp;
-                                    <SponsorBadge level={3} />
+                                    {tr("profile_theme_accent")}
                                 </Typography>
                                 <br />
                                 <ColorInput
@@ -2270,8 +2031,6 @@ const Settings = ({ defaultTab = 0 }) => {
                                     onChange={val => {
                                         setRemoteUserConfig({ ...remoteUserConfig, profile_lower_color: val });
                                     }}
-                                    disableDefault={userLevel < 3}
-                                    disableCustom={userLevel < 3}
                                 />
                             </Grid>
                             <Grid size={12}>
@@ -2281,7 +2040,7 @@ const Settings = ({ defaultTab = 0 }) => {
                                     onClick={() => {
                                         updateRemoteUserConfig();
                                     }}
-                                    disabled={remoteUserConfigDisabled || userLevel < 2}>
+                                    disabled={remoteUserConfigDisabled}>
                                     {tr("save")}
                                 </Button>
                             </Grid>
@@ -2311,18 +2070,6 @@ const Settings = ({ defaultTab = 0 }) => {
                                             {curUser.name}
                                         </Typography>
                                         <Typography variant="h7" sx={{ flexGrow: 1, display: "flex", alignItems: "center", maxWidth: "fit-content" }}>
-                                            {badges.map((badge, index) => {
-                                                return (
-                                                    <a
-                                                        key={index}
-                                                        onClick={() => {
-                                                            navigate("/badges");
-                                                        }}
-                                                        style={{ cursor: "pointer" }}>
-                                                        {badge}&nbsp;
-                                                    </a>
-                                                );
-                                            })}
                                             {curUser.userid !== null && curUser.userid !== undefined && curUser.userid >= 0 && (
                                                 <Tooltip placement="top" arrow title={tr("user_id")} PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                                                     <Typography variant="body2">
@@ -2480,26 +2227,16 @@ const Settings = ({ defaultTab = 0 }) => {
                             lg: 12,
                         }}>
                         <Typography variant="h7" sx={{ fontWeight: 800 }}>
-                            {tr("custom_theme")}&nbsp;&nbsp;{userLevel >= 2 && <SponsorBadge level={2} plug={true} />}
+                            {tr("custom_theme")}
                         </Typography>
                         <br />
-                        {userLevel < 2 && (
-                            <>
-                                <Typography variant="h7" sx={{ fontWeight: 800, mb: "10px", color: theme.palette.info.main }}>
-                                    {tr("customize_your_client_with")}&nbsp;&nbsp;
-                                    <SponsorBadge level={2} plus={true} />
-                                </Typography>
-                                <br />
-                            </>
-                        )}
                         <ButtonGroup fullWidth>
                             <Button
                                 variant="contained"
                                 color={themeSettings.use_custom_theme === true ? "info" : "secondary"}
                                 onClick={() => {
                                     updateUseCustomTheme(true);
-                                }}
-                                disabled={userLevel < 2}>
+                                }}>
                                 {tr("enabled")}
                             </Button>
                             <Button
@@ -2507,8 +2244,7 @@ const Settings = ({ defaultTab = 0 }) => {
                                 color={themeSettings.use_custom_theme === false ? "info" : "secondary"}
                                 onClick={() => {
                                     updateUseCustomTheme(false);
-                                }}
-                                disabled={userLevel < 2}>
+                                }}>
                                 {tr("disabled")}
                             </Button>
                             <Button
@@ -2520,11 +2256,10 @@ const Settings = ({ defaultTab = 0 }) => {
                                     setLocalThemeDarkenRatio(0.4);
                                     setThemeSettings(prevSettings => ({ ...prevSettings, bg_image: customBackground }));
                                     updateUseCustomTheme("custombg");
-                                }}
-                                disabled={userLevel < 3}>
+                                }}>
                                 {tr("custom_background")}
                             </Button>
-                            {vtcLevel >= 1 && webConfig.theme_main_color !== null && webConfig.theme_background_color !== null && (
+                            {webConfig.theme_main_color !== null && webConfig.theme_background_color !== null && (
                                 <Button
                                     variant="contained"
                                     color={themeSettings.use_custom_theme === "vtc" ? "info" : "secondary"}
@@ -2534,7 +2269,7 @@ const Settings = ({ defaultTab = 0 }) => {
                                     {tr("vtc_theme")}
                                 </Button>
                             )}
-                            {vtcLevel >= 1 && vtcBackground !== "" && (
+                            {vtcBackground !== "" && (
                                 <Button
                                     variant="contained"
                                     color={themeSettings.use_custom_theme === "vtcbg" ? "info" : "secondary"}
@@ -2568,7 +2303,6 @@ const Settings = ({ defaultTab = 0 }) => {
                             }}
                             aria-labelledby="continuous-slider"
                             sx={{ color: theme.palette.info.main, height: "20px" }}
-                            disabled={userLevel < 3}
                         />
                     </Grid>
                     <Grid
@@ -2582,7 +2316,7 @@ const Settings = ({ defaultTab = 0 }) => {
                             {tr("theme_main_color")}
                         </Typography>
                         <br />
-                        <ColorInput color={themeSettings.theme_main} onChange={updateThemeMainColor} hideDefault={true} disableDefault={userLevel < 3} disableCustom={userLevel < 3} />
+                        <ColorInput color={themeSettings.theme_main} onChange={updateThemeMainColor} hideDefault={true} />
                     </Grid>
                     <Grid
                         size={{
@@ -2595,7 +2329,7 @@ const Settings = ({ defaultTab = 0 }) => {
                             {tr("theme_background_color")}
                         </Typography>
                         <br />
-                        <ColorInput color={themeSettings.theme_background} onChange={updateThemeBackgroundColor} hideDefault={true} disableDefault={userLevel < 3} disableCustom={userLevel < 3} />
+                        <ColorInput color={themeSettings.theme_background} onChange={updateThemeBackgroundColor} hideDefault={true} />
                     </Grid>
                     <Grid
                         size={{
@@ -2605,19 +2339,17 @@ const Settings = ({ defaultTab = 0 }) => {
                             lg: 4,
                         }}>
                         <Typography variant="h7" sx={{ fontWeight: 800 }}>
-                            {tr("custom_background_image")}&nbsp;&nbsp;
-                            <SponsorBadge level={3} />
+                            {tr("custom_background_image")}
                         </Typography>
                         <br />
                         <Box display="flex" flexDirection="row">
-                            {customBackground !== "" && <img src={customBackground} height="60px" style={{ display: "flex", borderRadius: "5px", marginRight: "10px", opacity: userLevel >= 3 ? 1 : 0.8 }} />}
+                            {customBackground !== "" && <img src={customBackground} height="60px" style={{ display: "flex", borderRadius: "5px", marginRight: "10px" }} />}
                             <Tooltip title={tr("update_image")} placement="bottom" arrow PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                                 <Button
                                     component="label"
                                     variant="contained"
                                     startIcon={<CloudUploadRounded />}
                                     sx={{ width: "120px", height: "60px" }}
-                                    disabled={userLevel < 3}
                                     onClick={() => {
                                         if (window.isElectron) handleCustomBackgroundElectron();
                                     }}>

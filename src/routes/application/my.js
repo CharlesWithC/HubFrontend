@@ -15,7 +15,7 @@ import { makeRequestsAuto, customAxios as axios, getAuthToken, removeNUEValues }
 
 const ApplicationTable = memo(({ showDetail }) => {
     const { t: tr } = useTranslation();
-    const { apiPath, vtcLevel, users, userSettings, applicationTypes, loadApplicationTypes } = useContext(AppContext);
+    const { apiPath, users, userSettings, applicationTypes, loadApplicationTypes } = useContext(AppContext);
 
     const columns = [
         { id: "id", label: "ID", orderKey: "applicationid", defaultOrder: "desc" },
@@ -153,7 +153,7 @@ const ApplicationTable = memo(({ showDetail }) => {
                 }
             }
         }
-        if (applications !== null && vtcLevel >= 1) {
+        if (applications !== null) {
             loadAdvancedStatus();
         }
     }, [applications]);
@@ -236,7 +236,7 @@ const ApplicationTable = memo(({ showDetail }) => {
 
 const MyApplication = () => {
     const { t: tr } = useTranslation();
-    const { apiPath, vtcLevel, users, memberUIDs } = useContext(AppContext);
+    const { apiPath, users, memberUIDs } = useContext(AppContext);
     const membersMapping = useMemo(
         () =>
             memberUIDs.reduce((acc, uid) => {
@@ -318,31 +318,29 @@ const MyApplication = () => {
                                     </>
                                 );
                             }
-                            if (vtcLevel >= 1) {
-                                const matcha1 = answer.match(/\[AT-(\d+)\] .*: (.*)/);
-                                if (matcha1) {
-                                    answer = (
-                                        <>
-                                            Application assigned to {users[matcha1[1]] !== undefined && <UserCard user={users[matcha1[1]]} />}
-                                            {users[matcha1[1]] === undefined && <>{matcha1[2]}</>}
-                                        </>
-                                    );
+
+                            const matcha1 = answer.match(/\[AT-(\d+)\] .*: (.*)/);
+                            if (matcha1) {
+                                answer = (
+                                    <>
+                                        Application assigned to {users[matcha1[1]] !== undefined && <UserCard user={users[matcha1[1]]} />}
+                                        {users[matcha1[1]] === undefined && <>{matcha1[2]}</>}
+                                    </>
+                                );
+                            } else {
+                                const matcha2 = answer.match(/\[AS\] .*: (.*)/);
+                                if (matcha2) {
+                                    answer = <>Application status updated to: {matcha2[1]}</>;
                                 } else {
-                                    const matcha2 = answer.match(/\[AS\] .*: (.*)/);
-                                    if (matcha2) {
-                                        answer = <>Application status updated to: {matcha2[1]}</>;
+                                    const matcha3 = answer.match(/\[XAS\] .*: (.*)/);
+                                    if (matcha3) {
+                                        answer = <>Application status cleared.</>;
                                     } else {
-                                        const matcha3 = answer.match(/\[XAS\] .*: (.*)/);
-                                        if (matcha3) {
-                                            answer = <>Application status cleared.</>;
-                                        } else {
-                                            answer = <MarkdownRenderer>{answer}</MarkdownRenderer>;
-                                        }
+                                        answer = <MarkdownRenderer>{answer}</MarkdownRenderer>;
                                     }
                                 }
-                            } else {
-                                answer = <MarkdownRenderer>{answer}</MarkdownRenderer>;
                             }
+
                             return (
                                 <>
                                     <Typography variant="body" sx={{ marginBottom: "5px" }}>

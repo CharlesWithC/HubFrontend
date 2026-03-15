@@ -43,7 +43,7 @@ async function main() {
         fs.writeFileSync('./build/electron-config.json', JSON.stringify(electronConfig, null, 2));
 
         // iii) Modify logo.png
-        fs.renameSync("./build/logo.png", "./build/chub-logo.png");
+        fs.renameSync("./build/logo.png", "./build/project-logo.png");
         fs.copyFileSync(item.icon, "./build/logo.png");
 
         // iv) Run electron-builder
@@ -72,7 +72,7 @@ async function main() {
         }
 
         // vi) Clear up logo
-        fse.moveSync("./build/chub-logo.png", "./build/logo.png", { overwrite: true });
+        fse.moveSync("./build/project-logo.png", "./build/logo.png", { overwrite: true });
     }
 
     // Step 4: Reset the changes

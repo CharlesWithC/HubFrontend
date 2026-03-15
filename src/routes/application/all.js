@@ -10,7 +10,6 @@ import CustomTable from "../../components/table";
 import UserCard from "../../components/usercard";
 import TimeDelta from "../../components/timedelta";
 import MarkdownRenderer from "../../components/markdown";
-import SponsorBadge from "../../components/sponsorBadge";
 import UserSelect from "../../components/userselect";
 import StatCard from "../../components/statcard";
 
@@ -18,7 +17,7 @@ import { makeRequestsAuto, customAxios as axios, getAuthToken, TSep, removeNUEVa
 
 const ApplicationTable = memo(({ showDetail, doReload }) => {
     const { t: tr } = useTranslation();
-    const { apiPath, vtcLevel, users, curUser, userSettings, applicationTypes, loadApplicationTypes } = useContext(AppContext);
+    const { apiPath, users, curUser, userSettings, applicationTypes, loadApplicationTypes } = useContext(AppContext);
 
     const columns = useMemo(
         () => [
@@ -191,7 +190,7 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
                 }
             }
         }
-        if (applications !== null && vtcLevel >= 1) {
+        if (applications !== null) {
             loadAdvancedStatus();
         }
     }, [applications]);
@@ -248,7 +247,7 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
 
 const AllApplication = () => {
     const { t: tr } = useTranslation();
-    const { apiPath, apiConfig, vtcLevel, allPerms, users, memberUIDs } = useContext(AppContext);
+    const { apiPath, apiConfig, allPerms, users, memberUIDs } = useContext(AppContext);
     const membersMapping = useMemo(
         () =>
             memberUIDs.reduce((acc, uid) => {
@@ -523,35 +522,33 @@ const AllApplication = () => {
                                     </>
                                 );
                             }
-                            if (vtcLevel >= 1) {
-                                const matcha1 = answer.match(/\[AT-(\d+)\] .*: (.*)/);
-                                if (matcha1) {
+
+                            const matcha1 = answer.match(/\[AT-(\d+)\] .*: (.*)/);
+                            if (matcha1) {
+                                answer = (
+                                    <>
+                                        {tr("application_assigned_to")} {users[matcha1[1]] !== undefined && <UserCard user={users[matcha1[1]]} />}
+                                        {users[matcha1[1]] === undefined && <>{matcha1[2]}</>}
+                                    </>
+                                );
+                            } else {
+                                const matcha2 = answer.match(/\[AS\] .*: (.*)/);
+                                if (matcha2) {
                                     answer = (
                                         <>
-                                            {tr("application_assigned_to")} {users[matcha1[1]] !== undefined && <UserCard user={users[matcha1[1]]} />}
-                                            {users[matcha1[1]] === undefined && <>{matcha1[2]}</>}
+                                            {tr("application_status_updated_to")} {matcha2[1]}
                                         </>
                                     );
                                 } else {
-                                    const matcha2 = answer.match(/\[AS\] .*: (.*)/);
-                                    if (matcha2) {
-                                        answer = (
-                                            <>
-                                                {tr("application_status_updated_to")} {matcha2[1]}
-                                            </>
-                                        );
+                                    const matcha3 = answer.match(/\[XAS\] .*: (.*)/);
+                                    if (matcha3) {
+                                        answer = <>{tr("application_status_cleared")}</>;
                                     } else {
-                                        const matcha3 = answer.match(/\[XAS\] .*: (.*)/);
-                                        if (matcha3) {
-                                            answer = <>{tr("application_status_cleared")}</>;
-                                        } else {
-                                            answer = <MarkdownRenderer>{answer}</MarkdownRenderer>;
-                                        }
+                                        answer = <MarkdownRenderer>{answer}</MarkdownRenderer>;
                                     }
                                 }
-                            } else {
-                                answer = <MarkdownRenderer>{answer}</MarkdownRenderer>;
                             }
+
                             return (
                                 <>
                                     <Typography variant="body" sx={{ marginBottom: "5px" }}>
@@ -566,7 +563,6 @@ const AllApplication = () => {
                         <hr />
                         <Typography variant="body2" fontWeight="bold" sx={{ mt: "5px", mb: "5px" }}>
                             {tr("advanced_response")}
-                            <SponsorBadge vtclevel={1} />
                         </Typography>
                         <Typography variant="body2" sx={{ mb: "5px" }}>
                             {tr("the_message_will_be_automatically_constructed_when_using_advanced_response")}
@@ -592,7 +588,6 @@ const AllApplication = () => {
                                             setNewStatus(0);
                                             setMessageDisabled(true);
                                         }}
-                                        disabled={vtcLevel < 1}
                                     />
                                 </Typography>
                             </Grid>
@@ -612,8 +607,7 @@ const AllApplication = () => {
                                                     setMessage(`[XAS] Application status updated to: N/A.`);
                                                     setNewStatus(0);
                                                     setMessageDisabled(true);
-                                                }}
-                                                disabled={vtcLevel < 1}>
+                                                }}>
                                                 {tr("clear")}
                                             </span>
                                         </div>
@@ -627,7 +621,6 @@ const AllApplication = () => {
                                             setMessageDisabled(true);
                                         }}
                                         size="small"
-                                        disabled={vtcLevel < 1}
                                         fullWidth
                                     />
                                 </Typography>

@@ -14,13 +14,12 @@ import UserCard from "../components/usercard";
 import UserSelect from "../components/userselect";
 import RoleSelect from "../components/roleselect";
 import DateTimeField from "../components/datetime";
-import SponsorBadge from "../components/sponsorBadge";
 
 import { makeRequestsAuto, customAxios as axios, getAuthToken, removeNUEValues, downloadLocal } from "../functions";
 
 const MemberList = () => {
     const { t: tr } = useTranslation();
-    const { apiPath, webConfig, userLevel, allRoles, users, memberUIDs, userSettings, setUsers, allDiscordMembers, loadAllDiscordMembers } = useContext(AppContext);
+    const { apiPath, webConfig, allRoles, users, memberUIDs, userSettings, setUsers, allDiscordMembers, loadAllDiscordMembers } = useContext(AppContext);
     const { cache, setCache } = useContext(CacheContext);
     const allMembers = useMemo(() => memberUIDs.map(uid => users[uid]), [memberUIDs, users]);
 
@@ -66,11 +65,6 @@ const MemberList = () => {
     const [syncProfileLog, setSyncProfileLog] = useState("");
     const [syncProfileCurrent, setSyncProfileCurrent] = useState(0);
     const syncProfile = useCallback(async () => {
-        if (userLevel < 4) {
-            setSnackbarContent(tr("sync_profiles_platinum_perk"));
-            setSnackbarSeverity("warning");
-            return;
-        }
         setDialogButtonDisabled(true);
         setSyncProfileLog("");
         setSyncProfileCurrent(0);
@@ -115,12 +109,6 @@ const MemberList = () => {
     const [tmpVtcId, setTmpVtcId] = useState(String(webConfig.truckersmp_vtc_id) || "");
     const [tmpCompareResult, setMemberCompareResult] = useState([]);
     const compareMembers = useCallback(async () => {
-        if (userLevel < 4) {
-            setSnackbarContent(tr("compare_members_is_a_platinum_perk_sponsor_at_charlwspatreon"));
-            setSnackbarSeverity("warning");
-            return;
-        }
-
         setDialogButtonDisabled(true);
         setMemberCompareResult([]);
         let resp = await axios({ url: `${apiPath}/proxy?url=https://api.truckersmp.com/v2/vtc/${tmpVtcId}/members`, fetchOnly: true });
@@ -191,11 +179,6 @@ const MemberList = () => {
     const [batchRoleUpdateLog, setBatchRoleUpdateLog] = useState("");
     const [batchRoleUpdateCurrent, setBatchRoleUpdateCurrent] = useState(0);
     const batchUpdateRoles = useCallback(async () => {
-        if (userLevel < 4) {
-            setSnackbarContent(tr("batch_update_roles_platinum_perk"));
-            setSnackbarSeverity("warning");
-            return;
-        }
         setDialogButtonDisabled(true);
         setBatchRoleUpdateLog("");
         setBatchRoleUpdateCurrent(0);
@@ -277,11 +260,6 @@ const MemberList = () => {
     const [batchTrackerUpdateLog, setBatchTrackerUpdateLog] = useState("");
     const [batchTrackerUpdateCurrent, setBatchTrackerUpdateCurrent] = useState(0);
     const batchUpdateTrackers = useCallback(async () => {
-        if (userLevel < 4) {
-            setSnackbarContent(tr("batch_update_tracker_platinum_perk"));
-            setSnackbarSeverity("warning");
-            return;
-        }
         setDialogButtonDisabled(true);
         setBatchTrackerUpdateLog("");
         setBatchTrackerUpdateCurrent(0);
@@ -318,11 +296,6 @@ const MemberList = () => {
     const [batchDismissLog, setBatchDismissLog] = useState("");
     const [batchDismissCurrent, setBatchDismissCurrent] = useState(0);
     const batchDismiss = useCallback(async () => {
-        if (userLevel < 4) {
-            setSnackbarContent(tr("batch_dismiss_members_platinum_perk"));
-            setSnackbarSeverity("warning");
-            return;
-        }
         setDialogButtonDisabled(true);
         setBatchDismissLog("");
         setBatchDismissCurrent(0);
@@ -479,8 +452,7 @@ const MemberList = () => {
                 }}>
                 <DialogTitle>
                     <FontAwesomeIcon icon={faArrowsRotate} />
-                    &nbsp;&nbsp;{tr("sync_profiles")}&nbsp;&nbsp;
-                    <SponsorBadge level={4} />
+                    &nbsp;&nbsp;{tr("sync_profiles")}
                 </DialogTitle>
                 <DialogContent>
                     <Typography variant="body2">{tr("sync_profiles_note")}</Typography>
@@ -525,8 +497,7 @@ const MemberList = () => {
                 }}>
                 <DialogTitle>
                     <FontAwesomeIcon icon={faCodeCompare} />
-                    &nbsp;&nbsp;{tr("compare_members")}&nbsp;&nbsp;
-                    <SponsorBadge level={4} />
+                    &nbsp;&nbsp;{tr("compare_members")}
                 </DialogTitle>
                 <DialogContent>
                     <TextField
@@ -588,8 +559,7 @@ const MemberList = () => {
                 }}>
                 <DialogTitle>
                     <FontAwesomeIcon icon={faIdCard} />
-                    &nbsp;&nbsp;{tr("batch_update_roles")}&nbsp;&nbsp;
-                    <SponsorBadge level={4} />
+                    &nbsp;&nbsp;{tr("batch_update_roles")}
                 </DialogTitle>
                 <DialogContent>
                     <Typography variant="body2">{tr("batch_update_roles_note")}</Typography>
@@ -646,8 +616,7 @@ const MemberList = () => {
                 }}>
                 <DialogTitle>
                     <FontAwesomeIcon icon={faTruck} />
-                    &nbsp;&nbsp;{tr("batch_update_tracker")}&nbsp;&nbsp;
-                    <SponsorBadge level={4} />
+                    &nbsp;&nbsp;{tr("batch_update_tracker")}
                 </DialogTitle>
                 <DialogContent>
                     <Typography variant="body2">{tr("batch_update_tracker_note")}</Typography>
@@ -704,8 +673,7 @@ const MemberList = () => {
                 }}>
                 <DialogTitle>
                     <FontAwesomeIcon icon={faUsersSlash} />
-                    &nbsp;&nbsp;{tr("batch_dismiss_members")}&nbsp;&nbsp;
-                    <SponsorBadge level={4} />
+                    &nbsp;&nbsp;{tr("batch_dismiss_members")}
                 </DialogTitle>
                 <DialogContent>
                     <Typography variant="body2">{tr("batch_dismiss_members_note")}</Typography>

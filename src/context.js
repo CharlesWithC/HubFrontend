@@ -5,103 +5,85 @@ import { makeRequestsAuto, makeRequestsWithAuth, getTodayUTC, readLS, writeLS } 
 
 export const AppContext = createContext({
     apiPath: "",
-    setApiPath: () => {},
+    setApiPath: () => { },
     apiVersion: "",
-    setApiVersion: () => {},
+    setApiVersion: () => { },
 
     vtcLogo: localStorage.getItem("cache-logo"),
-    setVtcLogo: () => {},
+    setVtcLogo: () => { },
     vtcBanner: localStorage.getItem("cache-banner"),
-    setVtcBanner: () => {},
+    setVtcBanner: () => { },
     vtcBackground: localStorage.getItem("cache-background"),
-    setVtcBackground: () => {},
+    setVtcBackground: () => { },
     customBackground: localStorage.getItem("custom-background") !== null ? localStorage.getItem("custom-background") : "",
-    setCustomBackground: () => {},
+    setCustomBackground: () => { },
 
-    // chub team / supporter etc
-    specialRoles: {},
-    setSpecialRoles: () => {}, // {role: [users]}
-    specialUsers: {},
-    setSpecialUsers: () => {}, // {user[discordid]: [roles]}
-    patrons: {},
-    setPatrons: () => {},
-    curUserPatreonID: null,
-    setCurUserPatreonID: () => {},
-    fmRewards: [],
-    setFMRewards: () => {},
-    fmRewardsDistributed: {},
-    setFMRewardsDistributed: () => {}, // freightmaster rewards (uid: [rewards])
     userConfig: {},
-    setUserConfig: () => {}, // all users
-
-    vtcLevel: 0,
-    setVtcLevel: () => {}, // 0: regular / 1: premium / 3: special
-    userLevel: -1,
-    setUserLevel: () => {},
+    setUserConfig: () => { }, // all users
 
     apiConfig: null,
-    setApiConfig: () => {},
+    setApiConfig: () => { },
     webConfig: null,
-    setWebConfig: () => {},
+    setWebConfig: () => { },
     adPlugins: null,
-    setADPlugins: () => {},
-    loadADPlugins: () => {},
+    setADPlugins: () => { },
+    loadADPlugins: () => { },
     languages: [],
-    setLanguages: () => {},
-    loadLanguages: () => {},
+    setLanguages: () => { },
+    loadLanguages: () => { },
     allRoles: {},
-    setAllRoles: () => {},
+    setAllRoles: () => { },
     allPerms: {},
-    setAllPerms: () => {},
+    setAllPerms: () => { },
     allRanks: {},
-    setAllRanks: () => {},
+    setAllRanks: () => { },
 
     users: {},
-    setUsers: () => {},
+    setUsers: () => { },
     userProfiles: {},
-    setUserProfiles: () => {},
+    setUserProfiles: () => { },
     memberUIDs: [],
-    setMemberUIDs: () => {},
+    setMemberUIDs: () => { },
 
     curUID: null,
-    setCurUID: () => {},
+    setCurUID: () => { },
     curUser: {},
-    setCurUser: () => {},
+    setCurUser: () => { },
     curUserPerm: [],
-    setCurUserPerm: () => {},
+    setCurUserPerm: () => { },
     curUserBanner: { name: "", role: "", avatar: "" },
-    setCurUserBanner: () => {},
+    setCurUserBanner: () => { },
 
     testRoleMode: false,
-    setTestRoleMode: () => {},
+    setTestRoleMode: () => { },
     userSettings: { notification_refresh_interval: 30, unit: "metric", radio: "disabled", radio_type: "tfm", radio_volume: 100, display_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, data_saver: false, font_size: "regular", default_row_per_page: 10, language: null, presence: "full", streamer_mode: false },
-    setUserSettings: () => {},
+    setUserSettings: () => { },
     // radio: enabled / disabled / auto-play (enabled)
     // radio-type: tfm / simhit / {url}
 
     announcementTypes: null,
-    setAnnouncementTypes: () => {},
+    setAnnouncementTypes: () => { },
     applicationTypes: null,
-    setApplicationTypes: () => {},
+    setApplicationTypes: () => { },
     divisions: null,
-    setDivisions: () => {},
+    setDivisions: () => { },
 
     dlogDetailsCache: {},
-    setDlogDetailsCache: () => {}, // dlogDetails from ATM database
+    setDlogDetailsCache: () => { }, // dlogDetails from ATM database
     economyCache: { config: null, trucks: [], garagesMap: {}, merchMap: {} },
-    setEconomyCache: () => {},
+    setEconomyCache: () => { },
     allUsersCache: [],
-    setAllUsersCache: () => {}, // only loaded to purge inactive
+    setAllUsersCache: () => { }, // only loaded to purge inactive
     allDiscordMembers: [],
-    setAllDiscordMembers: () => {},
+    setAllDiscordMembers: () => { },
 
-    loadMemberUIDs: async () => {},
-    loadAnnouncementTypes: async () => {},
-    loadApplicationTypes: async () => {},
-    loadDivisions: async () => {},
-    loadDlogDetails: async () => {},
-    loadAllUsers: async () => {},
-    loadAllDiscordMembers: async () => {},
+    loadMemberUIDs: async () => { },
+    loadAnnouncementTypes: async () => { },
+    loadApplicationTypes: async () => { },
+    loadDivisions: async () => { },
+    loadDlogDetails: async () => { },
+    loadAllUsers: async () => { },
+    loadAllDiscordMembers: async () => { },
 });
 
 export const AppContextProvider = ({ children }) => {
@@ -113,16 +95,7 @@ export const AppContextProvider = ({ children }) => {
     const [vtcBackground, setVtcBackground] = useState(localStorage.getItem("cache-background"));
     const [customBackground, setCustomBackground] = useState(localStorage.getItem("custom-background") !== null ? localStorage.getItem("custom-background") : "");
 
-    const [specialRoles, setSpecialRoles] = useState({});
-    const [specialUsers, setSpecialUsers] = useState({});
-    const [patrons, setPatrons] = useState({});
-    const [curUserPatreonID, setCurUserPatreonID] = useState(null);
-    const [fmRewards, setFMRewards] = useState([]);
-    const [fmRewardsDistributed, setFMRewardsDistributed] = useState({});
     const [userConfig, setUserConfig] = useState({});
-
-    const [vtcLevel, setVtcLevel] = useState(0);
-    const [userLevel, setUserLevel] = useState(-1);
 
     const [apiConfig, setApiConfig] = useState(null);
     const [webConfig, setWebConfig] = useState(null);
@@ -358,25 +331,8 @@ export const AppContextProvider = ({ children }) => {
             customBackground,
             setCustomBackground,
 
-            specialRoles,
-            setSpecialRoles,
-            specialUsers,
-            setSpecialUsers,
-            patrons,
-            setPatrons,
-            curUserPatreonID,
-            setCurUserPatreonID,
-            fmRewards,
-            setFMRewards,
-            fmRewardsDistributed,
-            setFMRewardsDistributed,
             userConfig,
             setUserConfig,
-
-            userLevel,
-            setUserLevel,
-            vtcLevel,
-            setVtcLevel,
 
             apiConfig,
             setApiConfig,
@@ -439,7 +395,7 @@ export const AppContextProvider = ({ children }) => {
             setAllDiscordMembers,
             loadAllDiscordMembers,
         }),
-        [apiPath, apiVersion, apiConfig, vtcLogo, vtcBanner, vtcBackground, customBackground, specialRoles, specialUsers, patrons, curUserPatreonID, userConfig, userLevel, vtcLevel, webConfig, adPlugins, languages, allRoles, allPerms, allRanks, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, testRoleMode, userSettings, announcementTypes, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache, allDiscordMembers]
+        [apiPath, apiVersion, apiConfig, vtcLogo, vtcBanner, vtcBackground, customBackground, userConfig, webConfig, adPlugins, languages, allRoles, allPerms, allRanks, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, testRoleMode, userSettings, announcementTypes, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache, allDiscordMembers]
     );
 
     return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
@@ -608,7 +564,7 @@ const DEFAULT_CACHE = {
 
 export const CacheContext = createContext({
     cache: DEFAULT_CACHE,
-    setCache: () => {},
+    setCache: () => { },
 });
 
 export const CacheContextProvider = ({ children }) => {

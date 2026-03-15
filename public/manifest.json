@@ -1,6 +1,6 @@
 {
     "short_name": "Drivers Hub",
-    "name": "Powered by The Drivers Hub Project (CHub)",
+    "name": "Official web client by The Drivers Hub Project",
     "start_url": ".",
     "display": "standalone",
     "theme_color": "#2fc1f7",

@@ -16,7 +16,7 @@ import DateTimeField from "../components/datetime";
 
 const Ranking = () => {
     const { t: tr } = useTranslation();
-    const { userLevel, apiConfig, apiPath, allRanks, curUser } = useContext(AppContext);
+    const { apiConfig, apiPath, allRanks, curUser } = useContext(AppContext);
     const { cache, setCache } = useContext(CacheContext);
 
     const navigate = useNavigate();
@@ -247,17 +247,6 @@ const Ranking = () => {
                                 <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
                                     {tr("daily_bonus")}: / {tr("streak")}
                                 </Typography>
-                                {userLevel <= 2 && (
-                                    <Typography
-                                        variant="subtitle2"
-                                        align="center"
-                                        sx={{ mt: 1, opacity: 0.25, cursor: "pointer" }}
-                                        onClick={() => {
-                                            navigate("/sponsor");
-                                        }}>
-                                        Become CHub sponsor to get rank roles automatically!
-                                    </Typography>
-                                )}
                             </CardContent>
                         </Card>
                     </Grid>
@@ -344,17 +333,6 @@ const Ranking = () => {
                                         <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
                                             {tr("daily_bonus")}: {bonusStreak} {tr("streak")}
                                         </Typography>
-                                        {userLevel <= 2 && (
-                                            <Typography
-                                                variant="subtitle2"
-                                                align="center"
-                                                sx={{ mt: 1, opacity: 0.25, cursor: "pointer" }}
-                                                onClick={() => {
-                                                    navigate("/sponsor");
-                                                }}>
-                                                Become CHub sponsor to get rank roles automatically!
-                                            </Typography>
-                                        )}
                                     </>
                                 )}
                                 {rankIdx <= 0 && (
@@ -368,17 +346,6 @@ const Ranking = () => {
                                         <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
                                             {tr("daily_bonus")}: {bonusStreak} {tr("streak")}
                                         </Typography>
-                                        {userLevel <= 2 && (
-                                            <Typography
-                                                variant="subtitle2"
-                                                align="center"
-                                                sx={{ mt: 1, opacity: 0.25, cursor: "pointer" }}
-                                                onClick={() => {
-                                                    navigate("/sponsor");
-                                                }}>
-                                                Become CHub sponsor to get rank roles automatically!
-                                            </Typography>
-                                        )}
                                     </>
                                 )}
                             </CardContent>

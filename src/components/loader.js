@@ -7,9 +7,7 @@ import { Typography, TextField, Button, useTheme } from "@mui/material";
 
 import { FetchProfile, loadImageAsBase64, customAxios as axios, makeRequestsAuto, writeLS, readLS, getAuthToken } from "../functions";
 
-const TIPS = ["The pre-login avatar belongs to CharlesWithC. He's a Night Fury.", "The Drivers Hub is operated by CHub, owned by CharlesWithC.", "CHub was originally called GeHub, as part of the Gecko ecosystem.", "We've got a website which may solve your problems: wiki.charlws.com", "Find hidden features by hovering on the + in the bottom right.", "Some components have context menus. Right-click to find out.", "CHub is an open platform that supports Trucky, UniTracker, TrackSim and custom trackers.", "Multiple rankings is supported, but you'll need JSON knowledge to manage them.", "All statistics and points are traceable, allowing data fetching of any time range."];
-
-const VTC_LEVEL_MAPPING = { special: 3, managed: 2, legacy_premium: 1, legacy_regular: 0 };
+const TIPS = ["The pre-login avatar belongs to CharlesWithC (a.k.a Drak0). He's a Night Fury.", "We've got a website which may solve your problems: wiki.charlws.com", "Find hidden features by hovering on the + in the bottom right.", "Some components have context menus. Right-click to find out.", "Multiple rankings is supported, but you'll need JSON knowledge to manage them.", "All statistics and points are traceable, allowing data fetching of any time range."];
 
 const tip = TIPS[Math.floor(Math.random() * TIPS.length)];
 
@@ -22,7 +20,7 @@ const Loader = ({ onLoaderLoaded }) => {
 
   const { t: tr } = useTranslation();
   const appContext = useContext(AppContext);
-  const { apiPath, setApiPath, setApiVersion, vtcLogo, setVtcLogo, vtcBanner, setVtcBanner, vtcBackground, setVtcBackground, setSpecialRoles, setSpecialUsers, setPatrons, setFMRewards, setFMRewardsDistributed, setVtcLevel, setUserConfig, setApiConfig, webConfig, setWebConfig, setUsers, setCurUID, loadADPlugins, loadLanguages, setAllRoles, setAllPerms, setAllRanks, loadMemberUIDs, loadDlogDetails } = useContext(AppContext);
+  const { apiPath, setApiPath, setApiVersion, vtcLogo, setVtcLogo, vtcBanner, setVtcBanner, vtcBackground, setVtcBackground, setUserConfig, setApiConfig, webConfig, setWebConfig, setUsers, setCurUID, loadADPlugins, loadLanguages, setAllRoles, setAllPerms, setAllRanks, loadMemberUIDs, loadDlogDetails } = useContext(AppContext);
   const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
   const [isMember, setIsMember] = useState(false);
@@ -57,16 +55,7 @@ const Loader = ({ onLoaderLoaded }) => {
         setTitle(tr("drivers_hub"));
         setVtcLogo(await loadImageAsBase64(`./logo.png`));
         setUnknownDomain(true);
-        setLoadMessage(
-          <>
-            {tr("drivers_hub_not_found")}
-            <br />
-            {tr("no_drivers_hub_under_domain")}
-            <br />
-            <br />
-            <a href="https://drivershub.charlws.com/">The Drivers Hub Project (CHub)</a>
-          </>
-        );
+        setLoadMessage(tr("drivers_hub_not_found"));
         return;
       }
 
@@ -91,7 +80,6 @@ const Loader = ({ onLoaderLoaded }) => {
         const webConfig = resp.data; // local webConfig for this function only
         setWebConfig(webConfig);
         setTitle(webConfig.name);
-        setVtcLevel(VTC_LEVEL_MAPPING[webConfig.plan]);
         setApiPath(`${webConfig.api_host}/${webConfig.abbr}`);
 
         setLoadMessage(tr("loading"));
@@ -100,24 +88,19 @@ const Loader = ({ onLoaderLoaded }) => {
         return webConfig;
       }
       let cachedWebConfig = readLS("cache-web-config", window.dhhost);
-      let webConfig = {},
-        apiPath = "",
-        vtcLevel = 0;
+      let webConfig = {}, apiPath = "";
       if (cachedWebConfig === null) {
         try {
           webConfig = await loadWebConfig(domain);
-          vtcLevel = VTC_LEVEL_MAPPING[webConfig.plan];
           apiPath = `${webConfig.api_host}/${webConfig.abbr}`;
         } catch {
           return;
         }
       } else {
         webConfig = cachedWebConfig;
-        vtcLevel = VTC_LEVEL_MAPPING[webConfig.plan];
         apiPath = `${webConfig.api_host}/${webConfig.abbr}`;
         setWebConfig(webConfig);
         setTitle(webConfig.name);
-        setVtcLevel(vtcLevel);
         setApiPath(apiPath);
         setLoadMessage(tr("loading"));
         loadWebConfig(domain).catch(() => {
@@ -156,17 +139,12 @@ const Loader = ({ onLoaderLoaded }) => {
           }),
         loadImageAsBase64(`${apiPath}/client/assets/bgimage?key=${webConfig.bgimage_key !== undefined ? webConfig.bgimage_key : ""}`)
           .then(image => {
-            if (vtcLevel >= 1) {
-              setVtcBackground(image);
-              try {
-                if (window.electron) {
-                  localStorage.setItem("cache-background", image);
-                }
-              } catch { }
-            } else {
-              setVtcBackground("");
-              localStorage.removeItem("cache-background");
-            }
+            setVtcBackground(image);
+            try {
+              if (window.electron) {
+                localStorage.setItem("cache-background", image);
+              }
+            } catch { }
           })
           .catch(() => {
             setVtcBackground("");
@@ -266,32 +244,12 @@ const Loader = ({ onLoaderLoaded }) => {
       async function preloadData(wait = 0) {
         await sleep(wait);
 
-        // chub data
         const urlsBatch1 = [
-          { url: "https://admin.chub.page/api/member/list", auth: false },
-          { url: "https://admin.chub.page/api/sponsor/list", auth: false },
           { url: `${apiPath}/client/config/user`, auth: false },
         ];
 
-        const [specialRoles, patrons, userConfig] = await makeRequestsAuto(urlsBatch1);
+        const [userConfig] = await makeRequestsAuto(urlsBatch1);
 
-        const specialUsers = {};
-        if (specialRoles && specialRoles?.lead_developer) {
-          setSpecialRoles(specialRoles);
-          let roleNames = Object.keys(specialRoles);
-          for (let i = 0; i < roleNames.length; i++) {
-            let roleName = roleNames[i];
-            for (let j = 0; j < specialRoles[roleName].length; j++) {
-              let user = specialRoles[roleName][j];
-              if (!Object.keys(specialUsers).includes(user.id)) specialUsers[user.id] = [];
-              specialUsers[user.id].push({ role: roleName, color: user.color });
-            }
-          }
-          setSpecialUsers(specialUsers);
-        }
-        if (patrons && patrons?.platinum) {
-          setPatrons(patrons);
-        }
         if (userConfig) {
           setUserConfig(userConfig);
         }
@@ -335,16 +293,7 @@ const Loader = ({ onLoaderLoaded }) => {
               setTitle(tr("drivers_hub"));
               setVtcLogo(await loadImageAsBase64(`./logo.png`));
               setUnknownDomain(true);
-              setLoadMessage(
-                <>
-                  {tr("drivers_hub_not_found")}
-                  <br />
-                  {tr("no_drivers_hub_under_domain")}
-                  <br />
-                  <br />
-                  <a href="https://drivershub.charlws.com/">The Drivers Hub Project (CHub)</a>
-                </>
-              );
+              setLoadMessage(tr("drivers_hub_not_found"));
               throw new Error("Drivers Hub is not active");
             }
           }
@@ -362,52 +311,24 @@ const Loader = ({ onLoaderLoaded }) => {
           setAllRanks(memberRanks);
         }
 
-        // freightmaster data
-        // const urlsBatch3 = [
-        //     { url: "https://config.chub.page/freightmaster/rewards", auth: false },
-        //     { url: `https://config.chub.page/freightmaster/rewards/distributed?abbr=${webConfig.abbr}`, auth: false },
-        // ];
-
-        // const [fmRewards, fmRewardsDistributed] = await makeRequestsAuto(urlsBatch3);
-
-        const [fmRewards, fmRewardsDistributed] = [[], []];
-        if (fmRewards) {
-          setFMRewards(fmRewards);
-        }
-        let fmrd = {};
-        if (fmRewardsDistributed) {
-          for (let i = 0; i < fmRewardsDistributed.length; i++) {
-            let ureward = fmRewardsDistributed[i];
-            let uruid = ureward.uid;
-            if (fmrd[uruid] === undefined) fmrd[uruid] = [ureward];
-            else fmrd[uruid].push(ureward);
-          }
-          setFMRewardsDistributed(fmrd);
-        }
-
-        const preloadCache = { specialRoles, specialUsers, patrons, userConfig, apiConfig: config.config, allRoles, allPerms: memberPerms, allRanks: memberRanks, fmRewards, fmRewardsDistributed: fmrd };
+        const preloadCache = { userConfig, apiConfig: config.config, allRoles, allPerms: memberPerms, allRanks: memberRanks };
         writeLS("cache-preload", preloadCache, window.dhhost);
 
         return preloadCache;
       }
 
-      let { specialRoles, specialUsers, patrons, userConfig, apiConfig, allRoles, allPerms, allRanks, fmRewards, fmRewardsDistributed } = {};
+      let { userConfig, apiConfig, allRoles, allPerms, allRanks } = {};
 
       const cachePreload = readLS("cache-preload", window.dhhost);
       let dataFlag = localStorage.getItem("load-data-flag");
 
       if (cachePreload !== null && dataFlag === null) {
-        ({ specialRoles, specialUsers, patrons, userConfig, apiConfig, allRoles, allPerms, allRanks, fmRewards, fmRewardsDistributed } = cachePreload);
-        setSpecialRoles(specialRoles);
-        setSpecialUsers(specialUsers);
-        setPatrons(patrons);
+        ({ userConfig, apiConfig, allRoles, allPerms, allRanks } = cachePreload);
         setUserConfig(userConfig);
         setApiConfig(apiConfig);
         setAllRoles(allRoles);
         setAllPerms(allPerms);
         setAllRanks(allRanks);
-        setFMRewards(fmRewards);
-        setFMRewardsDistributed(fmRewardsDistributed);
 
         preloadData(500).catch(() => {
           // something went wrong, let's flag it and reload (rarely happens so it's fine to reload)
@@ -417,7 +338,7 @@ const Loader = ({ onLoaderLoaded }) => {
         });
       } else {
         try {
-          ({ specialRoles, specialUsers, patrons, userConfig, apiConfig, allRoles, allPerms, allRanks, fmRewards, fmRewardsDistributed } = await preloadData());
+          ({ userConfig, apiConfig, allRoles, allPerms, allRanks } = await preloadData());
           localStorage.removeItem("load-data-flag"); // things are back to normal
         } catch {
           return;
@@ -433,11 +354,11 @@ const Loader = ({ onLoaderLoaded }) => {
         setCurUID(curUser.uid);
         setIsMember(curUser.userid !== undefined && curUser.userid !== null && curUser.userid !== -1);
 
-        FetchProfile({ ...appContext, apiPath: apiPath, webConfig: webConfig, specialUsers: specialUsers, patrons: patrons }).then(auth => {
+        FetchProfile({ ...appContext, apiPath: apiPath, webConfig: webConfig }).then(auth => {
           setIsMember(auth.member);
         });
       } else {
-        let auth = await FetchProfile({ ...appContext, apiPath: apiPath, webConfig: webConfig, specialUsers: specialUsers, patrons: patrons });
+        let auth = await FetchProfile({ ...appContext, apiPath: apiPath, webConfig: webConfig });
         setIsMember(auth.member);
       }
 
@@ -491,7 +412,7 @@ const Loader = ({ onLoaderLoaded }) => {
       largeImageKey: "https://drivershub.charlws.com/images/logo.png",
       startTimestamp: new Date(),
       instance: false,
-      buttons: [{ label: tr("powered_by_chub"), url: "https://drivershub.charlws.com/" }],
+      buttons: [],
     });
   }
 

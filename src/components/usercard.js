@@ -127,7 +127,7 @@ const UserCard = props => {
   const { t: tr } = useTranslation();
   const theme = useTheme();
   const navigate = useNavigate();
-  const { apiPath, specialUsers, patrons, userConfig, vtcLevel, apiConfig, webConfig, adPlugins, allRoles, allPerms, users, setUsers, userProfiles, setUserProfiles, setMemberUIDs, curUser, curUserPerm, userSettings, fmRewards, fmRewardsDistributed } = useContext(AppContext);
+  const { apiPath, userConfig, apiConfig, webConfig, adPlugins, allRoles, allPerms, users, setUsers, userProfiles, setUserProfiles, setMemberUIDs, curUser, curUserPerm, userSettings } = useContext(AppContext);
   const orderedRoles = useMemo(
     () =>
       Object.values(allRoles)
@@ -135,14 +135,6 @@ const UserCard = props => {
         .map(role => role.id),
     [allRoles]
   );
-  const fmRewardsMapping = useMemo(() => {
-    let result = {};
-    for (let i = 0; i < fmRewards.length; i++) {
-      result[fmRewards[i].id] = fmRewards[i];
-    }
-    return result;
-  }, [fmRewards]);
-  const [fmRDsingle, setFMRDSingle] = useState(undefined);
 
   const modalBannerRef = useRef(null); // this is a real component reference
   const popoverBannerRef = useRef(null); // this is a real component reference
@@ -266,19 +258,9 @@ const UserCard = props => {
   }, []);
   const [dialogBtnDisabled, setDialogBtnDisabled] = useState(false);
 
-  // brief user profile popover (left click / single press)
+  // mini user profile popover (left click / single press)
   const handleClick = useCallback(
     e => {
-      if (isNaN(user.uid)) {
-        // user is from other vtc - load freightmaster reward
-        // async function loadFMRewards() {
-        //   let resp = await axios({ url: `https://config.chub.page/freightmaster/rewards/distributed?abbr=${user.uid.split("-")[0]}&uid=${user.uid.split("-")[1]}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
-        //   if (resp.status === 200) {
-        //     setFMRDSingle(resp.data);
-        //   }
-        // }
-        // loadFMRewards();
-      }
       e.preventDefault();
       e.stopPropagation();
       setAnchorPosition({ top: e.clientY, left: e.clientX });
@@ -332,7 +314,6 @@ const UserCard = props => {
     return newDlogList;
   }
   const cachedUserProfile = userProfiles[user.uid];
-  const [tmpLastOnline, setTmpLastOnline] = useState(cachedUserProfile ? cachedUserProfile.tmpLastOnline : null);
   const [chartStats, setChartStats] = useState(cachedUserProfile ? cachedUserProfile.chartStats : null);
   const [overallStats, setOverallStats] = useState(cachedUserProfile ? cachedUserProfile.overallStats : null);
   const [detailStats, setDetailStats] = useState(cachedUserProfile ? cachedUserProfile.detailStats : null);
@@ -349,8 +330,7 @@ const UserCard = props => {
     async function loadProfile() {
       window.loading += 1;
 
-      const [_tmp, _chart, _overall, _details, _point, _dlogList] = await makeRequestsAuto([
-        { url: `https://admin.chub.page/api/truckersmp/${user.truckersmpid}`, auth: false },
+      const [_chart, _overall, _details, _point, _dlogList] = await makeRequestsAuto([
         { url: `${apiPath}/dlog/statistics/chart?userid=${user.userid}&ranges=7&interval=86400&sum_up=false&before=` + getTodayUTC() / 1000, auth: "prefer" },
         { url: `${apiPath}/dlog/statistics/summary?userid=${user.userid}`, auth: "prefer" },
         { url: `${apiPath}/dlog/statistics/details?userid=${user.userid}`, auth: "prefer" },
@@ -359,11 +339,6 @@ const UserCard = props => {
       ]);
 
       let userProfile = {};
-
-      if (_tmp.error === undefined && _tmp.last_online !== undefined) {
-        setTmpLastOnline(_tmp.last_online);
-        userProfile.tmpLastOnline = _tmp.last_online;
-      }
 
       let newCharts = { distance: [], fuel: [], profit_euro: [], profit_dollar: [] };
       for (let i = 0; i < _chart.length; i++) {
@@ -428,119 +403,29 @@ const UserCard = props => {
   const [newNote, setNewNote] = useState(user.note);
   const [newGlobalNote, setNewGlobalNote] = useState(user.global_note);
 
-  // chub team / sponsor perks
+  // profile customization
   const [specialColor, setSpecialColor] = useState(null);
-  const [badges, setBadges] = useState([]);
   const [profileBackground, setProfilebackground] = useState([darkenColor(PROFILE_COLOR[theme.mode].paper, 0.5), darkenColor(PROFILE_COLOR[theme.mode].paper, 0.5)]);
   const [profileBannerURL, setProfileBannerURL] = useState(`${apiPath}/member/banner?userid=${user.userid}`);
   useEffect(() => {
     // reset those stuff, which would be corrected in the code below
     // this is needed in case the old component is reused unexpectedly
     setSpecialColor(null);
-    setBadges([]);
     setProfilebackground([darkenColor(PROFILE_COLOR[theme.mode].paper, 0.5), darkenColor(PROFILE_COLOR[theme.mode].paper, 0.5)]);
     setProfileBannerURL(`${apiPath}/member/banner?userid=${user.userid}`);
 
     if (user.discordid === undefined) return;
 
     let newSpecialColor = ""; // set it to <empty string> to let "highest role color" know name color is not customized
-    let newBadges = [];
-    let badgeNames = [];
-    let inCHubTeam = false;
-    if (Object.keys(specialUsers).includes(user.discordid)) {
-      // special color disabled as we are now fully using user-customized settings
-      // specialColor = specialUsers[user.discordid][0].color;
-      for (let i = 0; i < specialUsers[user.discordid].length; i++) {
-        let sr = specialUsers[user.discordid][i];
-        let badge = null;
-        let badgeName = null;
-        if (["lead_developer", "project_manager", "community_manager", "development_team", "support_leader", "marketing_leader", "graphic_leader", "support_team", "marketing_team", "graphic_team"].includes(sr.role)) {
-          badge = (
-            <Tooltip key={`badge-${user.uid}-chub}`} placement="top" arrow title={tr("chub_team")} PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-              <FontAwesomeIcon icon={faScrewdriverWrench} style={{ color: "#2fc1f7" }} />
-            </Tooltip>
-          );
-          badgeName = "chub";
-          inCHubTeam = true;
-        }
-        if (["community_legend"].includes(sr.role)) {
-          badge = (
-            <Tooltip key={`badge-${user.uid}-legend`} placement="top" arrow title={tr("community_legend")} PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-              <FontAwesomeIcon icon={faCrown} style={{ color: "#b2db80" }} />
-            </Tooltip>
-          );
-          badgeName = "legend";
-        }
-        if (["network_partner"].includes(sr.role)) {
-          badge = (
-            <Tooltip key={`badge-${user.uid}-network-partner`} placement="top" arrow title={tr("network_partner")} PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-              <FontAwesomeIcon icon={faEarthAmericas} style={{ color: "#5ae9e1" }} />
-            </Tooltip>
-          );
-          badgeName = "legend";
-        }
-        if (["server_booster", "translation_team"].includes(sr.role)) {
-          badge = (
-            <Tooltip key={`badge-${user.uid}-supporter`} placement="top" arrow title={tr("supporter")} PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-              <FontAwesomeIcon icon={faClover} style={{ color: "#f47fff" }} />
-            </Tooltip>
-          );
-          badgeName = "supporter";
-        }
-        if (badge !== null && !badgeNames.includes(badgeName)) {
-          newBadges.push(badge);
-          badgeNames.push(badgeName);
-        }
-      }
-    }
-
-    let userLevel = 0;
-    let tiers = ["platinum", "gold", "silver", "bronze"];
-    for (let i = 0; i < tiers.length; i++) {
-      if (userLevel !== 0) break;
-      if (!Object.keys(patrons).includes(tiers[i])) continue;
-      for (let j = 0; j < patrons[tiers[i]].length; j++) {
-        let patron = patrons[tiers[i]][j];
-        if (patron.abbr === webConfig.abbr && patron.uid === user.uid) {
-          userLevel = 4 - i;
-
-          let badge = (
-            <Tooltip key={`badge-${user.uid}-supporter`} placement="top" arrow title={tr("supporter")} PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-              <FontAwesomeIcon icon={faClover} style={{ color: "#f47fff" }} />
-            </Tooltip>
-          );
-          let badgeName = "supporter";
-          if (badge !== null && !badgeNames.includes(badgeName)) {
-            newBadges.push(badge);
-            badgeNames.push(badgeName);
-          }
-
-          break;
-        }
-      }
-    }
-    setBadges(newBadges);
-    if (inCHubTeam) userLevel = 4;
 
     if (userConfig[user.uid] !== undefined) {
       let uc = userConfig[user.uid];
-      if (uc.name_color !== null) {
-        newSpecialColor = uc.name_color;
-        if (!(vtcLevel >= 1 && webConfig.name_color !== null && webConfig.name_color === newSpecialColor)) {
-          // not using vtc name color
-          if (userLevel < 2 || (userLevel === 2 && newSpecialColor !== "#c0c0c0") || (userLevel === 3 && !["#c0c0c0", "#ffd700"].includes(newSpecialColor))) {
-            newSpecialColor = "";
-          }
-        }
-      }
-      if (userLevel >= 3 && uc.profile_upper_color !== null && uc.profile_lower_color !== null) {
+      if (uc.name_color !== null) newSpecialColor = uc.name_color;
+      if (uc.profile_upper_color !== null && uc.profile_lower_color !== null)
         setProfilebackground([uc.profile_upper_color, uc.profile_lower_color]);
-      }
       try {
         new URL(uc.profile_banner_url);
-        if (userLevel >= 3) {
-          setProfileBannerURL(uc.profile_banner_url);
-        }
+        setProfileBannerURL(uc.profile_banner_url);
       } catch { }
     }
     if (newSpecialColor === "/") newSpecialColor = "";
@@ -549,7 +434,7 @@ const UserCard = props => {
   useEffect(() => {
     if (!user.roles) return;
     // specialColor === "" => not customized
-    if (specialColor === "" && vtcLevel >= 3 && webConfig.use_highest_role_color && user.roles !== undefined) {
+    if (specialColor === "" &&  webConfig.use_highest_role_color && user.roles !== undefined) {
       for (let i = 0; i < user.roles.length; i++) {
         if (allRoles[user.roles[i]] !== undefined && allRoles[user.roles[i]].color !== undefined) {
           setSpecialColor(allRoles[user.roles[i]].color);
@@ -765,10 +650,6 @@ const UserCard = props => {
       let resp = undefined;
       if (action === "update") {
         let processedNC = removeNUEValues(newConnections);
-        if (Object.keys(specialUsers).includes(processedNC["discordid"])) {
-          // prevent setting id of special users
-          delete processedNC["discordid"];
-        }
         resp = await axios({ url: `${apiPath}/user/${user.uid}/connections`, method: "PATCH", data: processedNC, headers: { Authorization: `Bearer ${getAuthToken()}` } });
       } else if (action === "delete") {
         resp = await axios({ url: `${apiPath}/user/${user.uid}/connections/${connection}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
@@ -896,7 +777,6 @@ const UserCard = props => {
           instance: false,
           buttons: [
             { label: "Visit Drivers Hub", url: `https://${window.dhhost}${window.location.pathname}` },
-            { label: tr("powered_by_chub"), url: "https://drivershub.charlws.com/" },
           ],
         });
       } else {
@@ -944,21 +824,6 @@ const UserCard = props => {
                   {user.name}
                 </Typography>
                 <Typography variant="h7" sx={{ flexGrow: 1, display: "flex", alignItems: "center", maxWidth: "fit-content" }}>
-                  {badges.map((badge, index) => {
-                    return (
-                      <a
-                        key={index}
-                        onClick={() => {
-                          setCtxAction("");
-                          updateNote();
-                          if (onProfileModalClose !== undefined) onProfileModalClose();
-                          navigate("/badges");
-                        }}
-                        style={{ cursor: "pointer" }}>
-                        {badge}&nbsp;
-                      </a>
-                    );
-                  })}
                   {user.userid !== null && user.userid !== undefined && user.userid >= 0 && (
                     <Tooltip placement="top" arrow title={tr("user_id")} PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                       <Typography variant="body2">
@@ -1031,19 +896,6 @@ const UserCard = props => {
                     <Typography variant="body2">{trackerMapping[trackerInUse]}</Typography>
                   </Grid>
                 </Grid>
-                {fmRewardsDistributed[user.uid] !== undefined && fmRewardsDistributed[user.uid].length !== 0 && (
-                  <Box sx={{ mt: "10px" }}>
-                    <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                      {tr("freightmaster_title")}
-                      {fmRewardsDistributed[user.uid].length > 1 ? `S` : ``}
-                    </Typography>
-                    <SimpleBar style={{ width: "calc(100% + 15px)", maxHeight: "50px" }}>
-                      {fmRewardsDistributed[user.uid].map(reward => (
-                        <Typography variant="body2">{fmRewardsMapping[reward.reward].reward_value}</Typography>
-                      ))}
-                    </SimpleBar>
-                  </Box>
-                )}
                 {user.roles !== null && user.roles !== undefined && user.roles.length !== 0 && (
                   <Box sx={{ mt: "10px" }}>
                     <Typography variant="body2" sx={{ fontWeight: 800 }}>
@@ -1217,25 +1069,7 @@ const UserCard = props => {
                                 <img src="data:image/webp;base64,UklGRugCAABXRUJQVlA4TNwCAAAvH8AHEK/CMADQJIDd/f9XXtG6zQJ5g5UkSaZ6Fs/m6d7x36+tGYdtJClSbx/zPeWf1WfB/wvSDTittm1Znt8VJzvJvXliABpTMAwD0J1GdEkOAxDdXQMAAPAnIpDCn38xAEACwCh8rewUqmCXX+/KrgNAVHGDOh52b6q6J/lxDborLlOBZtX1+z1kxpg08Iizm8v5YzFaikk8QF66zAFYmO/vZJFdsDfeyX/AvWn5yaH+2c4miHpe5LXzl12uB9gV/Nohq8BKgnkj7BehcDAdP/mNEFYwCXF9EVU3o4sv6Nrzd6hun8Y9cezrq0yXPRL1sd8NAtPaUKCMwh6haeqh05pir6+RYlqsacjlL7raXJ7MCd82m1h1IXJZIU2np+t86LQpT/GehuOVFPux24tA6Pimzoz9PQAIsm2nbb6sMJNSxjDJDGFmpv2vxRQ5O4joPwO3bRtJ3bfvfJ+AZyVPrpCnqnNb9rlRJPP1/8TIn/kpN6jseRR5KTRFWaTUYw28lEVJoJTyvLeaKYi0nG+IlPcCgdBbQym/hJJVyRMEAp986zMC4MJD/ZYbL1nIumHW4KfcSAEh3nlp8W/2IcQTJAuxilIIAIFHDSsDP3LzFbIAj5qH+QiGU1WlErb7YCCScr9350rAykClSeVCPPP69VMs/FV4h2CNspGUnQFJEqnQrDZbVFSq738idQCRc3fzpyiKLEuU8qIkOj64LLmaWA8bBaH09/v7V7EH1HG7lFIXe854L9yHuqYZ84+aQpnCspP7bWNky2n3kiJKDCGdW6icNjmZTlQOb0rNOkNIjDDS09vuoLu+aQjPF3OGgQHCanrcux1ug8kBYcQ0pmPUvfRuOtJu3YOBMMfSAm/Hqy7CyNhN1ggzDRtYjfd3hoV+6KdU9hT2vVF0OjparGbj8NDosAQSDEGkt7pNjrteFAJ+lz6XhAAQuA6Hs1HvCsTrb0rAt1/uHYFlSgA=" />
                               </Tooltip>
                             }
-                            label={
-                              <>
-                                {tmpLastOnline === null ? (
-                                  `${!userSettings.streamer_mode ? user.truckersmpid : String(user.truckersmpid)[0] + "..."}`
-                                ) : (
-                                  <Tooltip
-                                    placement="top"
-                                    arrow
-                                    title={
-                                      <>
-                                        <>{tr("last_seen")}</>: <TimeDelta key={`${+new Date()}`} timestamp={tmpLastOnline * 1000} />
-                                      </>
-                                    }
-                                    PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-                                    {!userSettings.streamer_mode ? user.truckersmpid : String(user.truckersmpid)[0] + "..."}
-                                  </Tooltip>
-                                )}
-                              </>
-                            }
+                            label={!userSettings.streamer_mode ? user.truckersmpid : String(user.truckersmpid)[0] + "..."}
                             sx={{
                               borderRadius: "5px",
                               margin: "3px",
@@ -2829,18 +2663,6 @@ const UserCard = props => {
                   {user.name}
                 </Typography>
                 <Typography variant="h7" sx={{ flexGrow: 1, display: "flex", alignItems: "center", maxWidth: "fit-content" }}>
-                  {badges.map((badge, index) => {
-                    return (
-                      <a
-                        key={index}
-                        onClick={() => {
-                          navigate("/badges");
-                        }}
-                        style={{ cursor: "pointer" }}>
-                        {badge}&nbsp;
-                      </a>
-                    );
-                  })}
                   {user.userid !== null && user.userid !== undefined && user.userid >= 0 && (
                     <Tooltip placement="top" arrow title={tr("user_id")} PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                       <Typography variant="body2">
@@ -2895,19 +2717,6 @@ const UserCard = props => {
                       <Typography variant="body2">{trackerMapping[trackerInUse]}</Typography>
                     </Grid>
                   </Grid>
-                  {fmRewardsDistributed[user.uid] !== undefined && fmRewardsDistributed[user.uid].length !== 0 && (
-                    <Box sx={{ mt: "10px" }}>
-                      <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                        {tr("freightmaster_title")}
-                        {fmRewardsDistributed[user.uid].length > 1 ? `S` : ``}
-                      </Typography>
-                      <SimpleBar style={{ width: "calc(100% + 15px)", maxHeight: "50px" }}>
-                        {fmRewardsDistributed[user.uid].map(reward => (
-                          <Typography variant="body2">{fmRewardsMapping[reward.reward].reward_value}</Typography>
-                        ))}
-                      </SimpleBar>
-                    </Box>
-                  )}
                   {user.roles !== null && user.roles !== undefined && user.roles.length !== 0 && (
                     <Box sx={{ mt: "10px" }}>
                       <Typography variant="body2" sx={{ fontWeight: 800 }}>
@@ -2951,38 +2760,6 @@ const UserCard = props => {
                     />
                   </Box>
                 </SimpleBar>
-              )}
-              {isNaN(user.uid) && (
-                <>
-                  {/* fm title for users of other vtcs */}
-                  {fmRDsingle === undefined && (
-                    <Box sx={{ mt: "10px" }}>
-                      <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                        {tr("freightmaster_title")}
-                      </Typography>
-                      <Typography variant="body2">{tr("loading")}</Typography>
-                    </Box>
-                  )}
-                  {fmRDsingle !== undefined && fmRDsingle.length === 0 && (
-                    <Box sx={{ mt: "10px" }}>
-                      <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                        {tr("freightmaster_title")}
-                      </Typography>
-                      <Typography variant="body2">{tr("no_data")}</Typography>
-                    </Box>
-                  )}
-                  {fmRDsingle !== undefined && fmRDsingle.length !== 0 && (
-                    <Box sx={{ mt: "10px" }}>
-                      <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                        {tr("freightmaster_title")}
-                        {fmRDsingle.length > 1 ? `S` : ``}
-                      </Typography>
-                      {fmRDsingle.map(reward => (
-                        <Typography variant="body2">{fmRewardsMapping[reward.reward].reward_value}</Typography>
-                      ))}
-                    </Box>
-                  )}
-                </>
               )}
             </CardContent>
           </CardContent>
