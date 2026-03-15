@@ -53,7 +53,6 @@ const Loader = ({ onLoaderLoaded }) => {
       if (import.meta.env.VITE_USE_MULTIHUB == "true" && (domain === undefined || domain === null || domain === "")) {
         setLoaderAnimation(false);
         setTitle(tr("drivers_hub"));
-        setVtcLogo(await loadImageAsBase64(`./logo.png`));
         setUnknownDomain(true);
         setLoadMessage(tr("drivers_hub_not_found"));
         return;
@@ -113,7 +112,7 @@ const Loader = ({ onLoaderLoaded }) => {
 
       // load images
       Promise.all([
-        loadImageAsBase64(`${apiPath}/client/assets/logo?key=${webConfig.logo_key !== undefined ? webConfig.logo_key : ""}`, "./logo.png")
+        loadImageAsBase64(`${apiPath}/client/assets/logo?key=${webConfig.logo_key !== undefined ? webConfig.logo_key : ""}`)
           .then(image => {
             setVtcLogo(image);
             try {
@@ -269,29 +268,18 @@ const Loader = ({ onLoaderLoaded }) => {
           if (config.config === undefined) {
             if (config.error !== undefined) {
               setLoaderAnimation(false);
-              if (config.error === "Client validation failed") {
-                setLoadMessage(
-                  <>
-                    Your client cannot be validated by server.
-                    <br />
-                    Please make sure the clock of your device is synchronized.
-                  </>
-                );
-              } else {
-                setLoadMessage(
-                  <>
-                    An error has occurred while loading: <br />
-                    {config.error}
-                    <br />
-                    Please try again later and report the issue if it persists.
-                  </>
-                );
-              }
-              throw new Error("Client validation failed");
+              setLoadMessage(
+                <>
+                  An error has occurred while loading: <br />
+                  {config.error}
+                  <br />
+                  Please try again later and report the issue if it persists.
+                </>
+              );
+              throw new Error("Error occurred on loading API config");
             } else {
               setLoaderAnimation(false);
               setTitle(tr("drivers_hub"));
-              setVtcLogo(await loadImageAsBase64(`./logo.png`));
               setUnknownDomain(true);
               setLoadMessage(tr("drivers_hub_not_found"));
               throw new Error("Drivers Hub is not active");
