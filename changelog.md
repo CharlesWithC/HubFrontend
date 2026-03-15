@@ -3,6 +3,7 @@
 ## v3.6.0
 
 1. Separated with CHub
+2. Updated dependencies
 
 ## v3.5.0
 
