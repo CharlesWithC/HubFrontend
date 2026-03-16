@@ -4774,100 +4774,7 @@ const Configuration = () => {
         }
     }, []);
 
-    const [advancedPlugins, setAdvancedPlugins] = useState([]);
-    const [reloadAP, setReloadAP] = useState(0);
-    const loadAdvancedPlugins = useCallback(async () => {
-        let resp = await axios({ url: `${apiPath}/advanced-plugin/list`, method: "GET" });
-        if (resp.status === 200) {
-            setAdvancedPlugins(resp.data);
-        } else {
-            setSnackbarContent(resp.data.error);
-            setSnackbarSeverity("error");
-        }
-    }, []);
-    useEffect(() => {
-        loadAdvancedPlugins();
-    }, [reloadAP]);
-
-    const [pluginId, setPluginId] = useState("unknown");
-    const [pluginKey, setPluginKey] = useState("");
-    const [adpSettingsOpen, setADPSettingsOpen] = useState(false);
-    const [adpSettings, setADPSettings] = useState({});
-    const [adpDisabled, setADPDisabled] = useState(false); // form button
-    const toggleAdvancedPlugin = useCallback(async () => {
-        let isEnabled = false;
-        for (let i = 0; i < advancedPlugins.length; i++) {
-            if (advancedPlugins[i].id === pluginId) {
-                isEnabled = advancedPlugins[i].enabled;
-            }
-        }
-        if (isEnabled) {
-            let resp = await axios({ url: `${apiPath}/advanced-plugin/disable?name=${pluginId}`, method: "POST", headers: { key: pluginKey } });
-            if (resp.status === 200) {
-                setSnackbarContent(tr("success"));
-                setSnackbarSeverity("success");
-                setReloadAP(+new Date());
-            } else {
-                setSnackbarContent(resp.data.error);
-                setSnackbarSeverity("error");
-            }
-        } else {
-            let resp = await axios({
-                url: `${apiPath}/advanced-plugin/enable?name=${pluginId}`,
-                method: "POST",
-                headers: { key: pluginKey },
-            });
-            if (resp.status === 200) {
-                setSnackbarContent(tr("success"));
-                setSnackbarSeverity("success");
-                setReloadAP(+new Date());
-            } else {
-                setSnackbarContent(resp.data.error);
-                setSnackbarSeverity("error");
-            }
-        }
-    }, [advancedPlugins, pluginId, pluginKey]);
-    const loadADPSettings = useCallback(async pluginId => {
-        let resp = await axios({ url: `${apiPath}/advanced-plugins/${pluginId}/settings`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
-        if (resp.status === 200) {
-            setADPSettings(JSON.stringify(resp.data.config, null, 4));
-            setADPSettingsOpen(true);
-        } else {
-            setSnackbarContent(resp.data.error);
-            setSnackbarSeverity("error");
-        }
-    }, []);
-    const updateADPSettings = useCallback(async () => {
-        try {
-            JSON.parse(adpSettings);
-        } catch (error) {
-            if (error instanceof SyntaxError) {
-                setSnackbarContent(error.message);
-            } else {
-                setSnackbarContent(error);
-            }
-            setSnackbarSeverity("error");
-            return;
-        }
-        setADPDisabled(true);
-        let resp = await axios({
-            url: `${apiPath}/advanced-plugins/${pluginId}/settings`,
-            method: "PATCH",
-            data: { config: JSON.parse(adpSettings) },
-            headers: { Authorization: `Bearer ${getAuthToken()}` },
-        });
-        if (resp.status === 204) {
-            setSnackbarContent(tr("success"));
-            setSnackbarSeverity("success");
-        } else {
-            setSnackbarContent(resp.data.error);
-            setSnackbarSeverity("error");
-        }
-        setADPDisabled(false);
-    }, [adpSettings, pluginId]);
-
     const PLUGINS = { announcement: "Announcement", application: "Application", challenge: "Challenge", division: "Division", downloads: "Downloads", economy: "Economy", event: "Event", poll: "Poll", banner: "Profile Banner", route: "Delivery Route" };
-    const DHPLAN = { 0: "Regular Plan", 1: "Premium Plan", 3: "Special Guest" };
 
     return (
         <>
@@ -6318,43 +6225,6 @@ const Configuration = () => {
                     </Box>
                 </TabPanel>
             </Card>
-            <Dialog
-                open={adpSettingsOpen}
-                onClose={() => {
-                    setADPSettingsOpen(false);
-                }}
-                fullWidth>
-                <DialogTitle>
-                    <Typography variant="h6" fontWeight="bold" sx={{ flexGrow: 1, display: "flex", alignItems: "center" }}>
-                        <FontAwesomeIcon icon={faCogs} />
-                        &nbsp;&nbsp;Advanced Plugin Settings
-                    </Typography>
-                </DialogTitle>
-                <DialogContent>
-                    <TextField multiline rows={10} value={adpSettings} onChange={e => setADPSettings(e.target.value)} fullWidth />
-                </DialogContent>
-                <DialogActions>
-                    <Button
-                        onClick={() => {
-                            setADPSettingsOpen(false);
-                        }}
-                        variant="contained"
-                        color="secondary"
-                        sx={{ ml: "auto" }}>
-                        {tr("close")}
-                    </Button>
-                    <Button
-                        onClick={() => {
-                            updateADPSettings();
-                        }}
-                        variant="contained"
-                        color="info"
-                        sx={{ ml: "auto" }}
-                        disabled={adpDisabled}>
-                        {tr("submit")}
-                    </Button>
-                </DialogActions>
-            </Dialog>
             <Dialog
                 open={reloadModalOpen}
                 onClose={() => {
