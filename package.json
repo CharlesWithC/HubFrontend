@@ -23,8 +23,6 @@
     "@mui/material": "^7.3.6",
     "axios": "^1.13.6",
     "axios-retry": "^4.5.0",
-    "bootstrap": "^5.3.8",
-    "browserslist": "^4.28.1",
     "chart.js": "^4.5.1",
     "connect-history-api-fallback": "^2.0.0",
     "crypto-js": "^4.2.0",
@@ -47,21 +45,16 @@
     "papaparse": "^5.5.3",
     "qr-code-styling": "^1.9.2",
     "react": "^19.2.3",
-    "react-bootstrap": "^2.10.10",
     "react-colorful": "^5.6.1",
     "react-dom": "^19.2.3",
     "react-helmet-async": "^2.0.5",
     "react-i18next": "^16.5.0",
     "react-markdown": "^10.1.0",
-    "react-ol-wrapper": "^0.2.9",
     "react-select": "^5.10.2",
-    "readline-sync": "^1.4.10",
     "remark-breaks": "^4.0.0",
-    "simplebar-react": "^3.3.2",
-    "source-map-explorer": "^2.5.3"
+    "simplebar-react": "^3.3.2"
   },
   "scripts": {
-    "analyze": "source-map-explorer 'build/static/js/*.js'",
     "dev": "vite",
     "build": "vite build && bash ./scripts/browser-build.sh && bash -c \"find ./build -type f -name '*.map' -exec rm {} \\;\"",
     "build:dev": "vite build && bash ./scripts/browser-build.sh",
@@ -635,26 +628,7 @@
       "node_modules/es-array-method-boxes-properly/**/*"
     ]
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@vitejs/plugin-react": "^5.1.2",
     "electron": "^39.2.7",
     "electron-builder": "^26.0.12",

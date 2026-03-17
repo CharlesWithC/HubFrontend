@@ -10,35 +10,35 @@ import Loader from "./components/loader";
 import Redirect from "./components/redirect";
 import BrowserAuth from "./components/browserAuth.js";
 
+// main features
 import Overview from "./routes/overview";
 import Statistics from "./routes/statistics";
 import Deliveries from "./routes/delivery-list";
 import Members from "./routes/member";
 import Leaderboard from "./routes/leaderboard";
 import Ranking from "./routes/ranking";
-// import FreightMaster from './routes/freightmaster';
 
-// lazy load: auth (just accessed once on login)
-const AuthLogin = lazy(() => import("./routes/auth/login"));
-const TokenAuth = lazy(() => import("./routes/auth/token"));
-const DiscordAuth = lazy(() => import("./routes/auth/discord/callback"));
-const SteamAuth = lazy(() => import("./routes/auth/steam/callback"));
-const MfaAuth = lazy(() => import("./routes/auth/mfa"));
-const EmailAuth = lazy(() => import("./routes/auth/email"));
+// auth
+const AuthLogin = lazy(() => import("./routes/auth").then(m => ({ default: m.AuthLogin })));
+const TokenAuth = lazy(() => import("./routes/auth").then(m => ({ default: m.TokenAuth })));
+const DiscordAuth = lazy(() => import("./routes/auth").then(m => ({ default: m.DiscordAuth })));
+const SteamAuth = lazy(() => import("./routes/auth").then(m => ({ default: m.SteamAuth })));
+const MfaAuth = lazy(() => import("./routes/auth").then(m => ({ default: m.MfaAuth })));
+const EmailAuth = lazy(() => import("./routes/auth").then(m => ({ default: m.EmailAuth })));
 
-// lazy load: plugins
-const NewApplication = lazy(() => import("./routes/application/new"));
-const MyApplication = lazy(() => import("./routes/application/my"));
-const AllApplication = lazy(() => import("./routes/application/all"));
-const Announcement = lazy(() => import("./routes/announcement"));
-const Challenges = lazy(() => import("./routes/challenge"));
-const Divisions = lazy(() => import("./routes/division"));
-const Downloads = lazy(() => import("./routes/downloads"));
-const Economy = lazy(() => import("./routes/economy"));
-const Events = lazy(() => import("./routes/event"));
-const Poll = lazy(() => import("./routes/poll"));
-const Task = lazy(() => import("./routes/task"));
-const Gallery = lazy(() => import("./routes/gallery"));
+// plugins
+import NewApplication from "./routes/application/new";
+import MyApplication from "./routes/application/my";
+import AllApplication from "./routes/application/all";
+import Announcement from "./routes/announcement";
+import Challenges from "./routes/challenge";
+import Divisions from "./routes/division";
+import Downloads from "./routes/downloads";
+const Economy = lazy(() => import("./routes/economy")); // tilemap => ol (very large lib)
+const Events = lazy(() => import("./routes/event")); // calendar
+import Poll from "./routes/poll";
+import Task from "./routes/task";
+import Gallery from "./routes/gallery";
 
 // lazy load: large files
 const Delivery = lazy(() => import("./routes/delivery")); // tilemap => ol (very large lib)
@@ -46,14 +46,14 @@ const Map = lazy(() => import("./routes/map")); // tilemap => ol (very large lib
 const Configuration = lazy(() => import("./routes/config"));
 const Settings = lazy(() => import("./routes/settings"));
 
-// lazy load: limited access
-const MemberList = lazy(() => import("./routes/member-list"));
-const ExternalUsers = lazy(() => import("./routes/external-user"));
-const AuditLog = lazy(() => import("./routes/audit-log"));
+// limited access
+import MemberList from "./routes/member-list";
+import ExternalUsers from "./routes/external-user";
+import AuditLog from "./routes/audit-log";
 
-// lazy load: seldomly accessed
-const Notifications = lazy(() => import("./routes/notifications"));
-const NotFound = lazy(() => import("./routes/404"));
+// seldomly accessed
+import Notifications from "./routes/notifications";
+import NotFound from "./routes/404";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLink } from "@fortawesome/free-solid-svg-icons";
