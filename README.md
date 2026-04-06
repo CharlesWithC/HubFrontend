@@ -13,7 +13,7 @@ An advanced Drivers Hub solution for Euro Truck Simulator 2 / American Truck Sim
 
 ## About
 
-This is a working demonstration of a web client for the Drivers Hub.
+This is a working demonstration of a web client for the Drivers Hub. The client is served as static files, with no need for a heavy node server.
 
 As it is built by a backend developer obligated to work on frontend, as well as past attempts at monetization, the codebase is relatively messy and fragile.
 
@@ -99,7 +99,7 @@ rsync ...
 ## Resources
 
 - [HubBackend](https://github.com/CharlesWithC/HubBackend) provides information on backend design and api documentation
-- [wiki.charlws.com](https://wiki.charlws.com/shelves/drivers-hub) provides some (possibly outdated) information on using the drivers hub
+- [wiki](https://github.com/CharlesWithC/HubWebsite/wiki) provides some information on using the drivers hub
 
 ## License
 

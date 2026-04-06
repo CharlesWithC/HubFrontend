@@ -7,7 +7,7 @@ import { Typography, TextField, Button, useTheme } from "@mui/material";
 
 import { FetchProfile, loadImageAsBase64, customAxios as axios, makeRequestsAuto, writeLS, readLS, getAuthToken } from "../functions";
 
-const TIPS = ["The pre-login avatar belongs to CharlesWithC (a.k.a Drak0). He's a Night Fury.", "We've got a website which may solve your problems: wiki.charlws.com", "Find hidden features by hovering on the + in the bottom right.", "Some components have context menus. Right-click to find out.", "Multiple rankings is supported, but you'll need JSON knowledge to manage them.", "All statistics and points are traceable, allowing data fetching of any time range."];
+const TIPS = ["The pre-login avatar belongs to CharlesWithC (a.k.a Drak0). He's a Night Fury.", "Find hidden features by hovering on the + in the bottom right.", "Some components have context menus. Right-click to find out.", "Multiple rankings is supported, but you'll need JSON knowledge to manage them.", "All statistics and points are traceable, allowing data fetching of any time range."];
 
 const tip = TIPS[Math.floor(Math.random() * TIPS.length)];
 
