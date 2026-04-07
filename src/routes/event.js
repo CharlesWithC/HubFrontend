@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useContext, memo } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { AppContext, CacheContext } from "../context";
 
@@ -316,6 +317,8 @@ const EventCard = ({ event, eventid, imageUrl, title, creator, description, link
 
 const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, setCalendarEvents, allEvents, setAllEvents, openEventDetails, setOpenEventDetals, modalEvent, setModalEvent, setSnackbarContent, setSnackbarSeverity, onEdit, onDelete, onUpdateAttendees, doReload }) => {
     const { t: tr } = useTranslation();
+    const { eventid: paramEventID } = useParams();
+    const navigate = useNavigate();
     const { apiPath, curUID, curUser, userSettings } = useContext(AppContext);
 
     const [isInitialLoad, setIsInitialLoad] = useState(true);
@@ -478,62 +481,62 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
         [setAllEvents]
     );
 
-    const handleEventClick = useCallback(
-        info => {
-            async function loadDetails(eventid, summary) {
-                window.loading += 1;
+    const displayEvent = useCallback(async (eventid) => {
+        window.loading += 1;
 
-                let urls = [`${apiPath}/events/${eventid}`];
-                let event = {};
+        let urls = [`${apiPath}/events/${eventid}`];
+        let event = {};
 
-                if (curUID !== null) {
-                    [event] = await makeRequestsWithAuth(urls);
-                } else {
-                    [event] = await makeRequests(urls);
-                }
+        if (curUID !== null) {
+            [event] = await makeRequestsWithAuth(urls);
+        } else {
+            [event] = await makeRequests(urls);
+        }
 
-                event.attendeecnt = event.attendees.length;
-                event.attendeeO = (
+        event.attendeecnt = event.attendees.length;
+        event.attendeeO = (
+            <>
+                {event.attendees.map(attendee => (
                     <>
-                        {event.attendees.map(attendee => (
-                            <>
-                                <UserCard user={attendee} inline={true} />
-                                &nbsp;&nbsp;
-                            </>
-                        ))}
+                        <UserCard user={attendee} inline={true} />
+                        &nbsp;&nbsp;
                     </>
-                );
-                if (event.attendeecnt === 0) event.attendeeO = undefined;
+                ))}
+            </>
+        );
+        if (event.attendeecnt === 0) event.attendeeO = undefined;
 
-                event.votecnt = event.votes.length;
-                event.voteO = (
-                    <>
-                        {event.votes.map(voter => (
-                            <>
-                                <UserCard user={voter} inline={true} />
-                                &nbsp;&nbsp;
-                            </>
-                        ))}
-                    </>
-                );
-                if (event.votecnt === 0) event.voteO = undefined;
+        event.votecnt = event.votes.length;
+        event.voteO = <>
+            {event.votes.map(voter => (
+                <>
+                    <UserCard user={voter} inline={true} />
+                    &nbsp;&nbsp;
+                </>
+            ))}
+        </>;
+        if (event.votecnt === 0) event.voteO = undefined;
 
-                setModalEvent(event);
-                setOpenEventDetals(true);
+        navigate(`/event/${eventid}`);
+        setModalEvent(event);
+        setOpenEventDetals(true);
 
-                window.loading -= 1;
-            }
+        window.loading -= 1;
+    }, [navigate, apiPath, setModalEvent, setOpenEventDetals]);
 
-            info.jsEvent.preventDefault();
-            const eventid = parseInt(info.event.url.split("/")[2]);
-            for (let i = 0; i < allEvents.length; i++) {
-                if (allEvents[i].eventid === eventid) {
-                    loadDetails(eventid, allEvents[i]);
-                }
-            }
-        },
-        [apiPath, allEvents, setModalEvent, setOpenEventDetals]
-    );
+    const handleEventClick = useCallback(info => {
+        info.jsEvent.preventDefault();
+        const eventid = parseInt(info.event.url.split("/")[2]);
+        displayEvent(eventid);
+    }, [apiPath, allEvents]);
+
+    useEffect(() => {
+        if (paramEventID) displayEvent(paramEventID);
+    }, [paramEventID]);
+
+    useEffect(() => {
+        if (!openEventDetails) navigate("/event");
+    }, [openEventDetails]);
 
     const handleDateSet = useCallback(
         async dateInfo => {

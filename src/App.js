@@ -371,6 +371,7 @@ function App() {
                                         <Route path="/division" element={<Divisions />}></Route>
                                         <Route path="/division/pending" element={<Divisions />}></Route>
                                         <Route path="/event" element={<Events />}></Route>
+                                        <Route path="/event/:eventid" element={<Events />} />
                                         <Route path="/economy" element={<Economy />}></Route>
                                         <Route path="/member" element={<Members />}></Route>
                                         <Route path="/member/:userid" element={<Overview />} />
