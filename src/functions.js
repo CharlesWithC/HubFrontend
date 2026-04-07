@@ -12,7 +12,7 @@ axiosRetry(customAxios, {
         return retryCount * 1000;
     },
     retryCondition: error => {
-        return error.response === undefined && error.response.status in [429, 503];
+        return error.response && error.response.status in [429, 503];
     },
 });
 customAxios.interceptors.request.use(async config => {
@@ -63,7 +63,7 @@ customAxios.interceptors.response.use(
             console.error(new Error(errorMessage));
         }
 
-        return errorResponse;
+        return errorResponse || { status: 0, error: String(error) };
     }
 );
 
@@ -118,7 +118,7 @@ export const makeRequestsAuto = async urls => {
             }
         })
     );
-    return responses.map(response => (response ? response.error || response.data : {}));
+    return responses.map(response => response.data);
 };
 
 export function writeLS(key, data, secretKey) {

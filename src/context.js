@@ -178,27 +178,28 @@ export const AppContextProvider = ({ children }) => {
     const loadMemberUIDs = useCallback(async () => {
         if (memberUIDs.length > 0) return;
 
+        // wait 3 seconds before load to avoid 429
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
         const orderedRoles = Object.values(allRoles)
             .sort((a, b) => a.order_id - b.order_id)
             .map(role => role.id);
 
         let allMembers = [];
+        let currentMemberPage = 1;
+        let totalMemberPages = 1;
 
-        let [resp] = await makeRequestsWithAuth([`${apiPath}/member/list?page=1&page_size=250`]);
-        let totalPages = resp.total_pages;
-        allMembers = resp.list;
-        if (totalPages > 1) {
-            let urlsBatch = [];
-            for (let i = 2; i <= totalPages; i++) {
-                urlsBatch.push(`${apiPath}/member/list?page=${i}&page_size=250`);
-                if (urlsBatch.length === 5 || i === totalPages) {
-                    let resps = await makeRequestsWithAuth(urlsBatch);
-                    for (let j = 0; j < resps.length; j++) {
-                        allMembers.push(...resps[j].list);
-                    }
-                    urlsBatch = [];
-                }
+        while (currentMemberPage <= totalMemberPages) {
+            const [resp] = await makeRequestsWithAuth([`${apiPath}/member/list?page=${currentMemberPage}&page_size=250`]);
+
+            if (!resp) {
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                continue;
             }
+
+            totalMemberPages = resp.total_pages;
+            allMembers.push(...resp.list);
+            currentMemberPage++;
         }
 
         for (let i = 0; i < allMembers.length; i++) {
@@ -215,7 +216,7 @@ export const AppContextProvider = ({ children }) => {
     const loadDlogDetails = useCallback(async () => {
         // use atm's data
         let [resp] = await makeRequestsAuto([{ url: `${apiPath}/dlog/statistics/details`, auth: false }]);
-        if (resp.error === undefined) {
+        if (resp) {
             setDlogDetailsCache(resp);
         }
         return resp;
@@ -245,23 +246,24 @@ export const AppContextProvider = ({ children }) => {
 
     // load when needed
     const loadAllUsers = useCallback(async () => {
-        let result = [];
+        // wait 3 seconds before load to avoid 429
+        await new Promise(resolve => setTimeout(resolve, 3000));
 
-        let [resp] = await makeRequestsWithAuth([`${apiPath}/user/list?page=1&page_size=250`]);
-        let totalPages = resp.total_pages;
-        result = resp.list;
-        if (totalPages > 1) {
-            let urlsBatch = [];
-            for (let i = 2; i <= totalPages; i++) {
-                urlsBatch.push(`${apiPath}/user/list?page=${i}&page_size=250`);
-                if (urlsBatch.length === 5 || i === totalPages) {
-                    let resps = await makeRequestsWithAuth(urlsBatch);
-                    for (let i = 0; i < resps.length; i++) {
-                        result.push(...resps[i].list);
-                    }
-                    urlsBatch = [];
-                }
+        let result = [];
+        let currentPage = 1;
+        let totalPages = 1;
+
+        while (currentPage <= totalPages) {
+            const [resp] = await makeRequestsWithAuth([`${apiPath}/user/list?page=${currentPage}&page_size=250`]);
+
+            if (!resp) {
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                continue;
             }
+
+            totalPages = resp.total_pages;
+            result.push(...resp.list);
+            currentPage++;
         }
 
         setAllUsersCache(result);

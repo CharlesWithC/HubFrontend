@@ -59,14 +59,14 @@ const Overview = () => {
                 { url: `${apiPath}/dlog/statistics/chart?ranges=7&interval=86400&sum_up=true`, auth: false },
             ]);
 
-            if (chartSU) {
+            if (chartSU && chartSU.length > 0) {
                 let newLatest = { driver: chartSU[chartSU.length - 1].driver, job: chartSU[chartSU.length - 1].job.sum, distance: chartSU[chartSU.length - 1].distance.sum, fuel: chartSU[chartSU.length - 1].fuel.sum, profit_euro: chartSU[chartSU.length - 1].profit.euro, profit_dollar: chartSU[chartSU.length - 1].profit.dollar };
                 setLatest(newLatest);
                 let newDelta = { driver: newLatest.driver - chartSU[0].driver, job: newLatest.job - chartSU[0].job.sum, distance: newLatest.distance - chartSU[0].distance.sum, fuel: newLatest.fuel - chartSU[0].fuel.sum, profit_euro: newLatest.profit_euro - chartSU[0].profit.euro, profit_dollar: newLatest.profit_dollar - chartSU[0].profit.dollar };
                 setDelta(newDelta);
             }
 
-            if (chartNSU) {
+            if (chartNSU && chartNSU.length > 0) {
                 let newCharts = { driver: [], job: [], distance: [], fuel: [], profit_euro: [], profit_dollar: [] };
                 for (let i = 0; i < chartNSU.length; i++) {
                     if (i === 0) {
