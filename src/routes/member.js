@@ -73,23 +73,20 @@ const Members = () => {
                             <b style={group.color !== undefined ? { color: group.color } : {}}>{group.group}</b>
                         </Typography>
                     </Tooltip>
-                    <div style={{ display: "flex", justifyContent: "center" }}>
-                        <Grid container spacing={2} justifyContent="center">
-                            {group.uids.map(uid => (
-                                <Grid
-                                    key={`${group.group}-${uid}`}
-                                    sx={{ minWidth: 150 }}
-                                    size={{
-                                        xs: 6,
-                                        sm: 6,
-                                        md: 4,
-                                        lg: 2,
-                                    }}>
-                                    <LargeUserCard user={users[uid]} />
-                                </Grid>
-                            ))}
-                        </Grid>
-                    </div>
+                    <Grid container spacing={2} justifyContent="center">
+                        {group.uids.map(uid => (
+                            <Grid
+                                key={`${group.group}-${uid}`}
+                                size={{
+                                    xs: 6,
+                                    sm: 6,
+                                    md: 4,
+                                    lg: 2,
+                                }}>
+                                <LargeUserCard user={users[uid]} />
+                            </Grid>
+                        ))}
+                    </Grid>
                 </div>
             ))}
         </div>
