@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { AppContext } from "../context";
 
 import { Card, CardContent, Typography, Grid, Snackbar, Alert, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button, IconButton, useTheme, Divider, SpeedDial, SpeedDialIcon, SpeedDialAction, Box, MenuItem, FormControlLabel, Checkbox } from "@mui/material";
-import { CloseRounded, DeleteRounded, EditNoteRounded, EditRounded, PeopleAltRounded } from "@mui/icons-material";
+import { CloseRounded, DeleteRounded, EditNoteRounded, EditRounded, PeopleAltRounded, CheckBoxRounded, CheckBoxOutlineBlankRounded } from "@mui/icons-material";
 import Portal from "@mui/material/Portal";
 
 import CustomTable from "../components/table";
@@ -63,7 +63,7 @@ function secondsToUserFriendlyDuration(seconds) {
     return result;
 }
 
-const TaskTable = memo(({ showDetail, reload }) => {
+const TaskTable = memo(({ showDetail, reload, listParam, setListParam }) => {
     const { t: tr } = useTranslation();
     const { apiPath, userSettings } = useContext(AppContext);
 
@@ -94,7 +94,6 @@ const TaskTable = memo(({ showDetail, reload }) => {
     const [page, setPage] = useState(1);
     const pageRef = useRef(1);
     const [pageSize, setPageSize] = useState(userSettings.default_row_per_page);
-    const [listParam, setListParam] = useState({ order_by: "priority", order: "desc" });
 
     useEffect(() => {
         pageRef.current = page;
@@ -278,6 +277,7 @@ const Task = () => {
     const [buttonDisabled, setButtonDisabled] = useState(false);
     const [isTaskAssignee, setIsTaskAssignee] = useState(false);
     const [isTaskManager, setIsTaskManager] = useState(false);
+    const [listParam, setListParam] = useState({ order_by: "due_timestamp", order: "asc", mark_completed: false, confirm_completed: false });
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -434,7 +434,7 @@ const Task = () => {
 
     return (
         <>
-            <TaskTable showDetail={showDetail} reload={reload}></TaskTable>
+            <TaskTable showDetail={showDetail} reload={reload} listParam={listParam} setListParam={setListParam}></TaskTable>
             {detailTask !== null && (
                 <Dialog open={dialogAction === "detail"} onClose={() => setDialogAction("")}>
                     <DialogTitle sx={{ alignItems: "center" }}>
@@ -842,6 +842,7 @@ const Task = () => {
                 </Dialog>
             )}
             <SpeedDial ariaLabel={tr("controls")} sx={{ position: "fixed", bottom: 20, right: 20 }} icon={<SpeedDialIcon />}>
+                {curUser.userid !== -1 && <SpeedDialAction key="toggle-completed" icon={listParam.mark_completed !== false ? <CheckBoxRounded /> : <CheckBoxOutlineBlankRounded />} tooltipTitle={listParam.mark_completed !== false ? "Showing All Tasks" : "Showing Pending Tasks"} onClick={() => { setListParam({ ...listParam, order: listParam.mark_completed === false ? "asc" : "desc", mark_completed: listParam.mark_completed === false ? undefined : false, confirm_completed:  listParam.confirm_completed === false ? undefined : false }); }} />}
                 {curUser.userid !== -1 && <SpeedDialAction key="create" icon={<EditNoteRounded />} tooltipTitle={tr("create")} onClick={() => createTask()} />}
                 {curUser.userid !== -1 && <SpeedDialAction key="managers" icon={<PeopleAltRounded />} tooltipTitle={tr("managers")} onClick={() => setDialogAction("managers")} />}
             </SpeedDial>
