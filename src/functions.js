@@ -229,14 +229,14 @@ export async function FetchProfile({ apiPath, setUsers, setCurUID, setCurUser, s
             }
         } else if (resp.status === 401) {
             localStorage.removeItem("token");
-            setCurUserBanner({ name: "Login", role: "", avatar: "https://charlws.com/me.gif" });
+            setCurUserBanner({ name: "Login", role: "", avatar: `${import.meta.env.BASE_URL}logo.png` });
             return { ok: false, member: false };
         }
     } else {
         setCurUID(null);
         setCurUser({});
         setCurUserPerm([]);
-        setCurUserBanner({ name: "Login", role: "", avatar: "https://charlws.com/me.gif" });
+        setCurUserBanner({ name: "Login", role: "", avatar: `${import.meta.env.BASE_URL}logo.png` });
         return { ok: false, member: false };
     }
 }

@@ -150,7 +150,7 @@ export const AppContextProvider = ({ children }) => {
             }
             setCurUserBanner({ name: users[curUID].name, role: roleOnDisplay, avatar: users[curUID].avatar });
         } else {
-            setCurUserBanner({ name: "Login", role: "", avatar: "https://charlws.com/me.gif" });
+            setCurUserBanner({ name: "Login", role: "", avatar: `${import.meta.env.BASE_URL}logo.png` });
         }
     }, [allRoles, curUID, users[curUID]]);
 
