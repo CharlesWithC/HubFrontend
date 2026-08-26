@@ -247,7 +247,7 @@ const AuthLogin = () => {
                     &nbsp;&nbsp;{tr("are_you_a_robot")}
                 </DialogTitle>
                 <DialogContent>
-                    <HCaptcha theme={themeMode} sitekey="1788882d-3695-4807-abac-7d7166ec6325" onVerify={handleCaptcha} />
+                    <HCaptcha theme={themeMode} sitekey={import.meta.env.VITE_HCAPTCHA_SITEKEY} onVerify={handleCaptcha} />
                 </DialogContent>
             </Dialog>
             <Portal>
