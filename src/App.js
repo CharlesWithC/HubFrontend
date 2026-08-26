@@ -76,6 +76,7 @@ const drivershub = `    ____       _                         __  __      __
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/
                                                       `;
 const CONNECTIONS = { email: "email", discord: "Discord", steam: "Steam", truckersmp: "TruckersMP" };
+const GOOGLE_ANALYTICS_ID = import.meta.env.VITE_GOOGLE_ANALYTICS_ID;
 
 const SuspenseLoadingTrigger = () => {
     // used in Suspense fallback
@@ -194,9 +195,9 @@ function App() {
         localStorage.setItem("cookie-settings", settings);
     }, []);
     useEffect(() => {
-        if (cookieSettings === "analytical" || window.isElectron) {
+        if (GOOGLE_ANALYTICS_ID && (cookieSettings === "analytical" || window.isElectron)) {
             const script = document.createElement("script");
-            script.src = "https://www.googletagmanager.com/gtag/js?id=G-SLZ5TY9MVN";
+            script.src = `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_ID}`;
             script.async = true;
             document.head.appendChild(script);
 
@@ -205,7 +206,7 @@ function App() {
                 window.dataLayer.push(arguments);
             }
             gtag("js", new Date());
-            gtag("config", "G-SLZ5TY9MVN");
+            gtag("config", GOOGLE_ANALYTICS_ID);
         }
     }, [cookieSettings]);
 
@@ -262,7 +263,7 @@ function App() {
                     {!sidebarForceHidden && <SideBar width={260}></SideBar>}
                     {/* For mobile view, use a "menu button" on topbar, click it to show a full-width sidebar, without banner on top and with a close button on top */}
                     <div style={(!sidebarHidden && { position: "relative", left: "260px", top: !topbarHidden ? "80px" : "0", width: "calc(100vw - 260px)", height: !topbarHidden ? "calc(100vh - 80px)" : "100vh", overflow: "hidden" }) || (sidebarHidden && { position: "relative", left: "0", top: !topbarHidden ? "80px" : "0", width: "calc(100vw)", height: !topbarHidden ? "calc(100vh - 80px)" : "100vh", overflow: "hidden" })}>
-                        {!window.isElectron && cookieSettings === null && !sidebarForceHidden && (
+                        {GOOGLE_ANALYTICS_ID && !window.isElectron && cookieSettings === null && !sidebarForceHidden && (
                             <>
                                 <Card sx={{ position: "fixed", zIndex: 100000, bottom: "10px", right: "10px", width: window.innerWidth <= 420 ? "calc(100vw - 20px) !important" : "400px" }}>
                                     <CardContent>
