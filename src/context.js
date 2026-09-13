@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, createContext } from "react";
 import _ from "lodash";
 
-import { makeRequestsAuto, makeRequestsWithAuth, getTodayUTC, readLS, writeLS } from "./functions";
+import { makeRequestsAuto, makeRequestsWithAuth, getTodayUTC, readLS, writeLS, DEFAULT_LOGIN_AVATAR_URL } from "./functions";
 
 export const AppContext = createContext({
     apiPath: "",
@@ -150,7 +150,7 @@ export const AppContextProvider = ({ children }) => {
             }
             setCurUserBanner({ name: users[curUID].name, role: roleOnDisplay, avatar: users[curUID].avatar });
         } else {
-            setCurUserBanner({ name: "Login", role: "", avatar: `${import.meta.env.BASE_URL}logo.png` });
+            setCurUserBanner({ name: "Login", role: "", avatar: DEFAULT_LOGIN_AVATAR_URL });
         }
     }, [allRoles, curUID, users[curUID]]);
 
