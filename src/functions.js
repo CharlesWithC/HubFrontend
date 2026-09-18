@@ -5,6 +5,8 @@ import CryptoJS from "crypto-js";
 
 import i18n from "./i18n";
 
+export const DEFAULT_LOGIN_AVATAR_URL = import.meta.env.VITE_FALLBACK_AVATAR_URL || `${import.meta.env.BASE_URL}logo.png`;
+
 const customAxios = axios.create();
 axiosRetry(customAxios, {
     retries: 3,
@@ -229,14 +231,14 @@ export async function FetchProfile({ apiPath, setUsers, setCurUID, setCurUser, s
             }
         } else if (resp.status === 401) {
             localStorage.removeItem("token");
-            setCurUserBanner({ name: "Login", role: "", avatar: "https://charlws.com/me.gif" });
+            setCurUserBanner({ name: "Login", role: "", avatar: DEFAULT_LOGIN_AVATAR_URL });
             return { ok: false, member: false };
         }
     } else {
         setCurUID(null);
         setCurUser({});
         setCurUserPerm([]);
-        setCurUserBanner({ name: "Login", role: "", avatar: "https://charlws.com/me.gif" });
+        setCurUserBanner({ name: "Login", role: "", avatar: DEFAULT_LOGIN_AVATAR_URL });
         return { ok: false, member: false };
     }
 }
