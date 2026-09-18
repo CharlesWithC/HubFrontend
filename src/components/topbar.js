@@ -24,7 +24,7 @@ const radioImages = { tfm: "https://truckersfm.s3.fr-par.scw.cloud/static/tfm-20
 
 const TopBar = props => {
   const { t: tr } = useTranslation();
-  const { apiPath, allPerms, setUsers, curUID, setCurUID, users, curUser, setCurUser, curUserPerm, setCurUserPerm, curUserBanner, testRoleMode, setTestRoleMode, userSettings } = useContext(AppContext);
+  const { apiPath, allPerms, setUsers, curUID, setCurUID, users, curUser, setCurUser, curUserPerm, setCurUserPerm, curUserBanner, setCurUserBanner, testRoleMode, setTestRoleMode, userSettings } = useContext(AppContext);
 
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -316,7 +316,7 @@ const TopBar = props => {
         setSnackbarSeverity("error");
         setSnackbarContent(tr("already_logged_out"));
       }
-      await FetchProfile({ setUsers, setCurUID, setCurUser, setCurUserPerm }); // loadMemberUIDs not needed
+      await FetchProfile({ setUsers, setCurUID, setCurUser, setCurUserPerm, setCurUserBanner }); // loadMemberUIDs not needed
     } catch (error) {
       console.error(error);
       setSnackbarSeverity("error");
