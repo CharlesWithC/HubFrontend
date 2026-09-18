@@ -75,6 +75,9 @@ VITE_MULTIHUB_DISCOVERY=
 # https://github.com/CharlesWithC/HubBackend/blob/main/src/external_plugins/client-config.py
 VITE_CONFIG_URL=https://<domain>/<prefix>/client/config/global
 
+# public hCaptcha site key for the frontend domain
+VITE_HCAPTCHA_SITEKEY=
+
 # optional fallback login avatar; defaults to logo.png from this frontend build
 # VITE_FALLBACK_AVATAR_URL=
 ```
