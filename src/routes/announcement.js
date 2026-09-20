@@ -418,7 +418,7 @@ const Announcement = () => {
         const match = title.match(/https:\/\/truckersmp\.com\/vtc\/(.*)\/news\/(\d+)/);
         const vtcID = match[1];
         const newsID = match[2];
-        const resp = await axios({ url: `${apiPath}/proxy?url=https://api.truckersmp.com/v2/vtc/${vtcID}/news/${newsID}`, fetchOnly: true });
+        const resp = await axios({ url: `${apiPath}/proxy?url=https://api.truckersmp.com/v2/vtc/${vtcID}/news/${newsID}`, fetchOnly: true, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status !== 200) {
             setImportDisabled(false);
             setSnackbarContent("Invalid TruckersMP news link");
