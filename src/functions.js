@@ -33,6 +33,7 @@ customAxios.interceptors.request.use(async config => {
             const response = await fetch(config.url, {
                 method: config.method,
                 body: config.data,
+                headers: config.headers.toJSON(),
             });
 
             const headers = {};

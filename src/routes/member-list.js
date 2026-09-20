@@ -111,7 +111,7 @@ const MemberList = () => {
     const compareMembers = useCallback(async () => {
         setDialogButtonDisabled(true);
         setMemberCompareResult([]);
-        let resp = await axios({ url: `${apiPath}/proxy?url=https://api.truckersmp.com/v2/vtc/${tmpVtcId}/members`, fetchOnly: true });
+        let resp = await axios({ url: `${apiPath}/proxy?url=https://api.truckersmp.com/v2/vtc/${tmpVtcId}/members`, fetchOnly: true, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status !== 200) {
             setMemberCompareResult(newCompareResult);
             setSnackbarContent(tr("failed_to_fetch_truckersmp_members"));
