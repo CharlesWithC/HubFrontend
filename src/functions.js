@@ -53,12 +53,31 @@ customAxios.interceptors.request.use(async config => {
 
     return config;
 });
+function clearInvalidSession(errorResponse) {
+    if (errorResponse?.status !== 401) return;
+
+    const headers = errorResponse.config?.headers;
+    const authorization = typeof headers?.get === "function"
+        ? headers.get("Authorization")
+        : headers?.Authorization || headers?.authorization;
+
+    const storedToken = getAuthToken();
+    if (storedToken === null || authorization !== `Bearer ${storedToken}`) return;
+
+    localStorage.removeItem("token");
+    eraseCookie("auth-mode");
+    if (!["/auth", "/auth/login"].includes(window.location.pathname)) {
+        window.location.replace("/auth/login");
+    }
+}
+
 customAxios.interceptors.response.use(
     response => {
         return response;
     },
     error => {
         const errorResponse = error.response;
+        clearInvalidSession(errorResponse);
 
         if (errorResponse && (errorResponse.status === 429 || errorResponse.status === 503)) {
             const errorMessage = `${errorResponse.status}: ${errorResponse.statusText}`;
@@ -189,27 +208,14 @@ export async function FetchProfile({ apiPath, setUsers, setCurUID, setCurUser, s
             }
             sync_to === undefined ? (sync_to = "") : (sync_to = `?sync_from_${sync_to}=true`);
             if (sync_to !== "") {
-                let avatarOk = true;
-                fetch(curUser.avatar, {
-                    method: "HEAD",
-                    mode: "no-cors",
-                })
-                    .then(response => {
-                        if (!response.ok) {
-                            avatarOk = false;
-                        }
-                    })
-                    .catch(error => {
-                        avatarOk = false;
-                    })
-                    .finally(async () => {
-                        if (!avatarOk) {
-                            let resp = await customAxios({ url: `${apiPath}/user/profile${sync_to}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
-                            if (resp.status === 200) {
-                                setUsers(users => ({ ...users, [curUser.uid]: resp.data }));
-                            }
-                        }
-                    });
+                const avatar = new Image();
+                avatar.onerror = async () => {
+                    const resp = await customAxios({ url: `${apiPath}/user/profile${sync_to}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                    if (resp.status === 200) {
+                        setUsers(users => ({ ...users, [curUser.uid]: resp.data }));
+                    }
+                };
+                avatar.src = curUser.avatar;
             }
 
             customAxios({ url: `${apiPath}/user/language`, headers: { Authorization: `Bearer ${bearerToken}` } }).then(resp => {

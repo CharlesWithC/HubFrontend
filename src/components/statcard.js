@@ -2,7 +2,7 @@ import { useEffect, useRef, useContext } from "react";
 import { AppContext } from "../context";
 
 import { Card, CardContent, Typography, Chip, Tooltip } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
+import { alpha, useTheme } from "@mui/material/styles";
 
 import Chart from "chart.js/auto";
 
@@ -31,9 +31,9 @@ const StatCard = props => {
     };
 
     var gradient = ctx.createLinearGradient(0, 0, 0, 400);
-    gradient.addColorStop(0, color + "75");
-    gradient.addColorStop(0.382, color + "25");
-    gradient.addColorStop(0.618, color + "10");
+    gradient.addColorStop(0, alpha(color, 0x75 / 255));
+    gradient.addColorStop(0.382, alpha(color, 0x25 / 255));
+    gradient.addColorStop(0.618, alpha(color, 0x10 / 255));
 
     const data = {
       labels: generateLabels(),

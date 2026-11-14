@@ -405,13 +405,13 @@ const UserCard = props => {
 
   // profile customization
   const [specialColor, setSpecialColor] = useState(null);
-  const [profileBackground, setProfilebackground] = useState([darkenColor(PROFILE_COLOR[theme.mode].paper, 0.5), darkenColor(PROFILE_COLOR[theme.mode].paper, 0.5)]);
+  const [profileBackground, setProfilebackground] = useState([darkenColor(PROFILE_COLOR[theme.palette.mode].paper, 0.5), darkenColor(PROFILE_COLOR[theme.palette.mode].paper, 0.5)]);
   const [profileBannerURL, setProfileBannerURL] = useState(`${apiPath}/member/banner?userid=${user.userid}`);
   useEffect(() => {
     // reset those stuff, which would be corrected in the code below
     // this is needed in case the old component is reused unexpectedly
     setSpecialColor(null);
-    setProfilebackground([darkenColor(PROFILE_COLOR[theme.mode].paper, 0.5), darkenColor(PROFILE_COLOR[theme.mode].paper, 0.5)]);
+    setProfilebackground([darkenColor(PROFILE_COLOR[theme.palette.mode].paper, 0.5), darkenColor(PROFILE_COLOR[theme.palette.mode].paper, 0.5)]);
     setProfileBannerURL(`${apiPath}/member/banner?userid=${user.userid}`);
 
     if (user.discordid === undefined) return;
@@ -816,8 +816,8 @@ const UserCard = props => {
             sx={{ borderRadius: "5px 5px 0 0", cursor: "pointer" }}
           />
         )}
-        <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${PROFILE_COLOR[theme.mode].paper}A0, ${PROFILE_COLOR[theme.mode].paper}E0)`, borderRadius: "0 0 5px 5px" }}>
-          <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${PROFILE_COLOR[theme.mode].paper}E0, ${PROFILE_COLOR[theme.mode].paper}E0)`, borderRadius: "5px" }}>
+        <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${PROFILE_COLOR[theme.palette.mode].paper}A0, ${PROFILE_COLOR[theme.palette.mode].paper}E0)`, borderRadius: "0 0 5px 5px" }}>
+          <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${PROFILE_COLOR[theme.palette.mode].paper}E0, ${PROFILE_COLOR[theme.palette.mode].paper}E0)`, borderRadius: "5px" }}>
             <div>
               <div style={{ display: "flex", flexDirection: "row" }}>
                 <Typography variant="h6" sx={{ fontWeight: 800, flexGrow: 1, display: "flex", alignItems: "center" }}>
@@ -2656,8 +2656,8 @@ const UserCard = props => {
               sx={{ borderRadius: "5px 5px 0 0", cursor: "pointer" }}
             />
           )}
-          <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${PROFILE_COLOR[theme.mode].paper}A0, ${PROFILE_COLOR[theme.mode].paper}E0)`, borderRadius: "0 0 5px 5px" }}>
-            <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${PROFILE_COLOR[theme.mode].paper}E0, ${PROFILE_COLOR[theme.mode].paper}E0)`, borderRadius: "5px" }}>
+          <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${PROFILE_COLOR[theme.palette.mode].paper}A0, ${PROFILE_COLOR[theme.palette.mode].paper}E0)`, borderRadius: "0 0 5px 5px" }}>
+            <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${PROFILE_COLOR[theme.palette.mode].paper}E0, ${PROFILE_COLOR[theme.palette.mode].paper}E0)`, borderRadius: "5px" }}>
               <div style={{ display: "flex", flexDirection: "row" }}>
                 <Typography variant="h6" sx={{ fontWeight: 800, flexGrow: 1, display: "flex", alignItems: "center" }}>
                   {user.name}

@@ -1,4 +1,4 @@
-import { useMemo, useContext } from "react";
+import { useMemo, useContext, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { AppContext, ThemeContext } from "../context";
 
