@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import i18n from "./i18n";
 import { AppContext, ThemeContext } from "./context";
 
-import { Card, CardContent, Typography, Button, Grid, useTheme, useMediaQuery, createTheme, ThemeProvider, CssBaseline } from "@mui/material";
+import { Card, CardContent, Typography, Button, Grid, Dialog, DialogTitle, DialogContent, DialogActions, useTheme, useMediaQuery, createTheme, ThemeProvider, CssBaseline } from "@mui/material";
 
 import Loader from "./components/loader";
 import Redirect from "./components/redirect";
@@ -88,6 +88,19 @@ function validatedLegalUrl(value) {
         // Invalid or incomplete URLs are not rendered.
     }
     return "";
+}
+
+function validatedSourceRepositories(value) {
+    if (!Array.isArray(value)) return [];
+    return value.flatMap(repository => {
+        if (typeof repository?.name !== "string" || repository.name.trim() === "") return [];
+        const url = validatedLegalUrl(repository.url);
+        if (url === "") return [];
+        const parsedUrl = new URL(url);
+        const repositoryUrl = url.endsWith("/") ? url.slice(0, -1) : url;
+        const contributorsUrl = parsedUrl.hostname === "github.com" ? repositoryUrl + "/graphs/contributors" : "";
+        return [{ name: repository.name.trim(), url, contributorsUrl }];
+    });
 }
 
 const SuspenseLoadingTrigger = () => {
@@ -227,6 +240,8 @@ function App() {
         url: validatedLegalUrl(webConfig?.legal_urls?.[key]),
     })).filter(link => link.url !== "");
     const cookieNoticeLink = legalLinks.find(link => link.key === "cookie_policy") || legalLinks.find(link => link.key === "privacy_policy");
+    const sourceRepositories = validatedSourceRepositories(webConfig?.source_repositories);
+    const [creditsOpen, setCreditsOpen] = useState(false);
 
     const hasSpeedDial = ["/announcement", "/gallery", "/challenge", "/delivery", "/division", "/downloads", "/event", "/leaderboard", "/poll", "/task", "/ranking", "/member-list", "/external-user"].includes(location.pathname) || location.pathname.startsWith("/delivery");
 
@@ -406,35 +421,14 @@ function App() {
                                     </Routes>
                                 </Suspense>
                                 <footer style={{ display: ["/auth", "/auth/login", "/auth/email", "/auth/discord/callback", "/auth/discord/redirect", "/auth/steam/callback", "/auth/steam/redirect", "/auth/mfa"].includes(location.pathname) && legalLinks.length === 0 ? "none" : "block", marginTop: "auto", fontSize: "0.9em" }}>
-                                    {isMd && (
-                                        <div style={{ display: "flex", alignItems: "center", marginTop: "20px", color: theme.palette.text.secondary }}>
-                                            <Typography variant="body2" sx={{ flexGrow: 1, fontWeight: 800 }}>
-                                                &copy; 2022-2026{" "}
-                                                <a href="https://charlws.com/" target="_blank" rel="noreferrer">
-                                                    CharlesWithC
-                                                </a>
-                                            </Typography>
-                                            <Typography variant="body2" sx={{ marginLeft: "auto", alignSelf: "flex-end", textAlign: "right", fontWeight: 800, marginRight: hasSpeedDial ? "70px" : 0 }}>
-                                                <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">
-                                                    The Drivers Hub Project
-                                                </a>
-                                            </Typography>
-                                        </div>
-                                    )}
-                                    {!isMd && (
-                                        <div style={{ alignItems: "center", marginTop: "20px", color: theme.palette.text.secondary }}>
-                                            <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                                &copy; 2022-2026{" "}
-                                                <a href="https://charlws.com/" target="_blank" rel="noreferrer">
-                                                    CharlesWithC
-                                                </a>
-                                                <br />
-                                                <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">
-                                                    The Drivers Hub Project
-                                                </a>
-                                            </Typography>
-                                        </div>
-                                    )}
+                                    <div style={{ marginTop: "20px", color: theme.palette.text.secondary, marginRight: hasSpeedDial && isMd ? "70px" : 0 }}>
+                                        <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                            &copy; 2022-2026 <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a> &amp; {tr("contributors")} ·{" "}
+                                            <Button variant="text" color="inherit" onClick={() => setCreditsOpen(true)} sx={{ minWidth: 0, padding: 0, fontWeight: 800, textTransform: "none", verticalAlign: "baseline" }}>
+                                                {tr("credits_and_source")}
+                                            </Button>
+                                        </Typography>
+                                    </div>
                                     {legalLinks.length > 0 && (
                                         <Typography variant="body2" sx={{ marginTop: "8px", fontWeight: 800 }}>
                                             {legalLinks.map((link, index) => (
@@ -447,6 +441,29 @@ function App() {
                                             ))}
                                         </Typography>
                                     )}
+                                    <Dialog open={creditsOpen} onClose={() => setCreditsOpen(false)} fullWidth maxWidth="sm">
+                                        <DialogTitle>{tr("credits_and_source")}</DialogTitle>
+                                        <DialogContent dividers>
+                                            <Typography variant="body1" sx={{ marginBottom: "14px" }}>
+                                                {tr("project_author")}: <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a>
+                                            </Typography>
+                                            <Typography variant="subtitle2" sx={{ marginBottom: "6px" }}>{tr("source_repositories")}</Typography>
+                                            {sourceRepositories.map(repository => (
+                                                <Typography key={repository.url} variant="body2" sx={{ marginBottom: "4px" }}>
+                                                    <a href={repository.url} target="_blank" rel="noreferrer">{repository.name}</a>
+                                                    {repository.contributorsUrl !== "" && (
+                                                        <> · <a href={repository.contributorsUrl} target="_blank" rel="noreferrer">{tr("contributors")}</a></>
+                                                    )}
+                                                </Typography>
+                                            ))}
+                                            <Typography variant="body2" sx={{ marginTop: "14px" }}>
+                                                {tr("license")}: <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noreferrer">GNU AGPL v3.0</a>
+                                            </Typography>
+                                        </DialogContent>
+                                        <DialogActions>
+                                            <Button variant="contained" color="primary" onClick={() => setCreditsOpen(false)}>{tr("close")}</Button>
+                                        </DialogActions>
+                                    </Dialog>
                                 </footer>
                             </div>
                         </SimpleBar>
