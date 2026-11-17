@@ -21,6 +21,7 @@ import ColorInput from "../components/colorInput";
 import RoleSelect from "../components/roleselect";
 
 import { getRolePerms, customAxios as axios, makeRequestsAuto, getAuthToken, DEFAULT_ROLES, DEFAULT_PERMS, DEFAULT_RANKS, DEFAULT_APPLICATIONS } from "../functions";
+import { version as clientVersion } from "../../package.json";
 
 const LEGAL_LINK_KEYS = ["privacy_policy", "cookie_policy", "imprint"];
 
@@ -4873,7 +4874,7 @@ const Configuration = () => {
                                 xs: 12,
                                 md: 6,
                             }}>
-                            <Typography variant="body2">Client: 3.6.0 (build.{buildhash})</Typography>
+                            <Typography variant="body2">Client: {clientVersion} (build.{buildhash})</Typography>
                         </Grid>
                         <Grid
                             size={{
