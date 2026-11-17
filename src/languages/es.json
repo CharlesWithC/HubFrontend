@@ -551,6 +551,7 @@
   "invalid_time_unit_in_duration": "Invalid time unit in duration",
   "invalid_token": "Token Inválido ❌",
   "invalid_truckersmp_id": "Invalid TruckersMP ID",
+  "invalid_legal_url": "Introduce una URL HTTPS válida. Las URL no seguras solo se permiten para pruebas de desarrollo local.",
   "invalid_url_for_radio": "URL Inválida para la radio",
   "ip": "IP",
   "is_late": "¿Está retrasado?",
