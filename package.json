@@ -56,7 +56,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build && bash ./scripts/browser-build.sh && bash -c \"find ./build -type f -name '*.map' -exec rm {} \\;\"",
+    "build": "vite build && bash ./scripts/browser-build.sh",
     "build:dev": "vite build && bash ./scripts/browser-build.sh",
     "build:electron": "vite build && bash ./scripts/electron-build.sh && bash -c \"find ./build -type f -name '*.map' -exec rm {} \\;\"",
     "build:electron:dev": "vite build && bash ./scripts/electron-build.sh",

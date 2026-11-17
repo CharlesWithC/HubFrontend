@@ -54,12 +54,31 @@ customAxios.interceptors.request.use(async config => {
 
     return config;
 });
+function clearInvalidSession(errorResponse) {
+    if (errorResponse?.status !== 401) return;
+
+    const headers = errorResponse.config?.headers;
+    const authorization = typeof headers?.get === "function"
+        ? headers.get("Authorization")
+        : headers?.Authorization || headers?.authorization;
+
+    const storedToken = getAuthToken();
+    if (storedToken === null || authorization !== `Bearer ${storedToken}`) return;
+
+    localStorage.removeItem("token");
+    eraseAuthMode();
+    if (!window.location.pathname.startsWith("/auth")) {
+        window.location.replace("/auth/login");
+    }
+}
+
 customAxios.interceptors.response.use(
     response => {
         return response;
     },
     error => {
         const errorResponse = error.response;
+        clearInvalidSession(errorResponse);
 
         if (errorResponse && (errorResponse.status === 429 || errorResponse.status === 503)) {
             const errorMessage = `${errorResponse.status}: ${errorResponse.statusText}`;
@@ -162,8 +181,8 @@ export function getAuthToken() {
         return data;
     }
     data = readLS("token", window.dhhost);
-    if (data === null) return null;
-    else return data.token;
+    if (typeof data?.token !== "string" || data.token === "") return null;
+    return data.token;
 }
 
 export async function FetchProfile({ apiPath, setUsers, setCurUID, setCurUser, setCurUserPerm, setCurUserBanner, setUserSettings }, isLogin = false) {
@@ -190,27 +209,18 @@ export async function FetchProfile({ apiPath, setUsers, setCurUID, setCurUser, s
             }
             sync_to === undefined ? (sync_to = "") : (sync_to = `?sync_from_${sync_to}=true`);
             if (sync_to !== "") {
-                let avatarOk = true;
-                fetch(curUser.avatar, {
-                    method: "HEAD",
-                    mode: "no-cors",
-                })
-                    .then(response => {
-                        if (!response.ok) {
-                            avatarOk = false;
+                const avatar = new Image();
+                avatar.onerror = async () => {
+                    try {
+                        const resp = await customAxios({ url: `${apiPath}/user/profile${sync_to}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                        if (resp.status === 200) {
+                            setUsers(users => ({ ...users, [curUser.uid]: resp.data }));
                         }
-                    })
-                    .catch(error => {
-                        avatarOk = false;
-                    })
-                    .finally(async () => {
-                        if (!avatarOk) {
-                            let resp = await customAxios({ url: `${apiPath}/user/profile${sync_to}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
-                            if (resp.status === 200) {
-                                setUsers(users => ({ ...users, [curUser.uid]: resp.data }));
-                            }
-                        }
-                    });
+                    } catch (error) {
+                        console.error("Failed to refresh the user avatar.", error);
+                    }
+                };
+                avatar.src = curUser.avatar;
             }
 
             customAxios({ url: `${apiPath}/user/language`, headers: { Authorization: `Bearer ${bearerToken}` } }).then(resp => {

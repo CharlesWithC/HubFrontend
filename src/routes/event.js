@@ -55,19 +55,19 @@ const LOCALE_FIRST_DAY = {
 };
 
 function getFirstDay(language) {
-    if (new Intl.Locale(language).getWeekInfo) return new Intl.Locale(language).getWeekInfo().firstDay;
-    else {
-        const fullLocale = navigator.language;
-        const language = fullLocale.split("-")[0];
+    const requestedLocale = typeof language === "string" && language.trim() !== "" ? language.replaceAll("_", "-") : "en";
 
-        if (LOCALE_FIRST_DAY[fullLocale] !== undefined) {
-            return LOCALE_FIRST_DAY[fullLocale];
-        }
-
-        if (LOCALE_FIRST_DAY[language] !== undefined) {
-            return LOCALE_FIRST_DAY[language];
-        }
+    try {
+        const locale = new Intl.Locale(requestedLocale);
+        const weekInfo = typeof locale.getWeekInfo === "function" ? locale.getWeekInfo() : locale.weekInfo;
+        if (weekInfo?.firstDay !== undefined) return weekInfo.firstDay % 7;
+    } catch (_) {
+        // Fall back to the local table when the browser rejects the locale.
     }
+
+    const fullLocale = requestedLocale;
+    const baseLanguage = fullLocale.split("-")[0];
+    return LOCALE_FIRST_DAY[fullLocale] ?? LOCALE_FIRST_DAY[baseLanguage] ?? 1;
 }
 
 const EventCard = ({ event, eventid, imageUrl, title, creator, description, link, meetupTime, departureTime, departure, destination, distance, votercnt, attendeecnt, points, futureEvent, voters, attendees, voted, onVote, onUnvote, onUpdateAttendees, onEdit, onDelete }) => {
@@ -316,10 +316,11 @@ const EventCard = ({ event, eventid, imageUrl, title, creator, description, link
 };
 
 const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, setCalendarEvents, allEvents, setAllEvents, openEventDetails, setOpenEventDetals, modalEvent, setModalEvent, setSnackbarContent, setSnackbarSeverity, onEdit, onDelete, onUpdateAttendees, doReload }) => {
-    const { t: tr } = useTranslation();
+    const { t: tr, i18n } = useTranslation();
     const { eventid: paramEventID } = useParams();
     const navigate = useNavigate();
     const { apiPath, curUID, curUser, userSettings } = useContext(AppContext);
+    const calendarLanguage = userSettings.language || i18n.resolvedLanguage || i18n.language || navigator.language || "en";
 
     const [isInitialLoad, setIsInitialLoad] = useState(true);
     const [curMonthCount, setCurMonthCount] = useState(-1);
@@ -609,7 +610,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
     return (
         <>
             <Card sx={{ padding: "20px" }}>
-                <FullCalendar plugins={[dayGridPlugin]} initialView="dayGridMonth" events={calendarEvents} contentHeight="auto" eventClick={handleEventClick} datesSet={handleDateSet} locale={userSettings.language} firstDay={getFirstDay(userSettings.language)} />
+                <FullCalendar plugins={[dayGridPlugin]} initialView="dayGridMonth" events={calendarEvents} contentHeight="auto" eventClick={handleEventClick} datesSet={handleDateSet} locale={calendarLanguage} firstDay={getFirstDay(calendarLanguage)} />
                 {curMonthCount !== -1 && attendedCount !== -1 && (
                     <Box sx={{ textAlign: "right" }}>
                         <Typography variant="body2">

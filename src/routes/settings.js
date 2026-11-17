@@ -2063,8 +2063,8 @@ const Settings = ({ defaultTab = 0 }) => {
                                 alt=""
                                 sx={{ borderRadius: "5px 5px 0 0" }}
                             />
-                            <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${DEFAULT_BGCOLOR[theme.mode].paper}A0, ${DEFAULT_BGCOLOR[theme.mode].paper}E0)`, borderRadius: "0 0 5px 5px" }}>
-                                <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${DEFAULT_BGCOLOR[theme.mode].paper}E0, ${DEFAULT_BGCOLOR[theme.mode].paper}E0)`, borderRadius: "5px" }}>
+                            <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${DEFAULT_BGCOLOR[theme.palette.mode].paper}A0, ${DEFAULT_BGCOLOR[theme.palette.mode].paper}E0)`, borderRadius: "0 0 5px 5px" }}>
+                                <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${DEFAULT_BGCOLOR[theme.palette.mode].paper}E0, ${DEFAULT_BGCOLOR[theme.palette.mode].paper}E0)`, borderRadius: "5px" }}>
                                     <div style={{ display: "flex", flexDirection: "row" }}>
                                         <Typography variant="h6" sx={{ fontWeight: 800, flexGrow: 1, display: "flex", alignItems: "center" }}>
                                             {curUser.name}
@@ -2251,8 +2251,8 @@ const Settings = ({ defaultTab = 0 }) => {
                                 variant="contained"
                                 color={themeSettings.use_custom_theme === "custombg" ? "info" : "secondary"}
                                 onClick={() => {
-                                    updateThemeMainColor(DEFAULT_BGCOLOR[theme.mode].paper);
-                                    updateThemeBackgroundColor(DEFAULT_BGCOLOR[theme.mode].default);
+                                    updateThemeMainColor(DEFAULT_BGCOLOR[theme.palette.mode].paper);
+                                    updateThemeBackgroundColor(DEFAULT_BGCOLOR[theme.palette.mode].default);
                                     setLocalThemeDarkenRatio(0.4);
                                     setThemeSettings(prevSettings => ({ ...prevSettings, bg_image: customBackground }));
                                     updateUseCustomTheme("custombg");
@@ -2274,8 +2274,8 @@ const Settings = ({ defaultTab = 0 }) => {
                                     variant="contained"
                                     color={themeSettings.use_custom_theme === "vtcbg" ? "info" : "secondary"}
                                     onClick={() => {
-                                        updateThemeMainColor(DEFAULT_BGCOLOR[theme.mode].paper);
-                                        updateThemeBackgroundColor(DEFAULT_BGCOLOR[theme.mode].default);
+                                        updateThemeMainColor(DEFAULT_BGCOLOR[theme.palette.mode].paper);
+                                        updateThemeBackgroundColor(DEFAULT_BGCOLOR[theme.palette.mode].default);
                                         setLocalThemeDarkenRatio(0.4);
                                         setThemeSettings(prevSettings => ({ ...prevSettings, bg_image: vtcBackground }));
                                         updateUseCustomTheme("vtcbg");
