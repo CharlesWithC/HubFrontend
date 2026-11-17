@@ -65,8 +65,8 @@ function clearInvalidSession(errorResponse) {
     if (storedToken === null || authorization !== `Bearer ${storedToken}`) return;
 
     localStorage.removeItem("token");
-    eraseCookie("auth-mode");
-    if (!["/auth", "/auth/login"].includes(window.location.pathname)) {
+    eraseAuthMode();
+    if (!window.location.pathname.startsWith("/auth")) {
         window.location.replace("/auth/login");
     }
 }
@@ -180,8 +180,8 @@ export function getAuthToken() {
         return data;
     }
     data = readLS("token", window.dhhost);
-    if (data === null) return null;
-    else return data.token;
+    if (typeof data?.token !== "string" || data.token === "") return null;
+    return data.token;
 }
 
 export async function FetchProfile({ apiPath, setUsers, setCurUID, setCurUser, setCurUserPerm, setCurUserBanner, setUserSettings }, isLogin = false) {
@@ -210,9 +210,13 @@ export async function FetchProfile({ apiPath, setUsers, setCurUID, setCurUser, s
             if (sync_to !== "") {
                 const avatar = new Image();
                 avatar.onerror = async () => {
-                    const resp = await customAxios({ url: `${apiPath}/user/profile${sync_to}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
-                    if (resp.status === 200) {
-                        setUsers(users => ({ ...users, [curUser.uid]: resp.data }));
+                    try {
+                        const resp = await customAxios({ url: `${apiPath}/user/profile${sync_to}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                        if (resp.status === 200) {
+                            setUsers(users => ({ ...users, [curUser.uid]: resp.data }));
+                        }
+                    } catch (error) {
+                        console.error("Failed to refresh the user avatar.", error);
                     }
                 };
                 avatar.src = curUser.avatar;
