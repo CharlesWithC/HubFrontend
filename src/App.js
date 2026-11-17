@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import i18n from "./i18n";
 import { AppContext, ThemeContext } from "./context";
 
-import { Card, CardContent, Typography, Button, Grid, useTheme, useMediaQuery, createTheme, ThemeProvider, CssBaseline } from "@mui/material";
+import { Card, CardContent, Typography, Button, Grid, Dialog, DialogTitle, DialogContent, DialogActions, useTheme, useMediaQuery, createTheme, ThemeProvider, CssBaseline } from "@mui/material";
 
 import Loader from "./components/loader";
 import Redirect from "./components/redirect";
@@ -76,6 +76,32 @@ const drivershub = `    ____       _                         __  __      __
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/
                                                       `;
 const CONNECTIONS = { email: "email", discord: "Discord", steam: "Steam", truckersmp: "TruckersMP" };
+const LEGAL_LINK_KEYS = ["privacy_policy", "cookie_policy", "imprint"];
+const GOOGLE_ANALYTICS_ID = import.meta.env.VITE_GOOGLE_ANALYTICS_ID;
+
+function validatedLegalUrl(value) {
+    if (typeof value !== "string" || value === "") return "";
+    try {
+        const url = new URL(value);
+        if (url.protocol === "https:" || (url.protocol === "http:" && url.hostname === "localhost")) return url.href;
+    } catch (_) {
+        // Invalid or incomplete URLs are not rendered.
+    }
+    return "";
+}
+
+function validatedSourceRepositories(value) {
+    if (!Array.isArray(value)) return [];
+    return value.flatMap(repository => {
+        if (typeof repository?.name !== "string" || repository.name.trim() === "") return [];
+        const url = validatedLegalUrl(repository.url);
+        if (url === "") return [];
+        const parsedUrl = new URL(url);
+        const repositoryUrl = url.endsWith("/") ? url.slice(0, -1) : url;
+        const contributorsUrl = parsedUrl.hostname === "github.com" ? repositoryUrl + "/graphs/contributors" : "";
+        return [{ name: repository.name.trim(), url, contributorsUrl }];
+    });
+}
 
 const SuspenseLoadingTrigger = () => {
     // used in Suspense fallback
@@ -194,9 +220,9 @@ function App() {
         localStorage.setItem("cookie-settings", settings);
     }, []);
     useEffect(() => {
-        if (cookieSettings === "analytical" || window.isElectron) {
+        if (GOOGLE_ANALYTICS_ID && (cookieSettings === "analytical" || window.isElectron)) {
             const script = document.createElement("script");
-            script.src = "https://www.googletagmanager.com/gtag/js?id=G-SLZ5TY9MVN";
+            script.src = `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_ID}`;
             script.async = true;
             document.head.appendChild(script);
 
@@ -205,9 +231,17 @@ function App() {
                 window.dataLayer.push(arguments);
             }
             gtag("js", new Date());
-            gtag("config", "G-SLZ5TY9MVN");
+            gtag("config", GOOGLE_ANALYTICS_ID);
         }
     }, [cookieSettings]);
+    const legalLinks = LEGAL_LINK_KEYS.map(key => ({
+        key,
+        label: tr(key),
+        url: validatedLegalUrl(webConfig?.legal_urls?.[key]),
+    })).filter(link => link.url !== "");
+    const cookieNoticeLink = legalLinks.find(link => link.key === "cookie_policy") || legalLinks.find(link => link.key === "privacy_policy");
+    const sourceRepositories = validatedSourceRepositories(webConfig?.source_repositories);
+    const [creditsOpen, setCreditsOpen] = useState(false);
 
     const hasSpeedDial = ["/announcement", "/gallery", "/challenge", "/delivery", "/division", "/downloads", "/event", "/leaderboard", "/poll", "/task", "/ranking", "/member-list", "/external-user"].includes(location.pathname) || location.pathname.startsWith("/delivery");
 
@@ -262,57 +296,54 @@ function App() {
                     {!sidebarForceHidden && <SideBar width={260}></SideBar>}
                     {/* For mobile view, use a "menu button" on topbar, click it to show a full-width sidebar, without banner on top and with a close button on top */}
                     <div style={(!sidebarHidden && { position: "relative", left: "260px", top: !topbarHidden ? "80px" : "0", width: "calc(100vw - 260px)", height: !topbarHidden ? "calc(100vh - 80px)" : "100vh", overflow: "hidden" }) || (sidebarHidden && { position: "relative", left: "0", top: !topbarHidden ? "80px" : "0", width: "calc(100vw)", height: !topbarHidden ? "calc(100vh - 80px)" : "100vh", overflow: "hidden" })}>
-                        {!window.isElectron && cookieSettings === null && !sidebarForceHidden && (
-                            <>
-                                <Card sx={{ position: "fixed", zIndex: 100000, bottom: "10px", right: "10px", width: window.innerWidth <= 420 ? "calc(100vw - 20px) !important" : "400px" }}>
-                                    <CardContent>
-                                        <Typography variant="h6" fontWeight="bold">
-                                            {tr("we_value_your_privacy")}
-                                        </Typography>
-                                        <Typography variant="body2" sx={{ marginBottom: "10px" }}>
-                                            {tr("we_use_necessary_cookies_for")}
-                                            <br />
-                                            {tr("by_clicking_accept_you_consent")}
-                                        </Typography>
+                        {!window.isElectron && cookieSettings === null && (
+                            <Card sx={{ position: "fixed", zIndex: 100000, bottom: "10px", right: "10px", width: window.innerWidth <= 420 ? "calc(100vw - 20px) !important" : "400px" }}>
+                                <CardContent>
+                                    <Typography variant="h6" fontWeight="bold">
+                                        {tr("we_value_your_privacy")}
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ marginBottom: "10px" }}>
+                                        {GOOGLE_ANALYTICS_ID ? (
+                                            <>
+                                                {tr("we_use_necessary_cookies_for")}
+                                                <br />
+                                                {tr("by_clicking_accept_you_consent")}
+                                            </>
+                                        ) : (
+                                            tr("essential_cookies_notice")
+                                        )}
+                                        {cookieNoticeLink !== undefined && (
+                                            <>
+                                                <br />
+                                                <span style={{ display: "inline-flex", alignItems: "center", gap: "6px", marginTop: "6px" }}>
+                                                    <FontAwesomeIcon icon={faLink} />
+                                                    <a href={cookieNoticeLink.url} target="_blank" rel="noreferrer" style={{ fontWeight: 700, textDecoration: "underline" }}>
+                                                        {cookieNoticeLink.label}
+                                                    </a>
+                                                </span>
+                                            </>
+                                        )}
+                                    </Typography>
+                                    {GOOGLE_ANALYTICS_ID ? (
                                         <Grid container spacing={2}>
-                                            <Grid
-                                                size={{
-                                                    xs: 12,
-                                                    sm: 12,
-                                                    md: 6,
-                                                    lg: 6,
-                                                }}>
-                                                <Button
-                                                    onClick={() => {
-                                                        updateCookieSettings("analytical");
-                                                    }}
-                                                    variant="contained"
-                                                    color="success"
-                                                    sx={{ width: "100%" }}>
+                                            <Grid size={{ xs: 12, md: 6 }}>
+                                                <Button onClick={() => updateCookieSettings("analytical")} variant="contained" color="success" sx={{ width: "100%" }}>
                                                     {tr("accept")}
                                                 </Button>
                                             </Grid>
-                                            <Grid
-                                                size={{
-                                                    xs: 12,
-                                                    sm: 12,
-                                                    md: 6,
-                                                    lg: 6,
-                                                }}>
-                                                <Button
-                                                    onClick={() => {
-                                                        updateCookieSettings("essential");
-                                                    }}
-                                                    variant="contained"
-                                                    color="secondary"
-                                                    sx={{ width: "100%" }}>
+                                            <Grid size={{ xs: 12, md: 6 }}>
+                                                <Button onClick={() => updateCookieSettings("essential")} variant="contained" color="secondary" sx={{ width: "100%" }}>
                                                     {tr("decline")}
                                                 </Button>
                                             </Grid>
                                         </Grid>
-                                    </CardContent>
-                                </Card>
-                            </>
+                                    ) : (
+                                        <Button onClick={() => updateCookieSettings("essential")} variant="contained" color="primary" sx={{ width: "100%" }}>
+                                            {tr("understood")}
+                                        </Button>
+                                    )}
+                                </CardContent>
+                            </Card>
                         )}
                         <SimpleBar style={{ padding: "20px", height: "100%", backgroundColor: theme.palette.background.default }}>
                             <div style={{ display: "flex", flexDirection: "column", minHeight: "calc(100vh - 120px)" }}>
@@ -389,36 +420,50 @@ function App() {
                                         <Route path="*" element={<NotFound />}></Route>
                                     </Routes>
                                 </Suspense>
-                                <footer style={{ display: ["/auth", "/auth/login", "/auth/email", "/auth/discord/callback", "/auth/discord/redirect", "/auth/steam/callback", "/auth/steam/redirect", "/auth/mfa"].includes(location.pathname) ? "none" : "block", marginTop: "auto", fontSize: "0.9em" }}>
-                                    {isMd && (
-                                        <div style={{ display: "flex", alignItems: "center", marginTop: "20px", color: theme.palette.text.secondary }}>
-                                            <Typography variant="body2" sx={{ flexGrow: 1, fontWeight: 800 }}>
-                                                &copy; 2022-2026{" "}
-                                                <a href="https://charlws.com/" target="_blank" rel="noreferrer">
-                                                    CharlesWithC
-                                                </a>
-                                            </Typography>
-                                            <Typography variant="body2" sx={{ marginLeft: "auto", alignSelf: "flex-end", textAlign: "right", fontWeight: 800, marginRight: hasSpeedDial ? "70px" : 0 }}>
-                                                <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">
-                                                    The Drivers Hub Project
-                                                </a>
-                                            </Typography>
-                                        </div>
+                                <footer style={{ display: ["/auth", "/auth/login", "/auth/email", "/auth/discord/callback", "/auth/discord/redirect", "/auth/steam/callback", "/auth/steam/redirect", "/auth/mfa"].includes(location.pathname) && legalLinks.length === 0 ? "none" : "block", position: "relative", zIndex: 1, marginTop: "auto", fontSize: "0.9em" }}>
+                                    <div style={{ marginTop: "20px", color: theme.palette.text.secondary, marginRight: hasSpeedDial && isMd ? "70px" : 0 }}>
+                                        <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                            &copy; 2022-2026 <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a> &amp; {tr("contributors")} ·{" "}
+                                            <Button variant="text" color="inherit" onClick={() => setCreditsOpen(true)} sx={{ minWidth: 0, padding: 0, fontWeight: 800, textTransform: "none", verticalAlign: "baseline" }}>
+                                                {tr("credits_and_source")}
+                                            </Button>
+                                        </Typography>
+                                    </div>
+                                    {legalLinks.length > 0 && (
+                                        <Typography variant="body2" sx={{ marginTop: "8px", fontWeight: 800 }}>
+                                            {legalLinks.map((link, index) => (
+                                                <span key={link.key}>
+                                                    {index > 0 && " · "}
+                                                    <a href={link.url} target="_blank" rel="noreferrer">
+                                                        {link.label}
+                                                    </a>
+                                                </span>
+                                            ))}
+                                        </Typography>
                                     )}
-                                    {!isMd && (
-                                        <div style={{ alignItems: "center", marginTop: "20px", color: theme.palette.text.secondary }}>
-                                            <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                                &copy; 2022-2026{" "}
-                                                <a href="https://charlws.com/" target="_blank" rel="noreferrer">
-                                                    CharlesWithC
-                                                </a>
-                                                <br />
-                                                <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">
-                                                    The Drivers Hub Project
-                                                </a>
+                                    <Dialog open={creditsOpen} onClose={() => setCreditsOpen(false)} fullWidth maxWidth="sm">
+                                        <DialogTitle>{tr("credits_and_source")}</DialogTitle>
+                                        <DialogContent dividers>
+                                            <Typography variant="body1" sx={{ marginBottom: "14px" }}>
+                                                {tr("project_author")}: <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a>
                                             </Typography>
-                                        </div>
-                                    )}
+                                            <Typography variant="subtitle2" sx={{ marginBottom: "6px" }}>{tr("source_repositories")}</Typography>
+                                            {sourceRepositories.map(repository => (
+                                                <Typography key={repository.url} variant="body2" sx={{ marginBottom: "4px" }}>
+                                                    <a href={repository.url} target="_blank" rel="noreferrer">{repository.name}</a>
+                                                    {repository.contributorsUrl !== "" && (
+                                                        <> · <a href={repository.contributorsUrl} target="_blank" rel="noreferrer">{tr("contributors")}</a></>
+                                                    )}
+                                                </Typography>
+                                            ))}
+                                            <Typography variant="body2" sx={{ marginTop: "14px" }}>
+                                                {tr("license")}: <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noreferrer">GNU AGPL v3.0</a>
+                                            </Typography>
+                                        </DialogContent>
+                                        <DialogActions>
+                                            <Button variant="contained" color="primary" onClick={() => setCreditsOpen(false)}>{tr("close")}</Button>
+                                        </DialogActions>
+                                    </Dialog>
                                 </footer>
                             </div>
                         </SimpleBar>

@@ -22,6 +22,21 @@ import RoleSelect from "../components/roleselect";
 
 import { getRolePerms, customAxios as axios, makeRequestsAuto, getAuthToken, DEFAULT_ROLES, DEFAULT_PERMS, DEFAULT_RANKS, DEFAULT_APPLICATIONS } from "../functions";
 
+const LEGAL_LINK_KEYS = ["privacy_policy", "cookie_policy", "imprint"];
+
+function isValidLegalUrl(value) {
+    if (typeof value !== "string") return false;
+    const normalized = value.trim();
+    if (normalized === "") return true;
+    if (normalized.length > 2048) return false;
+    try {
+        const url = new URL(normalized);
+        return url.protocol === "https:" || (url.protocol === "http:" && url.hostname === "localhost");
+    } catch (_) {
+        return false;
+    }
+}
+
 const LANGUAGES = { "ar": "Arabic (العربية)", "be": "Belarusian (беларуская)", "bg": "Bulgarian (български)", "cs": "Czech (čeština)", "cy": "Welsh (Cymraeg)", "da": "Danish (dansk)", "de": "German (Deutsch)", "el": "Greek (Ελληνικά)", "en": "English", "eo": "Esperanto", "es": "Spanish (Español)", "et": "Estonian (eesti keel)", "fi": "Finnish (suomi)", "fr": "French (français)", "ga": "Irish (Gaeilge)", "gd": "Scottish (Gàidhlig)", "hu": "Hungarian (magyar)", "hy": "Armenian (Հայերեն)", "id": "Indonesian (Bahasa Indonesia)", "is": "Icelandic (íslenska)", "it": "Italian (italiano)", "ja": "Japanese (日本語)", "ko": "Korean (한국어)", "lt": "Lithuanian (lietuvių kalba)", "lv": "Latvian (latviešu valoda)", "mk/sl": "Macedonian/Slovenian (македонски/​slovenščina)", "mn": "Mongolian (Монгол)", "mo": "Moldavian (Moldova)", "ne": "Nepali (नेपाली)", "nl": "Dutch (Nederlands)", "nn": "Norwegian (norsk nynorsk)", "pl": "Polish (polski)", "pt": "Portuguese (Português)", "ro": "Romanian (română)", "ru": "Russian (русский)", "sk": "Slovak (slovenčina)", "sl": "Slovenian (slovenščina)", "sq": "Albanian (Shqip)", "sr": "Serbian (српски)", "sv": "Swedish (Svenska)", "th": "Thai (ไทย)", "tr": "Turkish (Türkçe)", "uk": "Ukrainian (українська)", "vi": "Vietnamese (Tiếng Việt)", "yi": "Yiddish (ייִדיש)", "zh": "Chinese (中文)" };
 
 const CONFIG_SECTIONS = {
@@ -4529,7 +4544,7 @@ const Configuration = () => {
 
     const [mfaOtp, setMfaOtp] = useState("");
 
-    const [webConfig, setWebConfig] = useState({ ...curWebConfig, name_color: curWebConfig.name_color !== null ? curWebConfig.name_color : "/", theme_main_color: curWebConfig.theme_main_color !== null ? curWebConfig.theme_main_color : "/", theme_background_color: curWebConfig.theme_background_color !== null ? curWebConfig.theme_background_color : "/" });
+    const [webConfig, setWebConfig] = useState({ ...curWebConfig, legal_urls: { privacy_policy: "", cookie_policy: "", imprint: "", ...curWebConfig.legal_urls }, name_color: curWebConfig.name_color !== null ? curWebConfig.name_color : "/", theme_main_color: curWebConfig.theme_main_color !== null ? curWebConfig.theme_main_color : "/", theme_background_color: curWebConfig.theme_background_color !== null ? curWebConfig.theme_background_color : "/" });
     const [webAssets, setWebAssets] = useState({ logo: "", banner: "", bgimage: "" });
     const [fileNames, setFileNames] = useState({ logo: "", banner: "", bgimage: "" });
     const [webConfigDisabled, setWebConfigDisabled] = useState(false);
@@ -4554,12 +4569,19 @@ const Configuration = () => {
     };
 
     const saveWebConfig = useCallback(async () => {
+        if (LEGAL_LINK_KEYS.some(key => !isValidLegalUrl(webConfig.legal_urls[key]))) {
+            setSnackbarContent(tr("invalid_legal_url"));
+            setSnackbarSeverity("error");
+            return;
+        }
+
         window.loading += 1;
         setWebConfigDisabled(true);
 
-        let newWebConfig = { ...webConfig, name_color: webConfig.name_color, theme_main_color: webConfig.theme_main_color, theme_background_color: webConfig.theme_background_color };
+        const legalUrls = Object.fromEntries(LEGAL_LINK_KEYS.map(key => [key, webConfig.legal_urls[key].trim()]));
+        let newWebConfig = { ...webConfig, legal_urls: legalUrls, name_color: webConfig.name_color, theme_main_color: webConfig.theme_main_color, theme_background_color: webConfig.theme_background_color };
 
-        setCurWebConfig({ ...webConfig, name_color: webConfig.name_color.startsWith("#") ? webConfig.name_color : null, theme_main_color: webConfig.theme_main_color.startsWith("#") ? webConfig.theme_main_color : null, theme_background_color: webConfig.theme_background_color.startsWith("#") ? webConfig.theme_background_color : null });
+        setCurWebConfig({ ...webConfig, legal_urls: legalUrls, name_color: webConfig.name_color.startsWith("#") ? webConfig.name_color : null, theme_main_color: webConfig.theme_main_color.startsWith("#") ? webConfig.theme_main_color : null, theme_background_color: webConfig.theme_background_color.startsWith("#") ? webConfig.theme_background_color : null });
 
         let resp = await axios({ url: `${apiPath}/client/config/global`, data: { config: newWebConfig, assets: webAssets }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
@@ -6051,6 +6073,27 @@ const Configuration = () => {
                                 <MenuItem value={true}>{tr("highest_role_color_when_not_customized")}</MenuItem>
                             </TextField>
                         </Grid>
+                        {LEGAL_LINK_KEYS.map(key => (
+                            <Grid
+                                key={key}
+                                size={{
+                                    xs: 12,
+                                    md: 4,
+                                }}>
+                                <TextField
+                                    label={tr(key)}
+                                    value={webConfig.legal_urls[key]}
+                                    onChange={event => {
+                                        setWebConfig({ ...webConfig, legal_urls: { ...webConfig.legal_urls, [key]: event.target.value } });
+                                    }}
+                                    type="url"
+                                    error={!isValidLegalUrl(webConfig.legal_urls[key])}
+                                    helperText={!isValidLegalUrl(webConfig.legal_urls[key]) ? tr("invalid_legal_url") : ""}
+                                    slotProps={{ htmlInput: { maxLength: 2048 } }}
+                                    fullWidth
+                                />
+                            </Grid>
+                        ))}
                         <Grid
                             size={{
                                 xs: 12,
